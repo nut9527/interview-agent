@@ -1,0 +1,149 @@
+# ============================================================
+# 职智达后端主配置。
+# 带环境变量占位符的配置项可覆盖默认值，格式为 ${ENV_VAR:默认值}。
+# 容器部署时通过环境变量调整对应参数。
+# ============================================================
+
+# ==================== 服务器端口 ====================
+server:
+  port: ${BACKEND_PORT:8080}
+
+application:
+  version: '@project.version@'
+
+management:
+  api-token: ${METRICS_TOKEN:}
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  endpoint:
+    health:
+      show-details: never
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        zhizhida.business: true
+
+security:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+
+# ==================== Spring 核心配置 ====================
+spring:
+  application:
+    name: zhizhida-backend
+
+  # 从项目根目录 .env 读取本地模型密钥，该文件已加入版本控制忽略规则。
+  config:
+    import: "optional:file:../.env[.properties]"
+
+  # 使用自定义令牌认证，排除默认的用户详情服务自动配置。
+  # 登录凭据由数据库会话管理。
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+
+  # ==================== 数据源配置（MySQL） ====================
+  # 数据源连接、用户名和密码可通过对应的环境变量覆盖。
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:${MYSQL_PORT:3307}/${MYSQL_DATABASE:zhizhida}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&connectTimeout=5000&socketTimeout=10000}
+    username: ${SPRING_DATASOURCE_USERNAME:${MYSQL_USER:zhizhida}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${MYSQL_PASSWORD:zhizhida}}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 5000
+      validation-timeout: 2000
+
+  # 由根目录启动脚本显式管理 MySQL；连接已有数据库时不要求安装 Docker。
+  # 如需 Spring 自动管理，可显式开启；退出后端不会自动停止共享数据库。
+  docker:
+    compose:
+      enabled: ${SPRING_DOCKER_COMPOSE_ENABLED:false}
+      file: ${SPRING_DOCKER_COMPOSE_FILE:../docker-compose.yml}
+      lifecycle-management: start-only
+
+  # 表结构由 Flyway 版本化迁移管理
+  sql:
+    init:
+      mode: never
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    validate-on-migrate: true
+
+  servlet:
+    multipart:
+      max-file-size: 6MB
+      max-request-size: 6MB
+
+# ==================== MyBatis-Plus 配置 ====================
+mybatis-plus:
+  configuration:
+    # 数据库字段名 user_name 自动映射到 Java 实体属性 userName（驼峰转换）
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      # 主键策略：使用数据库自增编号。
+      id-type: auto
+      # 逻辑删除字段名（标记删除而非物理删除）
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# ==================== 结构化日志 ====================
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} level=%-5level service=${spring.application.name} requestId=%X{requestId:-none} logger=%logger{36} %kvp message=%msg%n"
+
+# ==================== 接口文档配置 ====================
+knife4j:
+  enable: true
+
+# ==================== AI 配置 ====================
+# 供应商配置可选 mock（离线模拟，无需密钥）或 deepseek（调用真实模型接口）。
+ai:
+  provider: ${AI_PROVIDER:mock}
+  api-key: ${DEEPSEEK_API_KEY:${AI_API_KEY:}}
+  resilience:
+    max-concurrent-calls: ${AI_MAX_CONCURRENT_CALLS:4}
+    failure-threshold: ${AI_FAILURE_THRESHOLD:3}
+    open-seconds: ${AI_CIRCUIT_OPEN_SECONDS:30}
+  deepseek:
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+    model: ${DEEPSEEK_MODEL:deepseek-chat}
+    thinking: ${DEEPSEEK_THINKING:}
+    timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:30}
+
+# PDFBox 字体映射缓存目录，避免在用户主目录生成隐式文件。
+resume:
+  import:
+    font-cache-dir: ${RESUME_PDFBOX_FONT_CACHE_DIR:${user.dir}/tmp/pdfbox-font-cache}
+
+# 公共演示入口：每次登录复制一个独立、限时的用户空间，避免访客数据互相覆盖。
+demo:
+  enabled: ${DEMO_ENABLED:true}
+  sandbox-ttl-hours: ${DEMO_SANDBOX_TTL_HOURS:4}
+  max-active-sandboxes: ${DEMO_MAX_ACTIVE_SANDBOXES:100}
+  cleanup:
+    batch-size: ${DEMO_CLEANUP_BATCH_SIZE:25}
+    interval-ms: ${DEMO_CLEANUP_INTERVAL_MS:60000}
+
+# 数据库固定时间窗额度；所有实例使用同一个 MySQL，不依赖 JVM 本地计数。
+quota:
+  register:
+    per-minute: ${QUOTA_REGISTER_PER_MINUTE:3}
+    per-day: ${QUOTA_REGISTER_PER_DAY:10}
+  login:
+    per-minute: ${QUOTA_LOGIN_PER_MINUTE:10}
+    per-day: ${QUOTA_LOGIN_PER_DAY:60}
+  demo:
+    per-hour: ${QUOTA_DEMO_PER_HOUR:6}
+    per-day: ${QUOTA_DEMO_PER_DAY:6}
+  ai:
+    per-minute: ${QUOTA_AI_PER_MINUTE:5}
+    units-per-day: ${QUOTA_AI_UNITS_PER_DAY:40}
+    global-units-per-day: ${QUOTA_AI_GLOBAL_UNITS_PER_DAY:400}

@@ -1,0 +1,29 @@
+{
+  "checks": [
+    "Root opens interview; navigation has only four retained modules.",
+    "Inline JD and difficulty submit correctly and survive reopening a session.",
+    "Saved JD selection sends its revision and excludes inline material.",
+    "Resume list, preview, browser print, editor, AI optimization and version history remain accessible.",
+    "Retired URLs return to interview; mobile form stays within viewport."
+  ],
+  "requests": [
+    {
+      "resumeId": 7,
+      "mode": "GENERAL",
+      "difficulty": "ADVANCED",
+      "totalRounds": 6,
+      "targetRole": "Java 高级后端",
+      "jobDescription": "负责订单接口设计、事务一致性与故障恢复。熟悉 Java、MySQL 与 Redis。"
+    },
+    {
+      "resumeId": 7,
+      "mode": "GENERAL",
+      "difficulty": "BEGINNER",
+      "totalRounds": 6,
+      "targetRole": "Java 实习生",
+      "targetJobId": "target-9",
+      "targetJobRevision": 3
+    }
+  ],
+  "errors": []
+}

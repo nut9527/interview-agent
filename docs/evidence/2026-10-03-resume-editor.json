@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-03",
+  "scope": "当前含未提交改动的工作区：简历编辑与导入可靠性，无数据库迁移或依赖升级",
+  "frontend": {
+    "targetedTests": 18,
+    "allTests": 78,
+    "failed": 0,
+    "skipped": 0,
+    "typecheck": "passed",
+    "lint": "passed",
+    "productionBuild": "passed"
+  },
+  "backend": {
+    "targetedTests": 55,
+    "unitAndWebTests": 595,
+    "mysqlIntegrationTests": 132,
+    "failed": 0,
+    "skipped": 0,
+    "lineCoverage": {
+      "covered": 3476,
+      "total": 3631,
+      "percent": 95.73
+    },
+    "branchCoverage": {
+      "covered": 1232,
+      "total": 1464,
+      "percent": 84.15
+    },
+    "coverageGates": "both 80% passed",
+    "command": "node scripts/verify-backend.mjs --offline",
+    "disposableDatabaseCleaned": true
+  },
+  "browser": {
+    "results": [
+      "刷新恢复原始换行；离开可取消；保存成功清理草稿",
+      "保存期间保留输入，下一次保存使用新修订号",
+      "保存失败保留输入并显示持续错误，手动重试成功",
+      "冲突逐项选择、保留另一方独立修改；二次冲突继续校验 revision；手机对比无溢出",
+      "站内跳转保留草稿，再进入可明确丢弃",
+      "导入先解析，必填检查，纠正草稿刷新恢复，确认后仅创建一次",
+      "首次创建迁移草稿并保留新输入，再进入新建不会误编辑已创建记录",
+      "AI 程序化采用/撤销也同步草稿与脏状态",
+      "退出登录先提示；账号切换清理草稿，旧保存响应不能回写",
+      "取消解析后迟到响应不生成草稿或跳转",
+      "确认退出清理草稿和身份，用户为空时编辑器安全卸载"
+    ],
+    "parseCalls": 2,
+    "writes": 12,
+    "pageErrors": []
+  },
+  "browserEnvironment": "本地 Vite 生产预览，独立无界面 Edge，全部 API 合成响应，阻断外部请求",
+  "visualInspection": "桌面并排／390px 手机单列：冲突正文可见、换行与按钮布局通过目视和字号断言",
+  "fixedDuringValidation": [
+    "新建保存后的同组件路由重用可能误编辑已创建记录",
+    "退出登录时空身份选择器的安全卸载",
+    "Radio.Group 的零字号导致冲突正文不可见，已显式设定正文 14px"
+  ],
+  "environmentRecovery": [
+    "Node/Vite/MySQL 的沙箱 spawn EPERM 经审批后重试通过",
+    "10 月 2 日自动审批额度失败，10 月 3 日用户继续后重试通过"
+  ],
+  "limits": [
+    "浏览器直连后端端到端联调未运行",
+    "旧直接导入接口和可省略 revision 契约保留兼容",
+    "草稿仅本标签页24小时，身份变化清理，无跨设备同步",
+    "结构化列表整体选择，不按下标自动合并",
+    "创建没有服务端幂等键，超时不自动重放，提示核对列表",
+    "未部署，未提交或推送，未调用真实模型"
+  ]
+}

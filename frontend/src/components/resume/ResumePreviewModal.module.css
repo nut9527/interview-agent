@@ -1,0 +1,80 @@
+.previewModal :global(.ant-modal-content) {
+  padding: 0;
+  overflow: hidden;
+  background: #e7e9e8;
+}
+
+.previewModal :global(.ant-modal-header) {
+  margin: 0;
+  padding: 18px 24px;
+  border-bottom: 1px solid #d1d5d3;
+  background: #fafaf8;
+}
+
+.previewModal :global(.ant-modal-body) {
+  max-height: calc(100vh - 190px);
+  padding: 28px;
+  overflow: auto;
+}
+
+.previewModal :global(.ant-modal-footer) {
+  margin: 0;
+  padding: 16px 24px;
+  border-top: 1px solid #d1d5d3;
+  background: #fafaf8;
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1f2927;
+}
+
+.modalTitleHint {
+  margin-left: 2px;
+  color: #6f7976;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.previewStage {
+  display: flex;
+  justify-content: center;
+  min-width: min-content;
+}
+
+@media (max-width: 900px) {
+  .previewModal :global(.ant-modal-body) {
+    padding: 16px;
+  }
+
+  .modalTitleHint {
+    display: none;
+  }
+
+  .previewStage {
+    justify-content: flex-start;
+  }
+}
+
+@media print {
+  @page { size: A4; margin: 14mm; }
+  :global(body) * { visibility: hidden; }
+  :global(body), :global(#root), :global(.ant-modal-root), :global(.ant-modal-wrap),
+  :global(.ant-modal), :global(.ant-modal-content), :global(.ant-modal-body) {
+    height: auto !important; max-height: none !important; overflow: visible !important;
+    position: static !important; transform: none !important; padding: 0 !important; margin: 0 !important;
+    width: auto !important; background: white !important; box-shadow: none !important;
+  }
+  :global(#root), :global(.ant-modal-header), :global(.ant-modal-footer),
+  :global(.ant-modal-close), :global(.ant-modal-mask) { display: none !important; }
+  :global(.ant-modal) { display: block !important; max-width: none !important; }
+  :global(.ant-modal-centered) { text-align: left !important; }
+  :global(.ant-modal-centered)::before { display: none !important; }
+  .previewStage, .previewStage * { visibility: visible; }
+  .previewStage { display: block; min-width: 0; }
+  .previewStage > article { width: 100%; min-height: 0; padding: 0; border: 0; box-shadow: none; }
+  .previewStage h2 { break-after: avoid; }
+  .previewStage li { break-inside: avoid; }
+}

@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-26",
+  "scope": "Interview-only product with account, resume management/AI optimization and private target jobs",
+  "backend": {
+    "surefire": {
+      "tests": 459,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failsafe": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "coveragePercent": {
+      "BRANCH": 81.64,
+      "LINE": 94.27
+    }
+  },
+  "frontend": {
+    "tests": 72,
+    "failures": 0,
+    "typecheck": "passed",
+    "lint": "passed",
+    "build": "passed",
+    "contractChecks": 9,
+    "frozenLockfile": "passed (pnpm 9.15.9, offline)"
+  },
+  "browser": {
+    "checks": [
+      "Root opens interview; navigation has only four retained modules.",
+      "Inline JD and difficulty submit correctly and survive reopening a session.",
+      "Saved JD selection sends its revision and excludes inline material.",
+      "Resume list, preview, browser print, editor, AI optimization and version history remain accessible.",
+      "Retired URLs return to interview; mobile form stays within viewport."
+    ],
+    "requests": [
+      {
+        "resumeId": 7,
+        "mode": "GENERAL",
+        "difficulty": "ADVANCED",
+        "totalRounds": 6,
+        "targetRole": "Java 高级后端",
+        "jobDescription": "负责订单接口设计、事务一致性与故障恢复。熟悉 Java、MySQL 与 Redis。"
+      },
+      {
+        "resumeId": 7,
+        "mode": "GENERAL",
+        "difficulty": "BEGINNER",
+        "totalRounds": 6,
+        "targetRole": "Java 实习生",
+        "targetJobId": "target-9",
+        "targetJobRevision": 3
+      }
+    ],
+    "errors": []
+  },
+  "migration": {
+    "added": "V23__interview_difficulty.sql",
+    "legacy": "V1–V22 retained unchanged in behavior; V17 helper isolated from retired runtime module",
+    "businessDatabase": "Not reset, deleted or used for tests"
+  },
+  "limits": [
+    "Real model quality, deployment and upgrade of an existing business database were not tested.",
+    "Browser acceptance used production frontend assets with synthetic local API responses; real backend was covered by isolated MySQL tests.",
+    "Additional scripts/dev.test.mjs process-tree cleanup test failed twice and its runner hung; both runs were terminated. Startup helper implementation was left unchanged.",
+    "No Git repository was present at the project root; no commit or push was performed."
+  ],
+  "cleanup": {
+    "temporaryScriptsAndLogs": "removed",
+    "browserProfilesAndIsolatedDatabases": "removed",
+    "workspaceChanges": "project files only; no persistent external configuration changes"
+  }
+}

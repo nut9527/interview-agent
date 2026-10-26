@@ -1,0 +1,19 @@
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  color: var(--ink);
+}
+.heading { margin-bottom: 40px; }
+.heading h1 { margin: 0 0 8px; font-size: 28px; font-weight: 600; line-height: 1.4; }
+.heading p, .actionRow p { color: var(--ink-2); font-size: 14px; line-height: 1.75; }
+.section { border-top: 1px solid var(--line); padding: 24px 0; }
+.section h2 { margin: 0 0 24px; font-size: 17px; font-weight: 600; }
+.section :global(.ant-descriptions-item-label) { color: var(--ink-3); font-size: 12px; }
+.section :global(.ant-descriptions-item-content) { overflow-wrap: anywhere; }
+.actionRow { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.actionRow button { flex-shrink: 0; }
+.back { margin-top: 16px; }
+@media (max-width: 600px) {
+  .actionRow { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
+

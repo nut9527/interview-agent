@@ -1,0 +1,50 @@
+# Local secrets (keep safe examples under version control)
+.env
+.env.*
+!.env.example
+!.env.*.example
+application-local.yml
+application-local.yaml
+application-local.properties
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# OS and editor state
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# Dependencies and project-local caches
+/frontend/node_modules/
+/.m2/
+/.pnpm-store/
+/.cache/
+
+# Build output (keep OpenAPI snapshots and generated API types)
+/frontend/dist/
+/frontend/.vite/
+/frontend/coverage/
+*.tsbuildinfo
+/backend/target/
+*.class
+
+# Runtime state, logs and temporary output
+/.runtime/
+/outputs/
+/tmp/
+/backend/tmp/
+_tmp_*
+*.log
+logs/
+__pycache__/
+*.py[cod]
+

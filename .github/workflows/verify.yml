@@ -1,0 +1,126 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      AI_PROVIDER: mock
+      IT_DATABASE_URL: jdbc:mysql://127.0.0.1:3306/zhizhida_test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=3000&socketTimeout=10000
+      IT_DATABASE_USERNAME: it_user
+      IT_DATABASE_PASSWORD: ci_ephemeral_only
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: zhizhida_test
+          MYSQL_USER: it_user
+          # Credentials for this disposable CI service only.
+          MYSQL_PASSWORD: ci_ephemeral_only
+          MYSQL_ROOT_PASSWORD: ci_root_ephemeral_only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: maven-${{ runner.os }}-java17-${{ hashFiles('backend/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-java17-
+      - name: Unit tests, MySQL integration tests and coverage gate
+        working-directory: backend
+        run: mvn --batch-mode --no-transfer-progress verify
+      - name: Save test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-reports
+          retention-days: 14
+          path: |
+            backend/target/surefire-reports/
+            backend/target/failsafe-reports/
+            backend/target/site/jacoco/
+            backend/target/openapi.json
+
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.14.0'
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Select contract compatibility baseline
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base="$PR_BASE_SHA"
+          elif [ "$EVENT_NAME" = "push" ] && [ "$GITHUB_REF" = "refs/heads/$DEFAULT_BRANCH" ]; then
+            if [ -n "$BEFORE_SHA" ] && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+              base="$BEFORE_SHA"
+            else
+              echo "First push: establishing the contract baseline at this commit."
+              base="$GITHUB_SHA"
+            fi
+          else
+            base="refs/remotes/origin/$DEFAULT_BRANCH"
+          fi
+          git cat-file -e "$base^{commit}"
+          echo "CONTRACT_BASE_REF=$base" >> "$GITHUB_ENV"
+      - name: Verify contract snapshot and compatibility rules
+        run: |
+          node scripts/api-contract.mjs check
+          node --test scripts/api-contract.test.mjs
+      - name: Install locked dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+      - name: Check types, lint, tests and production build
+        working-directory: frontend
+        run: |
+          pnpm contract:check
+          pnpm lint
+          pnpm test
+          pnpm build
+      - name: Test development and MySQL startup helpers
+        run: node --test scripts/dev.test.mjs scripts/mysql-startup.test.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7

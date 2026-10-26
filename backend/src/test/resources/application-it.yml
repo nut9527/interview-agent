@@ -1,0 +1,74 @@
+# 集成测试使用独立配置，不导入应用主配置或开发者的本地私密配置。
+server:
+  port: 0
+application:
+  version: integration-test
+spring:
+  application:
+    name: zhizhida-test
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  datasource:
+    url: ${IT_DATABASE_URL:jdbc:mysql://127.0.0.1:13307/zhizhida_test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=3000&socketTimeout=10000}
+    username: ${IT_DATABASE_USERNAME:it_user}
+    password: ${IT_DATABASE_PASSWORD:it_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 16
+      connection-timeout: 3000
+  docker:
+    compose:
+      enabled: false
+  flyway:
+    enabled: true
+    connect-retries: 10
+    validate-on-migrate: true
+    clean-disabled: true
+  servlet:
+    multipart:
+      max-file-size: 6MB
+      max-request-size: 6MB
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+ai:
+  provider: mock
+  api-key: ''
+  deepseek:
+    base-url: http://127.0.0.1:1
+    model: test-model
+    timeout-seconds: 2
+jobs:
+  refresh:
+    worker-enabled: false
+  remote:
+    enabled: false
+resume:
+  import:
+    font-cache-dir: ${user.dir}/target/pdfbox-font-cache
+demo:
+  cleanup:
+    enabled: false
+quota:
+  register:
+    per-minute: 10000
+    per-day: 100000
+  cleanup:
+    enabled: false
+  login:
+    per-minute: 10000
+    per-day: 100000
+  demo:
+    per-hour: 1000
+    per-day: 10000
+  ai:
+    per-minute: 10000
+    units-per-day: 100000
+    global-units-per-day: 1000000
+  refresh:
+    per-day: 1000
+    global-per-day: 10000
+logging:
+  level:
+    root: WARN
+    cn.edu.whu.zhizhida: INFO

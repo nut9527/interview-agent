@@ -1,0 +1,2 @@
+/** Whether frontend services should use in-memory demo data instead of the backend API. */
+export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';

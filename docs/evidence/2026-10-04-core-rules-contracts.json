@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-04",
+  "scope": "当前未提交工作区：诊断与排序纯规则、稳定错误码、OpenAPI／前端类型与兼容性门禁",
+  "environment": {
+    "os": "Windows 11",
+    "java": "21.0.12, compilation target 17",
+    "maven": "3.9.16",
+    "node": "24.18.1",
+    "mysql": "8.0.46, disposable instance on 127.0.0.1:13307"
+  },
+  "backend": {
+    "command": "node scripts/verify-backend.mjs --offline",
+    "result": "BUILD SUCCESS",
+    "finishedAt": "2026-10-04T23:38:57+08:00",
+    "mavenDurationSeconds": 99,
+    "unitAndWeb": { "tests": 650, "failures": 0, "errors": 0, "skipped": 0 },
+    "mysqlIntegration": { "tests": 148, "failures": 0, "errors": 0, "skipped": 0 },
+    "migrations": "V1 through V20; no migration added by this task",
+    "cleanup": "Runner confirmed this run's MySQL process stopped and data directory removed",
+    "log": "backend/target/verification.log",
+    "coverage": {
+      "source": "backend/target/site/jacoco/jacoco.xml",
+      "line": { "covered": 3858, "total": 4021, "percent": 95.95 },
+      "branch": { "covered": 1539, "total": 1824, "percent": 84.38 },
+      "minimumLinePercent": 80,
+      "minimumBranchPercent": 80,
+      "gatePassed": true
+    },
+    "directPureRules": {
+      "tests": 58,
+      "springOrDatabaseRequired": false,
+      "classes": {
+        "DefaultResumeScoringServiceTest": 40,
+        "ScoringSkillBoundaryTest": 4,
+        "ProjectDiagnosisTest": 1,
+        "JobMatchingQualityTest": 10,
+        "JobRankingTest": 3
+      }
+    },
+    "architecture": { "productionChecks": 9, "positiveAndNegativeFixtures": 9, "passed": true },
+    "errorVerification": [
+      "API exception categories and same-HTTP distinct business codes",
+      "Serialized resume revision/validation/internal error responses",
+      "Real Spring Security unauthenticated response with AUTH_REQUIRED",
+      "Health and readiness response regression"
+    ]
+  },
+  "contracts": {
+    "snapshot": "contracts/openapi.json",
+    "paths": 44,
+    "operations": 61,
+    "schemas": 128,
+    "realMvcExportMatchesSnapshot": true,
+    "allApiMappingsChecked": true,
+    "generatedFile": "frontend/src/types/generated/openapi.ts",
+    "uiShapeAssertions": 56,
+    "compilerCounterexamples": 4,
+    "comparisonTests": {
+      "command": "node --test --test-isolation=none scripts/api-contract.test.mjs",
+      "tests": 7,
+      "failures": 0,
+      "note": "In-process test isolation avoids local sandbox subprocess restrictions; CI uses node --test"
+    },
+    "gitBaselineCheck": {
+      "command": "node scripts/api-contract.mjs check HEAD",
+      "passed": true,
+      "mode": "Initial baseline: valid HEAD commit has no contracts/openapi.json. Breaking-change behavior is independently covered by fixtures."
+    },
+    "policy": "Conservative structural preservation; permits new paths/operations/schemas/optional fields, rejects removal and changes to types, enums, required/nullable, validation, security and existing responses",
+    "limitations": [
+      "Generator supports the current OpenAPI 3.0 subset and rejects unsupported constructs",
+      "UI shape checks permit legacy optional/null and narrower frontend strings; declared structural constraints are separately compared to Git baseline",
+      "Unannotated runtime/business semantics require application tests and review"
+    ]
+  },
+  "frontend": {
+    "typecheck": "passed: node node_modules/typescript/bin/tsc --noEmit",
+    "lint": "passed: node node_modules/eslint/bin/eslint.js . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "tests": { "command": "npm test", "count": 86, "failures": 0 },
+    "build": "passed: npm run build",
+    "dependenciesAddedOrUpgraded": false
+  },
+  "ci": {
+    "gitlabYamlParsed": true,
+    "configured": [
+      "Real OpenAPI snapshot check in ordinary Maven test/verify",
+      "MR target branch, feature/default branch and tag baseline selection",
+      "Generated-file freshness, compatibility counterexamples and frontend type assertions",
+      "Existing frontend lint/test/build and isolated MySQL verify gates"
+    ],
+    "remoteRunnerExecuted": false
+  },
+  "notExecuted": [
+    "Remote GitLab CI / clean dependency installation",
+    "Browser E2E during this task",
+    "Real model calls, production load or deployment"
+  ],
+  "repositoryActions": { "newDependencies": false, "newMigrations": false, "commit": false, "push": false, "deploy": false }
+}

@@ -1,0 +1,402 @@
+/* ─── Resume Management · Design Tokens ─── */
+.container {
+  --ink: #0c1e32;
+  --blue: #1f5f99;
+  --blue-soft: #eaf3fb;
+  --amber: #d48806;
+  --muted: #65758b;
+  --paper: #fbfcfe;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 22px;
+  padding: 34px 36px 28px;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 85% 15%, rgb(31 95 153 / 14%), transparent 55%),
+    radial-gradient(ellipse at 5% 90%, rgb(212 136 6 / 9%), transparent 45%),
+    linear-gradient(135deg, #0c1e32 0%, #122b44 40%, #163a5c 100%);
+  color: #fff;
+  box-shadow: 0 18px 48px rgb(12 30 50 / 28%);
+}
+
+.hero::before {
+  position: absolute;
+  top: -82px;
+  right: -40px;
+  width: 260px;
+  height: 260px;
+  border: 24px solid rgb(255 255 255 / 3%);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+
+.hero::after {
+  position: absolute;
+  bottom: -36px;
+  left: 18%;
+  width: 140px;
+  height: 140px;
+  border: 16px solid rgb(255 255 255 / 2.5%);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+
+.heroTop {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eyebrow {
+  color: #8ec5ec;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.heroLeft h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.heroLeft h1 :global(.anticon) {
+  color: var(--amber);
+  font-size: 0.85em;
+}
+
+.heroLeft p {
+  margin: 4px 0 0;
+  color: #9bb5ce;
+  font-size: 14px;
+}
+
+.heroActions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.heroActions :global(.ant-btn) {
+  height: 40px;
+  border-radius: 9px;
+  font-weight: 600;
+  font-size: 13px;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.heroActions :global(.ant-btn:hover) {
+  transform: translateY(-1px);
+}
+
+.heroActions :global(.ant-btn-default) {
+  border: 1px solid rgb(255 255 255 / 22%);
+  background: rgb(255 255 255 / 8%);
+  color: #eef4fa;
+}
+
+.heroActions :global(.ant-btn-default:hover) {
+  border-color: rgb(255 255 255 / 38%) !important;
+  background: rgb(255 255 255 / 14%) !important;
+  color: #fff !important;
+}
+
+.heroActions :global(.ant-btn-primary) {
+  border: none;
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 6px 16px rgb(31 95 153 / 28%);
+}
+
+.heroActions :global(.ant-btn-primary:hover) {
+  background: #1a5080 !important;
+  box-shadow: 0 8px 22px rgb(31 95 153 / 38%) !important;
+}
+
+/* ─── Stats Strip ─── */
+.stats {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 28px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid rgb(255 255 255 / 9%);
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 10%);
+  color: #8ec5ec;
+  font-size: 17px;
+}
+
+.statItem span {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.statLabel {
+  color: #7b99b8;
+  font-size: 11px;
+}
+
+/* ─── Grid ─── */
+.grid {
+  margin: 0 !important;
+}
+
+/* ─── Resume Card ─── */
+.resumeCard {
+  overflow: hidden;
+  height: 100%;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 15px !important;
+  background:
+    radial-gradient(circle at 100% 0, rgb(31 95 153 / 6%), transparent 38%),
+    var(--paper) !important;
+  box-shadow: 0 4px 16px rgb(16 36 62 / 5%) !important;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease !important;
+}
+
+.resumeCard:hover {
+  transform: translateY(-5px);
+  border-color: #c4d5e8 !important;
+  box-shadow: 0 18px 40px rgb(16 36 62 / 11%) !important;
+}
+
+.resumeCard :global(.ant-card-actions) {
+  border-top: 1px solid #eef2f7;
+  background: #fafbfd;
+}
+
+.resumeCard :global(.ant-card-actions) > li > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resumeCard :global(.ant-card-actions) .ant-btn-link {
+  color: var(--muted);
+  font-size: 12px;
+  transition: color 160ms ease;
+}
+
+.resumeCard :global(.ant-card-actions) .ant-btn-link:hover {
+  color: var(--blue);
+}
+
+.resumeCard :global(.ant-card-actions) .ant-btn-dangerous {
+  color: #c9454b;
+}
+
+.resumeCard :global(.ant-card-actions) .ant-btn-dangerous:hover {
+  color: #d4383a;
+}
+
+/* Card accent border — set via inline style */
+.cardBody {
+  padding: 4px 0;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cardName {
+  margin: 0;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.cardRole {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cardRole :global(.anticon) {
+  font-size: 11px;
+  color: var(--blue);
+}
+
+.templateTag {
+  flex: none;
+  margin-inline-end: 0 !important;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* ─── Skills ─── */
+.skillLabel {
+  display: block;
+  margin-bottom: 7px;
+  color: #8b99ab;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.skillTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skillTags :global(.ant-tag) {
+  margin-inline-end: 0;
+  border-radius: 5px;
+  font-size: 11px;
+}
+
+/* ─── Card Footer Meta ─── */
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #e4eaf1;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.cardMeta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cardMeta strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+/* ─── Loading ─── */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.loading :global(.ant-card) {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 15px;
+}
+
+/* ─── Empty ─── */
+.emptyCard {
+  overflow: hidden;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at 50% 30%, rgb(31 95 153 / 5%), transparent 60%),
+    var(--paper) !important;
+  box-shadow: 0 4px 16px rgb(16 36 62 / 4%) !important;
+}
+
+.emptyCard :global(.ant-empty) {
+  padding: 48px 0 20px;
+}
+
+.emptyCard :global(.ant-empty-description) {
+  color: var(--muted);
+}
+
+.emptyAction {
+  text-align: center;
+  margin-top: 8px;
+  padding-bottom: 36px;
+}
+
+/* ─── Accent dot colors ─── */
+.dotClassic { background: #2457d6; }
+.dotModern { background: #0f766e; }
+.dotCompact { background: #a33b20; }
+.dotCampus { background: #3859c7; }
+.dotMinimal { background: #27272a; }
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .hero {
+    padding: 24px 20px 20px;
+    border-radius: 14px;
+  }
+
+  .heroTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .heroActions {
+    width: 100%;
+  }
+
+  .heroActions :global(.ant-btn) {
+    flex: 1;
+  }
+
+  .stats {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .statItem {
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .cardName {
+    font-size: 15px;
+  }
+}

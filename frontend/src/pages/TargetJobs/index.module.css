@@ -1,0 +1,49 @@
+.page { max-width: 1260px; margin: 0 auto; padding: 28px; color: #172b48; }
+.hero { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 36px; background: #edf3fa; border-left: 4px solid #2457d6; border-radius: 4px 16px 16px 4px; }
+.eyebrow { color: #476286; font-size: 12px; font-weight: 600; letter-spacing: .1em; }
+.hero h1 { font-size: clamp(25px, 3vw, 36px); line-height: 1.35; margin: 14px 0; letter-spacing: -.03em; }
+.hero p { color: #51657e; line-height: 1.8; margin: 0; }
+.listHeading, .sectionHead { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 28px 0 18px; }
+.listHeading h2, .sectionHead h3 { margin: 0; font-size: 18px; }
+.listHeading span { color: #667a95; margin-left: 8px; font-size: 14px; }
+.jobGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 18px; margin-bottom: 24px; }
+.jobCard { background: #fff; border: 1px solid #dce4ef; padding: 26px; border-radius: 12px; }
+.jobCard h3 { margin: 12px 0 20px; font-size: 21px; overflow-wrap: anywhere; }
+.jobCard p { color: #55677f; font-size: 13px; }
+.jobCard button { margin-top: 14px; }
+.company { font-size: 13px; font-weight: 600; color: #476286; }
+.empty { padding: 65px 20px; background: #fff; border: 1px dashed #cbd7e7; border-radius: 12px; }
+.formGrid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
+.requirementEdit { margin: 16px 0; border: 1px solid #dce4ef; border-radius: 8px; background: #fafcfe; padding: 18px; }
+.requirementHead { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.requirementHead > div { width: 220px; }
+.hint { color: #596b83; font-size: 13px; line-height: 1.8; }
+.source { margin: 12px 0 22px; border-bottom: 1px solid #dce4ef; padding-bottom: 14px; }
+.source summary { color: #2457a9; cursor: pointer; }
+.source p, .quote p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }
+.editorFooter { display: flex; justify-content: flex-end; position: sticky; bottom: -20px; background: #fff; padding: 18px 0 0; margin-top: 20px; border-top: 1px solid #dce4ef; z-index: 1; }
+.feedback { margin-top: 20px; }
+.detailMeta { display: flex; flex-wrap: wrap; gap: 12px 24px; color: #596b83; margin-bottom: 24px; }
+.analysisPicker { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+.analysisPicker > div { min-width: 240px; flex: 1; }
+.analysisSection { margin: 30px 0; }
+.analysisSection h3 { font-size: 18px; border-bottom: 2px solid #dce4ef; padding-bottom: 12px; display: flex; justify-content: space-between; }
+.analysisSection h3 span { color: #657d9b; font-weight: 400; font-variant-numeric: tabular-nums; }
+.evidenceCard { border: 1px solid #dce4ef; border-radius: 8px; padding: 20px; margin: 12px 0; }
+.evidenceTitle { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.evidenceTitle strong { line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.evidenceTitle :global(.ant-tag) { flex-shrink: 0; }
+.quote { background: #f2f6fc; border-left: 3px solid #799bc9; margin: 16px 0 0; padding: 14px 18px; }
+.quote > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; color: #526c8e; font-size: 12px; }
+.quote small { color: #526c8e; }
+.drawerActions { display: flex; gap: 8px; flex-wrap: wrap; }
+.page :focus-visible, .source summary:focus-visible { outline: 2px solid #2457d6; outline-offset: 3px; }
+@media (max-width: 700px) {
+  .page { padding: 12px; }
+  .hero { align-items: flex-start; flex-direction: column; padding: 24px; gap: 22px; }
+  .formGrid { grid-template-columns: 1fr; }
+  .evidenceTitle { flex-direction: column; gap: 10px; }
+  .evidenceCard { padding: 14px; }
+  .quote { padding: 12px; }
+  .analysisPicker > div { min-width: 180px; }
+}

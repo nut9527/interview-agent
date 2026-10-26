@@ -1,0 +1,2 @@
+ALTER TABLE resumes
+    ADD COLUMN revision BIGINT NOT NULL DEFAULT 0;

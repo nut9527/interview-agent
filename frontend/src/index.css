@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #faf9f6;
+  --surface: #ffffff;
+  --line: #e6e2da;
+  --line-strong: #d3cec4;
+  --ink: #1a1a1a;
+  --ink-2: #57534c;
+  --ink-3: #8c867d;
+  --amber: #b45309;
+  --amber-soft: #fbf1e4;
+  --ok: #2f6b4f;
+  --warn: #9a6a1e;
+  --danger: #a33a2b;
+  --r: 4px;
+  --r-sm: 2px;
+  --sans: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.75;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+#root { min-height: 100vh; }
+button, input, textarea, select { font: inherit; }
+::selection { background: var(--amber-soft); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+summary { cursor: pointer; }
+.ant-btn, .ant-input, .ant-input-affix-wrapper, .ant-select-selector, .ant-menu-item {
+  transition-property: background-color, opacity !important;
+  transition-duration: 140ms !important;
+}
+.ant-card, .ant-upload-drag { box-shadow: none; }
+.ant-modal .ant-modal-content { box-shadow: 0 12px 32px rgba(26, 26, 26, .10); }
+.ant-input-textarea-show-count > .ant-input-data-count { font-family: var(--mono); font-size: 12px; }
+.ant-progress .ant-progress-bg { transition-property: opacity, background-color; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+

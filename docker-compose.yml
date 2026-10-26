@@ -1,0 +1,94 @@
+services:
+  mysql:
+    image: ${MYSQL_IMAGE:-${DOCKER_REGISTRY:-docker.io/library}/mysql:8.4}
+    container_name: zhizhida-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-zhizhida}
+      MYSQL_USER: ${MYSQL_USER:-zhizhida}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-zhizhida}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    ports:
+      - "${MYSQL_BIND_ADDRESS:-127.0.0.1}:${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    profiles: ["app"]
+    build:
+      context: ./backend
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-public.ecr.aws/docker/library}
+    container_name: zhizhida-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-zhizhida}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-zhizhida}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-zhizhida}
+      AI_PROVIDER: ${AI_PROVIDER:-mock}
+      AI_API_KEY: ${DEEPSEEK_API_KEY:-${AI_API_KEY:-}}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
+      DEEPSEEK_THINKING: ${DEEPSEEK_THINKING:-}
+      DEEPSEEK_TIMEOUT_SECONDS: ${DEEPSEEK_TIMEOUT_SECONDS:-30}
+      AI_MAX_CONCURRENT_CALLS: ${AI_MAX_CONCURRENT_CALLS:-4}
+      AI_FAILURE_THRESHOLD: ${AI_FAILURE_THRESHOLD:-3}
+      AI_CIRCUIT_OPEN_SECONDS: ${AI_CIRCUIT_OPEN_SECONDS:-30}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      QUOTA_REGISTER_PER_MINUTE: ${QUOTA_REGISTER_PER_MINUTE:-3}
+      QUOTA_REGISTER_PER_DAY: ${QUOTA_REGISTER_PER_DAY:-10}
+      QUOTA_LOGIN_PER_MINUTE: ${QUOTA_LOGIN_PER_MINUTE:-10}
+      QUOTA_LOGIN_PER_DAY: ${QUOTA_LOGIN_PER_DAY:-60}
+      QUOTA_DEMO_PER_HOUR: ${QUOTA_DEMO_PER_HOUR:-6}
+      QUOTA_DEMO_PER_DAY: ${QUOTA_DEMO_PER_DAY:-6}
+      QUOTA_AI_PER_MINUTE: ${QUOTA_AI_PER_MINUTE:-5}
+      QUOTA_AI_UNITS_PER_DAY: ${QUOTA_AI_UNITS_PER_DAY:-40}
+      QUOTA_AI_GLOBAL_UNITS_PER_DAY: ${QUOTA_AI_GLOBAL_UNITS_PER_DAY:-400}
+      DEMO_ENABLED: ${DEMO_ENABLED:-true}
+      DEMO_SANDBOX_TTL_HOURS: ${DEMO_SANDBOX_TTL_HOURS:-4}
+      DEMO_MAX_ACTIVE_SANDBOXES: ${DEMO_MAX_ACTIVE_SANDBOXES:-100}
+      DEMO_CLEANUP_BATCH_SIZE: ${DEMO_CLEANUP_BATCH_SIZE:-25}
+      DEMO_CLEANUP_INTERVAL_MS: ${DEMO_CLEANUP_INTERVAL_MS:-60000}
+      # 容器内不应再尝试管理宿主机的 Docker Compose 生命周期。
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+    ports:
+      # 后端仅供宿主机诊断；公网 API 统一经前端 Nginx 的 /api 代理访问。
+      - "${BACKEND_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "java", "-cp", "/app/healthcheck", "Healthcheck", "http://127.0.0.1:8080/api/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  frontend:
+    profiles: ["app"]
+    build:
+      context: ./frontend
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-public.ecr.aws/docker/library}
+    container_name: zhizhida-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      # 云服务器默认监听公网 80；本地冲突时可在 .env 中改 FRONTEND_PORT。
+      - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:${FRONTEND_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-data:
