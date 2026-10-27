@@ -1,7 +1,7 @@
 package cn.edu.whu.zhizhida.interview;
 
 import cn.edu.whu.zhizhida.IntegrationTestBase;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MvcResult;
 import java.nio.charset.StandardCharsets;

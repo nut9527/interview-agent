@@ -3,7 +3,7 @@ package cn.edu.whu.zhizhida.resume;
 import cn.edu.whu.zhizhida.resume.api.AiOptimizeRequest;
 import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 /** 适配简历优化的业务提示词，供应商协议由 JsonChatClient 处理。 */
 public final class DefaultAiResumeService extends StructuredResumeOptimizer {

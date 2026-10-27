@@ -7,7 +7,7 @@ import cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy;
 import cn.edu.whu.zhizhida.interview.domain.InterviewTransitions;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import cn.edu.whu.zhizhida.resume.api.ResumeSnapshotReader;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 class InterviewAgentTest {
     private final InterviewAgentPolicy policy = new InterviewAgentPolicy();
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new tools.jackson.databind.json.JsonMapper();
 
     @Test void keepsCoverageBudgetAndRejectsHallucinatedEvidenceOrIllegalTargets() {
         var state = policy.plan(InterviewMode.GENERAL, 6, "岗位：Java、MySQL", "model");

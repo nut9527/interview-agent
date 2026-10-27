@@ -1,18 +1,18 @@
 package cn.edu.whu.zhizhida.contract;
 
 import cn.edu.whu.zhizhida.config.OpenApiConfig;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +36,7 @@ class OpenApiContractTest {
     @org.springframework.boot.test.context.TestComponent
     @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, SecurityAutoConfiguration.class,
             UserDetailsServiceAutoConfiguration.class,
-            org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class})
+            org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration.class})
     @ComponentScan(basePackages = "cn.edu.whu.zhizhida", useDefaultFilters = false,
             includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION,
                     classes = {RestController.class, RestControllerAdvice.class}))
@@ -70,14 +70,20 @@ class OpenApiContractTest {
     RequestMappingHandlerMapping mappings;
 
     @Test
+    void servesStandaloneKnife4jUiAndItsOpenApiConfiguration() throws Exception {
+        mvc.perform(get("/doc.html")).andExpect(status().isOk());
+        mvc.perform(get("/v3/api-docs/swagger-config")).andExpect(status().isOk());
+    }
+
+    @Test
     void exportsEveryApiOperationAndMatchesReviewedSnapshot() throws Exception {
         String json = mvc.perform(get("/v3/api-docs")).andExpect(status().isOk()).andReturn().getResponse()
                 .getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
         ObjectNode document = (ObjectNode) mapper.readTree(json);
         document.remove("servers"); // 请求主机不属于可跨环境复用的接口契约。
         var operations = new java.util.HashSet<String>();
-        document.path("paths").fields().forEachRemaining(path -> path.getValue().fieldNames()
-                .forEachRemaining(method -> operations.add(method.toUpperCase() + " " + path.getKey())));
+        document.path("paths").properties().forEach(path -> path.getValue().propertyNames()
+                .forEach(method -> operations.add(method.toUpperCase() + " " + path.getKey())));
         mappings.getHandlerMethods().forEach((mapping, handler) -> mapping.getPatternValues().stream()
                 .filter(path -> path.startsWith("/api/")).forEach(path -> mapping.getMethodsCondition().getMethods()
                         .forEach(method -> assertThat(operations).contains(method.name() + " " + path))));
@@ -97,7 +103,7 @@ class OpenApiContractTest {
     private JsonNode sorted(JsonNode node) {
         if (node.isObject()) {
             var fields = new TreeMap<String, JsonNode>();
-            node.fields().forEachRemaining(entry -> fields.put(entry.getKey(), sorted(entry.getValue())));
+            node.properties().forEach(entry -> fields.put(entry.getKey(), sorted(entry.getValue())));
             return mapper.valueToTree(fields);
         }
         if (node.isArray()) {

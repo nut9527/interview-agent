@@ -1,9 +1,10 @@
 package cn.edu.whu.zhizhida.ai;
 
-import cn.edu.whu.zhizhida.ai.api.AiMode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import cn.edu.whu.zhizhida.ai.api.AiMode;
 
 @Configuration(proxyBeanMethods = false)
 public class AiProviderConfiguration {

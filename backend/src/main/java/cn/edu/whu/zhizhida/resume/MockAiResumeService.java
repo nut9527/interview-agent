@@ -2,8 +2,8 @@ package cn.edu.whu.zhizhida.resume;
 
 import cn.edu.whu.zhizhida.resume.api.*;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

@@ -3,7 +3,7 @@ package cn.edu.whu.zhizhida.interview;
 import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.common.StructuredOutput;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import java.util.List;
 
 public abstract class StructuredInterviewAiService implements InterviewAiService {

@@ -7,8 +7,8 @@ import cn.edu.whu.zhizhida.resume.ResumeController;
 import cn.edu.whu.zhizhida.resume.api.ResumeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -16,12 +16,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @WebMvcTest(properties = "spring.config.location=classpath:/application-contract.yml",
-        excludeAutoConfiguration = org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration.class)
+        excludeAutoConfiguration = org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration.class)
 @ContextConfiguration(classes = {ResumeController.class, SecurityConfig.class, BearerTokenFilter.class, ApiExceptionHandler.class})
 class SecurityErrorContractTest {
     @Autowired MockMvc mvc;
-    @MockBean AuthService auth;
-    @MockBean ResumeService resumes;
+    @MockitoBean AuthService auth;
+    @MockitoBean ResumeService resumes;
 
     @Test
     void unauthenticatedFilterResponseUsesTheSameErrorEnvelopeWithoutCallingBusinessServices() throws Exception {

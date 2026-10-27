@@ -1,14 +1,14 @@
 package cn.edu.whu.zhizhida.resume;
 
 import cn.edu.whu.zhizhida.resume.api.ResumeDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.validation.Validation;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ResumeDetailsTest {
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new tools.jackson.databind.json.JsonMapper();
 
     @Test
     void oldJsonStillLoadsWithoutNewFields() throws Exception {

@@ -1,8 +1,8 @@
 package cn.edu.whu.zhizhida.common.persistence;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ class JsonColumnCodecTest {
 
     @BeforeEach
     void setUp() {
-        codec = new JsonColumnCodec(new ObjectMapper());
+        codec = new JsonColumnCodec(new tools.jackson.databind.json.JsonMapper());
     }
 
     @Test
@@ -128,10 +128,10 @@ class JsonColumnCodecTest {
     }
 
     @Test
-    void shouldWriteThrowWhenObjectMapperFails() throws JsonProcessingException {
+    void shouldWriteThrowWhenObjectMapperFails() throws JacksonException {
         ObjectMapper mockMapper = mock(ObjectMapper.class);
         when(mockMapper.writeValueAsString(any()))
-                .thenThrow(new JsonProcessingException("mock error") {});
+                .thenThrow(new JacksonException("mock error") {});
         JsonColumnCodec mockCodec = new JsonColumnCodec(mockMapper);
 
         assertThatThrownBy(() -> mockCodec.write("test"))

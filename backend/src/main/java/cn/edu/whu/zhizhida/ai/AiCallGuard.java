@@ -1,6 +1,10 @@
 package cn.edu.whu.zhizhida.ai;
 
-import cn.edu.whu.zhizhida.common.BusinessException;
+import java.time.Duration;
+import java.util.concurrent.Semaphore;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-import java.util.concurrent.Semaphore;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
+import cn.edu.whu.zhizhida.common.BusinessException;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 
 /** 单实例共享的 AI 容量保护：立即拒绝过载，连续失败后熔断，冷却后只放行一次探测。 */
@@ -31,13 +32,14 @@ public class AiCallGuard {
     private boolean probing;
 
     public AiCallGuard(int maxConcurrentCalls, int failureThreshold, long openSeconds) {
-        this(maxConcurrentCalls, failureThreshold, Duration.ofSeconds(openSeconds), System::nanoTime, BusinessMetrics.disabled());
+        this(maxConcurrentCalls, failureThreshold, Duration.ofSeconds(openSeconds), System::nanoTime,
+                BusinessMetrics.disabled());
     }
 
     @Autowired
     public AiCallGuard(@Value("${ai.resilience.max-concurrent-calls:4}") int maxConcurrentCalls,
-                       @Value("${ai.resilience.failure-threshold:3}") int failureThreshold,
-                       @Value("${ai.resilience.open-seconds:30}") long openSeconds, BusinessMetrics metrics) {
+            @Value("${ai.resilience.failure-threshold:3}") int failureThreshold,
+            @Value("${ai.resilience.open-seconds:30}") long openSeconds, BusinessMetrics metrics) {
         this(maxConcurrentCalls, failureThreshold, Duration.ofSeconds(openSeconds), System::nanoTime, metrics);
     }
 
@@ -45,7 +47,8 @@ public class AiCallGuard {
         this(maxConcurrentCalls, failureThreshold, cooldown, nanoTime, BusinessMetrics.disabled());
     }
 
-    AiCallGuard(int maxConcurrentCalls, int failureThreshold, Duration cooldown, LongSupplier nanoTime, BusinessMetrics metrics) {
+    AiCallGuard(int maxConcurrentCalls, int failureThreshold, Duration cooldown, LongSupplier nanoTime,
+            BusinessMetrics metrics) {
         if (maxConcurrentCalls < 1 || failureThreshold < 1 || cooldown.isNegative() || cooldown.isZero()) {
             throw new IllegalArgumentException("AI 容量、失败阈值和熔断冷却时间必须大于 0");
         }

@@ -3,7 +3,7 @@ package cn.edu.whu.zhizhida.auth;
 import cn.edu.whu.zhizhida.IntegrationTestBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.UUID;
@@ -12,7 +12,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class RegistrationAtomicityIT extends IntegrationTestBase {
-    @SpyBean SessionRepository sessions;
+    @MockitoSpyBean SessionRepository sessions;
     @Autowired JdbcTemplate jdbc;
 
     @Test

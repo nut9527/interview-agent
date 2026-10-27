@@ -2,7 +2,7 @@ package cn.edu.whu.zhizhida.interview.api;
 
 import cn.edu.whu.zhizhida.jobs.api.TargetJob;
 import cn.edu.whu.zhizhida.resume.api.ResumeDetails;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import java.util.List;
 
 /** 固定来源与项目快照，后续追问建议随最终回答一同提交。 */

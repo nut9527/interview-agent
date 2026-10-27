@@ -4,7 +4,7 @@ import cn.edu.whu.zhizhida.IntegrationTestBase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.*;
 /** 在专用 MySQL 测试库中验证真实事务、修订号竞争及版本持久化。 */
 @TestPropertySource(properties = {"jobs.remote.enabled=false", "demo.enabled=false", "ai.provider=mock"})
 class ResumeRevisionIntegrationIT extends IntegrationTestBase {
-    @SpyBean ResumeVersionRepository versionRepository;
+    @MockitoSpyBean ResumeVersionRepository versionRepository;
     private String token;
     private long resumeId;
 

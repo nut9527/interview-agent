@@ -6,7 +6,7 @@ import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.interview.api.InterviewAgentState.*;
 import cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 
 class InterviewAgentGuardrailsTest {
     private final InterviewAgentPolicy policy = new InterviewAgentPolicy();
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new tools.jackson.databind.json.JsonMapper();
 
     @Test void zeroRelevanceProducesNoProjectOrJobAnchorAndARelevantProjectHasAtMostTwoUses() {
         var unrelated = new InterviewPlanningContext("掌握摄影曝光与色彩构图", List.of(
@@ -65,8 +65,8 @@ class InterviewAgentGuardrailsTest {
 
     @Test void contextDecodeFailureAfterGenerationStillIsNotMarkedAsBadModelFields() {
         var ai = new StructuredInterviewAiService(BusinessMetrics.disabled()) {
-            protected com.fasterxml.jackson.databind.JsonNode generateOpening(String role, String context) { return mapper.createObjectNode().put("question", "问题"); }
-            protected com.fasterxml.jackson.databind.JsonNode generateReview(String role, String context, List<InterviewTurn> turns, int count, boolean last) {
+            protected tools.jackson.databind.JsonNode generateOpening(String role, String context) { return mapper.createObjectNode().put("question", "问题"); }
+            protected tools.jackson.databind.JsonNode generateReview(String role, String context, List<InterviewTurn> turns, int count, boolean last) {
                 return mapper.createObjectNode().put("feedback", "反馈").put("nextQuestion", "下一题");
             }
         };

@@ -200,7 +200,7 @@ class InterviewAnswerReliabilityTest {
 
     @Test
     void alternativeModelAdapterCannotCommitInvalidOutputAndRetryKeepsStateAndQuotaRules() throws Exception {
-        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        var mapper = new tools.jackson.databind.ObjectMapper();
         var response = new AtomicReference<>(mapper.readTree("{\"feedback\":42}"));
         cn.edu.whu.zhizhida.ai.api.JsonChatClient replacement = (system, user, temperature, budget) ->
                 new cn.edu.whu.zhizhida.ai.api.JsonChatResponse(response.get(),

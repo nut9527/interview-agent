@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-27",
+  "timezone": "Asia/Hong_Kong",
+  "scope": "Java 21、Spring Boot 4.1.x 兼容迁移及 POM、CI、构建和运行镜像统一",
+  "versions": {
+    "java": "21.0.12",
+    "maven": "3.9.16",
+    "localNode": "24.18.1",
+    "localMysql": "8.0.46",
+    "springBoot": "4.1.2",
+    "springFramework": "7.0.10",
+    "mybatisPlus": "3.5.18 (spring-boot4-starter)",
+    "springdoc": "3.2.0",
+    "knife4jUi": "4.5.0 (static UI only)",
+    "jacksonApplication": "3.1.7",
+    "flyway": "12.4.0"
+  },
+  "checks": {
+    "backend": {
+      "command": "node scripts/verify-backend.mjs --offline",
+      "result": "PASS",
+      "unitAndWebTests": 462,
+      "mysqlIntegrationTests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "mavenDuration": "02:26",
+      "finishedAt": "2026-10-27T13:39:24+08:00",
+      "database": "项目内创建的一次性 MySQL；结束后已停止进程并删除本次数据目录",
+      "lineCoverage": { "covered": 2477, "missed": 150, "ratio": 0.942901 },
+      "branchCoverage": { "covered": 1088, "missed": 245, "ratio": 0.816204 },
+      "coverageGate": "LINE >= 0.80; BRANCH >= 0.80; PASS"
+    },
+    "bytecode": {
+      "packagedApplicationMajorVersion": 65,
+      "applicationAndTestRuntimeBaseline": "PASS (JavaRuntimeBaselineTest)",
+      "healthProbeMajorVersion": 65,
+      "note": "在全新目录核对 Java 21 编译结果后刷新构建产物并复跑完整验证；临时验证 POM 与目录在结束前清理。"
+    },
+    "startupHelpers": {
+      "command": "node --test scripts/dev.test.mjs scripts/mysql-startup.test.mjs scripts/dev-smoke.test.mjs",
+      "result": "PASS",
+      "tests": 29,
+      "healthProbeRecheck": "PASS (Java 21 major version 65; HTTP 200 -> exit 0; HTTP 503 -> exit 1)",
+      "retry": "首次在沙箱中等待子进程清理超过五分钟；停止本次进程树后，使用允许清理自身子进程的权限重跑一次，29 项全部通过。"
+    },
+    "contract": {
+      "commands": ["node scripts/api-contract.mjs check HEAD", "node --test scripts/api-contract.test.mjs"],
+      "result": "PASS",
+      "tests": 10,
+      "openapiVersion": "3.0.1",
+      "generatedFrontendTypesChanged": false,
+      "reviewedDocumentationAdditions": 25,
+      "manifest": "contracts/spring-boot-4.1-documentation.json"
+    },
+    "images": {
+      "build": "maven:3.9-eclipse-temurin-21",
+      "runtime": "eclipse-temurin:21-jre",
+      "dockerHubTags": "PASS (both active; Linux amd64 and arm64 available)",
+      "localBuildAndRun": "NOT RUN: Docker 引擎未运行",
+      "ci": "已配置 Java 21 Maven verify、探针测试、Docker build 和连接 CI MySQL 的容器就绪检查；未在本次本地验证中执行 GitHub Actions。"
+    }
+  },
+  "limitations": ["本机未实际构建或运行容器镜像；待 CI 运行确认。", "未连接或迁移开发者已有业务数据库。"],
+  "git": "未提交、未推送；保留用户原有未提交修改。"
+}

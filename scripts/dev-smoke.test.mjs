@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PROJECT_ROOT, acceptsBackend, capture, findExecutable, stopChild, waitForHttp } from './dev.mjs';
 
@@ -69,12 +69,13 @@ test('external-db preflight works from backend directory and does not need Docke
   }
 });
 
-test('container Java health probe compiles for Java 17 and exits on 200/503', { timeout: 25000 }, async () => {
+test('container Java health probe compiles for Java 21 and exits on 200/503', { timeout: 25000 }, async () => {
   const classes = join(PROJECT_ROOT, 'backend', 'target', 'docker-healthcheck');
   mkdirSync(classes, { recursive: true });
-  const compiled = await capture(findExecutable('javac'), ['--release', '17', '-d', classes,
+  const compiled = await capture(findExecutable('javac'), ['--release', '21', '-d', classes,
     join(PROJECT_ROOT, 'backend', 'docker', 'Healthcheck.java')]);
   assert.equal(compiled.code, 0, compiled.output);
+  assert.equal(readFileSync(join(classes, 'Healthcheck.class')).readUInt16BE(6), 65);
   let status = 200;
   const server = createServer((_, response) => { response.statusCode = status; response.end(); });
   const port = await listen(server);

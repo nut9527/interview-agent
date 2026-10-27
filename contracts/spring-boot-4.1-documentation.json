@@ -1,0 +1,30 @@
+{
+  "description": "springdoc 3.2.0 补充导出代码中已存在的 Bean Validation 约束；仅允许这些路径与精确值首次补全文档，不豁免业务契约变化。",
+  "additions": {
+    "/components/schemas/cn.edu.whu.zhizhida.auth.api.AuthRequest/properties/username/minLength": 1,
+    "/components/schemas/cn.edu.whu.zhizhida.auth.api.UserProfileRequest/properties/skillTags/items/maxLength": 24,
+    "/components/schemas/cn.edu.whu.zhizhida.auth.api.UserProfileRequest/properties/skillTags/items/minLength": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.interview.api.InterviewStartRequest/properties/resumeId/exclusiveMinimum": true,
+    "/components/schemas/cn.edu.whu.zhizhida.interview.api.InterviewStartRequest/properties/resumeId/minimum": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.interview.api.InterviewStartRequest/properties/targetJobRevision/minimum": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.jobs.api.TargetJob$AnalyzeRequest/properties/resumeId/exclusiveMinimum": true,
+    "/components/schemas/cn.edu.whu.zhizhida.jobs.api.TargetJob$AnalyzeRequest/properties/resumeId/minimum": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.jobs.api.TargetJob$AnalyzeRequest/properties/revision/minimum": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.jobs.api.TargetJob$Requirement/properties/keywords/items/maxLength": 80,
+    "/components/schemas/cn.edu.whu.zhizhida.jobs.api.TargetJob$Requirement/properties/keywords/items/minLength": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.jobs.api.TargetJobRequest/properties/revision/minimum": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeDetails$Contact/properties/email/format": "email",
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeDetails$Education/properties/endDate/minLength": 1,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeDetails$Education/properties/startDate/minLength": 1,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeDetails$Project/properties/contributions/items/maxLength": 3000,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeDetails$Project/properties/contributions/items/minLength": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeDetails$Project/properties/techStack/items/maxLength": 80,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeDetails$Project/properties/techStack/items/minLength": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeProfile/properties/ownerName/minLength": 1,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeProfile/properties/targetRole/minLength": 1,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeProfileRequest/properties/ownerName/minLength": 1,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeProfileRequest/properties/revision/minimum": 0,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeProfileRequest/properties/targetRole/minLength": 1,
+    "/components/schemas/cn.edu.whu.zhizhida.resume.ResumeRestoreRequest/properties/revision/minimum": 0
+  }
+}

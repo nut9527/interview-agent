@@ -1,6 +1,12 @@
 package cn.edu.whu.zhizhida.config;
 
 import cn.edu.whu.zhizhida.common.ErrorCode;
+import io.swagger.v3.core.converter.ModelConverter;
+import io.swagger.v3.core.converter.AnnotatedType;
+import io.swagger.v3.core.converter.ModelConverterContext;
+import io.swagger.v3.core.jackson.ModelResolver;
+import io.swagger.v3.core.jackson.TypeNameResolver;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.info.Info;
@@ -13,6 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +28,31 @@ import java.util.Set;
 public class OpenApiConfig {
     private static final Set<String> PUBLIC_PATHS = Set.of("/api/auth/register", "/api/auth/login",
             "/api/auth/demo", "/api/auth/logout", "/api/health", "/api/health/ready");
+
+    @Bean
+    ModelResolver stableSchemaNames() {
+        // 对外契约沿用二进制类名，避免生成器升级将内部类的 $ 改为 .。
+        var names = new TypeNameResolver() {
+            @Override
+            protected String getNameOfClass(Class<?> type) {
+                return type.getName();
+            }
+        };
+        names.setUseFqn(true);
+        return new ModelResolver(Json.mapper(), names) {
+            @Override
+            public Schema resolve(AnnotatedType type, ModelConverterContext context, Iterator<ModelConverter> chain) {
+                if (type.getType() != null && objectMapper().constructType(type.getType())
+                        .hasRawClass(tools.jackson.databind.JsonNode.class)) {
+                    // 历史 diagnostic 是任意 JSON，不应导出 Jackson 3 的内部访问器。
+                    String name = "com.fasterxml.jackson.databind.JsonNode";
+                    context.defineModel(name, new ObjectSchema());
+                    return new Schema<>().$ref("#/components/schemas/" + name);
+                }
+                return super.resolve(type, context, chain);
+            }
+        };
+    }
 
     @Bean
     OpenAPI applicationOpenApi() {

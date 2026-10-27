@@ -8,6 +8,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const snapshot = resolve(root, 'contracts/openapi.json');
 const generated = resolve(root, 'frontend/src/types/generated/openapi.ts');
 const retirements = JSON.parse(readFileSync(resolve(root, 'contracts/interview-focus-retirements.json'), 'utf8'));
+const boot41Documentation = JSON.parse(readFileSync(resolve(root, 'contracts/spring-boot-4.1-documentation.json'), 'utf8'));
 const methods = new Set(['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace']);
 const annotations = new Set(['description', 'summary', 'title', 'example', 'examples', 'externalDocs', 'tags']);
 const schemaKeys = new Set(['$ref', 'type', 'enum', 'nullable', 'properties', 'required', 'items',
@@ -171,6 +172,21 @@ export function interviewFocusBaseline(before, after) {
   return baseline;
 }
 
+/** springdoc 3 now documents existing validation; permit only the reviewed first additions. */
+export function springBoot41Baseline(before, after) {
+  const baseline = structuredClone(before);
+  for (const [pointer, expected] of Object.entries(boot41Documentation.additions)) {
+    const parts = pointer.slice(1).split('/').map(part => part.replaceAll('~1', '/').replaceAll('~0', '~'));
+    const key = parts.pop();
+    let previous = baseline, current = after;
+    for (const part of parts) { previous = previous?.[part]; current = current?.[part]; }
+    if (previous && current && !Object.hasOwn(previous, key) && isDeepStrictEqual(current[key], expected)) {
+      previous[key] = structuredClone(expected);
+    }
+  }
+  return baseline;
+}
+
 function checkBase(document, reference) {
   execFileSync('git', ['cat-file', '-e', `${reference}^{commit}`], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
   const tracked = execFileSync('git', ['ls-tree', '--name-only', reference, '--', 'contracts/openapi.json'], { cwd: root, encoding: 'utf8' }).trim();
@@ -179,7 +195,7 @@ function checkBase(document, reference) {
     return;
   }
   const before = JSON.parse(execFileSync('git', ['show', `${reference}:contracts/openapi.json`], { cwd: root, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }));
-  const errors = compareContracts(interviewFocusBaseline(before, document), document);
+  const errors = compareContracts(springBoot41Baseline(interviewFocusBaseline(before, document), document), document);
   if (errors.length) throw new Error(`Incompatible API change against ${reference}:\n${errors.join('\n')}`);
   console.log(`Existing contract preserved against ${reference}.`);
 }

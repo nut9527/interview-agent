@@ -6,7 +6,7 @@ import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import cn.edu.whu.zhizhida.quota.AiRequestQuota;
 import cn.edu.whu.zhizhida.resume.api.ResumeSnapshotReader;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ class InterviewOpeningRepairTest {
     private final JsonChatClient client = mock(JsonChatClient.class);
     private final InterviewSessionRepository repository = mock(InterviewSessionRepository.class);
     private final AiRequestQuota quota = mock(AiRequestQuota.class);
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new tools.jackson.databind.json.JsonMapper();
     private final SimpleMeterRegistry registry = new SimpleMeterRegistry();
     private InterviewStateMachine service;
 
@@ -69,7 +69,7 @@ class InterviewOpeningRepairTest {
     }
 
     private InterviewStartRequest request() { return new InterviewStartRequest("Java", "", null, "", InterviewMode.GENERAL, 6, null, null, null); }
-    private com.fasterxml.jackson.databind.node.ObjectNode valid() {
+    private tools.jackson.databind.node.ObjectNode valid() {
         return mapper.createObjectNode().put("question", "请说明你在相关经历中承担的个人职责？").put("questionCompetencyId", "experience");
     }
 }

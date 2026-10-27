@@ -3,13 +3,13 @@ package cn.edu.whu.zhizhida.observability;
 import cn.edu.whu.zhizhida.IntegrationTestBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
+import org.springframework.boot.micrometer.metrics.test.autoconfigure.AutoConfigureMetrics;
 import org.springframework.test.context.TestPropertySource;
 import static org.assertj.core.api.Assertions.*;
 
 @TestPropertySource(properties = {"management.api-token=integration-monitor-only",
         "management.endpoints.web.exposure.include=health,metrics,prometheus"})
-@AutoConfigureObservability
+@AutoConfigureMetrics
 class ManagementSecurityIT extends IntegrationTestBase {
     @Autowired BusinessMetrics metrics;
 

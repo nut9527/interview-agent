@@ -12,7 +12,7 @@ import cn.edu.whu.zhizhida.interview.persistence.InterviewSessionMapper;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ class MybatisPlusInterviewSessionRepositoryTest {
         );
         repository = new MybatisPlusInterviewSessionRepository(
                 mapper,
-                new JsonColumnCodec(new ObjectMapper())
+                new JsonColumnCodec(new tools.jackson.databind.json.JsonMapper())
         );
     }
 
@@ -75,7 +75,7 @@ class MybatisPlusInterviewSessionRepositoryTest {
 
     @Test void practiceHistoryLoadsOnlyEightFinishedCheckpointsWithinUserAndMode() {
         var checkpoint = new cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy().plan(InterviewMode.GENERAL, 6, "", "model");
-        var row = new InterviewSessionEntity(); row.setAgentJson(new JsonColumnCodec(new ObjectMapper()).write(checkpoint));
+        var row = new InterviewSessionEntity(); row.setAgentJson(new JsonColumnCodec(new tools.jackson.databind.json.JsonMapper()).write(checkpoint));
         when(mapper.selectList(any())).thenReturn(List.of(row));
         assertThat(repository.recentAgentStates(42L, InterviewMode.GENERAL)).containsExactly(checkpoint);
         ArgumentCaptor<Wrapper<InterviewSessionEntity>> captor = wrapperCaptor();

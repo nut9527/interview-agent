@@ -133,7 +133,7 @@ class ArchitectureRulesTest {
                 "jobs.ValidController", """
                         class ValidController {
                             cn.edu.whu.zhizhida.resume.api.ResumeContract service;
-                            com.fasterxml.jackson.databind.ObjectMapper json;
+                            tools.jackson.databind.ObjectMapper json;
                             org.springframework.http.ResponseEntity<String> response() {
                                 return org.springframework.http.ResponseEntity.ok("ok");
                             }

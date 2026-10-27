@@ -7,7 +7,7 @@ spring:
   application:
     name: zhizhida-test
   autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
   datasource:
     url: ${IT_DATABASE_URL:jdbc:mysql://127.0.0.1:13307/zhizhida_test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=3000&socketTimeout=10000}
     username: ${IT_DATABASE_USERNAME:it_user}

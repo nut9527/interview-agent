@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"jobs.remote.enabled=false", "demo.enabled=false", "ai.provider=mock"})
 class InterviewAnswerIntegrationIT extends IntegrationTestBase {
-    @MockBean private InterviewAiService ai;
+    @MockitoBean private InterviewAiService ai;
     @Autowired private InterviewSessionRepository repository;
     @Autowired private JdbcTemplate jdbc;
     private String token;

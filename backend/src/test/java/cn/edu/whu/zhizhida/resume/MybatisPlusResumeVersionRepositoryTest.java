@@ -9,7 +9,7 @@ import cn.edu.whu.zhizhida.resume.persistence.ResumeVersionMapper;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class MybatisPlusResumeVersionRepositoryTest {
                 new MapperBuilderAssistant(configuration, "version-test"),
                 ResumeVersionEntity.class
         );
-        jsonCodec = new JsonColumnCodec(new ObjectMapper());
+        jsonCodec = new JsonColumnCodec(new tools.jackson.databind.json.JsonMapper());
         repository = new MybatisPlusResumeVersionRepository(mapper, jsonCodec);
     }
 

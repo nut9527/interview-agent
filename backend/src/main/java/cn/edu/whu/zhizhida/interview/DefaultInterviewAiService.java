@@ -3,9 +3,9 @@ package cn.edu.whu.zhizhida.interview;
 import cn.edu.whu.zhizhida.interview.api.InterviewTurn;
 import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import java.util.List;
 
 public final class DefaultInterviewAiService extends StructuredInterviewAiService {
@@ -158,7 +158,7 @@ public final class DefaultInterviewAiService extends StructuredInterviewAiServic
             input.put("contextTruncated", true);
             String source = input.path("resumeSnapshot").asText();
             if (!source.isEmpty()) input.put("resumeSnapshot", source.substring(0, source.length() / 2));
-            else if (transcript.isArray() && transcript.size() > 1) ((com.fasterxml.jackson.databind.node.ArrayNode) transcript).remove(0);
+            else if (transcript.isArray() && transcript.size() > 1) ((tools.jackson.databind.node.ArrayNode) transcript).remove(0);
             else if (!input.path("digestCondensed").asBoolean()) {
                 input.put("digestCondensed", true);
                 for (var entry : input.path("untrustedEvidence").path("digest")) {

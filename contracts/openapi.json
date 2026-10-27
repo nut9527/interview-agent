@@ -21,7 +21,7 @@
             "type" : "boolean"
           }
         },
-        "required" : [ "success", "message", "data", "code" ],
+        "required" : [ "code", "data", "message", "success" ],
         "type" : "object"
       },
       "cn.edu.whu.zhizhida.auth.api.AuthRequest" : {
@@ -37,6 +37,7 @@
             "type" : "string"
           },
           "username" : {
+            "minLength" : 1,
             "pattern" : "^[a-zA-Z0-9_]{4,24}$",
             "type" : "string"
           }
@@ -123,6 +124,8 @@
           },
           "skillTags" : {
             "items" : {
+              "maxLength" : 24,
+              "minLength" : 0,
               "type" : "string"
             },
             "maxItems" : 12,
@@ -977,7 +980,9 @@
             "type" : "string"
           },
           "resumeId" : {
+            "exclusiveMinimum" : true,
             "format" : "int64",
+            "minimum" : 0,
             "type" : "integer"
           },
           "resumeSummary" : {
@@ -992,6 +997,7 @@
           },
           "targetJobRevision" : {
             "format" : "int64",
+            "minimum" : 0,
             "type" : "integer"
           },
           "targetRole" : {
@@ -1102,11 +1108,14 @@
       "cn.edu.whu.zhizhida.jobs.api.TargetJob$AnalyzeRequest" : {
         "properties" : {
           "resumeId" : {
+            "exclusiveMinimum" : true,
             "format" : "int64",
+            "minimum" : 0,
             "type" : "integer"
           },
           "revision" : {
             "format" : "int64",
+            "minimum" : 0,
             "type" : "integer"
           }
         },
@@ -1173,6 +1182,8 @@
           },
           "keywords" : {
             "items" : {
+              "maxLength" : 80,
+              "minLength" : 0,
               "type" : "string"
             },
             "maxItems" : 20,
@@ -1275,6 +1286,7 @@
           },
           "revision" : {
             "format" : "int64",
+            "minimum" : 0,
             "type" : "integer"
           },
           "sourceName" : {
@@ -1300,6 +1312,7 @@
         "properties" : {
           "revision" : {
             "format" : "int64",
+            "minimum" : 0,
             "type" : "integer"
           }
         },
@@ -1420,6 +1433,7 @@
       "cn.edu.whu.zhizhida.resume.api.ResumeDetails$Contact" : {
         "properties" : {
           "email" : {
+            "format" : "email",
             "maxLength" : 254,
             "minLength" : 0,
             "type" : "string"
@@ -1454,6 +1468,7 @@
             "type" : "string"
           },
           "endDate" : {
+            "minLength" : 1,
             "pattern" : "[0-9]{4}-(0[1-9]|1[0-2])|至今",
             "type" : "string"
           },
@@ -1468,6 +1483,7 @@
             "type" : "string"
           },
           "startDate" : {
+            "minLength" : 1,
             "pattern" : "[0-9]{4}-(0[1-9]|1[0-2])",
             "type" : "string"
           }
@@ -1501,6 +1517,8 @@
           },
           "contributions" : {
             "items" : {
+              "maxLength" : 3000,
+              "minLength" : 0,
               "type" : "string"
             },
             "maxItems" : 30,
@@ -1524,6 +1542,8 @@
           },
           "techStack" : {
             "items" : {
+              "maxLength" : 80,
+              "minLength" : 0,
               "type" : "string"
             },
             "maxItems" : 30,
@@ -1617,6 +1637,7 @@
             "type" : "array"
           },
           "ownerName" : {
+            "minLength" : 1,
             "type" : "string"
           },
           "projectExperiences" : {
@@ -1639,6 +1660,7 @@
             "type" : "string"
           },
           "targetRole" : {
+            "minLength" : 1,
             "type" : "string"
           },
           "templateKey" : {
@@ -1672,6 +1694,7 @@
             "type" : "array"
           },
           "ownerName" : {
+            "minLength" : 1,
             "type" : "string"
           },
           "projectExperiences" : {
@@ -1682,6 +1705,7 @@
           },
           "revision" : {
             "format" : "int64",
+            "minimum" : 0,
             "type" : "integer"
           },
           "skills" : {
@@ -1694,6 +1718,7 @@
             "type" : "string"
           },
           "targetRole" : {
+            "minLength" : 1,
             "type" : "string"
           },
           "templateKey" : {

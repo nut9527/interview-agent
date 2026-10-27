@@ -56,7 +56,7 @@
 - 放弃的方案：继续扩充 `jdeps` 自定义解析；立即拆 Maven 多模块；立即引入 Spring Modulith。当前需要的是可执行约束，后两项增加配置与迁移范围。
 - 代价：增加测试依赖与字节码扫描耗时；新模块／旧包核心类需同步登记；静态依赖检查不覆盖反射和运行时 SQL 行为。反例由 JDK 编译后检查并自动清理。
 - 验证证据：[ModuleBoundaryTest](../backend/src/test/java/cn/edu/whu/zhizhida/architecture/ModuleBoundaryTest.java)、[规则反例](../backend/src/test/java/cn/edu/whu/zhizhida/architecture/ArchitectureRulesTest.java)、[健康接口测试](../backend/src/test/java/cn/edu/whu/zhizhida/health/HealthControllerTest.java)；后续完整回归见 [2026-10-04 记录](evidence/2026-10-04-core-rules-contracts.json)。
-- 复审条件：确需模块级集成测试或自动模块文档时再评估 Modulith。[官方验证](https://docs.spring.io/spring-modulith/reference/verification.html)覆盖公开接口与模块依赖；[1.2 兼容表](https://docs.spring.io/spring-modulith/reference/1.2/appendix.html#appendix.spring-boot-compatibility)的编译基线为 Boot 3.3，示例包含 3.3，与当前 Boot 3.3.5 同系列。本次仅查表，尚未在项目试装；引入时重新核对目标版本、维护状态和传递依赖。ArchUnit 依据：[官方示例](https://www.archunit.org/use-cases)。
+- 复审条件：确需模块级集成测试或自动模块文档时再评估 Modulith。[官方验证](https://docs.spring.io/spring-modulith/reference/verification.html)覆盖公开接口与模块依赖；[1.2 兼容表](https://docs.spring.io/spring-modulith/reference/1.2/appendix.html#appendix.spring-boot-compatibility)的编译基线为 Boot 3.3，示例包含 3.3，与该决策时的 Boot 3.3.5 同系列。本次仅查表，尚未在项目试装；当前已[升级 Boot 4.1.2](Java21与SpringBoot41迁移.md)，引入时须重新核对目标版本、维护状态和传递依赖。ArchUnit 依据：[官方示例](https://www.archunit.org/use-cases)。
 
 ## ADR-015：面试采用可配置轮数、纯规则与租约应用编排
 

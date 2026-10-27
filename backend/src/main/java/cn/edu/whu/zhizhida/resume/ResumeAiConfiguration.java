@@ -4,7 +4,7 @@ import cn.edu.whu.zhizhida.resume.api.AiResumeService;
 import cn.edu.whu.zhizhida.ai.api.AiMode;
 import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

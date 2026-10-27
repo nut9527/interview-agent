@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
@@ -21,8 +21,9 @@
 
     <!-- 集中声明语言版本与额外依赖版本。 -->
     <properties>
-        <java.version>17</java.version>
-        <mybatis-plus.version>3.5.7</mybatis-plus.version>
+        <java.version>21</java.version>
+        <mybatis-plus.version>3.5.18</mybatis-plus.version>
+        <springdoc.version>3.2.0</springdoc.version>
         <knife4j.version>4.5.0</knife4j.version>
         <archunit.version>1.5.1</archunit.version>
     </properties>
@@ -40,7 +41,7 @@
         <!-- 网络接口：提供请求路由、内嵌服务器与 JSON 序列化。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
         <!-- 参数校验：支持 @Valid、@NotBlank、@Size 等校验注解。 -->
@@ -58,7 +59,7 @@
         <!-- 数据库访问：通过 MyBatis-Plus 提供常用的增删改查能力。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
             <version>${mybatis-plus.version}</version>
         </dependency>
 
@@ -79,8 +80,8 @@
 
         <!-- 数据库迁移：通过 Flyway 管理表结构版本。 -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -111,10 +112,15 @@
             <version>5.3.0</version>
         </dependency>
 
-        <!-- 接口文档：通过 Knife4j 提供文档页面（/doc.html）。 -->
+        <!-- Boot 4 使用 springdoc 3；Knife4j 仅提供静态 UI，避免引入 Boot 3 自动配置。 -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <artifactId>knife4j-openapi3-ui</artifactId>
             <version>${knife4j.version}</version>
         </dependency>
 
@@ -137,12 +143,43 @@
             <version>${archunit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
     <!-- 配置可执行应用打包、分层测试与覆盖率门禁。 -->
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.6.2</version>
+                <executions>
+                    <execution>
+                        <id>require-java-21</id>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion><version>[21,22)</version></requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -159,7 +196,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.2.2</version>
                 <configuration>
                     <systemPropertyVariables>
                         <spring.config.location>classpath:/application-it.yml</spring.config.location>

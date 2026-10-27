@@ -8,7 +8,7 @@ import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.jobs.*;
 import cn.edu.whu.zhizhida.jobs.api.*;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.*;
 
 /** 对每个业务接口的两种实现运行相同的调用方断言。 */
 class AiBusinessContractTest {
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new tools.jackson.databind.json.JsonMapper();
     private final SimpleMeterRegistry registry = new SimpleMeterRegistry();
     private final BusinessMetrics metrics = new BusinessMetrics(registry);
 

@@ -4,11 +4,11 @@ import cn.edu.whu.zhizhida.ai.api.JsonChatResponse;
 import cn.edu.whu.zhizhida.ai.api.ModelUsage;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -107,7 +107,7 @@ public class DeepSeekChatClient implements cn.edu.whu.zhizhida.ai.api.JsonChatCl
             return parsePayload(response.body());
         } catch (HttpTimeoutException e) {
             throw new IllegalStateException("DeepSeek API 调用超时，请稍后重试。", e);
-        } catch (IOException e) {
+        } catch (IOException | tools.jackson.core.JacksonException e) {
             throw new IllegalStateException("DeepSeek API 网络或响应解析失败，请稍后重试。", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -209,7 +209,7 @@ public class DeepSeekChatClient implements cn.edu.whu.zhizhida.ai.api.JsonChatCl
         }
         JsonNode payload;
         try { payload = objectMapper.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).readTree(extractJson(content)); }
-        catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+        catch (tools.jackson.core.JacksonException ex) {
             throw new cn.edu.whu.zhizhida.common.InvalidModelOutputException("DeepSeek API 模型正文响应解析失败，必须返回完整 JSON 对象。");
         }
         if (payload == null || !payload.isObject()) {

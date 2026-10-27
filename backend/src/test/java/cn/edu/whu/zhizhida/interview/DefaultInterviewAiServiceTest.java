@@ -7,7 +7,7 @@ import cn.edu.whu.zhizhida.interview.api.InterviewTurn;
 
 import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,7 +39,7 @@ class DefaultInterviewAiServiceTest {
 
     @BeforeEach
     void setUp() {
-        objectMapper = new ObjectMapper();
+        objectMapper = new tools.jackson.databind.json.JsonMapper();
         service = new DefaultInterviewAiService(chatClient, objectMapper, BusinessMetrics.disabled());
     }
 
@@ -106,7 +106,7 @@ class DefaultInterviewAiServiceTest {
 
         @BeforeEach
         void setUp() {
-            mockService = new MockInterviewAiService(new ObjectMapper(), BusinessMetrics.disabled());
+            mockService = new MockInterviewAiService(new tools.jackson.databind.json.JsonMapper(), BusinessMetrics.disabled());
         }
 
         @Test

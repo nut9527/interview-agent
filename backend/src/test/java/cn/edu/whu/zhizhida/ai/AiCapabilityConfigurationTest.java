@@ -6,7 +6,7 @@ import cn.edu.whu.zhizhida.resume.api.AiResumeService;
 import cn.edu.whu.zhizhida.interview.*;
 import cn.edu.whu.zhizhida.interview.api.InterviewAiService;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -19,7 +19,7 @@ class AiCapabilityConfigurationTest {
             .withUserConfiguration(AiProviderConfiguration.class, ResumeAiConfiguration.class,
                     InterviewAiConfiguration.class)
             .withBean(JsonChatClient.class, () -> mock(JsonChatClient.class))
-            .withBean(ObjectMapper.class, ObjectMapper::new)
+            .withBean(ObjectMapper.class, tools.jackson.databind.json.JsonMapper::new)
             .withBean(BusinessMetrics.class, BusinessMetrics::disabled);
 
     @ParameterizedTest

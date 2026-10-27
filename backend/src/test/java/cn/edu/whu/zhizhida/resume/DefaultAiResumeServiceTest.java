@@ -12,8 +12,8 @@ import cn.edu.whu.zhizhida.resume.api.AiOptimizeResponse;
 
 import cn.edu.whu.zhizhida.resume.api.AiOptimizeRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -42,7 +42,7 @@ class DefaultAiResumeServiceTest {
 
     @BeforeEach
     void setUp() {
-        objectMapper = new ObjectMapper();
+        objectMapper = new tools.jackson.databind.json.JsonMapper();
     }
 
     private AiResumeService mockService() {
@@ -231,7 +231,7 @@ class DefaultAiResumeServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"optimizedText", "suggestions", "improvements", "targetKeywords", "optimizationSummary"})
     void rejectsMissingRequiredFields(String field) throws Exception {
-        var payload = (com.fasterxml.jackson.databind.node.ObjectNode) objectMapper.readTree(VALID);
+        var payload = (tools.jackson.databind.node.ObjectNode) objectMapper.readTree(VALID);
         payload.remove(field);
         when(chatClient.completeJson(anyString(), anyString(), eq(0.3), eq(1800))).thenReturn(payload);
         assertThatThrownBy(() -> deepseekService().optimize(new AiOptimizeRequest("经历", "岗位")))
@@ -243,8 +243,8 @@ class DefaultAiResumeServiceTest {
             "{\"suggestions\":[12]}", "{\"suggestions\":[\" \"]}", "{\"improvements\":[{}]}",
             "{\"targetKeywords\":[{}]}", "{\"optimizationSummary\":false}"})
     void rejectsWrongTypesAndIncompleteImprovement(String change) throws Exception {
-        var payload = (com.fasterxml.jackson.databind.node.ObjectNode) objectMapper.readTree(VALID);
-        payload.setAll((com.fasterxml.jackson.databind.node.ObjectNode) objectMapper.readTree(change));
+        var payload = (tools.jackson.databind.node.ObjectNode) objectMapper.readTree(VALID);
+        payload.setAll((tools.jackson.databind.node.ObjectNode) objectMapper.readTree(change));
         when(chatClient.completeJson(anyString(), anyString(), eq(0.3), eq(1800))).thenReturn(payload);
         assertThatThrownBy(() -> deepseekService().optimize(new AiOptimizeRequest("经历", "岗位")))
                 .isInstanceOf(IllegalStateException.class);

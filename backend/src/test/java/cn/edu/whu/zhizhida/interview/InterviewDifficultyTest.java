@@ -3,7 +3,7 @@ package cn.edu.whu.zhizhida.interview;
 import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
 import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import java.util.List;
@@ -15,8 +15,8 @@ class InterviewDifficultyTest {
     @ParameterizedTest @EnumSource(InterviewDifficulty.class)
     void serverDifficultyControlsOpeningAndReviewIndependentlyOfUntrustedMaterial(InterviewDifficulty difficulty) throws Exception {
         var client = mock(JsonChatClient.class);
-        var mapper = new ObjectMapper();
-        var inputs = new java.util.ArrayList<com.fasterxml.jackson.databind.JsonNode>();
+        var mapper = new tools.jackson.databind.json.JsonMapper();
+        var inputs = new java.util.ArrayList<tools.jackson.databind.JsonNode>();
         when(client.completeJson(anyString(), anyString(), anyDouble(), anyInt())).thenAnswer(call -> {
             inputs.add(mapper.readTree(call.getArgument(1, String.class)));
             return mapper.readTree("""

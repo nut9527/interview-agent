@@ -1,8 +1,8 @@
 package cn.edu.whu.zhizhida.interview;
 
 import cn.edu.whu.zhizhida.IntegrationTestBase;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

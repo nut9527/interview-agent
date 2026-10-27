@@ -6,7 +6,7 @@ import cn.edu.whu.zhizhida.interview.api.InterviewTurn;
 
 import cn.edu.whu.zhizhida.common.ApiExceptionHandler;
 import cn.edu.whu.zhizhida.common.BusinessException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -79,7 +79,7 @@ class InterviewAnswerApiTest {
 
     @Test
     void oldPersistedTurnsRemainReadableWithoutRequestId() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new tools.jackson.databind.json.JsonMapper();
         InterviewTurn old = mapper.readValue("{\"speaker\":\"user\",\"content\":\"旧回答\"}", InterviewTurn.class);
         assertThat(old.requestId()).isNull();
         assertThat(mapper.writeValueAsString(old)).doesNotContain("requestId");

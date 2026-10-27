@@ -1,6 +1,6 @@
 package cn.edu.whu.zhizhida.ai.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 /**
  * 供应商无关的结构化对话接口，返回 JSON 载荷与可获得的模型用量。

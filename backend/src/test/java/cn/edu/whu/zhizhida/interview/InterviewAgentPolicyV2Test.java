@@ -3,7 +3,7 @@ package cn.edu.whu.zhizhida.interview;
 import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.interview.api.InterviewAgentState.*;
 import cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -85,7 +85,7 @@ class InterviewAgentPolicyV2Test {
                  "activeCompetencyId":"experience","evaluations":[{"round":1,"competencyId":"experience",
                  "decision":{"level":"PARTIAL","evidence":"个人行动","gap":"缺口","action":"FOLLOW_UP","nextCompetencyId":"experience","reason":"原因","practice":"训练"}}]}
                 """;
-        var state = new ObjectMapper().readValue(json, InterviewAgentState.class);
+        var state = new tools.jackson.databind.json.JsonMapper().readValue(json, InterviewAgentState.class);
         assertThat(state.evaluations().get(0).answeredProbe()).isNull();
         assertThat(state.evaluations().get(0).decision().probe()).isNull();
         assertThat(state.through(1)).isEqualTo(state);

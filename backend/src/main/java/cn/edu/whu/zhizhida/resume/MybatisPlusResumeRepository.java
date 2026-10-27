@@ -9,7 +9,7 @@ import cn.edu.whu.zhizhida.resume.persistence.ResumeMapper;
 import cn.edu.whu.zhizhida.resume.persistence.ResumeVersionEntity;
 import cn.edu.whu.zhizhida.resume.persistence.ResumeVersionMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

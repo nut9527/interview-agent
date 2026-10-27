@@ -44,15 +44,45 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       - uses: actions/cache@v4
         with:
           path: .m2/repository
-          key: maven-${{ runner.os }}-java17-${{ hashFiles('backend/pom.xml') }}
-          restore-keys: maven-${{ runner.os }}-java17-
+          key: maven-${{ runner.os }}-java21-${{ hashFiles('backend/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-java21-
       - name: Unit tests, MySQL integration tests and coverage gate
         working-directory: backend
         run: mvn --batch-mode --no-transfer-progress verify
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.14.0'
+      - name: Test Java 21 container health probe
+        run: node --test --test-name-pattern="container Java health probe" scripts/dev-smoke.test.mjs
+      - name: Build backend Java 21 image
+        run: docker build --build-arg DOCKER_REGISTRY=docker.io/library --tag zhizhida-backend:verify backend
+      - name: Smoke test Java 21 runtime image with MySQL
+        shell: bash
+        run: |
+          container=$(docker run -d --network host \
+            -e AI_PROVIDER=mock \
+            -e SPRING_DATASOURCE_URL="$IT_DATABASE_URL" \
+            -e SPRING_DATASOURCE_USERNAME="$IT_DATABASE_USERNAME" \
+            -e SPRING_DATASOURCE_PASSWORD="$IT_DATABASE_PASSWORD" \
+            -e SPRING_DOCKER_COMPOSE_ENABLED=false \
+            --health-cmd='java -cp /app/healthcheck Healthcheck http://127.0.0.1:8080/api/health/ready' \
+            --health-interval=2s --health-timeout=3s --health-retries=30 --health-start-period=10s \
+            zhizhida-backend:verify)
+          trap 'docker logs "$container"; docker rm -f "$container" >/dev/null' EXIT
+          docker exec "$container" java -version 2>&1 | grep 'version "21\.'
+          for attempt in $(seq 1 45); do
+            state=$(docker inspect --format '{{.State.Health.Status}}' "$container")
+            case "$state" in
+              healthy) exit 0 ;;
+              unhealthy) exit 1 ;;
+            esac
+            sleep 2
+          done
+          exit 1
       - name: Save test and coverage reports
         if: always()
         uses: actions/upload-artifact@v4

@@ -4,10 +4,10 @@ import cn.edu.whu.zhizhida.IntegrationTestBase;
 import cn.edu.whu.zhizhida.auth.SessionRepository;
 import cn.edu.whu.zhizhida.auth.UserAccountRepository;
 import cn.edu.whu.zhizhida.resume.DefaultResumeUserData;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MvcResult;
@@ -27,9 +27,9 @@ class ApplicationWorkflowIT extends IntegrationTestBase {
             "tracked_applications", "application_events", "application_commands");
     @Autowired JdbcTemplate jdbc;
     @Autowired DemoCleanupWorker cleanup;
-    @SpyBean UserAccountRepository accounts;
-    @SpyBean SessionRepository sessions;
-    @SpyBean DefaultResumeUserData resumeData;
+    @MockitoSpyBean UserAccountRepository accounts;
+    @MockitoSpyBean SessionRepository sessions;
+    @MockitoSpyBean DefaultResumeUserData resumeData;
 
     @Test
     void accountClosureFailureRestoresEveryModuleAndSessionThenCanBeRetried() throws Exception {

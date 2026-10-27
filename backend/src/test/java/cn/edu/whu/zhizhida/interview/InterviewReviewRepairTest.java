@@ -8,8 +8,8 @@ import cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import cn.edu.whu.zhizhida.quota.AiRequestQuota;
 import cn.edu.whu.zhizhida.resume.api.ResumeSnapshotReader;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class InterviewReviewRepairTest {
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new tools.jackson.databind.json.JsonMapper();
     private final JsonChatClient client = mock(JsonChatClient.class);
     private final InterviewSessionRepository repository = mock(InterviewSessionRepository.class);
     private final AiRequestQuota quota = mock(AiRequestQuota.class);

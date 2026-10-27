@@ -13,7 +13,7 @@ import cn.edu.whu.zhizhida.common.persistence.JsonColumnCodec;
 import cn.edu.whu.zhizhida.interview.persistence.InterviewSessionEntity;
 import cn.edu.whu.zhizhida.interview.persistence.InterviewSessionMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

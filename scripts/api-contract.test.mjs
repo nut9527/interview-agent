@@ -1,12 +1,24 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compareContracts, generateTypes, interviewFocusBaseline } from './api-contract.mjs';
+import { compareContracts, generateTypes, interviewFocusBaseline, springBoot41Baseline } from './api-contract.mjs';
 
 const baseline = JSON.parse(readFileSync(new URL('../contracts/openapi.json', import.meta.url), 'utf8'));
 const dto = 'cn.edu.whu.zhizhida.resume.api.ResumeProfile';
 const changed = mutation => { const copy = structuredClone(baseline); mutation(copy); return copy; };
 const breaks = mutation => assert.notDeepEqual(compareContracts(baseline, changed(mutation)), []);
+
+test('Boot 4 documentation additions allow exact reviewed values without hiding stricter or unrelated changes', () => {
+  const old = structuredClone(baseline);
+  const owner = old.components.schemas[dto].properties.ownerName;
+  delete owner.minLength;
+  assert.deepEqual(compareContracts(springBoot41Baseline(old, baseline), baseline), []);
+  const stricter = changed(d => { d.components.schemas[dto].properties.ownerName.minLength = 8; });
+  assert.notDeepEqual(compareContracts(springBoot41Baseline(old, stricter), stricter), []);
+  const unrelated = changed(d => { delete d.paths['/api/resumes']; });
+  assert.notDeepEqual(compareContracts(springBoot41Baseline(old, unrelated), unrelated), []);
+  assert.notDeepEqual(compareContracts(springBoot41Baseline(baseline, old), old), []);
+});
 
 test('existing routes, methods and successful responses cannot disappear', () => {
   breaks(d => { delete d.paths['/api/resumes']; });

@@ -197,11 +197,11 @@ export async function main(args = process.argv.slice(2)) {
   const maven = findExecutable('mvn', env);
   const javaVersion = await capture(java, ['-version'], { env: settings.childEnv });
   const major = Number(/version "(\d+)/.exec(javaVersion.output)?.[1]);
-  if (javaVersion.code !== 0 || major < 17 || !major) throw new Error('需要 JDK 17 或更高版本。');
+  if (javaVersion.code !== 0 || major !== 21) throw new Error('需要 JDK 21；请在当前终端选择 Java 21。');
   const mvnVersion = await capture(maven, ['--version'], { env: settings.childEnv });
   if (mvnVersion.code !== 0) throw new Error('Maven 无法启动，请检查 JAVA_HOME 与 JDK 配置。');
   const mavenJava = Number(/Java version:\s*(\d+)/.exec(mvnVersion.output)?.[1]);
-  if (!mavenJava || mavenJava < 17) throw new Error('Maven 使用的 JAVA_HOME 低于 Java 17，请在当前终端选择正确 JDK。');
+  if (mavenJava !== 21) throw new Error('Maven 的 JAVA_HOME 必须指向 JDK 21，请在当前终端选择正确 JDK。');
   console.log(`[检查] Node ${process.version}，Java ${major}，Maven Java ${mavenJava}`);
   const errors = [];
   for (const number of [settings.backendPort, settings.frontendPort]) {
