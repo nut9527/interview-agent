@@ -22,9 +22,23 @@ public final class MockInterviewAiService extends StructuredInterviewAiService {
     protected JsonNode generateOpening(String targetRole, String resumeSnapshot) {
         var agent = InterviewAgentContext.decode(resumeSnapshot);
         if (agent != null && agent.checkpoint() != null) return mapper.createObjectNode()
-                .put("question", agentQuestion(agent.routing().current(), agent.materials(), agent.difficulty()))
+                .put("question", retryOpening(agent, agentQuestion(agent.routing().current(), agent.materials(), agent.difficulty())))
                 .put("questionCompetencyId", agent.routing().current().id());
         return mapper.createObjectNode().put("question", mockOpeningQuestion(targetRole, resumeSnapshot));
+    }
+
+    private String retryOpening(InterviewAgentContext context, String question) {
+        var training = context.checkpoint().training();
+        if (training == null || training.retry() == null) return question;
+        String opening = "围绕「" + context.routing().current().name() + "」，请补充原回答待验证项「"
+                + training.retry().gap().substring(0, Math.min(100, training.retry().gap().length()))
+                + "」，说明你的具体行动、依据与限制。";
+        opening += switch (context.difficulty()) {
+            case BEGINNER -> "可以先说明一个基础步骤。";
+            case STANDARD -> "请补充实际验证依据。";
+            case ADVANCED -> "请解释复杂约束、替代方案与适用边界。";
+        };
+        return opening.substring(0, Math.min(300, opening.length()));
     }
 
     @Override

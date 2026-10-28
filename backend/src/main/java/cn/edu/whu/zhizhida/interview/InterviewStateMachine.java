@@ -17,6 +17,7 @@ import cn.edu.whu.zhizhida.interview.api.InterviewSession;
 import cn.edu.whu.zhizhida.interview.api.InterviewStartRequest;
 import cn.edu.whu.zhizhida.interview.api.InterviewState;
 import cn.edu.whu.zhizhida.interview.api.InterviewTurn;
+import cn.edu.whu.zhizhida.interview.api.InterviewTraining;
 import cn.edu.whu.zhizhida.interview.domain.InterviewRuleViolation;
 import cn.edu.whu.zhizhida.interview.domain.InterviewTransitions;
 
@@ -107,6 +108,20 @@ public class InterviewStateMachine implements InterviewService {
     @Override
     public InterviewSession start(InterviewStartRequest request) {
         Long userId = currentUserProvider.requireUserId();
+        if ((request.retrySessionId() == null) != (request.retryRound() == null))
+            throw new IllegalArgumentException("复练需要原会话和原回答轮次。");
+        if (request.retrySessionId() != null && (request.trainingTopic() != null || request.resumeId() != null
+                || request.targetJobId() != null || request.jobDescription() != null || request.resumeSummary() != null))
+            throw new IllegalArgumentException("复练沿用原场材料，请勿同时指定新材料或主题。");
+        boolean trainingRequested = request.trainingTopic() != null || request.retrySessionId() != null;
+        if (trainingRequested && !interviewAiService.supportsAgentDecisions())
+            throw new IllegalArgumentException("当前面试服务不支持专项训练和薄弱点复练。");
+        if (trainingRequested && (request.totalRounds() == null || request.totalRounds() < 3 || request.totalRounds() > 6))
+            throw new IllegalArgumentException("专项训练和薄弱点复练仅支持 3 至 6 轮。");
+        InterviewSession source = request.retrySessionId() == null ? null : sessionRepository.findById(userId, request.retrySessionId())
+                .orElseThrow(() -> sessionNotFound(request.retrySessionId()));
+        InterviewTraining.Retry retry = source == null ? null : retrySnapshot(source, request.retryRound());
+        InterviewTraining training = trainingRequested ? new InterviewTraining(request.trainingTopic(), retry) : null;
         String targetRole = request.targetRole().trim();
         if ((request.targetJobId() == null) != (request.targetJobRevision() == null)) {
             throw new IllegalArgumentException("请选择目标岗位及其当前版本。");
@@ -118,6 +133,11 @@ public class InterviewStateMachine implements InterviewService {
         InterviewPreparation preparation = null;
         String resumeSnapshot = resume == null ? normalizeNullable(request.resumeSummary()) : buildResumeSnapshot(resume);
         String jobSnapshot = resolveJobSnapshot(request, targetRole);
+        if (source != null) {
+            targetRole = source.targetRole();
+            resumeSnapshot = source.resumeSnapshot();
+            jobSnapshot = source.jobSnapshot();
+        }
         if (request.targetJobId() != null) {
             var target = targetJobs.find(request.targetJobId());
             if (target.revision() != request.targetJobRevision()) throw new BusinessException(
@@ -127,6 +147,9 @@ public class InterviewStateMachine implements InterviewService {
                     + "\n目标岗位：" + target.id() + " · 修订 " + target.revision() + "\nJD：" + target.jdText();
         }
         InterviewMode mode = request.mode() == null ? InterviewMode.GENERAL : request.mode();
+        if (source != null) mode = source.mode();
+        else if (request.trainingTopic() != null) mode = request.trainingTopic() == InterviewTraining.Topic.PROJECT
+                ? InterviewMode.PROJECT_DEEP_DIVE : InterviewMode.BACKEND_BASICS;
         int totalRounds;
         try {
             totalRounds = transitions.configuredRounds(request.totalRounds());
@@ -134,16 +157,23 @@ public class InterviewStateMachine implements InterviewService {
             throw conflict(ex.getMessage());
         }
         var difficulty = request.difficulty() == null ? cn.edu.whu.zhizhida.interview.api.InterviewDifficulty.STANDARD : request.difficulty();
+        if (source != null) difficulty = source.difficulty();
         String sessionId = UUID.randomUUID().toString();
         var memory = interviewAiService.supportsAgentDecisions()
                 ? agentPolicy.practiceMemory(sessionRepository.recentAgentStates(userId, mode), interviewAiService.executionMode()) : List.<cn.edu.whu.zhizhida.interview.api.InterviewAgentState.PracticeMemory>of();
         var agent = interviewAiService.supportsAgentDecisions()
                 ? agentPolicy.plan(mode, totalRounds, planningContext(resume, preparation, jobSnapshot, resumeSnapshot), interviewAiService.executionMode(), memory) : null;
+        if (training != null) agent = agentPolicy.trainingPlan(training,
+                planningContext(resume, preparation, jobSnapshot, resumeSnapshot), interviewAiService.executionMode(), memory,
+                source == null ? null : source.agent().plan().stream().filter(c -> c.id().equals(retry.competencyId())).findFirst().orElseThrow());
         List<InterviewTurn> turns = new ArrayList<>();
         String startMessage = request.resumeId() == null
                 ? "面试开始。本轮由 AI 面试官结合目标岗位和你的回答进行 " + totalRounds + " 轮动态提问。"
                 : "面试开始。已载入所选简历，本轮将围绕简历经历和目标岗位进行 " + totalRounds + " 轮动态提问。";
         turns.add(new InterviewTurn("system", startMessage));
+        if (training != null) turns.set(0, new InterviewTurn("system", retry == null
+                ? "专项训练开始，共 " + totalRounds + " 轮。问题将围绕所选主题，根据回答继续追问。"
+                : "薄弱点复练开始：" + retry.competencyName() + "，共 " + totalRounds + " 轮。沿用原场材料与难度，重点核对原回答缺口。"));
         if (aiQuota != null) aiQuota.admit(userId.toString(), AiRequestQuota.INTERVIEW_START_UNITS);
         String context = preparationContext(aiContext(resumeSnapshot, jobSnapshot, mode), preparation);
         if (agent != null) context = InterviewAgentContext.encode(context, agent, agentPolicy.routing(agent, 0, totalRounds), mode == InterviewMode.PROJECT_DEEP_DIVE, difficulty);
@@ -162,9 +192,9 @@ public class InterviewStateMachine implements InterviewService {
         InterviewSession session = new InterviewSession(
                 sessionId,
                 targetRole,
-                request.resumeId(),
+                source == null ? request.resumeId() : source.resumeId(),
                 resumeSnapshot,
-                resume == null ? null : resume.revision(),
+                source != null ? source.resumeRevision() : resume == null ? null : resume.revision(),
                 null,
                 jobSnapshot,
                 mode,
@@ -175,6 +205,30 @@ public class InterviewStateMachine implements InterviewService {
                 List.copyOf(turns), preparation, agent, difficulty
         );
         return sessionRepository.save(userId, session);
+    }
+
+    private InterviewTraining.Retry retrySnapshot(InterviewSession source, int round) {
+        if (source.state() != InterviewState.FINISHED || source.agent() == null)
+            throw new IllegalArgumentException("请从已完成会话的能力复盘发起复练。");
+        var evaluation = source.agent().evaluations().stream().filter(e -> e.round() == round).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("原回答轮次不存在。"));
+        var competency = source.agent().plan().stream().filter(c -> c.id().equals(evaluation.competencyId())).findFirst().orElseThrow();
+        String question = "";
+        int answered = 0;
+        for (var turn : source.turns()) {
+            if ("interviewer".equals(turn.speaker())) question = turn.content();
+            if ("user".equals(turn.speaker()) && ++answered == round)
+                return new InterviewTraining.Retry(source.sessionId(), round, competency.id(), competency.name(), question,
+                        turn.content(), evaluation.decision().level(), evaluation.decision().evidence(), evaluation.decision().gap());
+        }
+        throw new IllegalArgumentException("原回答记录不完整。");
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PageResult<InterviewHistoryItem> listRetries(String sessionId, PageRequest page) {
+        findSession(sessionId);
+        return sessionRepository.retries(currentUserProvider.requireUserId(), sessionId, page);
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)

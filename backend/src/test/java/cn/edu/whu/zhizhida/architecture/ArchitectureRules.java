@@ -23,7 +23,7 @@ final class ArchitectureRules {
             "JobUserData", "InterviewUserData");
     static final Set<String> MODEL_ADAPTER_NAMES = Set.of("resume.DefaultAiResumeService", "resume.ResumeAiConfiguration",
             "interview.DefaultInterviewAiService", "interview.InterviewAiConfiguration");
-    private static final Set<String> INTERVIEW_DATA = Set.of("InterviewSession", "InterviewState", "InterviewTurn", "InterviewMode", "InterviewDifficulty", "InterviewPreparation", "FollowUp", "InterviewAgentState", "InterviewPlanningContext");
+    private static final Set<String> INTERVIEW_DATA = Set.of("InterviewSession", "InterviewState", "InterviewTurn", "InterviewMode", "InterviewDifficulty", "InterviewPreparation", "FollowUp", "InterviewAgentState", "InterviewPlanningContext", "InterviewTraining");
     private static final Set<String> EFFECTS = Set.of("java.lang.System", "java.lang.Runtime", "java.lang.ProcessBuilder",
             "java.lang.Thread", "java.util.UUID", "java.util.Random", "java.util.SplittableRandom",
             "java.util.Date", "java.util.Calendar", "java.util.Timer");

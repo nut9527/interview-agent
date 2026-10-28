@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface InterviewSessionRepository {
     PageResult<InterviewHistoryItem> page(Long userId, PageRequest page);
 
+    PageResult<InterviewHistoryItem> retries(Long userId, String sessionId, PageRequest page);
+
 
     InterviewSession save(Long userId, InterviewSession session);
 

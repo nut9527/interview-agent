@@ -22,3 +22,18 @@ test('blank and oversized custom material cannot start a session', () => {
   assert.equal(buildInterviewRequest({ ...input, customJd: '原'.repeat(20000) }).jobDescription.length, 20000);
   assert.throws(() => buildInterviewRequest({ ...input, jobSource: 'saved', job: null }));
 });
+
+test('topic training works without materials and keeps difficulty and bounded rounds', () => {
+  for (const trainingTopic of ['DATABASE', 'CONCURRENCY', 'PERFORMANCE', 'PROJECT']) {
+    for (const rounds of [3, 4, 5, 6]) {
+      const request = buildInterviewRequest({ ...input, resumeId: undefined, job: null, customRole: '', customJd: '', trainingTopic, rounds });
+      assert.equal(request.trainingTopic, trainingTopic);
+      assert.equal(request.totalRounds, rounds);
+      assert.equal(request.difficulty, 'ADVANCED');
+      assert.equal(request.mode, trainingTopic === 'PROJECT' ? 'PROJECT_DEEP_DIVE' : 'BACKEND_BASICS');
+      assert.equal(request.targetJobId, undefined);
+    }
+  }
+  for (const rounds of [2, 7, 4.5]) assert.throws(() => buildInterviewRequest({ ...input, trainingTopic: 'DATABASE', rounds }));
+  assert.throws(() => buildInterviewRequest({ ...input, trainingTopic: 'DATABASE', customJd: '' }));
+});

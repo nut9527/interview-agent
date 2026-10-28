@@ -1,9 +1,10 @@
 package cn.edu.whu.zhizhida.common.persistence;
 
+import org.springframework.stereotype.Component;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Component;
 
 @Component
 public class JsonColumnCodec {

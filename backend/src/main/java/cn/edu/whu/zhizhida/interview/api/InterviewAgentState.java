@@ -5,7 +5,8 @@ import java.util.List;
 /** Public, evidence-based checkpoint. Contains decisions, never private model reasoning. */
 public record InterviewAgentState(
         String version, String executionMode, List<Competency> plan,
-        String activeCompetencyId, List<Evaluation> evaluations, List<DigestEntry> digest, List<PracticeMemory> practiceMemory) {
+        String activeCompetencyId, List<Evaluation> evaluations, List<DigestEntry> digest, List<PracticeMemory> practiceMemory,
+        InterviewTraining training) {
     public InterviewAgentState {
         plan = List.copyOf(plan);
         evaluations = List.copyOf(evaluations);
@@ -15,6 +16,11 @@ public record InterviewAgentState(
 
     public InterviewAgentState(String version, String executionMode, List<Competency> plan, String activeCompetencyId, List<Evaluation> evaluations) {
         this(version, executionMode, plan, activeCompetencyId, evaluations, List.of(), List.of());
+    }
+
+    public InterviewAgentState(String version, String executionMode, List<Competency> plan, String activeCompetencyId,
+            List<Evaluation> evaluations, List<DigestEntry> digest, List<PracticeMemory> memory) {
+        this(version, executionMode, plan, activeCompetencyId, evaluations, digest, memory, null);
     }
 
     public enum AnchorKind { PROJECT, INTERNSHIP, SKILLS, JOB, SUMMARY }
@@ -50,6 +56,6 @@ public record InterviewAgentState(
         String active = visible.isEmpty() ? plan.get(0).id()
                 : visible.get(visible.size() - 1).decision().nextCompetencyId();
         return new InterviewAgentState(version, executionMode, plan, active, visible,
-                digest.stream().filter(e -> e.round() <= answered).toList(), practiceMemory);
+                digest.stream().filter(e -> e.round() <= answered).toList(), practiceMemory, training);
     }
 }

@@ -61,6 +61,16 @@ public class MybatisPlusInterviewSessionRepository implements InterviewSessionRe
     }
 
     @Override
+    public PageResult<InterviewHistoryItem> retries(Long userId, String sessionId, PageRequest page) {
+        var filter = Wrappers.<InterviewSessionEntity>lambdaQuery().eq(InterviewSessionEntity::getUserId, userId)
+                .apply("JSON_UNQUOTE(JSON_EXTRACT(agent_json, '$.training.retry.sourceSessionId')) = {0}", sessionId);
+        long total = interviewSessionMapper.selectCount(filter);
+        var items = interviewSessionMapper.selectList(filter.orderByDesc(InterviewSessionEntity::getUpdatedAt,
+                InterviewSessionEntity::getSessionId).last(page.limitSql())).stream().map(this::toHistoryItem).toList();
+        return new PageResult<>(items, total, page);
+    }
+
+    @Override
     public List<InterviewHistoryItem> findAll(Long userId) {
         return interviewSessionMapper.selectList(
                         Wrappers.<InterviewSessionEntity>lambdaQuery()

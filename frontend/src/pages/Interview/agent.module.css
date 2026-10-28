@@ -41,6 +41,7 @@
 .evidenceCard h3 { margin: 0; font-size: 17px; font-weight: 500; }
 .evidenceLevel, .evidenceCard small { color: var(--ink-3); font-size: 12px; }
 .evidenceCard p, .history p { font-size: 14px; line-height: 1.75; }
+.answerText { white-space: pre-wrap; overflow-wrap: anywhere; }
 .report blockquote { margin: 16px 0; padding: 0 0 0 16px; border-left: 2px solid var(--amber); color: var(--ink-2); font-size: 14px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
 .practice { padding-top: 24px; border-top: 1px solid var(--line); }
 .practice h3 { margin: 0 0 24px; font-size: 17px; font-weight: 600; }

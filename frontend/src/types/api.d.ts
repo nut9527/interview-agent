@@ -162,6 +162,9 @@ export interface ResumeComparison {
 
 
 export interface InterviewSessionRequest {
+  trainingTopic?: InterviewTrainingTopic;
+  retrySessionId?: string;
+  retryRound?: number;
   targetJobId?: string;
   targetJobRevision?: number;
   targetRole: string;
@@ -174,6 +177,14 @@ export interface InterviewSessionRequest {
 }
 
 export type InterviewDifficulty = 'BEGINNER' | 'STANDARD' | 'ADVANCED';
+
+export type InterviewTrainingTopic = 'DATABASE' | 'CONCURRENCY' | 'PERFORMANCE' | 'PROJECT';
+
+export interface InterviewTraining {
+  topic?: InterviewTrainingTopic | null;
+  retry?: { sourceSessionId: string; sourceRound: number; competencyId: string; competencyName: string;
+    question: string; answer: string; level: 'INSUFFICIENT' | 'PARTIAL' | 'STRONG'; evidence: string; gap: string } | null;
+}
 
 export type InterviewMode = 'GENERAL' | 'BACKEND_BASICS' | 'PROJECT_DEEP_DIVE';
 
@@ -209,6 +220,7 @@ export interface InterviewSession {
 export type InterviewProbe = 'OPENING' | 'EVIDENCE' | 'QUANTIFY' | 'COUNTEREXAMPLE' | 'TRANSFER' | 'TRADEOFF' | 'CLARIFY' | 'NONE';
 
 export interface InterviewAgentState {
+  training?: InterviewTraining | null;
   version: string;
   executionMode: string;
   plan: Array<{ id: string; name: string; objective: string; materialAnchors?: Array<{

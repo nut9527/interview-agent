@@ -11,8 +11,15 @@ public record InterviewStartRequest(
         @Min(1) @Max(12) Integer totalRounds,
         @Size(min = 1, max = 80) String targetJobId,
         @PositiveOrZero Long targetJobRevision,
-        InterviewDifficulty difficulty
+        InterviewDifficulty difficulty,
+        InterviewTraining.Topic trainingTopic,
+        @Size(min = 1, max = 80) String retrySessionId,
+        @Min(1) @Max(12) Integer retryRound
 ) {
+    public InterviewStartRequest(String role, String summary, Long resumeId, String jd, InterviewMode mode,
+            Integer rounds, String jobId, Long revision, InterviewDifficulty difficulty) {
+        this(role, summary, resumeId, jd, mode, rounds, jobId, revision, difficulty, null, null, null);
+    }
     public InterviewStartRequest(String role, String summary, Long resumeId) {
         this(role, summary, resumeId, null, null, null, null, null, null);
     }

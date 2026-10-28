@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-28",
+  "features": [
+    "数据库、并发、性能、项目深挖专项训练：三档难度、3～6轮、动态追问、可选材料",
+    "复盘卡片一键复练：服务端固定原能力、回答缺口、材料与难度",
+    "原会话与复练双向关联；回答全文、证据和仍待补充项对照"
+  ],
+  "backend": {
+    "command": "MAVEN_OPTS=-Dspring-boot.repackage.skip=true node scripts/verify-backend.mjs --offline",
+    "result": "passed",
+    "unitAndWebTests": 469,
+    "integrationTests": 95,
+    "failures": 0,
+    "coverage": {
+      "line": { "covered": 2592, "missed": 158 },
+      "branch": { "covered": 1184, "missed": 252 },
+      "gate": "both >= 80%; passed"
+    },
+    "database": "project-local disposable MySQL, removed after verification",
+    "newCases": [
+      "所有主题的3至6轮均能完成且不离开能力范围",
+      "原回答、证据和缺口由本人已完成会话读取，继承材料和难度",
+      "非法轮数、来源、混合材料与跨账号请求被拒绝",
+      "持久化重开、幂等回放、双向关联及删除原会话后的快照保留",
+      "原回答缺口仅进入模型不可信素材区"
+    ]
+  },
+  "frontend": {
+    "tests": 73,
+    "typecheck": "passed",
+    "lint": "passed",
+    "productionBuild": "passed",
+    "contractCompatibilityAgainstHead": "passed",
+    "browser": "2026-10-28-training-browser.json",
+    "screenshots": [
+      "2026-10-28-training-settings.png",
+      "2026-10-28-training-comparison.png",
+      "2026-10-28-training-mobile.png"
+    ]
+  },
+  "limitations": [
+    "现有后端JAR无法重命名，验证时跳过Spring Boot重新打包；单元、实库与覆盖率验证完整执行。",
+    "浏览器使用生产构建和合成本地API；实库流程使用Mock AI。真实模型对缺口补齐的语义判断未验收。"
+  ],
+  "cleanup": "临时浏览器目录、隔离MySQL进程与数据已清理；保留正式验证材料和正常构建产物。"
+}

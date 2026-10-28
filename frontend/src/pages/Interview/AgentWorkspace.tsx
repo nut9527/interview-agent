@@ -1,4 +1,4 @@
-import { Alert, Tag } from 'antd';
+import { Alert, Button, Tag } from 'antd';
 import type { InterviewAgentState } from '@/types/api.d';
 import styles from './agent.module.css';
 
@@ -35,7 +35,7 @@ export function AgentPlan({ agent, finished }: { agent: InterviewAgentState; fin
   </section>;
 }
 
-export function AgentReport({ agent }: { agent: InterviewAgentState }) {
+export function AgentReport({ agent, onRetry, busy }: { agent: InterviewAgentState; onRetry: (round: number) => void; busy: boolean }) {
   const rows = agent.plan.map(item => ({ ...item, evaluation: last(agent.evaluations.filter(e => e.competencyId === item.id)) }));
   const assessed = rows.filter(row => row.evaluation);
   const probes = Object.entries(probeLabels).filter(([probe]) => probe !== 'OPENING' && probe !== 'NONE').map(([probe, label]) => {
@@ -55,7 +55,8 @@ export function AgentReport({ agent }: { agent: InterviewAgentState }) {
       <div><h3>{row.name}</h3><span className={styles.evidenceLevel}>{row.evaluation ? levelLabels[row.evaluation.decision.level] : '未覆盖'}</span></div>
       {row.evaluation ? <><small>第 {row.evaluation.round} 轮 · 回答原文</small>
         {row.evaluation.decision.evidence ? <blockquote>{row.evaluation.decision.evidence}</blockquote> : <p>本轮尚无可引用的回答证据。</p>}
-        <p><strong>待验证：</strong>{row.evaluation.decision.gap}</p></> : <p>本场尚未考察此能力，不能据此推断掌握程度。</p>}
+        <p><strong>待验证：</strong>{row.evaluation.decision.gap}</p>
+        <Button disabled={busy} onClick={() => onRetry(row.evaluation!.round)}>复练此能力 · 3 轮</Button></> : <p>本场尚未考察此能力，不能据此推断掌握程度。</p>}
     </article>)}</div>
     <div className={styles.practice}><h3>下一次练什么</h3><ol>{priorities.map(row => <li key={row.id}>
       <strong>{row.name}</strong><p>{row.evaluation!.decision.practice}</p>

@@ -45,6 +45,10 @@ const toMockHistoryItem = (session: InterviewSession): InterviewHistoryItem => {
 };
 
 export const interviewService = {
+  getRetries: (sessionId: string, page = 1, signal?: AbortSignal): Promise<PageResult<InterviewHistoryItem>> => {
+    if (USE_MOCK) return Promise.resolve({ items: [], total: 0, page, size: 20 });
+    return get(`/api/interviews/sessions/${encodeURIComponent(sessionId)}/retries`, { params: { page, size: 20 }, signal });
+  },
   getSessions: (page = 1, signal?: AbortSignal): Promise<PageResult<InterviewHistoryItem>> => {
     if (USE_MOCK) {
       const rows = Object.values(mockSessions).map(toMockHistoryItem)
@@ -62,7 +66,7 @@ export const interviewService = {
   },
   startSession: async (data: InterviewSessionRequest, signal?: AbortSignal): Promise<InterviewSession> => {
     if (USE_MOCK) {
-      if (data.targetJobId) throw new Error('导入岗位与简历的完整面试流程需要连接后端，后端支持无密钥的 Mock AI。');
+      if (data.targetJobId || data.trainingTopic || data.retrySessionId) throw new Error('专项训练、薄弱点复练及完整材料流程需要连接后端，后端支持无密钥的 Mock AI。');
       const scope = captureAccountScope();
       if (!scope.isCurrent() || signal?.aborted) throw new CanceledError();
       const sessionId = `session-${Date.now()}`;

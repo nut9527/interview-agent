@@ -47,6 +47,12 @@ public class InterviewController {
         return ApiResponse.ok(interviewService.start(request));
     }
 
+    @GetMapping("/sessions/{sessionId}/retries")
+    public ApiResponse<PageResult<InterviewHistoryItem>> retries(@PathVariable String sessionId,
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.ok(interviewService.listRetries(sessionId, new PageRequest(page, size)));
+    }
+
     @PostMapping("/sessions/{sessionId}/answers")
     public ApiResponse<InterviewSession> answer(
             @PathVariable String sessionId,

@@ -631,6 +631,9 @@
             },
             "type" : "array"
           },
+          "training" : {
+            "$ref" : "#/components/schemas/cn.edu.whu.zhizhida.interview.api.InterviewTraining"
+          },
           "version" : {
             "type" : "string"
           }
@@ -990,6 +993,17 @@
             "minLength" : 0,
             "type" : "string"
           },
+          "retryRound" : {
+            "format" : "int32",
+            "maximum" : 12,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "retrySessionId" : {
+            "maxLength" : 80,
+            "minLength" : 1,
+            "type" : "string"
+          },
           "targetJobId" : {
             "maxLength" : 80,
             "minLength" : 1,
@@ -1010,9 +1024,59 @@
             "maximum" : 12,
             "minimum" : 1,
             "type" : "integer"
+          },
+          "trainingTopic" : {
+            "enum" : [ "DATABASE", "CONCURRENCY", "PERFORMANCE", "PROJECT" ],
+            "type" : "string"
           }
         },
         "required" : [ "targetRole" ],
+        "type" : "object"
+      },
+      "cn.edu.whu.zhizhida.interview.api.InterviewTraining" : {
+        "properties" : {
+          "retry" : {
+            "$ref" : "#/components/schemas/cn.edu.whu.zhizhida.interview.api.InterviewTraining$Retry"
+          },
+          "topic" : {
+            "enum" : [ "DATABASE", "CONCURRENCY", "PERFORMANCE", "PROJECT" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "cn.edu.whu.zhizhida.interview.api.InterviewTraining$Retry" : {
+        "properties" : {
+          "answer" : {
+            "type" : "string"
+          },
+          "competencyId" : {
+            "type" : "string"
+          },
+          "competencyName" : {
+            "type" : "string"
+          },
+          "evidence" : {
+            "type" : "string"
+          },
+          "gap" : {
+            "type" : "string"
+          },
+          "level" : {
+            "enum" : [ "INSUFFICIENT", "PARTIAL", "STRONG" ],
+            "type" : "string"
+          },
+          "question" : {
+            "type" : "string"
+          },
+          "sourceRound" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "sourceSessionId" : {
+            "type" : "string"
+          }
+        },
         "type" : "object"
       },
       "cn.edu.whu.zhizhida.interview.api.InterviewTurn" : {
@@ -3447,6 +3511,173 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.interview.api.InterviewSession"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "405" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "501" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "502" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "503" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "tags" : [ "interview-controller" ]
+      }
+    },
+    "/api/interviews/sessions/{sessionId}/retries" : {
+      "get" : {
+        "operationId" : "retries",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "sessionId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 1,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.common.PageResultCn.edu.whu.zhizhida.interview.api.InterviewHistoryItem"
                 }
               }
             },

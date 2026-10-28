@@ -4,6 +4,7 @@ import cn.edu.whu.zhizhida.interview.api.InterviewAgentState;
 import cn.edu.whu.zhizhida.interview.api.InterviewAgentState.*;
 import cn.edu.whu.zhizhida.interview.api.InterviewMode;
 import cn.edu.whu.zhizhida.interview.api.InterviewPlanningContext;
+import cn.edu.whu.zhizhida.interview.api.InterviewTraining;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -70,6 +71,28 @@ public final class InterviewAgentPolicy {
         var projectAssignments = assignProjects(selected, materials);
         for (var c : selected) plan.add(personalize(c, materials, projectAssignments.get(c.id())));
         return new InterviewAgentState("interview-agent-v3", executionMode, plan, plan.get(0).id(), List.of(), List.of(), memory);
+    }
+
+    public InterviewAgentState trainingPlan(InterviewTraining training, InterviewPlanningContext materials,
+            String executionMode, List<PracticeMemory> memory, Competency original) {
+        List<Competency> selected;
+        if (training.retry() != null) selected = List.of(original);
+        else if (training.topic() == InterviewTraining.Topic.PROJECT) selected = catalog(InterviewMode.PROJECT_DEEP_DIVE).subList(0, 2);
+        else {
+            String id = switch (training.topic()) {
+                case DATABASE -> "storage";
+                case CONCURRENCY -> "concurrency";
+                case PERFORMANCE -> "performance";
+                case PROJECT -> throw new IllegalStateException();
+            };
+            selected = catalog(InterviewMode.BACKEND_BASICS).stream().filter(c -> c.id().equals(id)).toList();
+        }
+        var assignments = assignProjects(selected, materials);
+        var plan = selected.stream().map(c -> training.retry() != null
+                ? new Competency(c.id(), controlled(c).name(), controlled(c).objective(), c.materialAnchors())
+                : personalize(controlled(c), materials, assignments.get(c.id()))).toList();
+        return new InterviewAgentState("interview-training-v1", executionMode, plan, plan.get(0).id(),
+                List.of(), List.of(), memory, training);
     }
 
     /** Reconstruct control text from the catalog even for legacy plans whose objectives contain user quotations. */
@@ -186,7 +209,8 @@ public final class InterviewAgentPolicy {
         int budget = Math.max(0, total - Math.max(1, answered) - (state.plan().size() - index - 1));
         var used = state.evaluations().stream().filter(e -> e.competencyId().equals(current.id())
                 && e.decision().action() == Action.FOLLOW_UP).map(e -> e.decision().probe()).toList();
-        int cap = "interview-agent-v3".equals(state.version()) ? 2 : 11;
+        int cap = state.training() != null ? (state.plan().size() == 1 ? 5 : 2)
+                : "interview-agent-v3".equals(state.version()) ? 2 : 11;
         var allowed = new ArrayList<Action>();
         if (remaining == 0) allowed.add(Action.FINISH);
         else {
@@ -225,7 +249,7 @@ public final class InterviewAgentPolicy {
                 previous == null ? Probe.OPENING : previous.probe(), previous == null ? route.current().objective() : previous.intent()));
         var digest = evaluations.stream().map(e -> new DigestEntry(e.round(), e.competencyId(), e.decision().level(),
                 clip(e.decision().evidence(), 120), clip(e.decision().gap(), 100), e.answeredProbe())).toList();
-        return new InterviewAgentState(state.version(), state.executionMode(), state.plan(), expected, evaluations, digest, state.practiceMemory());
+        return new InterviewAgentState(state.version(), state.executionMode(), state.plan(), expected, evaluations, digest, state.practiceMemory(), state.training());
     }
 
     /** Weak guard for clearly disjoint technical questions; metadata alone does not prove semantic alignment. */

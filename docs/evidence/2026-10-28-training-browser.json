@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Four topics; selected difficulty and four rounds submit without resume/JD.",
+    "Failed retry preserves source; one-click retry carries only source reference; all new answers, evidence and gaps survive reload.",
+    "Mobile comparison fits viewport; source session links back to its retry."
+  ],
+  "errors": [],
+  "api": "synthetic local",
+  "viewport": [
+    1440,
+    390
+  ]
+}

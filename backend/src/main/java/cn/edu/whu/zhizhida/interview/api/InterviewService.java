@@ -12,6 +12,8 @@ public interface InterviewService {
 
     InterviewSession findSession(String sessionId);
 
+    PageResult<InterviewHistoryItem> listRetries(String sessionId, PageRequest page);
+
     InterviewSession start(InterviewStartRequest request);
 
     InterviewSession answer(String sessionId, InterviewAnswerRequest request);

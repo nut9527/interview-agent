@@ -25,7 +25,8 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { InterviewHistoryItem, InterviewSessionRequest, SpeakerType } from '@/types/api.d';
 import InterviewSetup from './InterviewSetup';
-import { difficultyOptions } from './interviewSettings';
+import { difficultyOptions, trainingTopics } from './interviewSettings';
+import { RelatedRetries, TrainingComparison } from './TrainingReview';
 import { AgentPlan, AgentReport } from './AgentWorkspace';
 import { useAuthStore } from '@/stores/authStore';
 import { useInterviewSession } from './useInterviewSession';
@@ -77,6 +78,15 @@ function InterviewPage({ userId }: { userId: number }) {
     if (busy || coolingDown) return;
     const started = await controller.current?.start(request);
     if (started) navigate('/interview?' + new URLSearchParams({ sessionId: started.sessionId }), { replace: true });
+  };
+  const handleRetry = async (round: number) => {
+    if (!session || busy || coolingDown) return;
+    try {
+      await handleStart({ targetRole: session.targetRole, mode: session.mode, totalRounds: 3,
+        retrySessionId: session.sessionId, retryRound: round });
+    } catch (cause) {
+      if (!isRequestCanceled(cause)) message.error(cause instanceof Error ? cause.message : '发起复练失败');
+    }
   };
   const handleRestart = () => { controller.current?.restart(); navigate('/interview'); refresh(); };
   const handleOpenHistory = (id: string) => navigate('/interview?' + new URLSearchParams({ sessionId: id }));
@@ -133,6 +143,9 @@ function InterviewPage({ userId }: { userId: number }) {
       </header>
       {USE_MOCK && <Alert type="info" showIcon message="完整的材料导入与 Agent 面试需要连接后端。后端支持无密钥的 Mock AI，可直接体验完整流程。" />}
       {session && <Button icon={<ReloadOutlined />} disabled={busy} onClick={handleRestart} style={{ marginBottom: 16 }}>更换面试材料</Button>}
+      {session?.state === 'FINISHED' && recoveryError && <Alert type="warning" showIcon message={recoveryError} />}
+      {session?.state === 'FINISHED' && starting && <Alert type="info" showIcon message="正在根据原能力与回答缺口创建复练…" />}
+      {session?.state === 'FINISHED' && coolingDown && <Alert type="info" showIcon message={`请在 ${new Date(retryAt).toLocaleTimeString()} 后重试。`} />}
 
       {!session ? (
         <>
@@ -316,9 +329,11 @@ function InterviewPage({ userId }: { userId: number }) {
             {session.agent && <AgentPlan agent={session.agent} finished={session.state === 'FINISHED'} />}
             <div className={styles.contextCard}>
               <span>本场依据</span>
-              <h3>{session.mode === 'PROJECT_DEEP_DIVE' ? '项目深挖'
+              <h3>{session.agent?.training?.retry ? '薄弱点复练' : session.agent?.training?.topic
+                ? `${trainingTopics.find(topic => topic.value === session.agent?.training?.topic)?.label}专项训练` : session.mode === 'PROJECT_DEEP_DIVE' ? '项目深挖'
                 : session.mode === 'BACKEND_BASICS' ? '后端基础' : '通用面试'}</h3>
               <p>{session.targetRole} · {difficultyOptions.find(option => option.value === (session.difficulty ?? 'STANDARD'))?.label}难度 · {session.totalRounds} 轮</p>
+              {session.agent?.training?.retry && <p>原回答缺口：{session.agent.training.retry.gap}</p>}
               {session.resumeId && <p>简历 #{session.resumeId} · 修订 {session.resumeRevision ?? '历史未记录'}</p>}
               {session.jobId && <p>岗位 #{session.jobId}</p>}
               {session.jobSnapshot && <details><summary>创建时的岗位 / JD</summary><p>{session.jobSnapshot}</p></details>}
@@ -333,7 +348,9 @@ function InterviewPage({ userId }: { userId: number }) {
               </ul>
             </div>
           </aside>
-          {session.state === 'FINISHED' && session.agent && <AgentReport agent={session.agent} />}
+          {session.agent?.training?.retry && <TrainingComparison session={session} />}
+          {session.state === 'FINISHED' && session.agent && <><AgentReport agent={session.agent} busy={busy || coolingDown} onRetry={round => void handleRetry(round)} />
+            <RelatedRetries key={session.sessionId} sessionId={session.sessionId} /></>}
         </section>
       )}
     </main>

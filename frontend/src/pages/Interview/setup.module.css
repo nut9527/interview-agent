@@ -5,6 +5,14 @@
 .setupHeading p, .hint { color: var(--ink-2); line-height: 1.75; font-size: 13px; }
 .setupHeading p { margin: 4px 0 0; }
 .materials { min-width: 0; }
+.trainingPicker { grid-column: 1 / -1; margin-bottom: 24px; }
+.topics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; gap: 12px; }
+.topics :global(.ant-radio-button-wrapper) { height: auto; padding: 16px; line-height: 1.5; border: 1px solid var(--line); }
+.topics :global(.ant-radio-button-wrapper)::before { display: none; }
+.topics :global(.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)) { border-color: var(--ink); color: var(--ink); background: var(--amber-soft); }
+.topics strong, .topics small { display: block; white-space: normal; }
+.topics small { margin-top: 8px; color: var(--ink-2); font-size: 12px; }
+@media (max-width: 680px) { .topics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .materialCard { padding: 24px 0; min-width: 0; border-top: 1px solid var(--line); }
 .materialHeading { margin-bottom: 16px; }
 .materialHeading h3 { display: flex; align-items: baseline; gap: 16px; margin: 0; font-size: 17px; font-weight: 600; }
@@ -47,7 +55,7 @@
 .difficulty :global(.ant-radio-wrapper-checked) { border-color: var(--ink); background: var(--surface); }
 .difficulty strong { display: block; margin-bottom: 4px; font-size: 14px; }
 .difficultyDescription { display: block; color: var(--ink-2); font-size: 12px; line-height: 1.6; }
-.briefing { grid-row: 2 / 5; }
+.briefing { grid-row: 3 / 6; }
 .dialogActions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 @media (max-width: 1000px) {
   .setup { grid-template-columns: minmax(0, 1fr); }
