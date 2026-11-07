@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "closeout-batch-v1",
+  "campaign": "v1-closeout",
+  "batchId": "closeout-1",
+  "authorization": "NOT_GRANTED",
+  "candidatePath": "outputs/release/review-ui-20261105-01",
+  "sourceManifestSha256": "d68ffbb1c4465b6e7fcd34bf59909589d5131908e077eb8b9a90f56f5ae53094",
+  "registrationSha256": "a07ecec20851b35eaa49298608c43df34a144e8afea3023d32ddfadf0b1902e1",
+  "price": {
+    "schemaVersion": "closeout-price-v1",
+    "model": "deepseek-flash",
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "currency": "CNY",
+    "contextTokenUpperBound": 1048576,
+    "inputMicroCnyPerToken": 2,
+    "outputMicroCnyPerToken": 8,
+    "source": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+    "verifiedAt": "2026-11-05T03:04:32Z",
+    "validUntil": "2026-11-06T03:04:32Z",
+    "basis": "官方页面列出 1M 上下文；按 2^20 输入 token 预占，含消息模板与工具开销。输入一律按高峰未命中价，输出按高峰价。使用可信 usage 保守结算，不宣称等同实际账单。运行前重新核价，过期拒绝执行。"
+  },
+  "samples": [
+    {
+      "order": 1,
+      "id": "redis-order",
+      "family": "redis-order",
+      "partition": "development",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "bb417e0a7b9d6c6d021a4cfa496275a90358582db62dd196ec43934c59b59530",
+      "toolExpectation": "REQUIRED",
+      "check": "核对 Redis 写入与数据库失败窗口",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 4,
+      "id": "adequate-owner",
+      "family": "adequate-owner",
+      "partition": "development",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "83bdc71abbf3d06da58f70ca74129c6a500bb52c7c5c00197b250acbcfc73952",
+      "toolExpectation": "ZERO_ALLOWED",
+      "check": "充分回答允许零工具结束",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    }
+  ],
+  "required": [
+    "两个短场景全部符合预期终态",
+    "必要取证有工具回执",
+    "充分材料不强制工具",
+    "无阻断问题",
+    "证据和用量完整"
+  ],
+  "maximumMicroCny": 6000000,
+  "maximumAttempts": 8,
+  "wallClockMs": 300000,
+  "maximumRequestBytes": 480000,
+  "maximumOutputTokens": 2000,
+  "unknownUsage": "RETAIN_RESERVATION",
+  "settlement": "CONSERVATIVE_PEAK_CACHE_MISS",
+  "scope": "第一批两个固定短场景；后两批须完成 HTTP 流程接入和人工检查门禁后另行冻结",
+  "acceptance": "执行结束只可为 NOT_STARTED、FAIL 或 REVIEW_PENDING；需逐项人工检查才可判 PASS"
+}

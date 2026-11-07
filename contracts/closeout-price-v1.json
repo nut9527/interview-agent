@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "closeout-price-v1",
+  "model": "deepseek-flash",
+  "endpoint": "https://api.deepseek.com/chat/completions",
+  "currency": "CNY",
+  "contextTokenUpperBound": 1048576,
+  "inputMicroCnyPerToken": 2,
+  "outputMicroCnyPerToken": 8,
+  "source": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+  "verifiedAt": "2026-11-05T03:04:32Z",
+  "validUntil": "2026-11-06T03:04:32Z",
+  "basis": "官方页面列出 1M 上下文；按 2^20 输入 token 预占，含消息模板与工具开销。输入一律按高峰未命中价，输出按高峰价。使用可信 usage 保守结算，不宣称等同实际账单。运行前重新核价，过期拒绝执行。"
+}

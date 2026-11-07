@@ -1,0 +1,22 @@
+# API accepts durable commands; workers execute them and clients observe status or SSE.
+app:
+  runtime:
+    role: api
+  cache.questions.enabled: true
+  rate-limit.redis.enabled: true
+  run-dispatch.mode: rabbitmq
+  outbox.publisher.enabled: true
+  run-recovery.enabled: false
+interview.runs:
+  worker-enabled: false
+agent.vector.worker-enabled: false
+learning.worker-enabled: false
+knowledge:
+  dispatch:
+    mode: rabbitmq
+    publisher-enabled: true
+    index-scan-ms: 60000
+  import.worker-enabled: false
+demo.cleanup.enabled: false
+quota.cleanup.enabled: false
+ai.resilience.max-concurrent-calls: ${AI_MAX_CONCURRENT_CALLS:4}

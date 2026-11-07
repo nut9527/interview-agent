@@ -1,0 +1,6 @@
+[
+  {"id":"redis-order","family":"redis-order","material":"Redis 成功后数据库写入失败仍要处理重试；请求号与订单唯一约束共同决定重复行为。","answer":"我只用 Redis SETNX 保证重复下单不会出错。","gapTerms":["数据库","失败"]},
+  {"id":"mysql-unique","family":"mysql-unique","material":"唯一键冲突应读取原订单结果；事务回滚不能返回成功。","answer":"唯一键冲突我全部返回下单成功。","gapTerms":["冲突","结果"]},
+  {"id":"mq-ack","family":"mq-ack","material":"业务事务提交后才确认消息；重复投递依赖幂等消费。","answer":"消费者收到消息就立即 ACK。","gapTerms":["提交","消息"]},
+  {"id":"outbox","family":"outbox","material":"业务与 outbox 同一事务写入；投递器允许重发，消费端去重。","answer":"我先提交订单，再调用发送消息接口。","gapTerms":["事务","消息"]}
+]

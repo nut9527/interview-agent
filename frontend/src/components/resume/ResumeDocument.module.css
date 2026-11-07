@@ -1,0 +1,212 @@
+.paper {
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  --accent: #2457d6;
+  --accent-soft: #edf2ff;
+  --ink: #17213a;
+  --muted: #64708b;
+  --rule: #dce2ee;
+  width: 794px;
+  min-height: 1123px;
+  padding: 62px 66px 54px;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 20px 55px rgb(24 35 58 / 16%);
+  font-family: "Noto Sans CJK SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 28px;
+  align-items: end;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.eyebrow {
+  margin: 0 0 9px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.name {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Noto Serif CJK SC", "Songti SC", SimSun, serif;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.08;
+}
+
+.roleBlock {
+  max-width: 260px;
+  padding-left: 20px;
+  border-left: 1px solid var(--rule);
+  text-align: right;
+}
+
+.roleLabel {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+}
+
+.role {
+  margin: 0;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.summaryBlock {
+  position: relative;
+  margin-top: 24px;
+  padding: 17px 20px 17px 48px;
+  background: var(--accent-soft);
+}
+
+.summaryMark {
+  position: absolute;
+  top: 3px;
+  left: 17px;
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-size: 42px;
+  line-height: 1;
+}
+
+.summary {
+  margin: 0;
+  color: #3f4a60;
+  font-size: 13px;
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+
+.resumeGrid {
+  display: grid;
+  grid-template-areas:
+    "side"
+    "main";
+  gap: 4px;
+}
+
+.resumeGrid.singleColumn {
+  grid-template-areas: "main";
+}
+
+.mainColumn {
+  grid-area: main;
+}
+
+.sidebar {
+  display: grid;
+  grid-area: side;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.section {
+  margin-top: 27px;
+}
+
+.contact { margin: 18px 0; font-size: 12px; line-height: 1.8; font-style: normal; }
+.contactRow { display: flex; flex-wrap: wrap; gap: 4px 22px; }
+.contact a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.entry { margin-bottom: 18px; font-size: 12px; line-height: 1.75; }
+.entry:last-child { margin-bottom: 0; }
+.entryHeading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 14px; }
+.entryHeading h3 { margin: 0; color: var(--ink); font-size: 14px; font-weight: 700; }
+.entryHeading > span { color: var(--muted); font-size: 11px; }
+.entryMeta { margin: 3px 0; color: #38445a; }
+.entryBackground { margin: 8px 0; white-space: pre-wrap; }
+.contributions { margin: 8px 0 0; padding-left: 18px; list-style: disc; }
+.contributions li { padding-left: 3px; margin-top: 5px; white-space: pre-wrap; }
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 13px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.sectionHeading::after {
+  width: 46px;
+  height: 2px;
+  background: var(--accent);
+  content: "";
+}
+
+.skillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill {
+  padding: 5px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.experienceList {
+  display: grid;
+  gap: 11px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.experienceItem {
+  position: relative;
+  padding-left: 19px;
+  color: #38445a;
+  font-size: 12px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.experienceItem::before {
+  position: absolute;
+  top: 8px;
+  left: 1px;
+  width: 6px;
+  height: 6px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  content: "";
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 38px;
+  padding-top: 13px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+/* 经典清晰：传统编辑部蓝色单栏 */
+.classic {
+  background:
+    linear-gradient(90deg, var(--accent) 0 7px, transparent 7px),
+    #fff;
+}

@@ -1,0 +1,17 @@
+.section { grid-column: 1 / -1; min-width: 0; margin: 0 0 20px; padding: clamp(20px, 2vw, 32px); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.heading h2 { margin: 8px 0; font-size: 23px; }
+.heading h3, .task h3 { display: inline; margin: 0; font-size: 17px; }
+.eyebrow { color: var(--accent, #725137); letter-spacing: .12em; font-size: 12px; }
+.section > p, .resource > p, .task p { color: var(--ink-2, #555); line-height: 1.8; }
+.resource { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line, #ddd); }
+.columns { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 32px; }
+.passage, .exercise { padding: 14px 0; border-bottom: 1px solid var(--line, #ddd); }
+.passage small, .exercise small { display: block; color: var(--ink-3, #777); margin: 8px 0; }
+.passage blockquote { margin: 12px 0 0; padding-left: 16px; border-left: 2px solid var(--line, #ddd); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; max-height: 260px; overflow-y: auto; }
+.empty { color: var(--ink-2); padding: 20px; background: var(--paper); border-radius: 9px; line-height: 1.8; }
+.task { display: flex; justify-content: space-between; gap: 24px; padding: 24px 0; border-top: 1px solid var(--line, #ddd); }
+.task > div { min-width: 0; overflow-wrap: anywhere; }
+.timer { font-variant-numeric: tabular-nums; padding: 8px 0; font-weight: 600; }
+.timer[data-expired='true'] { color: #ad4e00; }
+@media (max-width: 760px) { .section { padding: 24px 16px; } .columns { grid-template-columns: minmax(0, 1fr); gap: 16px; } .heading, .task { align-items: flex-start; flex-direction: column; } }

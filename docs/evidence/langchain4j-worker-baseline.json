@@ -1,0 +1,54 @@
+{
+  "model": "deepseek-flash",
+  "maxRequests": 8,
+  "maxOutputTokens": 16000,
+  "cases": [
+    "redis-order",
+    "adequate-owner"
+  ],
+  "runs": [
+    {
+      "caseId": "redis-order",
+      "report": "langchain4j-worker-baseline-redis-order.jsonl",
+      "retainedRequests": 1,
+      "status": "SUCCEEDED",
+      "exitCode": 0,
+      "sourceHash": "e240fccf61c9d8b53e0569c68a71d9120bdbf39743b87ea3b5526a958bd6e464",
+      "error": null,
+      "attempts": 1,
+      "tools": 0,
+      "elapsedMs": 5954,
+      "evidenceCheck": "MISSING_REQUIRED_TOOL_EVIDENCE",
+      "usage": [
+        {
+          "status": "REPORTED",
+          "inputTokens": 5315,
+          "outputTokens": 999,
+          "totalTokens": 6314
+        }
+      ]
+    },
+    {
+      "caseId": "adequate-owner",
+      "report": "langchain4j-worker-baseline-adequate-owner.jsonl",
+      "retainedRequests": 1,
+      "status": "SUCCEEDED",
+      "exitCode": 0,
+      "sourceHash": "156431f0df3c54bc1ca0b090956bc051cd017e5ccf25c18a34e86d343ed4ee8d",
+      "error": null,
+      "attempts": 1,
+      "tools": 0,
+      "elapsedMs": 6603,
+      "evidenceCheck": "PASSED",
+      "usage": [
+        {
+          "status": "REPORTED",
+          "inputTokens": 5232,
+          "outputTokens": 1102,
+          "totalTokens": 6334
+        }
+      ]
+    }
+  ],
+  "result": "FAILED"
+}

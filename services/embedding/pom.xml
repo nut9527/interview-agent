@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>cn.edu.whu</groupId><artifactId>zhizhida-build-parent</artifactId><version>0.1.0-SNAPSHOT</version>
+    <relativePath>../../backend/.mvn/project-parent/pom.xml</relativePath>
+  </parent>
+  <artifactId>knowledge-local-embedding</artifactId><version>0.1.0-SNAPSHOT</version>
+  <description>Loopback-only CPU embeddings for optional knowledge retrieval.</description>
+  <dependencies>
+    <dependency><groupId>dev.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-zh-v15-q</artifactId><version>${langchain4j.jackson3.version}</version></dependency>
+    <dependency><groupId>tools.jackson.core</groupId><artifactId>jackson-databind</artifactId></dependency>
+    <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
+  </dependencies>
+  <build><directory>${project.basedir}/../../.runtime/embedding-build</directory><plugins>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><configuration>
+      <environmentVariables><TEMP>${project.build.directory}</TEMP><TMP>${project.build.directory}</TMP></environmentVariables>
+      <systemPropertyVariables><java.io.tmpdir>${project.build.directory}</java.io.tmpdir></systemPropertyVariables>
+    </configuration></plugin>
+  </plugins></build>
+</project>

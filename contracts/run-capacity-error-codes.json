@@ -1,0 +1,27 @@
+{
+  "reason": "已确认的持久 Run 容量错误码扩展；仅补齐以下历史错误码枚举位置，其他变更仍受严格兼容检查。",
+  "additions": {
+    "RUN_USER_CAPACITY": { "httpStatus": 429, "meaning": "当前用户已有尚未开始的命令，或已有两条未终结命令" },
+    "RUN_QUEUE_FULL": { "httpStatus": 503, "meaning": "全局未终结命令队列已满" }
+  },
+  "enumPointers": [
+    "/components/schemas/ErrorCode/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.auth.api.AuthResponse/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.auth.api.UserProfile/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.common.PageResultCn.edu.whu.zhizhida.interview.api.InterviewHistoryItem/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.common.PageResultCn.edu.whu.zhizhida.jobs.api.TargetJob$Summary/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.common.PageResultCn.edu.whu.zhizhida.resume.api.ResumeVersionSummary/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.health.HealthResponse/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.health.ReadinessController$ReadinessStatus/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.interview.api.InterviewSession/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.jobs.api.TargetJob/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.jobs.api.TargetJob$Analysis/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.jobs.api.TargetJob$Extraction/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.resume.api.ResumeComparison/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.resume.api.ResumeProfile/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.resume.api.ResumeProfileRequest/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.resume.api.ResumeVersionView/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseJava.lang.Void/properties/code/enum",
+    "/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseJava.util.ListCn.edu.whu.zhizhida.resume.api.ResumeProfile/properties/code/enum"
+  ]
+}

@@ -1,0 +1,42 @@
+# Combine after docker-compose.yml; the older middleware override also remains compatible.
+services:
+  backend:
+    environment:
+      SPRING_PROFILES_ACTIVE: api
+      INTERVIEW_RUNS_WORKER_ENABLED: "false"
+      RUN_RECOVERY_ENABLED: "false"
+      AGENT_VECTOR_WORKER_ENABLED: "false"
+      KNOWLEDGE_IMPORT_WORKER_ENABLED: "false"
+      KNOWLEDGE_DISPATCH_PUBLISHER_ENABLED: "true"
+      AI_MAX_CONCURRENT_CALLS: ${AI_MAX_CONCURRENT_CALLS:-4}
+  worker:
+    extends:
+      file: docker-compose.yml
+      service: backend
+    container_name: !reset null
+    ports: !reset []
+    volumes:
+      - ./.runtime/knowledge-shared:/app/data/knowledge-imports
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: worker
+      QUESTION_CACHE_ENABLED: "true"
+      REDIS_RATE_LIMIT_ENABLED: "false"
+      RUN_DISPATCH_MODE: rabbitmq
+      RUN_OUTBOX_PUBLISHER_ENABLED: "false"
+      RUN_RECOVERY_ENABLED: "true"
+      INTERVIEW_RUNS_WORKER_ENABLED: "true"
+      AGENT_VECTOR_WORKER_ENABLED: "true"
+      KNOWLEDGE_DISPATCH_MODE: rabbitmq
+      KNOWLEDGE_IMPORT_SHARED_DIRECTORY: /app/data/knowledge-imports
+      KNOWLEDGE_IMPORT_WORKER_ENABLED: "true"
+      KNOWLEDGE_DISPATCH_PUBLISHER_ENABLED: "false"
+      AI_MAX_CONCURRENT_CALLS: ${AI_MAX_CONCURRENT_CALLS:-4}

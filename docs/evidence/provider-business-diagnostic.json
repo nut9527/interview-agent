@@ -1,0 +1,32 @@
+{
+  "scope": "read-only-model-discovery-not-inference",
+  "httpStatus": 200,
+  "configuredModel": "deepseek-chat",
+  "availableModels": [
+    "deepseek-flash",
+    "deepseek-v4-pro"
+  ],
+  "configuredModelListed": false,
+  "tlsVerified": true,
+  "modelRequests": 0,
+  "originalFailureCause": "UNKNOWN: initial comparison only retained a generic category",
+  "tlsProbe": {
+    "method": "unauthenticated HEAD https://api.deepseek.com using Java HttpClient; no inference",
+    "jdkDefault": [
+      "SSLHandshakeException",
+      "HTTP_401",
+      "SSLHandshakeException"
+    ],
+    "windowsRoot": [
+      "HTTP_401",
+      "HTTP_401",
+      "HTTP_401"
+    ],
+    "certificateAndHostnameValidationEnabled": true,
+    "globalTrustStoreModified": false
+  },
+  "sources": [
+    "https://api-docs.deepseek.com/updates/",
+    "https://api-docs.deepseek.com/api/list-models/"
+  ]
+}

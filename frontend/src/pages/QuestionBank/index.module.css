@@ -1,0 +1,62 @@
+.page { min-width: 0; color: var(--ink); overflow-wrap: anywhere; }
+.hero { margin-bottom: 22px; }
+.hero:has(.drawLink) { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
+.hero h1, .detail h1 { color: var(--ink); font-size: clamp(26px, 3vw, 36px); font-weight: 700; letter-spacing: -.04em; line-height: 1.3; }
+.hero p, .hint { margin-top: 7px; color: var(--ink-2); }
+.drawLink { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 7px 16px; border-radius: 8px; background: var(--brand, #194f3c); color: white; font-weight: 600; }
+.drawLink:hover { color: white; background: #2b604c; }
+.filters, .groupControls {
+  display: grid;
+  grid-template-columns: 1fr 1fr minmax(0, 1.6fr);
+  gap: 14px;
+  margin-bottom: 22px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.filters label { display: flex; flex-direction: column; gap: 6px; min-width: 0; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.count { margin-bottom: 12px; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.item, .detail { padding: 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); scroll-margin: 20px; }
+.list .item { display: flex; flex-direction: column; }
+.item + .item { margin-top: 14px; }
+.list .item + .item { margin-top: 0; }
+.item:focus-within { border-color: var(--brand); }
+.item h2 { font-size: 18px; font-weight: 650; line-height: 1.5; margin: 12px 0 4px; }
+.item h2 a { color: var(--ink); }
+.item h2 a:hover, .cardFooter a:hover { color: var(--brand); text-decoration: underline; text-underline-offset: 4px; }
+.meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--ink-2); font-size: 12px; }
+.meta > span:first-child { display: inline-block; padding: 2px 9px; border-radius: 5px; background: #e6f0df; color: #365d3f; font-weight: 600; }
+.summary { flex: 1; color: var(--ink-2); margin: 4px 0 12px; }
+.cardFooter { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding-top: 12px; margin-top: 14px; border-top: 1px solid var(--line); font-size: 13px; }
+.cardFooter a:first-child { color: var(--ink-2); }
+.cardFooter a:last-child { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); font-weight: 600; }
+.pagination { margin-top: 20px; }
+.back, .page > a:first-child { display: inline-flex; align-items: center; min-height: 32px; color: var(--ink-2); margin-bottom: 12px; }
+.practiceActions, .groupControls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.practiceActions { margin: 20px 0; }
+.groupControls :global(.ant-select) { min-width: 110px; }
+.historyLink { display: inline-block; margin: 8px 12px; }
+.archive { border-top: 1px solid var(--line); padding: 14px 0 0; margin-top: 14px; }
+.archive p { white-space: pre-wrap; }
+.archive ul { list-style: disc; padding-left: 22px; }
+.detail { max-width: 960px; margin-inline: auto; padding: clamp(18px, 3vw, 36px); }
+.detail h1 { margin: 14px 0; }
+.detail h2 { font-size: 18px; font-weight: 650; margin: 20px 0 10px; }
+.detail p { white-space: pre-wrap; line-height: 1.9; }
+.detail ul, .detail ol { padding-left: 22px; }
+.detail ul { list-style: disc; }
+.detail ol { list-style: decimal; }
+.detail li { padding: 4px 0; }
+.prompt { border-left: 3px solid var(--brand); background: var(--paper); padding: 1px 20px 18px; margin: 22px 0; border-radius: 0 10px 10px 0; }
+.analysis { padding: 8px 0 20px; border-bottom: 1px solid var(--line); }
+.followUps { margin: 22px 0; }
+.source { display: flex; flex-wrap: wrap; gap: 8px 20px; border-top: 1px solid var(--line); padding-top: 16px; color: var(--ink-2); font-size: 12px; }
+@container (max-width: 680px) {
+  .list { grid-template-columns: minmax(0, 1fr); }
+  .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters label:last-child { grid-column: 1 / -1; }
+  .item, .filters, .groupControls { padding: 16px; }
+  .prompt { padding: 1px 14px 14px; }
+}

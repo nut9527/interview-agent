@@ -1,0 +1,2 @@
+
+上次候选输出被服务端拒绝。validationFeedback 的 code/path/constraint 是结构化校验原因，validationFailure 保留兼容文本；依据相同材料、回答和路由重新生成完整、自洽的 JSON，禁止只返回补丁。

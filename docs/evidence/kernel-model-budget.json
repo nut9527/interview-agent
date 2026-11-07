@@ -1,0 +1,158 @@
+{
+  "campaign": "kernel-development",
+  "authorizedCapMicroCny": 10000000,
+  "price": {
+    "currency": "CNY",
+    "date": "2026-10-31",
+    "source": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+    "model": "deepseek-flash",
+    "inputMicroCnyPerToken": 2,
+    "outputMicroCnyPerToken": 8,
+    "basis": "peak price, all input billed as cache miss"
+  },
+  "experiments": [
+    {
+      "policy": "B0",
+      "ids": [
+        "redis-order",
+        "adequate-owner"
+      ],
+      "state": "PRE_MODEL_FAILURE",
+      "retainedMicroCny": 0,
+      "maximumAttempts": 8,
+      "report": "kernel-real-b0.jsonl",
+      "attempts": 0,
+      "failure": "synthetic source rejected before run acceptance",
+      "evidenceSha256": "b35a64dd797c0ad34b6741e5eae1c316b28b0ca16da08e5a86e6916571633c48"
+    },
+    {
+      "policy": "B0",
+      "ids": [
+        "redis-order",
+        "adequate-owner"
+      ],
+      "state": "FAILED_WITH_EVIDENCE",
+      "retainedMicroCny": 1035310,
+      "maximumAttempts": 8,
+      "report": "kernel-real-b0-2.jsonl",
+      "attempts": 5,
+      "unknownAttempts": 1,
+      "reportedInputTokens": 16283,
+      "reportedOutputTokens": 3343,
+      "cases": [
+        {
+          "id": "redis-order",
+          "status": "FAILED",
+          "error": "MODEL_OUTPUT_INVALID",
+          "elapsedMs": 8968,
+          "attempts": 3,
+          "tools": 0
+        },
+        {
+          "id": "adequate-owner",
+          "status": "FAILED",
+          "error": "MODEL_OUTPUT_INVALID",
+          "elapsedMs": 8054,
+          "attempts": 2,
+          "tools": 0
+        }
+      ],
+      "humanReview": "PENDING"
+    },
+    {
+      "policy": "S1",
+      "ids": [
+        "redis-order",
+        "adequate-owner"
+      ],
+      "state": "RECORDED",
+      "retainedMicroCny": 44198,
+      "maximumAttempts": 8,
+      "report": "kernel-real-s1-1.jsonl",
+      "attempts": 3,
+      "unknownAttempts": 0,
+      "reportedInputTokens": 12011,
+      "reportedOutputTokens": 2522,
+      "cases": [
+        {
+          "id": "redis-order",
+          "status": "FAILED",
+          "error": "MODEL_OUTPUT_INVALID",
+          "elapsedMs": 8777,
+          "attempts": 2,
+          "tools": 0
+        },
+        {
+          "id": "adequate-owner",
+          "status": "SUCCEEDED",
+          "error": null,
+          "elapsedMs": 4738,
+          "attempts": 1,
+          "tools": 0
+        }
+      ],
+      "humanReview": "PENDING"
+    },
+    {
+      "policy": "S3",
+      "ids": [
+        "redis-order",
+        "adequate-owner"
+      ],
+      "state": "FAILED_WITH_EVIDENCE",
+      "retainedMicroCny": 4880000,
+      "maximumAttempts": 8,
+      "report": "kernel-real-s3-1.jsonl",
+      "attempts": 5,
+      "unknownAttempts": 5,
+      "reportedInputTokens": 0,
+      "reportedOutputTokens": 0,
+      "cases": [
+        {
+          "id": "redis-order",
+          "status": "FAILED",
+          "error": "MODEL_UNAVAILABLE",
+          "elapsedMs": 731,
+          "attempts": 4,
+          "tools": 0
+        },
+        {
+          "id": "adequate-owner",
+          "status": "FAILED",
+          "error": "MODEL_UNAVAILABLE",
+          "elapsedMs": 35,
+          "attempts": 1,
+          "tools": 0
+        }
+      ],
+      "humanReview": "PENDING"
+    },
+    {
+      "policy": "B0",
+      "ids": [
+        "redis-order"
+      ],
+      "candidateHash": "e4358491076525f52ebd3b9dff3cee264285e73949bba9e9026e60b5773a6d9a",
+      "state": "FAILED_WITH_EVIDENCE",
+      "retainedMicroCny": 1982842,
+      "maximumAttempts": 4,
+      "report": "kernel-real-b0-3.jsonl",
+      "attempts": 4,
+      "unknownAttempts": 2,
+      "reportedInputTokens": 8441,
+      "reportedOutputTokens": 1745,
+      "cases": [
+        {
+          "id": "redis-order",
+          "status": "FAILED",
+          "error": "MODEL_OUTPUT_INVALID",
+          "elapsedMs": 9332,
+          "attempts": 4,
+          "tools": 0
+        }
+      ],
+      "humanReview": "PENDING"
+    }
+  ],
+  "heldoutExecuted": false
+}

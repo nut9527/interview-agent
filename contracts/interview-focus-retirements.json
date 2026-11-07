@@ -1,0 +1,23 @@
+{
+  "reason": "Product now serves interview training with private resumes and target jobs.",
+  "pathPrefixes": [
+    "/api/jobs",
+    "/api/job-matches",
+    "/api/resume-scores",
+    "/api/career-reports",
+    "/api/applications",
+    "/api/resume-templates",
+    "/api/agent/runs",
+    "/api/interviews/project-reviews"
+  ],
+  "exactPaths": [
+    "/api/ai/resume/optimize",
+    "/api/knowledge/upload",
+    "/api/knowledge/imports/preview",
+    "/api/knowledge/imports",
+    "/api/resumes/import"
+  ],
+  "removedRequestFields": {
+    "cn.edu.whu.zhizhida.interview.api.InterviewStartRequest": ["jobId", "assessmentId", "projectField", "resumeRevision"]
+  }
+}

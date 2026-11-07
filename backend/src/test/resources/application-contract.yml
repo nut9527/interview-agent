@@ -1,0 +1,6 @@
+# 契约测试使用独立配置，不导入应用主配置、本地私密配置、数据库、调度器或模型凭据。
+spring:
+  docker.compose.enabled: false
+  jmx.enabled: false
+  main.banner-mode: off
+logging.level.root: WARN

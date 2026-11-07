@@ -1,0 +1,26 @@
+{
+  "result": "PASSED",
+  "realPgvector": true,
+  "realEmbeddingModel": false,
+  "paidCalls": 0,
+  "pgvectorVersion": "0.8.7",
+  "postgresVersion": "17.11 (Debian 17.11-1.pgdg12+2)",
+  "checks": [
+    "partial-generation-hidden",
+    "idempotent-upsert",
+    "client-restart-persistence",
+    "document-version-profile-isolation",
+    "old-profile-cleanup",
+    "delete-idempotency",
+    "unrelated-document-preserved"
+  ],
+  "embeddingHttpRequests": 18,
+  "image": "pgvector/pgvector:pg17",
+  "imageId": "sha256:7d0a41464797aeb9862dfdc0bbf1526b82cfd324cdd8036df19e3545f4a9ccb8",
+  "sourceSha256": {
+    "scripts/verify-pgvector.mjs": "8b7e30c521f459ac61522ba00a06e99d26f897173812dfd50dbbc3ae4e86fc22",
+    "backend/src/test/java/cn/edu/whu/zhizhida/ai/PgvectorAcceptanceTest.java": "9f08f6a19a567e3f3d8a8627631dcda5bf9aa152d6d50c8b8e8afe738d92e9e6",
+    "backend/src/main/java/cn/edu/whu/zhizhida/ai/LangChain4jKnowledgeVectors.java": "12913428b8e90ddde0ebabec06e879836489f08eb7a1ee20545fe1f98d047973",
+    "backend/pom.xml": "2303677bb45ce3fd7d00affb17506d1cecd47df4539da60dee52087793b236cf"
+  }
+}

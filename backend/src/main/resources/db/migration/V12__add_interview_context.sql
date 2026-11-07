@@ -1,0 +1,6 @@
+ALTER TABLE interview_sessions
+    ADD COLUMN resume_revision BIGINT NULL,
+    ADD COLUMN job_id BIGINT NULL,
+    ADD COLUMN job_snapshot LONGTEXT NULL,
+    ADD COLUMN mode VARCHAR(32) NOT NULL DEFAULT 'GENERAL',
+    ADD COLUMN total_rounds INT NOT NULL DEFAULT 3;

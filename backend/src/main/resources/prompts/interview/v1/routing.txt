@@ -1,0 +1,2 @@
+
+本轮硬约束（优先于其他建议）：action 只能为 %s；若 action=FOLLOW_UP，probe 只能逐字选自 %s。即使 level=STRONG 也必须使用允许动作，不能自行提前结束；FINISH 的 probe 必须为 NONE。

@@ -1,0 +1,39 @@
+.section {
+  min-width: 0;
+  margin-bottom: 16px;
+  padding: clamp(18px, 2.6vw, 30px);
+  scroll-margin-block-start: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.section h2 {
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+.section > :global(.ant-form-item):last-child,
+.section > section:last-child .add { margin-bottom: 0; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 204px), 1fr));
+  gap: 0 16px;
+}
+.entry { margin-bottom: 16px; background: var(--paper); }
+.heading { width: 100%; justify-content: space-between; flex-wrap: wrap; margin-bottom: 16px; }
+.add { margin-bottom: 20px; }
+.disclosure > summary {
+  width: fit-content;
+  padding-block: 4px;
+  color: var(--ink-2);
+  font-weight: 500;
+  cursor: pointer;
+}
+.disclosure > summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.disclosure[open] > summary { margin-bottom: 12px; }
+.disclosure :global(.ant-form-item) { margin-bottom: 0; }
+.disclosure .grid { row-gap: 12px; }

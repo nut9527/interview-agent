@@ -1,0 +1,22 @@
+# Worker exposes only health and authenticated metrics; it does not accept business HTTP traffic.
+app:
+  runtime:
+    role: worker
+  cache.questions.enabled: true
+  rate-limit.redis.enabled: false
+  run-dispatch.mode: rabbitmq
+  outbox.publisher.enabled: false
+  run-recovery.enabled: true
+interview.runs:
+  worker-enabled: true
+agent.vector.worker-enabled: true
+learning.worker-enabled: true
+knowledge:
+  dispatch:
+    mode: rabbitmq
+    publisher-enabled: false
+    index-scan-ms: 60000
+  import.worker-enabled: true
+demo.cleanup.enabled: true
+quota.cleanup.enabled: true
+ai.resilience.max-concurrent-calls: ${AI_MAX_CONCURRENT_CALLS:4}

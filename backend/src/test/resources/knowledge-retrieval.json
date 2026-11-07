@@ -1,0 +1,43 @@
+{
+  "documents": [
+    {"id":"cache","title":"星桥缓存笔记","content":"# 星桥缓存笔记\n\n## TTL\n\n星桥商品缓存 TTL 基准值为 90 秒，每次写入增加 0～30 秒 jitter，避免大批键同时失效。\n\n## 空值缓存\n\n查询不存在的商品写入空值标记，空值缓存保存 12 秒。创建商品成功后删除对应空值标记。\n\n## 热点保护\n\n单个热点键失效时使用 single-flight 合并同键加载，等待预算 50 毫秒，超时返回可重试错误。\n\n## 边界\n\n本笔记未记录内存上限、淘汰策略或压测结果，不能推断吞吐提升。\n"},
+    {"id":"consistency","title":"订单一致性笔记","content":"# 订单一致性笔记\n\n## 写后读\n\n订单提交后本次请求从主库读取，避免复制延迟导致旧数据；不承诺后续所有读取强一致。\n\n## 缓存失效\n\n更新商品时先提交数据库事务，再删除缓存；删除失败写入重试队列。\n\n## 并发回填\n\n读请求可能在删除后回填旧值；回填必须比较数据版本，拒绝旧版本覆盖新值。\n\n## 消息去重\n\n消费者按事件 ID 幂等处理，重复消息不再次扣库存。\n"},
+    {"id":"ops","title":"监控与故障笔记","content":"# 监控与故障笔记\n\n## 观测\n\n实验同时记录缓存命中率、回源延迟和过期时刻数据库请求量。\n\n## 复制监控\n\n监测复制延迟，超过 200 毫秒告警，恢复后核对订单读取。\n\n## 演练\n\n故障演练覆盖通知丢失、乱序、实例离线再加入，核对版本规则和数据库回源上限。\n"},
+    {"id":"other","title":"旧项目对照资料","content":"# 旧项目对照资料\n\n## TTL\n\n旧项目商品缓存 TTL 为 600 秒，没有随机抖动；这些参数不适用于星桥实验。\n\n## 线程\n\n线程池空闲线程的存活时间为 60 秒，核心线程数为 8。\n\n## 部署\n\n部署流水线缓存构建依赖，保留 7 天，与业务商品数据无关。\n"},
+    {"id":"performance","title":"性能实验笔记","content":"# 性能实验笔记\n\n## 请求合并\n\n请求合并实验对照 single-flight 开关，观测同键回源次数。\n\n## 索引\n\n订单索引为 user_id 和 created_at 的联合索引，使用执行计划检查扫描行数。\n\n## 压测方法\n\n压测固定数据量并逐步增加并发，记录吞吐、P95 延迟和错误率，不预设性能提升百分比。\n"}
+  ],
+  "cases": [
+    {"id":"D01","kind":"direct","question":"TTL 基准值","scope":["cache"],"expected":["cache:TTL"]},
+    {"id":"D02","kind":"direct","question":"空值缓存保存多久","scope":["cache"],"expected":["cache:空值缓存"]},
+    {"id":"D03","kind":"direct","question":"single-flight 等待预算","scope":["cache"],"expected":["cache:热点保护"]},
+    {"id":"D04","kind":"direct","question":"写后读如何避免复制延迟","scope":["consistency"],"expected":["consistency:写后读"]},
+    {"id":"D05","kind":"direct","question":"删除缓存失败怎么处理","scope":["consistency"],"expected":["consistency:缓存失效"]},
+    {"id":"S01","kind":"synonym","question":"商品缓存过期时间是多少","scope":["cache"],"expected":["cache:TTL"]},
+    {"id":"S02","kind":"synonym","question":"缓存生存时间","scope":["cache"],"expected":["cache:TTL"]},
+    {"id":"S03","kind":"synonym","question":"随机抖动的范围","scope":["cache"],"expected":["cache:TTL"]},
+    {"id":"S04","kind":"synonym","question":"缓存穿透如何处理","scope":["cache"],"expected":["cache:空值缓存"]},
+    {"id":"S05","kind":"synonym","question":"请求合并等待多久","scope":["cache"],"expected":["cache:热点保护"]},
+    {"id":"S06","kind":"synonym","question":"read after write 的保证范围","scope":["consistency"],"expected":["consistency:写后读"]},
+    {"id":"S07","kind":"synonym","question":"重复消费如何避免","scope":["consistency"],"expected":["consistency:消息去重"]},
+    {"id":"M01","kind":"multi","question":"TTL 和空值缓存分别保存多久","scope":["cache"],"expected":["cache:TTL","cache:空值缓存"]},
+    {"id":"M02","kind":"multi","question":"数据库提交后删除缓存的顺序及并发回填旧值的处理","scope":["consistency"],"expected":["consistency:缓存失效","consistency:并发回填"]},
+    {"id":"M03","kind":"multi","question":"TTL 随机抖动方案及实验观测指标","scope":["cache","ops"],"expected":["cache:TTL","ops:观测"]},
+    {"id":"M04","kind":"multi","question":"写后读主库的保证范围和复制延迟告警阈值","scope":["consistency","ops"],"expected":["consistency:写后读","ops:复制监控"]},
+    {"id":"M05","kind":"multi","question":"热点键请求合并的预算和实验对照方式","scope":["cache","performance"],"expected":["cache:热点保护","performance:请求合并"]},
+    {"id":"N01","kind":"distractor","question":"星桥商品 TTL","scope":["cache","other"],"expected":["cache:TTL"],"first":"cache:TTL"},
+    {"id":"N02","kind":"distractor","question":"星桥缓存过期时间","scope":["cache","other"],"expected":["cache:TTL"],"first":"cache:TTL"},
+    {"id":"N03","kind":"distractor","question":"TTL","scope":["cache"],"expected":["cache:TTL"],"excluded":["other"]},
+    {"id":"N04","kind":"distractor","question":"订单索引扫描行数","scope":["cache","consistency","performance","other"],"expected":["performance:索引"],"first":"performance:索引"},
+    {"id":"I01","kind":"insufficient","question":"火星半径是多少","scope":["cache","consistency"],"expected":[],"noHits":true},
+    {"id":"I02","kind":"insufficient","question":"Redis 内存上限具体配置多少 GB","scope":["cache"],"expected":[]},
+    {"id":"I03","kind":"insufficient","question":"星桥实测吞吐提升百分比是多少","scope":["cache","performance"],"expected":[]},
+    {"id":"I04","kind":"insufficient","question":"订单复制延迟告警后自动切换机房的步骤","scope":["consistency","ops"],"expected":[]}
+  ],
+  "comparisonCases": [
+    {"id":"P01","kind":"paraphrase","question":"刚下完单就刷新，页面为什么还显示修改前的内容？这次应该去哪儿查？","scope":["cache","consistency","ops","performance"],"expected":["consistency:写后读"]},
+    {"id":"P02","kind":"paraphrase","question":"同一条扣货通知送到了两遍，怎样让库存只减少一次？","scope":["cache","consistency","ops","other","performance"],"expected":["consistency:消息去重"]},
+    {"id":"P03","kind":"paraphrase","question":"大家一窝蜂读取同一个刚失效的热门条目时，能否让一个人去取，其余人等一会儿？","scope":["cache","consistency","ops","performance"],"expected":["cache:热点保护"]},
+    {"id":"P04","kind":"paraphrase","question":"很多条目在同一刻作废会压垮后台，星桥怎样把它们的失效时刻错开？","scope":["cache","consistency","ops","other","performance"],"expected":["cache:TTL"]},
+    {"id":"P05","kind":"paraphrase","question":"秒杀系统最高能卖出多少单，笔记有没有每秒成交量的实测数字？","scope":["cache","consistency","ops","other","performance"],"expected":[]}
+  ]
+}

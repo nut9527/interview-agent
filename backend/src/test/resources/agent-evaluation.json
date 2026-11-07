@@ -1,0 +1,612 @@
+[
+  {
+    "id": "redis-order",
+    "family": "redis-order",
+    "partition": "development",
+    "title": "Redis 下单幂等",
+    "material": "# Redis 下单幂等\n\nRedis 成功后数据库写入失败仍要处理重试；请求号与订单唯一约束共同决定重复行为。",
+    "question": "请说明你在这个项目中如何实现Redis 下单幂等，以及验证依据。",
+    "answer": "我只用 Redis SETNX 保证重复下单不会出错。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "如何处理 Redis 已写入但数据库失败？",
+    "evidenceQuote": "Redis 成功后数据库写入失败仍要处理重试；请求号与订单唯一约束共同决定重复行为。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "mysql-unique",
+    "family": "mysql-unique",
+    "partition": "development",
+    "title": "数据库唯一键",
+    "material": "# 数据库唯一键\n\n唯一键冲突应读取原订单结果；事务回滚不能返回成功。",
+    "question": "请说明你在这个项目中如何实现数据库唯一键，以及验证依据。",
+    "answer": "唯一键冲突我全部返回下单成功。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "怎样区分冲突、回滚与原结果？",
+    "evidenceQuote": "唯一键冲突应读取原订单结果；事务回滚不能返回成功。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "mq-ack",
+    "family": "mq-ack",
+    "partition": "development",
+    "title": "消息确认",
+    "material": "# 消息确认\n\n业务事务提交后才确认消息；重复投递依赖幂等消费。",
+    "question": "请说明你在这个项目中如何实现消息确认，以及验证依据。",
+    "answer": "消费者收到消息就立即 ACK。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "提交之前崩溃会丢失什么？",
+    "evidenceQuote": "业务事务提交后才确认消息；重复投递依赖幂等消费。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "outbox",
+    "family": "outbox",
+    "partition": "development",
+    "title": "本地消息表",
+    "material": "# 本地消息表\n\n业务与 outbox 同一事务写入；投递器允许重发，消费端去重。",
+    "question": "请说明你在这个项目中如何实现本地消息表，以及验证依据。",
+    "answer": "我先提交订单，再调用发送消息接口。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "两次写入之间宕机怎样恢复？",
+    "evidenceQuote": "业务与 outbox 同一事务写入；投递器允许重发，消费端去重。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "cache-delete",
+    "family": "cache-delete",
+    "partition": "development",
+    "title": "缓存删除",
+    "material": "# 缓存删除\n\n删除缓存失败必须重试；并发读回填可能产生旧值，需要明确一致性要求。",
+    "question": "请说明你在这个项目中如何实现缓存删除，以及验证依据。",
+    "answer": "更新数据库后删除缓存，就能强一致。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "并发旧读回填怎样处理？",
+    "evidenceQuote": "删除缓存失败必须重试；并发读回填可能产生旧值，需要明确一致性要求。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "lease-clock",
+    "family": "lease-clock",
+    "partition": "development",
+    "title": "数据库租约",
+    "material": "# 数据库租约\n\n续租要求原 epoch 且未过期；数据库时间避免实例时钟漂移。",
+    "question": "请说明你在这个项目中如何实现数据库租约，以及验证依据。",
+    "answer": "我用本机时间判断租约，超时也能继续续。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "过期持有者为什么不能复活？",
+    "evidenceQuote": "续租要求原 epoch 且未过期；数据库时间避免实例时钟漂移。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "cas-version",
+    "family": "cas-version",
+    "partition": "development",
+    "title": "乐观锁",
+    "material": "# 乐观锁\n\n条件更新检查原版本；影响行数为零时应重新读取并处理冲突。",
+    "question": "请说明你在这个项目中如何实现乐观锁，以及验证依据。",
+    "answer": "版本冲突我直接覆盖保存。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "冲突后覆盖会丢失谁的修改？",
+    "evidenceQuote": "条件更新检查原版本；影响行数为零时应重新读取并处理冲突。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "threadpool",
+    "family": "threadpool",
+    "partition": "development",
+    "title": "线程池容量",
+    "material": "# 线程池容量\n\n队列和线程均须有界；拒绝策略必须与业务可接受的延迟匹配。",
+    "question": "请说明你在这个项目中如何实现线程池容量，以及验证依据。",
+    "answer": "为了不丢请求，我使用无限队列。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "流量持续超过处理能力会怎样？",
+    "evidenceQuote": "队列和线程均须有界；拒绝策略必须与业务可接受的延迟匹配。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "lock-order",
+    "family": "lock-order",
+    "partition": "development",
+    "title": "锁顺序",
+    "material": "# 锁顺序\n\n所有写入路径按同一资源顺序加锁；重试须保持幂等并受限。",
+    "question": "请说明你在这个项目中如何实现锁顺序，以及验证依据。",
+    "answer": "不同入口按各自方便的顺序加锁。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "两个入口怎样形成循环等待？",
+    "evidenceQuote": "所有写入路径按同一资源顺序加锁；重试须保持幂等并受限。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "pagination",
+    "family": "pagination",
+    "partition": "development",
+    "title": "游标分页",
+    "material": "# 游标分页\n\n稳定排序必须包含唯一键；并发插入影响 offset 页边界。",
+    "question": "请说明你在这个项目中如何实现游标分页，以及验证依据。",
+    "answer": "按更新时间排序就绝不会漏项。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "同时间多条记录如何分页？",
+    "evidenceQuote": "稳定排序必须包含唯一键；并发插入影响 offset 页边界。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "jwt-owner",
+    "family": "jwt-owner",
+    "partition": "development",
+    "title": "归属校验",
+    "material": "# 归属校验\n\n认证只确定身份；读取和写入必须同时检查资源归属。",
+    "question": "请说明你在这个项目中如何实现归属校验，以及验证依据。",
+    "answer": "登录之后按传入 ID 查询即可。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "登录用户如何被限制到本人资源？",
+    "evidenceQuote": "认证只确定身份；读取和写入必须同时检查资源归属。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "sse-cursor",
+    "family": "sse-cursor",
+    "partition": "development",
+    "title": "SSE 恢复",
+    "material": "# SSE 恢复\n\n历史与实时读取使用同一持久化游标；客户端按 run 与 seq 去重。",
+    "question": "请说明你在这个项目中如何实现SSE 恢复，以及验证依据。",
+    "answer": "先读历史再订阅内存通知，没有漏事件风险。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "两次操作间提交的事件会去哪？",
+    "evidenceQuote": "历史与实时读取使用同一持久化游标；客户端按 run 与 seq 去重。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "http-retry",
+    "family": "http-retry",
+    "partition": "development",
+    "title": "外部重试",
+    "material": "# 外部重试\n\n超时不等于供应商未执行；未知尝试仍计入预算。",
+    "question": "请说明你在这个项目中如何实现外部重试，以及验证依据。",
+    "answer": "HTTP 超时就当作没有调用，计数清零。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "怎么记账未知上游结果？",
+    "evidenceQuote": "超时不等于供应商未执行；未知尝试仍计入预算。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "upload-hash",
+    "family": "upload-hash",
+    "partition": "development",
+    "title": "上传版本",
+    "material": "# 上传版本\n\n正文规范化和版本摘要须确定；哈希不能取字段顺序不定的 JSON。",
+    "question": "请说明你在这个项目中如何实现上传版本，以及验证依据。",
+    "answer": "直接对任意序列化 JSON 做哈希就可以。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "字段重排是否改变业务意图？",
+    "evidenceQuote": "正文规范化和版本摘要须确定；哈希不能取字段顺序不定的 JSON。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "sql-index",
+    "family": "sql-index",
+    "partition": "development",
+    "title": "索引查询",
+    "material": "# 索引查询\n\n联合索引依据谓词与排序设计；用执行计划和真实分布验证。",
+    "question": "请说明你在这个项目中如何实现索引查询，以及验证依据。",
+    "answer": "加了索引，所以查询一定快。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "如何证明优化覆盖真实查询？",
+    "evidenceQuote": "联合索引依据谓词与排序设计；用执行计划和真实分布验证。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "isolation",
+    "family": "isolation",
+    "partition": "development",
+    "title": "事务隔离",
+    "material": "# 事务隔离\n\n隔离级别影响读视图和锁；应通过具体交错验证。",
+    "question": "请说明你在这个项目中如何实现事务隔离，以及验证依据。",
+    "answer": "可重复读等于所有操作都串行执行。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "并发条件更新如何验证？",
+    "evidenceQuote": "隔离级别影响读视图和锁；应通过具体交错验证。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "cancel-race",
+    "family": "cancel-race",
+    "partition": "validation",
+    "title": "取消竞争",
+    "material": "# 取消竞争\n\n取消与最终提交在同一状态栅栏上竞争，成功后取消不能撤销已提交结果。",
+    "question": "请说明你在这个项目中如何实现取消竞争，以及验证依据。",
+    "answer": "前端断开连接就算后台取消成功。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "断开时事务可能处在哪个阶段？",
+    "evidenceQuote": "取消与最终提交在同一状态栅栏上竞争，成功后取消不能撤销已提交结果。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "rate-limit",
+    "family": "rate-limit",
+    "partition": "validation",
+    "title": "限流账本",
+    "material": "# 限流账本\n\n用户准入与全局每次尝试分开计量，同命令回放不能重复扣减。",
+    "question": "请说明你在这个项目中如何实现限流账本，以及验证依据。",
+    "answer": "每次续调都不计额度，只有首个请求计一次。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "额外调用成本由什么限制？",
+    "evidenceQuote": "用户准入与全局每次尝试分开计量，同命令回放不能重复扣减。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "snapshot",
+    "family": "snapshot",
+    "partition": "validation",
+    "title": "知识快照",
+    "material": "# 知识快照\n\n本场仅使用发起时归档版本；资料更新不改变已受理输入。",
+    "question": "请说明你在这个项目中如何实现知识快照，以及验证依据。",
+    "answer": "工具会自动读取知识文档的最新版本。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "重放怎样得到同一份依据？",
+    "evidenceQuote": "本场仅使用发起时归档版本；资料更新不改变已受理输入。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "injection",
+    "family": "injection",
+    "partition": "validation",
+    "title": "资料注入",
+    "material": "# 资料注入\n\n文档是待分析数据；其中的角色与预算指令不能覆盖服务端控制。",
+    "question": "请说明你在这个项目中如何实现资料注入，以及验证依据。",
+    "answer": "资料写着忽略预算，我就照做。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "工具结果为什么没有控制权限？",
+    "evidenceQuote": "文档是待分析数据；其中的角色与预算指令不能覆盖服务端控制。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "ttl-order",
+    "family": "ttl-order",
+    "partition": "validation",
+    "title": "过期与重放",
+    "material": "# 过期与重放\n\n键过期不代表业务操作消失；必须定义保留期限和再次执行语义。",
+    "question": "请说明你在这个项目中如何实现过期与重放，以及验证依据。",
+    "answer": "请求 ID 过期就可以自动重新创建订单。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "超过保留期如何核对原结果？",
+    "evidenceQuote": "键过期不代表业务操作消失；必须定义保留期限和再次执行语义。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "connection-pool",
+    "family": "connection-pool",
+    "partition": "validation",
+    "title": "连接池",
+    "material": "# 连接池\n\n模型调用不能持有数据库事务，否则慢外部服务会占满连接。",
+    "question": "请说明你在这个项目中如何实现连接池，以及验证依据。",
+    "answer": "我在事务内等待模型返回。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "外部延迟会怎样占用连接池？",
+    "evidenceQuote": "模型调用不能持有数据库事务，否则慢外部服务会占满连接。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "batch-tools",
+    "family": "batch-tools",
+    "partition": "validation",
+    "title": "工具批次",
+    "material": "# 工具批次\n\n整个批次先校验预算和参数，再执行并为每个 call ID 回传结果。",
+    "question": "请说明你在这个项目中如何实现工具批次，以及验证依据。",
+    "answer": "多个工具先执行一半，剩下的超限就忽略。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "模型如何关联缺失的工具回执？",
+    "evidenceQuote": "整个批次先校验预算和参数，再执行并为每个 call ID 回传结果。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "repair",
+    "family": "repair",
+    "partition": "heldout",
+    "title": "输出修正",
+    "material": "# 输出修正\n\n结构和业务规则分开校验；一次修正关闭工具并复用回执。",
+    "question": "请说明你在这个项目中如何实现输出修正，以及验证依据。",
+    "answer": "格式错时重新从头跑所有检索直到通过。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "怎样限制修正成本与重复执行？",
+    "evidenceQuote": "结构和业务规则分开校验；一次修正关闭工具并复用回执。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "worker-delete",
+    "family": "worker-delete",
+    "partition": "heldout",
+    "title": "删除竞争",
+    "material": "# 删除竞争\n\n删除会话后执行权必须失效；旧 Worker 不能重新插回会话。",
+    "question": "请说明你在这个项目中如何实现删除竞争，以及验证依据。",
+    "answer": "删会话后模型晚到就重新保存结果。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "通过什么条件拦截复活？",
+    "evidenceQuote": "删除会话后执行权必须失效；旧 Worker 不能重新插回会话。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "observability",
+    "family": "observability",
+    "partition": "heldout",
+    "title": "指标语义",
+    "material": "# 指标语义\n\nHTTP 成功和业务提交成功不同；未知 token 不记作零。",
+    "question": "请说明你在这个项目中如何实现指标语义，以及验证依据。",
+    "answer": "只看 HTTP 200 就代表 Agent 完成。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "如何证明正式回合已经提交？",
+    "evidenceQuote": "HTTP 成功和业务提交成功不同；未知 token 不记作零。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "cache-scope",
+    "family": "cache-scope",
+    "partition": "heldout",
+    "title": "缓存作用域",
+    "material": "# 缓存作用域\n\n缓存键包括归属、工具版本、参数与来源版本；协议 call ID 单独关联。",
+    "question": "请说明你在这个项目中如何实现缓存作用域，以及验证依据。",
+    "answer": "工具名和查询字符串相同就全局复用。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "两个用户相同查询为何不能共享结果？",
+    "evidenceQuote": "缓存键包括归属、工具版本、参数与来源版本；协议 call ID 单独关联。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "slow-sse",
+    "family": "slow-sse",
+    "partition": "heldout",
+    "title": "慢连接",
+    "material": "# 慢连接\n\n发送缓冲有界；慢客户端断开后按 seq 恢复，不能阻塞模型线程。",
+    "question": "请说明你在这个项目中如何实现慢连接，以及验证依据。",
+    "answer": "我让模型线程等待每个浏览器收完再继续。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "慢客户端会影响谁的吞吐？",
+    "evidenceQuote": "发送缓冲有界；慢客户端断开后按 seq 恢复，不能阻塞模型线程。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "timeout",
+    "family": "timeout",
+    "partition": "heldout",
+    "title": "截止时间",
+    "material": "# 截止时间\n\n总 deadline 覆盖排队与提交；单次调用还要预留最终提交时间。",
+    "question": "请说明你在这个项目中如何实现截止时间，以及验证依据。",
+    "answer": "每次调用都有超时，所以总耗时没有上限也没问题。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "多个调用累计如何受控？",
+    "evidenceQuote": "总 deadline 覆盖排队与提交；单次调用还要预留最终提交时间。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "key-body",
+    "family": "key-body",
+    "partition": "heldout",
+    "title": "幂等原文",
+    "material": "# 幂等原文\n\n同 key 不同回答原文应冲突；哈希不能改变用户原文语义。",
+    "question": "请说明你在这个项目中如何实现幂等原文，以及验证依据。",
+    "answer": "哈希前把所有空格和标点删除以提高命中。",
+    "reasonableTools": [
+      "search_knowledge",
+      "read_material_section"
+    ],
+    "expectedGap": "不同原文会不会碰到同一意图键？",
+    "evidenceQuote": "同 key 不同回答原文应冲突；哈希不能改变用户原文语义。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-owner",
+    "family": "adequate-owner",
+    "partition": "development",
+    "title": "归属充分",
+    "material": "# 归属充分\n\n当前回答已说明本人查询、条件写入与越权测试。",
+    "question": "请说明你在这个项目中如何实现归属充分，以及验证依据。",
+    "answer": "每个查询都带本人 ID；跨账号读取和写入测试返回 404，条件更新影响行数必须为一。",
+    "reasonableTools": [],
+    "expectedGap": "继续核对失败处理的依据。",
+    "evidenceQuote": "当前回答已说明本人查询、条件写入与越权测试。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-cas",
+    "family": "adequate-cas",
+    "partition": "development",
+    "title": "CAS 充分",
+    "material": "# CAS 充分\n\n当前回答已说明原版本比较、零行冲突和重新读取。",
+    "question": "请说明你在这个项目中如何实现CAS 充分，以及验证依据。",
+    "answer": "我用原版本做条件更新；零行返回冲突，重新读取展示差异后由用户决定合并。",
+    "reasonableTools": [],
+    "expectedGap": "继续核对验证方式。",
+    "evidenceQuote": "当前回答已说明原版本比较、零行冲突和重新读取。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-budget",
+    "family": "adequate-budget",
+    "partition": "development",
+    "title": "预算充分",
+    "material": "# 预算充分\n\n当前回答已完整说明尝试预占、总截止与提交预留。",
+    "question": "请说明你在这个项目中如何实现预算充分，以及验证依据。",
+    "answer": "请求发出前持久化 attempt 与全局预占；超时保留未知计数，总期限 90 秒，最后预留 5 秒提交。",
+    "reasonableTools": [],
+    "expectedGap": "核对边界案例。",
+    "evidenceQuote": "当前回答已完整说明尝试预占、总截止与提交预留。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-cancel",
+    "family": "adequate-cancel",
+    "partition": "development",
+    "title": "取消充分",
+    "material": "# 取消充分\n\n当前回答已说明取消和提交共享事务栅栏。",
+    "question": "请说明你在这个项目中如何实现取消充分，以及验证依据。",
+    "answer": "取消与提交锁同一 Run；先提交则取消返回成功终态，先取消则旧 epoch 提交失败。",
+    "reasonableTools": [],
+    "expectedGap": "核对取消可观察行为。",
+    "evidenceQuote": "当前回答已说明取消和提交共享事务栅栏。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-cache",
+    "family": "adequate-cache",
+    "partition": "validation",
+    "title": "回执充分",
+    "material": "# 回执充分\n\n当前回答已说明逻辑缓存和协议关联分离。",
+    "question": "请说明你在这个项目中如何实现回执充分，以及验证依据。",
+    "answer": "同名工具、规范参数、来源版本与本人范围构成缓存键；不同 call ID 均发送匹配的 tool 消息。",
+    "reasonableTools": [],
+    "expectedGap": "核对测试覆盖。",
+    "evidenceQuote": "当前回答已说明逻辑缓存和协议关联分离。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-sse",
+    "family": "adequate-sse",
+    "partition": "validation",
+    "title": "SSE 充分",
+    "material": "# SSE 充分\n\n当前回答已说明事件持久化、游标和页面代次。",
+    "question": "请说明你在这个项目中如何实现SSE 充分，以及验证依据。",
+    "answer": "事件与序号同事务写库；重连从最后 seq 查询，按 runId 和 seq 去重，切换账号中止旧订阅。",
+    "reasonableTools": [],
+    "expectedGap": "核对代理路径验证。",
+    "evidenceQuote": "当前回答已说明事件持久化、游标和页面代次。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-lease",
+    "family": "adequate-lease",
+    "partition": "validation",
+    "title": "租约充分",
+    "material": "# 租约充分\n\n当前回答已说明数据库时钟与 epoch。",
+    "question": "请说明你在这个项目中如何实现租约充分，以及验证依据。",
+    "answer": "心跳独立线程每 10 秒续期，租约 30 秒；必须原 epoch 且未过期，过期只能由领取方递增 epoch。",
+    "reasonableTools": [],
+    "expectedGap": "核对失效写入测试。",
+    "evidenceQuote": "当前回答已说明数据库时钟与 epoch。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-source",
+    "family": "adequate-source",
+    "partition": "heldout",
+    "title": "来源充分",
+    "material": "# 来源充分\n\n当前回答已说明内容哈希和行号重现。",
+    "question": "请说明你在这个项目中如何实现来源充分，以及验证依据。",
+    "answer": "我保存发起时正文、版本与 SHA256，引用包含行号；资料后改不影响本场，还能逐字重现引用。",
+    "reasonableTools": [],
+    "expectedGap": "核对截断标记。",
+    "evidenceQuote": "当前回答已说明内容哈希和行号重现。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-transaction",
+    "family": "adequate-transaction",
+    "partition": "heldout",
+    "title": "提交充分",
+    "material": "# 提交充分\n\n当前回答已说明候选校验和最终原子提交。",
+    "question": "请说明你在这个项目中如何实现提交充分，以及验证依据。",
+    "answer": "模型返回只生成候选，先过结构和业务规则；最后事务共同保存回合、Agent 状态、Run 成功与最终事件。",
+    "reasonableTools": [],
+    "expectedGap": "核对事务失败回滚。",
+    "evidenceQuote": "当前回答已说明候选校验和最终原子提交。",
+    "qualityReviewRequired": true
+  },
+  {
+    "id": "adequate-unknown",
+    "family": "adequate-unknown",
+    "partition": "heldout",
+    "title": "未知充分",
+    "material": "# 未知充分\n\n当前回答已说明外部结果未知与次数保持。",
+    "question": "请说明你在这个项目中如何实现未知充分，以及验证依据。",
+    "answer": "请求前 attempt 落库；发出后崩溃将它记 UNKNOWN，恢复不返还次数，缺失 token 保持未知。",
+    "reasonableTools": [],
+    "expectedGap": "核对成本报告。",
+    "evidenceQuote": "当前回答已说明外部结果未知与次数保持。",
+    "qualityReviewRequired": true
+  }
+]

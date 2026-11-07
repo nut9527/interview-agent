@@ -1,0 +1,712 @@
+{
+  "lexical" : {
+    "details" : [ {
+      "id" : "D01",
+      "kind" : "direct",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL" ],
+      "micros" : 1255
+    }, {
+      "id" : "D02",
+      "kind" : "direct",
+      "expected" : [ "cache:空值缓存" ],
+      "retrieved" : [ "cache:空值缓存" ],
+      "micros" : 858
+    }, {
+      "id" : "D03",
+      "kind" : "direct",
+      "expected" : [ "cache:热点保护" ],
+      "retrieved" : [ "cache:热点保护" ],
+      "micros" : 592
+    }, {
+      "id" : "D04",
+      "kind" : "direct",
+      "expected" : [ "consistency:写后读" ],
+      "retrieved" : [ "consistency:写后读" ],
+      "micros" : 944
+    }, {
+      "id" : "D05",
+      "kind" : "direct",
+      "expected" : [ "consistency:缓存失效" ],
+      "retrieved" : [ "consistency:缓存失效", "consistency:并发回填", "consistency:消息去重" ],
+      "micros" : 2083
+    }, {
+      "id" : "S01",
+      "kind" : "synonym",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "cache:空值缓存" ],
+      "micros" : 612
+    }, {
+      "id" : "S02",
+      "kind" : "synonym",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "cache:空值缓存" ],
+      "micros" : 417
+    }, {
+      "id" : "S03",
+      "kind" : "synonym",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL" ],
+      "micros" : 324
+    }, {
+      "id" : "S04",
+      "kind" : "synonym",
+      "expected" : [ "cache:空值缓存" ],
+      "retrieved" : [ "cache:空值缓存" ],
+      "micros" : 303
+    }, {
+      "id" : "S05",
+      "kind" : "synonym",
+      "expected" : [ "cache:热点保护" ],
+      "retrieved" : [ "cache:热点保护" ],
+      "micros" : 358
+    }, {
+      "id" : "S06",
+      "kind" : "synonym",
+      "expected" : [ "consistency:写后读" ],
+      "retrieved" : [ "consistency:写后读" ],
+      "micros" : 372
+    }, {
+      "id" : "S07",
+      "kind" : "synonym",
+      "expected" : [ "consistency:消息去重" ],
+      "retrieved" : [ "consistency:消息去重", "consistency:写后读" ],
+      "micros" : 399
+    }, {
+      "id" : "M01",
+      "kind" : "multi",
+      "expected" : [ "cache:TTL", "cache:空值缓存" ],
+      "retrieved" : [ "cache:空值缓存", "cache:TTL" ],
+      "micros" : 492
+    }, {
+      "id" : "M02",
+      "kind" : "multi",
+      "expected" : [ "consistency:缓存失效", "consistency:并发回填" ],
+      "retrieved" : [ "consistency:并发回填", "consistency:缓存失效", "consistency:写后读", "consistency:消息去重" ],
+      "micros" : 1601
+    }, {
+      "id" : "M03",
+      "kind" : "multi",
+      "expected" : [ "cache:TTL", "ops:观测" ],
+      "retrieved" : [ "cache:TTL", "ops:观测" ],
+      "micros" : 1004
+    }, {
+      "id" : "M04",
+      "kind" : "multi",
+      "expected" : [ "consistency:写后读", "ops:复制监控" ],
+      "retrieved" : [ "consistency:写后读", "ops:复制监控", "ops:观测" ],
+      "micros" : 1993
+    }, {
+      "id" : "M05",
+      "kind" : "multi",
+      "expected" : [ "cache:热点保护", "performance:请求合并" ],
+      "retrieved" : [ "cache:热点保护", "performance:请求合并" ],
+      "micros" : 1453
+    }, {
+      "id" : "N01",
+      "kind" : "distractor",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "other:TTL", "cache:空值缓存", "other:部署" ],
+      "micros" : 1167
+    }, {
+      "id" : "N02",
+      "kind" : "distractor",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "other:TTL", "cache:空值缓存", "other:部署" ],
+      "micros" : 778
+    }, {
+      "id" : "N03",
+      "kind" : "distractor",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL" ],
+      "micros" : 196
+    }, {
+      "id" : "N04",
+      "kind" : "distractor",
+      "expected" : [ "performance:索引" ],
+      "retrieved" : [ "performance:索引", "consistency:写后读" ],
+      "micros" : 892
+    }, {
+      "id" : "I01",
+      "kind" : "insufficient",
+      "expected" : [ ],
+      "retrieved" : [ ],
+      "micros" : 380
+    }, {
+      "id" : "I02",
+      "kind" : "insufficient",
+      "expected" : [ ],
+      "retrieved" : [ "cache:边界" ],
+      "micros" : 430
+    }, {
+      "id" : "I03",
+      "kind" : "insufficient",
+      "expected" : [ ],
+      "retrieved" : [ "performance:压测方法", "cache:边界", "cache:TTL" ],
+      "micros" : 1011
+    }, {
+      "id" : "I04",
+      "kind" : "insufficient",
+      "expected" : [ ],
+      "retrieved" : [ "ops:复制监控", "consistency:写后读", "ops:观测" ],
+      "micros" : 1256
+    }, {
+      "id" : "P01",
+      "kind" : "paraphrase",
+      "expected" : [ "consistency:写后读" ],
+      "retrieved" : [ ],
+      "micros" : 2002
+    }, {
+      "id" : "P02",
+      "kind" : "paraphrase",
+      "expected" : [ "consistency:消息去重" ],
+      "retrieved" : [ "consistency:消息去重", "ops:演练" ],
+      "micros" : 2653
+    }, {
+      "id" : "P03",
+      "kind" : "paraphrase",
+      "expected" : [ "cache:热点保护" ],
+      "retrieved" : [ "cache:TTL", "consistency:写后读", "cache:热点保护", "ops:复制监控", "consistency:缓存失效" ],
+      "micros" : 11786
+    }, {
+      "id" : "P04",
+      "kind" : "paraphrase",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "cache:热点保护", "ops:观测", "other:TTL", "consistency:缓存失效" ],
+      "micros" : 5606
+    }, {
+      "id" : "P05",
+      "kind" : "paraphrase",
+      "expected" : [ ],
+      "retrieved" : [ "cache:边界", "other:TTL" ],
+      "micros" : 2806
+    } ],
+    "mode" : "lexical",
+    "timingScope" : "in-memory authorized corpus + ranking + optional model; excludes SQL",
+    "metricsByKind" : {
+      "all" : {
+        "cases" : 30,
+        "positiveCases" : 25,
+        "noAnswerCases" : 5,
+        "noAnswerWithEmptyRetrieval" : 1,
+        "emptyRetrievalRateOnNoAnswer" : 0.2,
+        "atK" : {
+          "1" : {
+            "recall" : 0.82,
+            "mrr" : 0.92,
+            "ndcg" : 0.92
+          },
+          "3" : {
+            "recall" : 0.96,
+            "mrr" : 0.9333333333333332,
+            "ndcg" : 0.94
+          },
+          "6" : {
+            "recall" : 0.96,
+            "mrr" : 0.9333333333333332,
+            "ndcg" : 0.94
+          }
+        }
+      },
+      "direct" : {
+        "cases" : 5,
+        "positiveCases" : 5,
+        "noAnswerCases" : 0,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : null,
+        "atK" : {
+          "1" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          }
+        }
+      },
+      "distractor" : {
+        "cases" : 4,
+        "positiveCases" : 4,
+        "noAnswerCases" : 0,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : null,
+        "atK" : {
+          "1" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          }
+        }
+      },
+      "insufficient" : {
+        "cases" : 4,
+        "positiveCases" : 0,
+        "noAnswerCases" : 4,
+        "noAnswerWithEmptyRetrieval" : 1,
+        "emptyRetrievalRateOnNoAnswer" : 0.25,
+        "atK" : {
+          "1" : {
+            "recall" : null,
+            "mrr" : null,
+            "ndcg" : null
+          },
+          "3" : {
+            "recall" : null,
+            "mrr" : null,
+            "ndcg" : null
+          },
+          "6" : {
+            "recall" : null,
+            "mrr" : null,
+            "ndcg" : null
+          }
+        }
+      },
+      "multi" : {
+        "cases" : 5,
+        "positiveCases" : 5,
+        "noAnswerCases" : 0,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : null,
+        "atK" : {
+          "1" : {
+            "recall" : 0.5,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          }
+        }
+      },
+      "paraphrase" : {
+        "cases" : 5,
+        "positiveCases" : 4,
+        "noAnswerCases" : 1,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : 0.0,
+        "atK" : {
+          "1" : {
+            "recall" : 0.5,
+            "mrr" : 0.5,
+            "ndcg" : 0.5
+          },
+          "3" : {
+            "recall" : 0.75,
+            "mrr" : 0.5833333333333333,
+            "ndcg" : 0.625
+          },
+          "6" : {
+            "recall" : 0.75,
+            "mrr" : 0.5833333333333333,
+            "ndcg" : 0.625
+          }
+        }
+      },
+      "synonym" : {
+        "cases" : 7,
+        "positiveCases" : 7,
+        "noAnswerCases" : 0,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : null,
+        "atK" : {
+          "1" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          }
+        }
+      }
+    }
+  },
+  "hybrid" : {
+    "details" : [ {
+      "id" : "D01",
+      "kind" : "direct",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "cache:空值缓存", "cache:热点保护", "cache:边界" ],
+      "micros" : 6384
+    }, {
+      "id" : "D02",
+      "kind" : "direct",
+      "expected" : [ "cache:空值缓存" ],
+      "retrieved" : [ "cache:空值缓存", "cache:TTL", "cache:热点保护", "cache:边界" ],
+      "micros" : 4392
+    }, {
+      "id" : "D03",
+      "kind" : "direct",
+      "expected" : [ "cache:热点保护" ],
+      "retrieved" : [ "cache:热点保护", "cache:TTL", "cache:边界", "cache:空值缓存" ],
+      "micros" : 4661
+    }, {
+      "id" : "D04",
+      "kind" : "direct",
+      "expected" : [ "consistency:写后读" ],
+      "retrieved" : [ "consistency:写后读", "consistency:并发回填", "consistency:缓存失效", "consistency:消息去重" ],
+      "micros" : 5090
+    }, {
+      "id" : "D05",
+      "kind" : "direct",
+      "expected" : [ "consistency:缓存失效" ],
+      "retrieved" : [ "consistency:缓存失效", "consistency:并发回填", "consistency:消息去重", "consistency:写后读" ],
+      "micros" : 5039
+    }, {
+      "id" : "S01",
+      "kind" : "synonym",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "cache:空值缓存", "cache:热点保护", "cache:边界" ],
+      "micros" : 5055
+    }, {
+      "id" : "S02",
+      "kind" : "synonym",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "cache:空值缓存", "cache:边界", "cache:热点保护" ],
+      "micros" : 5748
+    }, {
+      "id" : "S03",
+      "kind" : "synonym",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "cache:边界", "cache:热点保护", "cache:空值缓存" ],
+      "micros" : 4928
+    }, {
+      "id" : "S04",
+      "kind" : "synonym",
+      "expected" : [ "cache:空值缓存" ],
+      "retrieved" : [ "cache:空值缓存", "cache:TTL", "cache:边界", "cache:热点保护" ],
+      "micros" : 4769
+    }, {
+      "id" : "S05",
+      "kind" : "synonym",
+      "expected" : [ "cache:热点保护" ],
+      "retrieved" : [ "cache:热点保护", "cache:空值缓存", "cache:TTL", "cache:边界" ],
+      "micros" : 4785
+    }, {
+      "id" : "S06",
+      "kind" : "synonym",
+      "expected" : [ "consistency:写后读" ],
+      "retrieved" : [ "consistency:写后读", "consistency:并发回填", "consistency:缓存失效", "consistency:消息去重" ],
+      "micros" : 4224
+    }, {
+      "id" : "S07",
+      "kind" : "synonym",
+      "expected" : [ "consistency:消息去重" ],
+      "retrieved" : [ "consistency:消息去重", "consistency:写后读", "consistency:缓存失效", "consistency:并发回填" ],
+      "micros" : 4221
+    }, {
+      "id" : "M01",
+      "kind" : "multi",
+      "expected" : [ "cache:TTL", "cache:空值缓存" ],
+      "retrieved" : [ "cache:空值缓存", "cache:TTL", "cache:热点保护", "cache:边界" ],
+      "micros" : 4437
+    }, {
+      "id" : "M02",
+      "kind" : "multi",
+      "expected" : [ "consistency:缓存失效", "consistency:并发回填" ],
+      "retrieved" : [ "consistency:缓存失效", "consistency:并发回填", "consistency:写后读", "consistency:消息去重" ],
+      "micros" : 5561
+    }, {
+      "id" : "M03",
+      "kind" : "multi",
+      "expected" : [ "cache:TTL", "ops:观测" ],
+      "retrieved" : [ "ops:观测", "cache:TTL", "ops:复制监控", "cache:边界", "ops:演练", "cache:热点保护" ],
+      "micros" : 6409
+    }, {
+      "id" : "M04",
+      "kind" : "multi",
+      "expected" : [ "consistency:写后读", "ops:复制监控" ],
+      "retrieved" : [ "consistency:写后读", "ops:复制监控", "ops:观测", "consistency:并发回填", "ops:演练", "consistency:缓存失效" ],
+      "micros" : 5951
+    }, {
+      "id" : "M05",
+      "kind" : "multi",
+      "expected" : [ "cache:热点保护", "performance:请求合并" ],
+      "retrieved" : [ "cache:热点保护", "performance:请求合并", "performance:索引", "performance:压测方法", "cache:TTL", "cache:边界" ],
+      "micros" : 6018
+    }, {
+      "id" : "N01",
+      "kind" : "distractor",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "other:TTL", "other:部署", "cache:空值缓存", "cache:热点保护", "other:线程" ],
+      "micros" : 4883
+    }, {
+      "id" : "N02",
+      "kind" : "distractor",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "other:TTL", "other:部署", "cache:空值缓存", "other:线程", "cache:热点保护" ],
+      "micros" : 4481
+    }, {
+      "id" : "N03",
+      "kind" : "distractor",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "cache:热点保护", "cache:空值缓存", "cache:边界" ],
+      "micros" : 4779
+    }, {
+      "id" : "N04",
+      "kind" : "distractor",
+      "expected" : [ "performance:索引" ],
+      "retrieved" : [ "performance:索引", "consistency:写后读", "performance:请求合并", "cache:空值缓存", "cache:TTL", "performance:压测方法" ],
+      "micros" : 5721
+    }, {
+      "id" : "I01",
+      "kind" : "insufficient",
+      "expected" : [ ],
+      "retrieved" : [ "cache:TTL", "cache:热点保护", "consistency:消息去重", "cache:边界", "consistency:缓存失效", "cache:空值缓存" ],
+      "micros" : 4748
+    }, {
+      "id" : "I02",
+      "kind" : "insufficient",
+      "expected" : [ ],
+      "retrieved" : [ "cache:边界", "cache:TTL", "cache:空值缓存", "cache:热点保护" ],
+      "micros" : 5790
+    }, {
+      "id" : "I03",
+      "kind" : "insufficient",
+      "expected" : [ ],
+      "retrieved" : [ "performance:压测方法", "cache:TTL", "cache:边界", "performance:请求合并", "cache:热点保护", "cache:空值缓存" ],
+      "micros" : 6326
+    }, {
+      "id" : "I04",
+      "kind" : "insufficient",
+      "expected" : [ ],
+      "retrieved" : [ "ops:复制监控", "consistency:写后读", "ops:观测", "ops:演练", "consistency:缓存失效", "consistency:消息去重" ],
+      "micros" : 6989
+    }, {
+      "id" : "P01",
+      "kind" : "paraphrase",
+      "expected" : [ "consistency:写后读" ],
+      "retrieved" : [ "consistency:并发回填", "consistency:缓存失效", "consistency:写后读", "ops:演练", "cache:空值缓存", "consistency:消息去重" ],
+      "micros" : 9017
+    }, {
+      "id" : "P02",
+      "kind" : "paraphrase",
+      "expected" : [ "consistency:消息去重" ],
+      "retrieved" : [ "consistency:消息去重", "ops:演练", "consistency:写后读", "consistency:缓存失效", "cache:空值缓存", "other:部署" ],
+      "micros" : 9105
+    }, {
+      "id" : "P03",
+      "kind" : "paraphrase",
+      "expected" : [ "cache:热点保护" ],
+      "retrieved" : [ "cache:热点保护", "consistency:写后读", "ops:复制监控", "cache:TTL", "consistency:缓存失效", "consistency:消息去重" ],
+      "micros" : 10034
+    }, {
+      "id" : "P04",
+      "kind" : "paraphrase",
+      "expected" : [ "cache:TTL" ],
+      "retrieved" : [ "cache:TTL", "other:TTL", "cache:热点保护", "consistency:缓存失效", "ops:观测", "ops:演练" ],
+      "micros" : 8294
+    }, {
+      "id" : "P05",
+      "kind" : "paraphrase",
+      "expected" : [ ],
+      "retrieved" : [ "cache:边界", "other:TTL", "cache:空值缓存", "cache:TTL", "ops:复制监控", "performance:索引" ],
+      "micros" : 10278
+    } ],
+    "mode" : "hybrid (rrf-sections-v3:k60:l30:v30:h2:knowledge-heading-body-v3:bge-small-zh-v1.5-q:512)",
+    "timingScope" : "in-memory authorized corpus + ranking + optional model; excludes SQL",
+    "metricsByKind" : {
+      "all" : {
+        "cases" : 30,
+        "positiveCases" : 25,
+        "noAnswerCases" : 5,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : 0.0,
+        "atK" : {
+          "1" : {
+            "recall" : 0.86,
+            "mrr" : 0.96,
+            "ndcg" : 0.96
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 0.9733333333333333,
+            "ndcg" : 0.98
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 0.9733333333333333,
+            "ndcg" : 0.98
+          }
+        }
+      },
+      "direct" : {
+        "cases" : 5,
+        "positiveCases" : 5,
+        "noAnswerCases" : 0,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : null,
+        "atK" : {
+          "1" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          }
+        }
+      },
+      "distractor" : {
+        "cases" : 4,
+        "positiveCases" : 4,
+        "noAnswerCases" : 0,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : null,
+        "atK" : {
+          "1" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          }
+        }
+      },
+      "insufficient" : {
+        "cases" : 4,
+        "positiveCases" : 0,
+        "noAnswerCases" : 4,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : 0.0,
+        "atK" : {
+          "1" : {
+            "recall" : null,
+            "mrr" : null,
+            "ndcg" : null
+          },
+          "3" : {
+            "recall" : null,
+            "mrr" : null,
+            "ndcg" : null
+          },
+          "6" : {
+            "recall" : null,
+            "mrr" : null,
+            "ndcg" : null
+          }
+        }
+      },
+      "multi" : {
+        "cases" : 5,
+        "positiveCases" : 5,
+        "noAnswerCases" : 0,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : null,
+        "atK" : {
+          "1" : {
+            "recall" : 0.5,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          }
+        }
+      },
+      "paraphrase" : {
+        "cases" : 5,
+        "positiveCases" : 4,
+        "noAnswerCases" : 1,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : 0.0,
+        "atK" : {
+          "1" : {
+            "recall" : 0.75,
+            "mrr" : 0.75,
+            "ndcg" : 0.75
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 0.8333333333333333,
+            "ndcg" : 0.875
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 0.8333333333333333,
+            "ndcg" : 0.875
+          }
+        }
+      },
+      "synonym" : {
+        "cases" : 7,
+        "positiveCases" : 7,
+        "noAnswerCases" : 0,
+        "noAnswerWithEmptyRetrieval" : 0,
+        "emptyRetrievalRateOnNoAnswer" : null,
+        "atK" : {
+          "1" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "3" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          },
+          "6" : {
+            "recall" : 1.0,
+            "mrr" : 1.0,
+            "ndcg" : 1.0
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "origin": "http://127.0.0.1:8080",
+  "scope": "Running loopback backend, synthetic account and document, actual configured vector index; no answer-model calls",
+  "fixtureSha256": "a477f03a3fab9b075b772574dac37931a526163c1d2c9373dd402d8cfcb00309",
+  "caseId": "P01",
+  "paidCalls": 0,
+  "documentIds": [
+    "50cc2322-1f8f-4ef6-92fa-c9656ac50e36"
+  ],
+  "cleanup": {
+    "documentsDeleted": true,
+    "accountDeleted": true,
+    "vectorCleanupVerified": true
+  },
+  "scopeIdentity": {
+    "documentId": "50cc2322-1f8f-4ef6-92fa-c9656ac50e36",
+    "version": 1,
+    "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+  },
+  "indexProfile": "knowledge-heading-body-v3:bge-small-zh-v1.5-q:512:bge-zh-v15-q-local-v1",
+  "indexState": "READY",
+  "lexicalHitCount": 0,
+  "hybridHitCount": 4,
+  "retrievedHeadings": [
+    "并发回填",
+    "缓存失效",
+    "写后读",
+    "消息去重"
+  ],
+  "semanticOnlyRecallObserved": true,
+  "fallback": {
+    "beforeOutage": 4,
+    "semanticOnlyDuringOutage": 0,
+    "lexicalDuringOutage": 1,
+    "afterRecovery": 4,
+    "recovered": true,
+    "syntheticAccountDeleted": true,
+    "remainingSyntheticVectors": 0
+  },
+  "embedding": {
+    "model": "bge-small-zh-v1.5-q",
+    "dimension": 512,
+    "location": "loopback CPU",
+    "artifactSha256": "68fdf59a29108d9453c33ff51714ae3f90d23ba75829b027e03f650e26c65275"
+  },
+  "sourceSha256": {
+    "scripts/verify-hybrid-live.mjs": "16625a5f33f60b699e85df89104375717c2397a2824cfe4ee43a31b9b11d5941",
+    "backend/src/main/java/cn/edu/whu/zhizhida/knowledge/HybridKnowledgeSearch.java": "49b8c2bcc10f26ea460bbdd23d4d59189b28d3308f59aeca22c6503f096dfc67",
+    "backend/src/main/java/cn/edu/whu/zhizhida/ai/LangChain4jKnowledgeVectors.java": "e8eee9fcace115c4784dcfec031573584aa8ce341c1cb9af5a737413734cd986",
+    "services/embedding/src/main/java/cn/edu/whu/zhizhida/embedding/EmbeddingServer.java": "dff169309b198a8e4f1f692980054cf2af3b305d885d476278b18bacc96eaeb3"
+  }
+}

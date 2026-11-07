@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent><groupId>cn.edu.whu</groupId><artifactId>zhizhida-build-parent</artifactId><version>0.1.0-SNAPSHOT</version><relativePath>../../.mvn/project-parent/pom.xml</relativePath></parent>
+  <groupId>cn.edu.whu</groupId><artifactId>langchain4j-compatibility</artifactId><version>0.1.0-SNAPSHOT</version>
+  <!-- Independent M0-LC module. No application starter, credentials, database or AI Services. -->
+  <dependencies>
+    <dependency><groupId>dev.langchain4j</groupId><artifactId>langchain4j-open-ai</artifactId><version>${langchain4j.version}</version>
+      <exclusions>
+        <exclusion><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></exclusion>
+        <exclusion><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-core</artifactId></exclusion>
+      </exclusions>
+    </dependency>
+    <dependency><groupId>dev.langchain4j</groupId><artifactId>langchain4j-core-jackson3</artifactId><version>${langchain4j.jackson3.version}</version>
+      <exclusions>
+        <exclusion><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></exclusion>
+        <exclusion><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-core</artifactId></exclusion>
+      </exclusions>
+    </dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+  </dependencies>
+  <build><plugins>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-enforcer-plugin</artifactId><version>3.6.2</version>
+      <executions><execution><goals><goal>enforce</goal></goals><configuration><rules>
+        <requireJavaVersion><version>[21,22)</version></requireJavaVersion>
+        <bannedDependencies><excludes>
+          <exclude>com.fasterxml.jackson.core:jackson-databind</exclude><exclude>com.fasterxml.jackson.core:jackson-core</exclude>
+          <exclude>dev.langchain4j:langchain4j</exclude><exclude>dev.langchain4j:langchain4j-agentic</exclude>
+        </excludes></bannedDependencies>
+      </rules></configuration></execution></executions>
+    </plugin>
+    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><configuration>
+      <environmentVariables><TEMP>${project.build.directory}</TEMP><TMP>${project.build.directory}</TMP></environmentVariables>
+      <systemPropertyVariables><java.io.tmpdir>${project.build.directory}</java.io.tmpdir><junit.jupiter.tempdir.basedir>${project.build.directory}</junit.jupiter.tempdir.basedir></systemPropertyVariables>
+      <forkedProcessTimeoutInSeconds>240</forkedProcessTimeoutInSeconds>
+    </configuration></plugin>
+  </plugins></build>
+</project>

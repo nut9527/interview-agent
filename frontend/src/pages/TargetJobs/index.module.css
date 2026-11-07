@@ -1,0 +1,64 @@
+.page { max-width: 1280px; margin-inline: auto; color: var(--ink); }
+.hero, .listHeading, .sectionHead, .requirementHead, .detailMeta, .analysisPicker, .evidenceTitle, .drawerActions {
+  display: flex;
+  align-items: center;
+}
+.hero { justify-content: space-between; flex-wrap: wrap; gap: 18px 32px; margin-bottom: clamp(24px, 3.5vw, 42px); }
+.hero h1 { font-size: clamp(26px, 3vw, 36px); font-weight: 700; line-height: 1.28; }
+.hero p { margin-top: 8px; color: var(--ink-2); }
+.listHeading, .sectionHead { justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.sectionHead { margin-top: 26px; }
+.listHeading h2, .sectionHead h3 { font-size: 19px; line-height: 1.4; font-weight: 650; }
+.listHeading h2 span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 25px;
+  height: 24px;
+  padding-inline: 6px;
+  margin-left: 5px;
+  border-radius: 7px;
+  background: var(--amber-soft);
+  color: var(--brand);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.jobGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 268px), 1fr)); gap: 16px; margin-bottom: 24px; }
+.jobCard { display: flex; align-items: flex-start; flex-direction: column; min-width: 0; overflow-wrap: anywhere; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.jobCard h3 { width: 100%; flex: 1; margin: 12px 0 18px; font-size: 20px; line-height: 1.45; font-weight: 650; }
+.jobCard p, .company { color: var(--ink-2); font-size: 13px; }
+.jobCard p :global(.anticon), .company :global(.anticon) { margin-inline-end: 8px; }
+.company { font-weight: 600; color: var(--brand); }
+.company :global(.anticon) { padding: 7px; border-radius: 7px; background: var(--amber-soft); }
+.jobCard button { align-self: stretch; height: auto; min-height: 36px; white-space: normal; margin-top: 18px; }
+.empty { padding: clamp(38px, 6vw, 76px) 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.formGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; }
+.requirementEdit, .evidenceCard { border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+.requirementEdit { margin: 16px 0; background: var(--paper); }
+.requirementHead { justify-content: space-between; gap: 12px; }
+.requirementHead > div { width: min(100%, 220px); }
+.hint, .detailMeta { color: var(--ink-2); overflow-wrap: anywhere; }
+.hint { font-size: 13px; line-height: 1.8; }
+.source { margin: 12px 0 22px; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+.source summary { color: var(--brand); }
+.source p, .quote p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }
+.editorFooter { display: flex; justify-content: flex-end; position: sticky; bottom: 0; background: var(--surface); padding: 12px 0; margin-top: 20px; border-top: 1px solid var(--line); z-index: 1; }
+.feedback { margin-top: 20px; }
+.detailMeta { flex-wrap: wrap; gap: 8px 20px; margin-bottom: 20px; }
+.analysisPicker { flex-wrap: wrap; gap: 10px; margin: 22px 0; }
+.analysisPicker > div { min-width: min(100%, 200px); flex: 1; }
+.analysisSection { margin: 28px 0; }
+.analysisSection h3 { display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--line); font-size: 18px; font-weight: 650; }
+.analysisSection h3 span { color: var(--ink-2); font-weight: 500; }
+.evidenceCard { margin: 12px 0; }
+.evidenceTitle { align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.evidenceTitle strong { white-space: pre-wrap; overflow-wrap: anywhere; }
+.quote { background: var(--amber-soft); border-left: 3px solid var(--brand); margin: 16px 0 0; padding: 12px 16px; }
+.quote > div, .quote small { color: var(--ink-2); font-size: 12px; overflow-wrap: anywhere; }
+.drawerActions { gap: 6px; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .hero { align-items: flex-start; flex-direction: column; }
+  .formGrid { grid-template-columns: minmax(0, 1fr); }
+  .analysisPicker > label { width: 100%; }
+  .evidenceCard { padding: 14px; }
+}

@@ -1,0 +1,14 @@
+*.java text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+backend/src/main/resources/prompts/**/*.txt text eol=lf
+
+# 发布校验按原始字节比对录制、冻结输入与登记文件。
+docs/evidence/*.jsonl -text
+docs/evidence/closeout-*.jsonl.audit.json -text
+docs/evidence/closeout-*.plan.json -text
+backend/src/test/resources/agent-evaluation.json -text
+backend/src/test/resources/agent-evaluation-derived.json -text
+contracts/agent-release-criteria.v1.json -text
+contracts/release-v1.0.json -text

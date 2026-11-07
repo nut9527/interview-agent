@@ -1,0 +1,151 @@
+.setup {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(286px, 1fr);
+  align-items: start;
+  gap: 20px;
+  color: var(--ink);
+  --panel-padding: clamp(18px, 2vw, 28px);
+}
+.preparation, .settings {
+  min-width: 0;
+  padding: var(--panel-padding);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.setupHeading, .materialHeading, .settingsHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.setupHeading h2, .settingsHeading h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 21px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.headingIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--amber-soft);
+  color: var(--brand);
+  font-size: 18px;
+}
+.setupHeading button { color: var(--ink-2); }
+.hint { color: var(--ink-2); font-size: 13px; line-height: 1.65; }
+.trainingPicker { margin: 20px 0; }
+.modePicker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 108px), 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--paper);
+}
+.modePicker :global(.ant-radio-button-wrapper) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 39px;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink-2);
+  font-weight: 550;
+}
+.modePicker :global(.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)) {
+  z-index: 1;
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--brand);
+  box-shadow: 0 1px 3px #17352713;
+}
+.modePicker :global(.ant-radio-button-wrapper)::before,
+.topics :global(.ant-radio-button-wrapper)::before { display: none; }
+.modePicker :global(.ant-radio-button-label) { display: inline-flex; align-items: center; gap: 4px; line-height: 1.4; white-space: nowrap; }
+.trainingPicker > .hint { margin: 14px 0 10px; }
+.topics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.topics :global(.ant-radio-button-wrapper) { height: auto; padding: 10px 12px; line-height: 1.5; border: 1px solid var(--line); border-radius: 8px; }
+.topics :global(.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)) { color: var(--brand); border-color: var(--brand); background: var(--amber-soft); }
+.topics strong, .topics small { display: block; white-space: normal; }
+.topics small { margin-top: 3px; color: var(--ink-2); font-size: 12px; }
+.materialCard { min-width: 0; padding: 20px 0; border-top: 1px solid var(--line); }
+.materialCard:last-child { padding-bottom: 0; }
+.materialCard > summary { cursor: pointer; font-weight: 600; color: var(--ink-2); }
+.materialCard[open] > summary { margin-bottom: 14px; }
+.materialHeading { margin-bottom: 14px; }
+.materialHeading h3, .preparation > section h3 { margin: 0; font-size: 17px; font-weight: 650; }
+.materialHeading h3 small { margin-inline-start: 4px; color: var(--ink-2); font-size: 12px; font-weight: 400; }
+.materialHeading button { flex-shrink: 0; }
+.sourcePicker { margin-bottom: 16px; }
+.sourcePicker :global(.ant-radio-button-wrapper) { height: auto; font-size: 13px; line-height: 32px; }
+.customJd { display: grid; min-width: 0; gap: 7px; }
+.customJd label, .sessionOptions label, .difficulty legend { font-size: 14px; font-weight: 550; }
+.customJd label:not(:first-child) { margin-top: 6px; }
+.customJd .hint { margin: 17px 0 0; font-size: 12px; }
+.materialPreview { margin-top: 12px; overflow-wrap: anywhere; }
+.materialStatus, .emptyMaterial p { margin: 0; color: var(--ink-2); font-size: 13px; }
+.materialStatus > span { margin-right: 8px; color: var(--brand); }
+.materialPreview details { margin-top: 8px; font-size: 13px; }
+.original { max-height: 280px; overflow: auto; padding: 12px 0; white-space: pre-wrap; color: var(--ink-2); }
+.emptyMaterial { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.preparation > section { padding-top: 20px; margin-top: 20px; border-top: 1px solid var(--line); }
+.preparation > section h3 { margin-bottom: 12px; }
+.preparation > section .hint { margin-top: 8px; }
+.settingsHeading { padding-bottom: 16px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
+.difficulty { min-width: 0; border: 0; margin: 0 0 16px; padding: 0; }
+.difficulty legend { margin-bottom: 8px; }
+.difficulty :global(.ant-radio-group) { display: flex; width: 100%; gap: 6px; }
+.difficulty :global(.ant-radio-wrapper) {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  min-height: 36px;
+  padding: 3px;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  font-size: 13px;
+}
+.difficulty :global(.ant-radio-wrapper-checked) { color: var(--brand); border-color: var(--brand); background: var(--amber-soft); }
+.difficulty :global(.ant-radio + span) { padding-inline: 5px 0; }
+.difficulty .hint { margin: 5px 0 0; font-size: 12px; }
+.formRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.sessionOptions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 106px), 1fr)); gap: 10px; }
+.sessionOptions > div { min-width: 0; }
+.sessionOptions label { display: block; margin-bottom: 7px; }
+.sessionOptions :global(.ant-select) { width: 100%; }
+.settings > .hint { margin-top: 8px; }
+.launch { margin-top: 20px; padding: 14px; border-radius: var(--r-sm); background: var(--paper); }
+.launch p { margin: 0 0 10px; color: var(--ink-2); font-size: 13px; }
+.privacy { margin: 12px 0 0; color: var(--ink-2); font-size: 12px; }
+.privacy :global(.anticon) { color: var(--brand); }
+.feedback { margin-top: 16px; }
+.importForm { margin-top: 20px; }
+.dialogActions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+@media (min-width: 900px) and (max-height: 820px) {
+  .setup { --panel-padding: 18px; }
+  .settingsHeading { padding-bottom: 10px; margin-bottom: 12px; }
+  .difficulty { margin-bottom: 10px; }
+  .difficulty legend, .sessionOptions label { margin-bottom: 4px; }
+  .difficulty .hint { margin-top: 3px; }
+  .launch { margin-top: 12px; padding: 10px; }
+  .launch p { margin-bottom: 6px; }
+}
+@container interview (max-width: 740px) {
+  .setup { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
+@media (max-width: 600px) {
+  .modePicker :global(.ant-radio-button-wrapper) { font-size: 13px; }
+  .formRow { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .sourcePicker :global(.ant-radio-button-wrapper) { padding-inline: 10px; }
+  .setupHeading h2, .settingsHeading h2 { font-size: 18px; }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE interview_sessions ADD COLUMN difficulty VARCHAR(20) NOT NULL DEFAULT 'STANDARD';

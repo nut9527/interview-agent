@@ -1,0 +1,60 @@
+.shell { height: 100vh; overflow: clip; }
+.main { min-width: 0; overflow: clip; }
+.shell .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  height: 62px;
+  line-height: 1.5;
+  padding: 0 clamp(20px, 2.5vw, 44px);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.location, .userSection, .account, .logoWrap, .navLink { display: flex; align-items: center; }
+.location { min-width: 0; gap: 12px; color: var(--ink-2); font-size: 13px; }
+.location button { color: var(--ink-2); margin-left: -8px; margin-right: 4px; }
+.location strong { color: var(--ink); font-weight: 600; }
+.slash { color: var(--line-strong); }
+.content {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  padding: clamp(22px, 2.2vw, 36px) clamp(20px, 2.5vw, 44px) 48px;
+  background: var(--paper);
+  scrollbar-gutter: stable;
+}
+.canvas { max-width: 1440px; min-width: 0; margin-inline: auto; }
+.shell .sider { height: 100%; border-right: 1px solid var(--line); background: var(--surface); }
+.sider :global(.ant-layout-sider-children) { display: flex; flex-direction: column; }
+.navBody { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 12px; }
+.logoWrap { flex: none; gap: 12px; height: 76px; padding: 0 24px; color: var(--ink); }
+.logoText { font-size: 23px; font-weight: 750; letter-spacing: .02em; }
+.groupLabel { padding: 0 16px; margin: 6px 0 9px; color: var(--ink-3); font-size: 12px; font-weight: 600; }
+.sider :global(.ant-menu) { background: transparent; color: var(--ink-2); }
+.sider :global(.ant-menu-inline .ant-menu-item), .sider :global(.ant-menu-submenu-title) { margin-inline: 0; width: 100%; }
+.sider :global(.ant-menu-item-selected), .navLink[aria-current='page'] { font-weight: 650; }
+.sider :global(.ant-menu .ant-menu-item-icon), .navLink :global(.anticon) { font-size: 17px; }
+.sider :global(.ant-menu-inline .ant-menu-sub.ant-menu-inline) { background: transparent; }
+.sider :global(.ant-menu-sub .ant-menu-title-content) { border-left: 1px solid var(--line-strong); padding-left: 14px; }
+.studyNav { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 16px; }
+.navLink { min-height: 42px; gap: 11px; padding: 6px 15px; color: var(--ink-2); border-radius: 8px; }
+.navLink:hover { color: var(--brand); background: var(--paper); }
+.navLink[aria-current='page'] { background: var(--accent-soft); color: var(--brand); }
+.siderFooter { padding: 12px; border-top: 1px solid var(--line); }
+.sider[data-collapsed='true'] .logoWrap, .sider[data-collapsed='true'] .navLink { padding-inline: 0; justify-content: center; }
+.sider[data-collapsed='true'] .navBody, .sider[data-collapsed='true'] .siderFooter { padding-inline: 4px; }
+.sider[data-collapsed='true'] :global(.ant-menu-inline-collapsed) { width: 100%; }
+.userSection { gap: 12px; min-width: 0; }
+.account { gap: 9px; padding-inline: 5px; }
+.avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #e7efda; color: #34523d; font-size: 13px; font-weight: 650; }
+.caret { color: var(--ink-3); font-size: 10px; }
+.userName { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+@media (max-width: 767px) {
+  .shell .header { padding: 0 16px; }
+  .content { padding: 24px 16px; }
+  .logoWrap { height: 56px; }
+  .userSection { gap: 8px; }
+  .userName { max-width: 96px; }
+}

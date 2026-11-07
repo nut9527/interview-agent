@@ -1,0 +1,1002 @@
+{
+  "scope": "Training retrieval over frozen synthetic chunks; retrieval only, CPU, in-memory vector store; p95 from one warm pass",
+  "documents": 5,
+  "cases": 30,
+  "k": 6,
+  "embedding": {
+    "artifact": "dev.langchain4j:langchain4j-embeddings-bge-small-zh-v15-q:1.23.0-beta33",
+    "sha256": "68fdf59a29108d9453c33ff51714ae3f90d23ba75829b027e03f650e26c65275",
+    "dimension": 512,
+    "runtime": "onnxruntime 1.31.1 CPU; tokenizers 0.23.3; CLS pooling, L2 normalization"
+  },
+  "summary": [
+    {
+      "recalledEvidenceAt6": 30,
+      "p95Micros": 20107,
+      "noAnswerCases": 5,
+      "cases": 30,
+      "kind": "all",
+      "mode": "hybrid (hybrid-rrf60-v2:bge-small-zh-v1.5-q:512)",
+      "expectedEvidence": 30,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 5,
+      "p95Micros": 12804,
+      "noAnswerCases": 0,
+      "cases": 5,
+      "kind": "direct",
+      "mode": "hybrid (hybrid-rrf60-v2:bge-small-zh-v1.5-q:512)",
+      "expectedEvidence": 5,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 4,
+      "p95Micros": 9166,
+      "noAnswerCases": 0,
+      "cases": 4,
+      "kind": "distractor",
+      "mode": "hybrid (hybrid-rrf60-v2:bge-small-zh-v1.5-q:512)",
+      "expectedEvidence": 4,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 0,
+      "p95Micros": 13546,
+      "noAnswerCases": 4,
+      "cases": 4,
+      "kind": "insufficient",
+      "mode": "hybrid (hybrid-rrf60-v2:bge-small-zh-v1.5-q:512)",
+      "expectedEvidence": 0,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 10,
+      "p95Micros": 13642,
+      "noAnswerCases": 0,
+      "cases": 5,
+      "kind": "multi",
+      "mode": "hybrid (hybrid-rrf60-v2:bge-small-zh-v1.5-q:512)",
+      "expectedEvidence": 10,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 4,
+      "p95Micros": 24153,
+      "noAnswerCases": 1,
+      "cases": 5,
+      "kind": "paraphrase",
+      "mode": "hybrid (hybrid-rrf60-v2:bge-small-zh-v1.5-q:512)",
+      "expectedEvidence": 4,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 7,
+      "p95Micros": 12664,
+      "noAnswerCases": 0,
+      "cases": 7,
+      "kind": "synonym",
+      "mode": "hybrid (hybrid-rrf60-v2:bge-small-zh-v1.5-q:512)",
+      "expectedEvidence": 7,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 29,
+      "p95Micros": 4287,
+      "noAnswerCases": 5,
+      "cases": 30,
+      "kind": "all",
+      "mode": "lexical",
+      "expectedEvidence": 30,
+      "noAnswerWithEmptyRetrieval": 1
+    },
+    {
+      "recalledEvidenceAt6": 5,
+      "p95Micros": 1394,
+      "noAnswerCases": 0,
+      "cases": 5,
+      "kind": "direct",
+      "mode": "lexical",
+      "expectedEvidence": 5,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 4,
+      "p95Micros": 1341,
+      "noAnswerCases": 0,
+      "cases": 4,
+      "kind": "distractor",
+      "mode": "lexical",
+      "expectedEvidence": 4,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 0,
+      "p95Micros": 2125,
+      "noAnswerCases": 4,
+      "cases": 4,
+      "kind": "insufficient",
+      "mode": "lexical",
+      "expectedEvidence": 0,
+      "noAnswerWithEmptyRetrieval": 1
+    },
+    {
+      "recalledEvidenceAt6": 10,
+      "p95Micros": 2343,
+      "noAnswerCases": 0,
+      "cases": 5,
+      "kind": "multi",
+      "mode": "lexical",
+      "expectedEvidence": 10,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 3,
+      "p95Micros": 15048,
+      "noAnswerCases": 1,
+      "cases": 5,
+      "kind": "paraphrase",
+      "mode": "lexical",
+      "expectedEvidence": 4,
+      "noAnswerWithEmptyRetrieval": 0
+    },
+    {
+      "recalledEvidenceAt6": 7,
+      "p95Micros": 1500,
+      "noAnswerCases": 0,
+      "cases": 7,
+      "kind": "synonym",
+      "mode": "lexical",
+      "expectedEvidence": 7,
+      "noAnswerWithEmptyRetrieval": 0
+    }
+  ],
+  "measurements": [
+    {
+      "details": [
+        {
+          "id": "D01",
+          "kind": "direct",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL"
+          ],
+          "micros": 1394
+        },
+        {
+          "id": "D02",
+          "kind": "direct",
+          "expected": [
+            "cache:空值缓存"
+          ],
+          "retrieved": [
+            "cache:空值缓存"
+          ],
+          "micros": 571
+        },
+        {
+          "id": "D03",
+          "kind": "direct",
+          "expected": [
+            "cache:热点保护"
+          ],
+          "retrieved": [
+            "cache:热点保护"
+          ],
+          "micros": 513
+        },
+        {
+          "id": "D04",
+          "kind": "direct",
+          "expected": [
+            "consistency:写后读"
+          ],
+          "retrieved": [
+            "consistency:写后读"
+          ],
+          "micros": 813
+        },
+        {
+          "id": "D05",
+          "kind": "direct",
+          "expected": [
+            "consistency:缓存失效"
+          ],
+          "retrieved": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:消息去重"
+          ],
+          "micros": 615
+        },
+        {
+          "id": "S01",
+          "kind": "synonym",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "cache:空值缓存"
+          ],
+          "micros": 1500
+        },
+        {
+          "id": "S02",
+          "kind": "synonym",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "cache:空值缓存"
+          ],
+          "micros": 757
+        },
+        {
+          "id": "S03",
+          "kind": "synonym",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL"
+          ],
+          "micros": 579
+        },
+        {
+          "id": "S04",
+          "kind": "synonym",
+          "expected": [
+            "cache:空值缓存"
+          ],
+          "retrieved": [
+            "cache:空值缓存"
+          ],
+          "micros": 511
+        },
+        {
+          "id": "S05",
+          "kind": "synonym",
+          "expected": [
+            "cache:热点保护"
+          ],
+          "retrieved": [
+            "cache:热点保护"
+          ],
+          "micros": 545
+        },
+        {
+          "id": "S06",
+          "kind": "synonym",
+          "expected": [
+            "consistency:写后读"
+          ],
+          "retrieved": [
+            "consistency:写后读"
+          ],
+          "micros": 705
+        },
+        {
+          "id": "S07",
+          "kind": "synonym",
+          "expected": [
+            "consistency:消息去重"
+          ],
+          "retrieved": [
+            "consistency:消息去重",
+            "consistency:写后读"
+          ],
+          "micros": 679
+        },
+        {
+          "id": "M01",
+          "kind": "multi",
+          "expected": [
+            "cache:TTL",
+            "cache:空值缓存"
+          ],
+          "retrieved": [
+            "cache:空值缓存",
+            "cache:TTL"
+          ],
+          "micros": 1684
+        },
+        {
+          "id": "M02",
+          "kind": "multi",
+          "expected": [
+            "consistency:缓存失效",
+            "consistency:并发回填"
+          ],
+          "retrieved": [
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:写后读",
+            "consistency:消息去重"
+          ],
+          "micros": 2343
+        },
+        {
+          "id": "M03",
+          "kind": "multi",
+          "expected": [
+            "cache:TTL",
+            "ops:观测"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "ops:观测"
+          ],
+          "micros": 2244
+        },
+        {
+          "id": "M04",
+          "kind": "multi",
+          "expected": [
+            "consistency:写后读",
+            "ops:复制监控"
+          ],
+          "retrieved": [
+            "consistency:写后读",
+            "ops:复制监控",
+            "ops:观测"
+          ],
+          "micros": 2026
+        },
+        {
+          "id": "M05",
+          "kind": "multi",
+          "expected": [
+            "cache:热点保护",
+            "performance:请求合并"
+          ],
+          "retrieved": [
+            "cache:热点保护",
+            "performance:请求合并"
+          ],
+          "micros": 1332
+        },
+        {
+          "id": "N01",
+          "kind": "distractor",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "other:TTL",
+            "cache:空值缓存",
+            "other:部署"
+          ],
+          "micros": 1101
+        },
+        {
+          "id": "N02",
+          "kind": "distractor",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "other:TTL",
+            "cache:空值缓存",
+            "other:部署"
+          ],
+          "micros": 1038
+        },
+        {
+          "id": "N03",
+          "kind": "distractor",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL"
+          ],
+          "micros": 310
+        },
+        {
+          "id": "N04",
+          "kind": "distractor",
+          "expected": [
+            "performance:索引"
+          ],
+          "retrieved": [
+            "performance:索引",
+            "consistency:写后读"
+          ],
+          "micros": 1341
+        },
+        {
+          "id": "I01",
+          "kind": "insufficient",
+          "expected": [],
+          "retrieved": [],
+          "micros": 584
+        },
+        {
+          "id": "I02",
+          "kind": "insufficient",
+          "expected": [],
+          "retrieved": [
+            "cache:边界"
+          ],
+          "micros": 633
+        },
+        {
+          "id": "I03",
+          "kind": "insufficient",
+          "expected": [],
+          "retrieved": [
+            "performance:压测方法",
+            "cache:边界",
+            "cache:TTL"
+          ],
+          "micros": 1374
+        },
+        {
+          "id": "I04",
+          "kind": "insufficient",
+          "expected": [],
+          "retrieved": [
+            "ops:复制监控",
+            "consistency:写后读",
+            "ops:观测"
+          ],
+          "micros": 2125
+        },
+        {
+          "id": "P01",
+          "kind": "paraphrase",
+          "expected": [
+            "consistency:写后读"
+          ],
+          "retrieved": [],
+          "micros": 3337
+        },
+        {
+          "id": "P02",
+          "kind": "paraphrase",
+          "expected": [
+            "consistency:消息去重"
+          ],
+          "retrieved": [
+            "consistency:消息去重",
+            "ops:演练"
+          ],
+          "micros": 1963
+        },
+        {
+          "id": "P03",
+          "kind": "paraphrase",
+          "expected": [
+            "cache:热点保护"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "consistency:写后读",
+            "cache:热点保护",
+            "ops:复制监控",
+            "consistency:缓存失效"
+          ],
+          "micros": 15048
+        },
+        {
+          "id": "P04",
+          "kind": "paraphrase",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "cache:热点保护",
+            "ops:观测",
+            "other:TTL",
+            "consistency:缓存失效"
+          ],
+          "micros": 4257
+        },
+        {
+          "id": "P05",
+          "kind": "paraphrase",
+          "expected": [],
+          "retrieved": [
+            "cache:边界",
+            "other:TTL"
+          ],
+          "micros": 4287
+        }
+      ],
+      "mode": "lexical"
+    },
+    {
+      "details": [
+        {
+          "id": "D01",
+          "kind": "direct",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "cache:空值缓存 (heading)",
+            "cache:空值缓存",
+            "cache:TTL (heading)",
+            "cache:热点保护",
+            "cache:边界"
+          ],
+          "micros": 6677
+        },
+        {
+          "id": "D02",
+          "kind": "direct",
+          "expected": [
+            "cache:空值缓存"
+          ],
+          "retrieved": [
+            "cache:空值缓存",
+            "cache:空值缓存 (heading)",
+            "cache:TTL",
+            "cache:星桥缓存笔记 (heading)",
+            "cache:边界",
+            "cache:热点保护"
+          ],
+          "micros": 9206
+        },
+        {
+          "id": "D03",
+          "kind": "direct",
+          "expected": [
+            "cache:热点保护"
+          ],
+          "retrieved": [
+            "cache:热点保护",
+            "cache:空值缓存 (heading)",
+            "cache:TTL",
+            "cache:TTL (heading)",
+            "cache:星桥缓存笔记 (heading)",
+            "cache:空值缓存"
+          ],
+          "micros": 11815
+        },
+        {
+          "id": "D04",
+          "kind": "direct",
+          "expected": [
+            "consistency:写后读"
+          ],
+          "retrieved": [
+            "consistency:写后读",
+            "consistency:写后读 (heading)",
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:缓存失效 (heading)",
+            "consistency:订单一致性笔记 (heading)"
+          ],
+          "micros": 11797
+        },
+        {
+          "id": "D05",
+          "kind": "direct",
+          "expected": [
+            "consistency:缓存失效"
+          ],
+          "retrieved": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:消息去重",
+            "consistency:缓存失效 (heading)",
+            "consistency:写后读",
+            "consistency:消息去重 (heading)"
+          ],
+          "micros": 12804
+        },
+        {
+          "id": "S01",
+          "kind": "synonym",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:空值缓存 (heading)",
+            "cache:星桥缓存笔记 (heading)",
+            "cache:边界",
+            "cache:热点保护"
+          ],
+          "micros": 12664
+        },
+        {
+          "id": "S02",
+          "kind": "synonym",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:空值缓存 (heading)",
+            "cache:星桥缓存笔记 (heading)",
+            "cache:边界",
+            "cache:热点保护"
+          ],
+          "micros": 10015
+        },
+        {
+          "id": "S03",
+          "kind": "synonym",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "cache:热点保护",
+            "cache:边界",
+            "cache:空值缓存",
+            "cache:空值缓存 (heading)",
+            "cache:边界 (heading)"
+          ],
+          "micros": 9960
+        },
+        {
+          "id": "S04",
+          "kind": "synonym",
+          "expected": [
+            "cache:空值缓存"
+          ],
+          "retrieved": [
+            "cache:空值缓存",
+            "cache:空值缓存 (heading)",
+            "cache:星桥缓存笔记 (heading)",
+            "cache:TTL",
+            "cache:边界",
+            "cache:热点保护"
+          ],
+          "micros": 6455
+        },
+        {
+          "id": "S05",
+          "kind": "synonym",
+          "expected": [
+            "cache:热点保护"
+          ],
+          "retrieved": [
+            "cache:热点保护",
+            "cache:空值缓存",
+            "cache:空值缓存 (heading)",
+            "cache:TTL",
+            "cache:边界",
+            "cache:热点保护 (heading)"
+          ],
+          "micros": 8964
+        },
+        {
+          "id": "S06",
+          "kind": "synonym",
+          "expected": [
+            "consistency:写后读"
+          ],
+          "retrieved": [
+            "consistency:写后读",
+            "consistency:写后读 (heading)",
+            "consistency:并发回填",
+            "consistency:订单一致性笔记 (heading)",
+            "consistency:缓存失效",
+            "consistency:缓存失效 (heading)"
+          ],
+          "micros": 9397
+        },
+        {
+          "id": "S07",
+          "kind": "synonym",
+          "expected": [
+            "consistency:消息去重"
+          ],
+          "retrieved": [
+            "consistency:消息去重",
+            "consistency:写后读",
+            "consistency:消息去重 (heading)",
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:缓存失效 (heading)"
+          ],
+          "micros": 9563
+        },
+        {
+          "id": "M01",
+          "kind": "multi",
+          "expected": [
+            "cache:TTL",
+            "cache:空值缓存"
+          ],
+          "retrieved": [
+            "cache:空值缓存",
+            "cache:TTL",
+            "cache:空值缓存 (heading)",
+            "cache:星桥缓存笔记 (heading)",
+            "cache:热点保护",
+            "cache:边界"
+          ],
+          "micros": 9225
+        },
+        {
+          "id": "M02",
+          "kind": "multi",
+          "expected": [
+            "consistency:缓存失效",
+            "consistency:并发回填"
+          ],
+          "retrieved": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:写后读",
+            "consistency:消息去重",
+            "consistency:并发回填 (heading)",
+            "consistency:缓存失效 (heading)"
+          ],
+          "micros": 11153
+        },
+        {
+          "id": "M03",
+          "kind": "multi",
+          "expected": [
+            "cache:TTL",
+            "ops:观测"
+          ],
+          "retrieved": [
+            "ops:观测",
+            "cache:TTL",
+            "ops:观测 (heading)",
+            "ops:复制监控",
+            "cache:热点保护",
+            "ops:演练"
+          ],
+          "micros": 9959
+        },
+        {
+          "id": "M04",
+          "kind": "multi",
+          "expected": [
+            "consistency:写后读",
+            "ops:复制监控"
+          ],
+          "retrieved": [
+            "consistency:写后读",
+            "ops:复制监控",
+            "ops:观测",
+            "consistency:写后读 (heading)",
+            "consistency:并发回填",
+            "ops:演练"
+          ],
+          "micros": 13642
+        },
+        {
+          "id": "M05",
+          "kind": "multi",
+          "expected": [
+            "cache:热点保护",
+            "performance:请求合并"
+          ],
+          "retrieved": [
+            "cache:热点保护",
+            "performance:请求合并",
+            "performance:请求合并 (heading)",
+            "cache:热点保护 (heading)",
+            "performance:索引",
+            "performance:性能实验笔记 (heading)"
+          ],
+          "micros": 10472
+        },
+        {
+          "id": "N01",
+          "kind": "distractor",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "other:TTL",
+            "other:部署",
+            "cache:空值缓存",
+            "cache:星桥缓存笔记 (heading)",
+            "cache:TTL (heading)"
+          ],
+          "micros": 8281
+        },
+        {
+          "id": "N02",
+          "kind": "distractor",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "other:TTL",
+            "other:部署",
+            "cache:空值缓存",
+            "cache:星桥缓存笔记 (heading)",
+            "cache:空值缓存 (heading)"
+          ],
+          "micros": 8014
+        },
+        {
+          "id": "N03",
+          "kind": "distractor",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "cache:TTL (heading)",
+            "cache:热点保护",
+            "cache:边界 (heading)",
+            "cache:空值缓存 (heading)",
+            "cache:星桥缓存笔记 (heading)"
+          ],
+          "micros": 6390
+        },
+        {
+          "id": "N04",
+          "kind": "distractor",
+          "expected": [
+            "performance:索引"
+          ],
+          "retrieved": [
+            "performance:索引",
+            "consistency:写后读",
+            "performance:索引 (heading)",
+            "consistency:订单一致性笔记 (heading)",
+            "cache:空值缓存",
+            "performance:请求合并"
+          ],
+          "micros": 9166
+        },
+        {
+          "id": "I01",
+          "kind": "insufficient",
+          "expected": [],
+          "retrieved": [
+            "cache:TTL",
+            "cache:热点保护",
+            "cache:星桥缓存笔记 (heading)",
+            "consistency:消息去重 (heading)",
+            "cache:空值缓存 (heading)",
+            "cache:边界 (heading)"
+          ],
+          "micros": 8616
+        },
+        {
+          "id": "I02",
+          "kind": "insufficient",
+          "expected": [],
+          "retrieved": [
+            "cache:边界",
+            "cache:TTL",
+            "cache:空值缓存 (heading)",
+            "cache:热点保护",
+            "cache:空值缓存",
+            "cache:星桥缓存笔记 (heading)"
+          ],
+          "micros": 10846
+        },
+        {
+          "id": "I03",
+          "kind": "insufficient",
+          "expected": [],
+          "retrieved": [
+            "performance:压测方法",
+            "cache:TTL",
+            "cache:边界",
+            "cache:星桥缓存笔记 (heading)",
+            "performance:请求合并",
+            "performance:性能实验笔记 (heading)"
+          ],
+          "micros": 9397
+        },
+        {
+          "id": "I04",
+          "kind": "insufficient",
+          "expected": [],
+          "retrieved": [
+            "ops:复制监控",
+            "consistency:写后读",
+            "ops:观测",
+            "ops:复制监控 (heading)",
+            "ops:演练",
+            "consistency:缓存失效"
+          ],
+          "micros": 13546
+        },
+        {
+          "id": "P01",
+          "kind": "paraphrase",
+          "expected": [
+            "consistency:写后读"
+          ],
+          "retrieved": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:写后读",
+            "ops:演练",
+            "cache:空值缓存",
+            "ops:复制监控"
+          ],
+          "micros": 18992
+        },
+        {
+          "id": "P02",
+          "kind": "paraphrase",
+          "expected": [
+            "consistency:消息去重"
+          ],
+          "retrieved": [
+            "consistency:消息去重",
+            "ops:演练",
+            "consistency:写后读",
+            "consistency:缓存失效",
+            "cache:空值缓存",
+            "other:部署"
+          ],
+          "micros": 14752
+        },
+        {
+          "id": "P03",
+          "kind": "paraphrase",
+          "expected": [
+            "cache:热点保护"
+          ],
+          "retrieved": [
+            "cache:热点保护",
+            "consistency:写后读",
+            "ops:复制监控",
+            "consistency:缓存失效",
+            "cache:TTL",
+            "performance:请求合并 (heading)"
+          ],
+          "micros": 14389
+        },
+        {
+          "id": "P04",
+          "kind": "paraphrase",
+          "expected": [
+            "cache:TTL"
+          ],
+          "retrieved": [
+            "cache:TTL",
+            "cache:热点保护",
+            "other:TTL",
+            "consistency:缓存失效",
+            "ops:观测",
+            "cache:星桥缓存笔记 (heading)"
+          ],
+          "micros": 20107
+        },
+        {
+          "id": "P05",
+          "kind": "paraphrase",
+          "expected": [],
+          "retrieved": [
+            "cache:边界",
+            "other:TTL",
+            "cache:空值缓存",
+            "cache:TTL",
+            "consistency:订单一致性笔记 (heading)",
+            "ops:复制监控"
+          ],
+          "micros": 24153
+        }
+      ],
+      "mode": "hybrid (hybrid-rrf60-v2:bge-small-zh-v1.5-q:512)"
+    }
+  ],
+  "sourceSha256": {
+    "backend/src/test/resources/knowledge-retrieval.json": "a477f03a3fab9b075b772574dac37931a526163c1d2c9373dd402d8cfcb00309",
+    "backend/src/test/java/cn/edu/whu/zhizhida/knowledge/KnowledgeHybridRetrievalEvaluationTest.java": "9241b7e063a568c9b386ab043f86e476c1b876d2c5f7c48b0d81f7ee6ebcaf10",
+    "backend/src/main/java/cn/edu/whu/zhizhida/knowledge/HybridKnowledgeSearch.java": "ba7ea8abe23a0235458614cd05fbd341558cfcffae832ce2e11bd1a8dc44b1c5",
+    "backend/src/main/java/cn/edu/whu/zhizhida/ai/LangChain4jKnowledgeVectors.java": "350402646ea8e98c50286a93849553cf1269b692b6e52af9aeb3b6048a5e658d"
+  }
+}

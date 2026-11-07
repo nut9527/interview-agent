@@ -1,0 +1,28 @@
+{
+  "criteriaVersion": "agent-kernel-initial-v1",
+  "status": "DEVELOPMENT_NOT_RELEASE_FROZEN",
+  "scope": "07 v3 L1; first batch B00-B03/E10/E11/M0",
+  "dataset": {
+    "path": "backend/src/test/resources/agent-evaluation.json",
+    "existingFamilies": { "development": 20, "validation": 10, "heldout": 10 },
+    "sha256": "e7a22a75b678dfdff47e9ffd4318a494b33419e9e85b3703eefcfc3822debd49",
+    "requiredBeforeFinalKernelEvaluation": { "development": 20, "validation": 30, "heldout": 20, "crossSessionValidationMinimum": 10 },
+    "rule": "Family partitions remain unchanged. Holdout is not run until candidate, versions, budget and criteria freeze."
+  },
+  "versions": { "evidence": "answer-evidence-v1", "rubric": "qualitative-v1", "prompt": "interview-run-evidence-v2", "policy": "interview-agent-v3", "toolset": "evidence-v1" },
+  "budget": { "runDeadlineSeconds": 90, "modelAttempts": 4, "toolBatches": 2, "toolExecutions": 3, "repairs": 1, "singleModelSeconds": 25, "realModelCallsAuthorizedForThisBatch": 0 },
+  "initialTargets": {
+    "keyClaimSemanticSupport": { "minimum": 0.90, "denominator": "all assessable key claims, paired and averaged by family", "minimumFamilies": 30 },
+    "followupRelevance": { "minimum": 0.85, "denominator": "all followups requiring review, averaged by family", "minimumFamilies": 30 },
+    "unsupportedMajorCorrection": { "maximum": 0.05, "denominator": "all major corrections; also report affected-case fraction; zero corrections is not accuracy evidence", "minimumCorrectionItems": 20 },
+    "latency": { "acceptP95Ms": 1000, "firstPhaseP95Ms": 2000, "completionP95Ms": 60000, "absoluteDeadlineMs": 90000, "environment": "fixed local machine, healthy dependencies, 2 workers, at most 8 SSE connections", "minimumRuns": 100 }
+  },
+  "reviewProtocol": {
+    "labels": ["supported", "contradicted", "insufficient", "disputed"],
+    "procedure": "Hide route, randomize order, judge source support, technical correctness and relevance independently; double-review disputed items and at least 20 percent of remaining items.",
+    "denominator": "All accepted cases, including failed, expired, cancelled and unknown usage. Aggregate by family, not by turn.",
+    "uncertainty": "Report paired difference and confidence intervals. Insufficient samples or interval crossing zero is INCONCLUSIVE. Unknown unbounded usage cannot prove a cost gate.",
+    "modelJudge": "Assistance only; never the sole final semantic score."
+  },
+  "currentReleaseDecision": "NOT_READY: P1 full G1, P2-P4, G35 and final V have not passed. Location checks and HTTP success are not semantic quality evidence."
+}

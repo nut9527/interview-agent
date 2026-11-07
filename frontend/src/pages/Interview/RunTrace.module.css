@@ -1,0 +1,12 @@
+.trace { padding: 16px 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); color: var(--ink); font-size: 14px; line-height: 1.75; overflow-wrap: anywhere; }
+.trace summary { cursor: pointer; color: var(--ink-2); font-weight: 600; }
+.trace summary:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; }
+.trace > p { margin: 12px 0; color: var(--ink-2); font-size: 13px; }
+.trace article { padding: 12px 0; }
+.trace article + article { border-top: 1px solid var(--line); }
+.trace h4 { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+.trace article p { margin: 8px 0; color: var(--ink-2); font-size: 13px; }
+.trace ol { margin: 12px 0; padding-left: 24px; list-style: decimal; }
+.trace li { padding-left: 4px; margin: 8px 0; }
+.trace li::marker { color: var(--amber); font-family: var(--mono); }
+@media (max-width: 680px) { .trace { padding: 16px; } }

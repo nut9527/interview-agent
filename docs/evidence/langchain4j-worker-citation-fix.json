@@ -1,0 +1,41 @@
+{
+  "model": "deepseek-flash",
+  "maxRequests": 3,
+  "maxOutputTokens": 6000,
+  "cases": [
+    "redis-order"
+  ],
+  "initialKnowledgeExcerpts": "WITHHELD",
+  "runs": [
+    {
+      "caseId": "redis-order",
+      "report": "langchain4j-worker-citation-fix-redis-order.jsonl",
+      "retainedRequests": 1,
+      "status": "SUCCEEDED",
+      "exitCode": 0,
+      "sourceHash": "e240fccf61c9d8b53e0569c68a71d9120bdbf39743b87ea3b5526a958bd6e464",
+      "error": null,
+      "attempts": 1,
+      "tools": 1,
+      "elapsedMs": 5727,
+      "modelToolRequests": 0,
+      "verifiedKnowledgeCitations": 1,
+      "toolReceipts": [
+        {
+          "name": "search_knowledge",
+          "kind": "EXECUTED"
+        }
+      ],
+      "evidenceCheck": "PASSED",
+      "usage": [
+        {
+          "status": "REPORTED",
+          "inputTokens": 5105,
+          "outputTokens": 1019,
+          "totalTokens": 6124
+        }
+      ]
+    }
+  ],
+  "result": "PASSED"
+}

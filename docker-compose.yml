@@ -1,0 +1,210 @@
+services:
+  redis:
+    # Shared AI/SSE/retention coordination and submission protection; never evict leases.
+    profiles: ["app", "middleware"]
+    image: ${REDIS_IMAGE:-redis:7.4.2}
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "127.0.0.1:${REDIS_RATE_PORT:-${REDIS_PORT:-6379}}:6379"
+    volumes:
+      - ./.runtime/middleware/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  redis-cache:
+    profiles: ["app", "middleware"]
+    image: ${REDIS_IMAGE:-redis:7.4.2}
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "127.0.0.1:${REDIS_CACHE_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  rabbitmq:
+    profiles: ["app", "middleware"]
+    image: ${RABBITMQ_IMAGE:-rabbitmq:4.1.0-management}
+    hostname: zhizhida-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-zhizhida}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-zhizhida-local}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/zhizhida-lab}
+    ports:
+      - "127.0.0.1:${RABBITMQ_PORT:-5672}:5672"
+      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - ./.runtime/middleware/rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mcp-reference:
+    profiles: ["app"]
+    build:
+      context: ./services/mcp-reference
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-public.ecr.aws/docker/library}
+    restart: unless-stopped
+    environment:
+      MCP_BIND_HOST: 0.0.0.0
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:18091/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  mysql:
+    image: ${MYSQL_IMAGE:-${DOCKER_REGISTRY:-docker.io/library}/mysql:8.4}
+    container_name: zhizhida-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-zhizhida}
+      MYSQL_USER: ${MYSQL_USER:-zhizhida}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-zhizhida}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    ports:
+      - "${MYSQL_BIND_ADDRESS:-127.0.0.1}:${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    profiles: ["app"]
+    build:
+      context: ./backend
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-public.ecr.aws/docker/library}
+    container_name: zhizhida-backend
+    restart: unless-stopped
+    volumes:
+      - ./.runtime/knowledge-shared:/app/data/knowledge-imports
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mcp-reference:
+        condition: service_started
+        required: false
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-zhizhida}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-zhizhida}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-zhizhida}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_CACHE_HOST: redis-cache
+      REDIS_CACHE_PORT: 6379
+      REDIS_RATE_HOST: redis
+      REDIS_RATE_PORT: 6379
+      # Bundled loopback-only Redis services have no authentication; external services use app.redis.*.
+      REDIS_CACHE_PASSWORD: ""
+      REDIS_RATE_PASSWORD: ""
+      REDIS_NAMESPACE: ${REDIS_NAMESPACE:-zhizhida:dev}
+      QUESTION_CACHE_ENABLED: ${QUESTION_CACHE_ENABLED:-true}
+      REDIS_RATE_LIMIT_ENABLED: ${REDIS_RATE_LIMIT_ENABLED:-true}
+      REDIS_SUBMISSION_LIMIT: ${REDIS_SUBMISSION_LIMIT:-10}
+      REDIS_SUBMISSION_WINDOW_MS: ${REDIS_SUBMISSION_WINDOW_MS:-10000}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-zhizhida}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-zhizhida-local}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/zhizhida-lab}
+      RUN_DISPATCH_MODE: rabbitmq
+      KNOWLEDGE_DISPATCH_MODE: rabbitmq
+      KNOWLEDGE_IMPORT_SHARED_DIRECTORY: /app/data/knowledge-imports
+      KNOWLEDGE_DISPATCH_INDEX_SCAN_MS: "60000"
+      AGENT_MCP_REFERENCE_ENABLED: ${AGENT_MCP_REFERENCE_ENABLED:-true}
+      AGENT_MCP_REFERENCE_URL: http://mcp-reference:18091/mcp
+      RUN_DISPATCH_CONCURRENCY: ${RUN_DISPATCH_CONCURRENCY:-2}
+      KNOWLEDGE_IMPORT_CONCURRENCY: ${KNOWLEDGE_IMPORT_CONCURRENCY:-2}
+      KNOWLEDGE_INDEX_CONCURRENCY: ${KNOWLEDGE_INDEX_CONCURRENCY:-1}
+      KNOWLEDGE_IMPORT_TIMEOUT_SECONDS: ${KNOWLEDGE_IMPORT_TIMEOUT_SECONDS:-180}
+      KNOWLEDGE_DISPATCH_NAMESPACE: ${KNOWLEDGE_DISPATCH_NAMESPACE:-zhizhida.knowledge}
+      INTERVIEW_ADAPTIVE_ROUTING_ENABLED: ${INTERVIEW_ADAPTIVE_ROUTING_ENABLED:-false}
+      INTERVIEW_RUNS_WORKER_ENABLED: ${INTERVIEW_RUNS_WORKER_ENABLED:-true}
+      RUN_OUTBOX_PUBLISHER_ENABLED: ${RUN_OUTBOX_PUBLISHER_ENABLED:-true}
+      RUN_OUTBOX_PUBLISHER_INTERVAL_MS: ${RUN_OUTBOX_PUBLISHER_INTERVAL_MS:-500}
+      RUN_OUTBOX_PUBLISHER_BATCH_SIZE: ${RUN_OUTBOX_PUBLISHER_BATCH_SIZE:-8}
+      RUN_OUTBOX_PUBLISHER_BATCH_BUDGET_MS: ${RUN_OUTBOX_PUBLISHER_BATCH_BUDGET_MS:-100}
+      RUN_RECOVERY_ENABLED: ${RUN_RECOVERY_ENABLED:-true}
+      AI_PROVIDER: ${AI_PROVIDER:-mock}
+      AI_API_KEY: ${DEEPSEEK_API_KEY:-${AI_API_KEY:-}}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-flash}
+      DEEPSEEK_THINKING: ${DEEPSEEK_THINKING:-}
+      DEEPSEEK_TIMEOUT_SECONDS: ${DEEPSEEK_TIMEOUT_SECONDS:-30}
+      AI_MAX_CONCURRENT_CALLS: ${AI_MAX_CONCURRENT_CALLS:-4}
+      AI_FAILURE_THRESHOLD: ${AI_FAILURE_THRESHOLD:-3}
+      AI_CIRCUIT_OPEN_SECONDS: ${AI_CIRCUIT_OPEN_SECONDS:-30}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      AGENT_TRACE_EXPORT_ENABLED: ${AGENT_TRACE_EXPORT_ENABLED:-false}
+      AGENT_TRACE_SAMPLE_PROBABILITY: ${AGENT_TRACE_SAMPLE_PROBABILITY:-0.1}
+      AGENT_TRACE_OTLP_ENDPOINT: ${AGENT_TRACE_OTLP_ENDPOINT:-http://127.0.0.1:4318/v1/traces}
+      QUOTA_REGISTER_PER_MINUTE: ${QUOTA_REGISTER_PER_MINUTE:-3}
+      QUOTA_REGISTER_PER_DAY: ${QUOTA_REGISTER_PER_DAY:-10}
+      QUOTA_LOGIN_PER_MINUTE: ${QUOTA_LOGIN_PER_MINUTE:-10}
+      QUOTA_LOGIN_PER_DAY: ${QUOTA_LOGIN_PER_DAY:-60}
+      QUOTA_DEMO_PER_HOUR: ${QUOTA_DEMO_PER_HOUR:-6}
+      QUOTA_DEMO_PER_DAY: ${QUOTA_DEMO_PER_DAY:-6}
+      QUOTA_AI_PER_MINUTE: ${QUOTA_AI_PER_MINUTE:-5}
+      QUOTA_AI_UNITS_PER_DAY: ${QUOTA_AI_UNITS_PER_DAY:-40}
+      QUOTA_AI_GLOBAL_UNITS_PER_DAY: ${QUOTA_AI_GLOBAL_UNITS_PER_DAY:-400}
+      DEMO_ENABLED: ${DEMO_ENABLED:-true}
+      DEMO_SANDBOX_TTL_HOURS: ${DEMO_SANDBOX_TTL_HOURS:-4}
+      DEMO_MAX_ACTIVE_SANDBOXES: ${DEMO_MAX_ACTIVE_SANDBOXES:-100}
+      DEMO_CLEANUP_BATCH_SIZE: ${DEMO_CLEANUP_BATCH_SIZE:-25}
+      DEMO_CLEANUP_INTERVAL_MS: ${DEMO_CLEANUP_INTERVAL_MS:-60000}
+      # 容器内不应再尝试管理宿主机的 Docker Compose 生命周期。
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+    ports:
+      # 后端仅供宿主机诊断；公网 API 统一经前端 Nginx 的 /api 代理访问。
+      - "${BACKEND_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "java", "-cp", "/app/healthcheck", "Healthcheck", "http://127.0.0.1:8080/api/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  frontend:
+    profiles: ["app"]
+    build:
+      context: ./frontend
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-public.ecr.aws/docker/library}
+    container_name: zhizhida-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      # 云服务器默认监听公网 80；本地冲突时可在 .env 中改 FRONTEND_PORT。
+      - "${FRONTEND_BIND_ADDRESS:-0.0.0.0}:${FRONTEND_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-data:

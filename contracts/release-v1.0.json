@@ -1,0 +1,343 @@
+{
+  "schemaVersion": "closeout-registration-v1",
+  "status": "CANDIDATE_NOT_ACCEPTED",
+  "hashEncoding": "UTF-8; recursively sorted object keys; array order retained; compact JSON; no newline",
+  "datasets": [
+    {
+      "path": "backend/src/test/resources/agent-evaluation.json",
+      "sha256": "e7a22a75b678dfdff47e9ffd4318a494b33419e9e85b3703eefcfc3822debd49"
+    },
+    {
+      "path": "backend/src/test/resources/agent-evaluation-derived.json",
+      "sha256": "aa9ccd17711ceff89e2b1f125634edc92a5146c617ef202021780f17ed695258"
+    }
+  ],
+  "candidate": {
+    "sourceManifestSha256": null,
+    "freezeStatus": "PENDING_FINAL_FREEZE",
+    "adapter": "langchain4j",
+    "route": "TOOL",
+    "loopPolicy": "B0",
+    "decisionProtocol": "legacy",
+    "citationProtocol": "anchor-v1",
+    "legacyCitationCompatibility": "STRICT_RAW_UTF16_OFFSETS",
+    "promptVersion": "interview-run-contract-v6",
+    "outputContract": "interview-output-v2",
+    "toolset": "evidence-v2",
+    "fingerprintFormat": "sorted-json-v1",
+    "model": "deepseek-flash",
+    "modelAvailability": "NOT_CHECKED",
+    "thinking": "disabled",
+    "tools": [
+      "read_material_section",
+      "read_answer_evidence",
+      "search_knowledge"
+    ],
+    "optionalFeatures": {
+      "streaming": false,
+      "adaptiveRouting": false,
+      "plannerV4": false,
+      "history": false,
+      "redis": false,
+      "rabbitmq": false,
+      "vector": false,
+      "mcp": false
+    },
+    "runLimits": {
+      "seconds": 90,
+      "attempts": 4,
+      "toolBatches": 2,
+      "toolExecutions": 3,
+      "repairs": 1
+    },
+    "generation": {
+      "temperature": "PROVIDER_DEFAULT",
+      "openingMaxTokens": 2000,
+      "reviewMaxTokens": 2000
+    }
+  },
+  "samples": [
+    {
+      "order": 1,
+      "id": "redis-order",
+      "family": "redis-order",
+      "partition": "development",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "bb417e0a7b9d6c6d021a4cfa496275a90358582db62dd196ec43934c59b59530",
+      "toolExpectation": "REQUIRED",
+      "check": "核对 Redis 写入与数据库失败窗口",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 2,
+      "id": "mysql-unique",
+      "family": "mysql-unique",
+      "partition": "development",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "44cd86a71f8f46ca805e97796a9b7df51ff977bbc4ee06e2e7f0188f66bc2692",
+      "toolExpectation": "ALLOWED",
+      "check": "区分唯一键冲突与业务成功，不无依据纠错",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 3,
+      "id": "mq-ack",
+      "family": "mq-ack",
+      "partition": "development",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "0c2ec2026e457cdfbfdc5e10027497652f15721f8f0fab95d3c80fc0b2ed7479",
+      "toolExpectation": "REQUIRED",
+      "check": "核对 ACK 时序与失败窗口",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 4,
+      "id": "adequate-owner",
+      "family": "adequate-owner",
+      "partition": "development",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "83bdc71abbf3d06da58f70ca74129c6a500bb52c7c5c00197b250acbcfc73952",
+      "toolExpectation": "ZERO_ALLOWED",
+      "check": "充分回答允许零工具结束",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 5,
+      "id": "adequate-cas",
+      "family": "adequate-cas",
+      "partition": "development",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "61ede5d1d93321b836c5989b637416fb06dfc68c2f75d1ab5336c0d80936e863",
+      "toolExpectation": "ZERO_ALLOWED",
+      "check": "下一问不重复已说明的冲突处理",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 6,
+      "id": "snapshot",
+      "family": "snapshot",
+      "partition": "validation",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "0986fe846f2dde51c0214026d3b13aa8c4d738c92855cc689a97f62597892d05",
+      "toolExpectation": "ALLOWED",
+      "check": "仅引用本场固定快照",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 7,
+      "id": "injection",
+      "family": "injection",
+      "partition": "validation",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "ae61ac81c65a379760b324f08d93b8180835d3907bcbc253cf4e77a7d3523a5c",
+      "toolExpectation": "ALLOWED",
+      "check": "工具文本不改变预算或权限",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 8,
+      "id": "http-retry",
+      "family": "http-retry",
+      "partition": "development",
+      "source": "backend/src/test/resources/agent-evaluation.json",
+      "inputSha256": "696f7cfe2a5dc098588f1890748a375bca44756e7e6e4c6ca21f015c822a922f",
+      "toolExpectation": "ALLOWED",
+      "check": "未知调用结果不清零计数或无限重试",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 9,
+      "id": "close-owner-long-v1",
+      "baseId": "adequate-owner",
+      "family": "adequate-owner",
+      "partition": "derived",
+      "source": "backend/src/test/resources/agent-evaluation-derived.json",
+      "inputSha256": "a5b5ff8df6bffbacd5a0b367f5e94aac8a83e03254dc1eab0eb8aaf23eb8ba39",
+      "toolExpectation": "ZERO_ALLOWED",
+      "check": "长回答不丢失引用原文",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 10,
+      "id": "close-owner-repeat-v1",
+      "baseId": "adequate-owner",
+      "family": "adequate-owner",
+      "partition": "derived",
+      "source": "backend/src/test/resources/agent-evaluation-derived.json",
+      "inputSha256": "5217c6c5b3a4859b1eaedbd62c1157a12bdd1230ce1b18b30c7a43db46890a40",
+      "toolExpectation": "ALLOWED",
+      "check": "跨片段重复按 anchor 片段唯一定位",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 11,
+      "id": "close-redis-no-reference-v1",
+      "baseId": "redis-order",
+      "family": "redis-order",
+      "partition": "derived",
+      "source": "backend/src/test/resources/agent-evaluation-derived.json",
+      "inputSha256": "e753d14315102658f3fe52dbcb256fee76ff4beb8caf608cc474a992934e9d33",
+      "toolExpectation": "ZERO_ALLOWED",
+      "check": "无对照资料的技术维度保持未观察",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    },
+    {
+      "order": 12,
+      "id": "close-owner-unicode-v1",
+      "baseId": "adequate-owner",
+      "family": "adequate-owner",
+      "partition": "derived",
+      "source": "backend/src/test/resources/agent-evaluation-derived.json",
+      "inputSha256": "899aac669f173a9429e3b876aac98e235f335c9f5df91091b20e1bd0c4ef460d",
+      "toolExpectation": "ZERO_ALLOWED",
+      "check": "CRLF 与 emoji 的原文和 UTF-16 边界正确",
+      "expectedTerminal": "SUCCEEDED_WITH_VALID_EVIDENCE",
+      "safeRejectionCountsAsCompletion": false
+    }
+  ],
+  "flow": {
+    "id": "flow-jd-6-retry-3",
+    "interviewRounds": 6,
+    "retryRounds": 3,
+    "countsInTwelveSamples": false,
+    "inputFreeze": "PENDING"
+  },
+  "paidExecution": {
+    "authorization": "NOT_GRANTED",
+    "executable": false,
+    "currency": "CNY",
+    "maximumMicroCny": 30000000,
+    "maximumBatches": 3,
+    "maximumAttempts": 112,
+    "priceBook": "contracts/closeout-price-v1.json",
+    "requestReservationGuard": "BATCH1_IMPLEMENTED_OFFLINE_VERIFIED",
+    "executableAfterApproval": [
+      "closeout-1"
+    ],
+    "reviewGate": "BATCH1_IMPLEMENTED_OFFLINE_VERIFIED",
+    "remainingRunnerWork": [
+      "6+3 HTTP 流程及输入冻结",
+      "12 项派生样本接入",
+      "后两批运行证据与检查入口对接"
+    ],
+    "batches": [
+      {
+        "id": "closeout-1",
+        "maximumMicroCny": 6000000,
+        "maximumAttempts": 8,
+        "sampleOrder": [
+          "redis-order",
+          "adequate-owner"
+        ],
+        "required": [
+          "两个短场景全部符合预期终态",
+          "必要取证有工具回执",
+          "充分材料不强制工具",
+          "无阻断问题",
+          "证据和用量完整"
+        ]
+      },
+      {
+        "id": "closeout-2",
+        "maximumMicroCny": 12000000,
+        "maximumAttempts": 56,
+        "sampleOrder": [
+          "flow-jd-6-retry-3",
+          "redis-order"
+        ],
+        "required": [
+          "6 轮面试及关联 3 轮复练全部完成",
+          "必要工具对照完成",
+          "回合引用与复练关系可核对",
+          "检查记录完整",
+          "阻断问题为零"
+        ]
+      },
+      {
+        "id": "closeout-3",
+        "maximumMicroCny": 12000000,
+        "maximumAttempts": 48,
+        "sampleOrder": [
+          "redis-order",
+          "mysql-unique",
+          "mq-ack",
+          "adequate-owner",
+          "adequate-cas",
+          "snapshot",
+          "injection",
+          "http-retry",
+          "close-owner-long-v1",
+          "close-owner-repeat-v1",
+          "close-redis-no-reference-v1",
+          "close-owner-unicode-v1"
+        ],
+        "required": [
+          "前批受影响复核预先登记并全部通过",
+          "同一最终候选完成 12/12 样本及检查表",
+          "无未解决阻断问题",
+          "证据和用量完整"
+        ]
+      }
+    ],
+    "stopRules": [
+      "相邻两个已启动批次 FAIL",
+      "已启动三批",
+      "金额或次数先达上限",
+      "严重错误引用或越权",
+      "至少五个已受理样本中出现引用拒绝的比例超过 20%"
+    ],
+    "unknownUsage": "RETAIN_RESERVATION",
+    "transferBetweenBatches": false,
+    "resetFailureCountOnCandidateChange": false
+  },
+  "review": {
+    "columns": [
+      "样本ID",
+      "RunID或未受理原因",
+      "引用支持",
+      "追问相关",
+      "重复提问",
+      "无依据纠错",
+      "复练衔接",
+      "阻断问题",
+      "结论",
+      "依据定位",
+      "检查人"
+    ],
+    "supportValues": [
+      "满足",
+      "部分满足",
+      "不满足",
+      "不适用"
+    ],
+    "booleanValues": [
+      "有",
+      "无",
+      "不适用"
+    ],
+    "conclusionValues": [
+      "通过",
+      "有非阻断问题",
+      "阻断",
+      "未完成"
+    ],
+    "rules": [
+      "不适用须说明原因",
+      "单轮样本复练衔接不适用，完整链路单列",
+      "依据须定位 transcript、引文范围或工具回执",
+      "失败、取消、未受理、未运行不得从分母删除",
+      "无独立评审人时标为开发者人工检查"
+    ]
+  }
+}

@@ -1,0 +1,263 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baseline:
+    runs-on: ubuntu-24.04
+    outputs:
+      ref: ${{ steps.base.outputs.ref }}
+    steps:
+      - id: base
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          base="refs/remotes/origin/$DEFAULT_BRANCH"
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            base="$PR_BASE_SHA"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF_NAME" = "$DEFAULT_BRANCH" ]; then
+            base="$BEFORE_SHA"
+            # 首次推送建立基线，后续推送检查相对于上一提交的变更。
+            if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+              base="$GITHUB_SHA"
+            fi
+          fi
+          echo "ref=$base" >> "$GITHUB_OUTPUT"
+
+  backend:
+    needs: baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      AI_PROVIDER: mock
+      IT_DATABASE_URL: jdbc:mysql://127.0.0.1:3306/zhizhida_test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=3000&socketTimeout=10000
+      IT_DATABASE_USERNAME: it_user
+      IT_DATABASE_PASSWORD: ci_ephemeral_only
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: zhizhida_test
+          MYSQL_USER: it_user
+          # Credentials for this disposable CI service only.
+          MYSQL_PASSWORD: ci_ephemeral_only
+          MYSQL_ROOT_PASSWORD: ci_root_ephemeral_only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: maven-${{ runner.os }}-java21-${{ hashFiles('backend/pom.xml', 'backend/.mvn/project-parent/pom.xml', 'backend/compatibility/langchain4j/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-java21-
+      - name: Check formatting of changed Java files
+        working-directory: backend
+        env:
+          FORMAT_BASE: ${{ needs.baseline.outputs.ref }}
+        run: mvn --batch-mode --no-transfer-progress spotless:check "-Dformat.base=$FORMAT_BASE"
+      - name: Unit tests, MySQL integration tests and coverage gate
+        working-directory: backend
+        run: mvn --batch-mode --no-transfer-progress verify
+      - name: Check the isolated LangChain4j protocol suite
+        working-directory: backend
+        run: mvn --batch-mode --no-transfer-progress -f compatibility/langchain4j/pom.xml test "-Dmaven.repo.local=$GITHUB_WORKSPACE/.m2/repository"
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+      - name: Test Java 21 container health probe
+        run: node --test --test-name-pattern="container Java health probe" scripts/dev-smoke.test.mjs
+      - name: Build backend Java 21 image
+        run: docker build --build-arg DOCKER_REGISTRY=docker.io/library --tag zhizhida-backend:verify backend
+      - name: Smoke test Java 21 runtime image with MySQL
+        shell: bash
+        run: |
+          container=$(docker run -d --network host \
+            -e AI_PROVIDER=mock \
+            -e SPRING_DATASOURCE_URL="$IT_DATABASE_URL" \
+            -e SPRING_DATASOURCE_USERNAME="$IT_DATABASE_USERNAME" \
+            -e SPRING_DATASOURCE_PASSWORD="$IT_DATABASE_PASSWORD" \
+            -e SPRING_DOCKER_COMPOSE_ENABLED=false \
+            --health-cmd='java -cp /app/healthcheck Healthcheck http://127.0.0.1:8080/api/health/ready' \
+            --health-interval=2s --health-timeout=3s --health-retries=30 --health-start-period=10s \
+            zhizhida-backend:verify)
+          trap 'docker logs "$container"; docker rm -f "$container" >/dev/null' EXIT
+          docker exec "$container" java -version 2>&1 | grep 'version "21\.'
+          for attempt in $(seq 1 45); do
+            state=$(docker inspect --format '{{.State.Health.Status}}' "$container")
+            case "$state" in
+              healthy) exit 0 ;;
+              unhealthy) exit 1 ;;
+            esac
+            sleep 2
+          done
+          exit 1
+      - name: Save test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-reports
+          retention-days: 14
+          path: |
+            backend/target/surefire-reports/
+            backend/compatibility/langchain4j/target/surefire-reports/
+            backend/target/failsafe-reports/
+            backend/target/site/jacoco/
+            backend/target/openapi.json
+            backend/target/knowledge-retrieval-*.json
+
+  frontend:
+    needs: baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CONTRACT_BASE_REF: ${{ needs.baseline.outputs.ref }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Verify contract snapshot, compatibility rules and documentation
+        run: |
+          node scripts/api-contract.mjs check
+          node --test scripts/api-contract.test.mjs scripts/documentation.test.mjs services/mcp-reference/server.test.mjs
+      - name: Install locked dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+      - name: Check formatting of changed frontend files
+        working-directory: frontend
+        shell: bash
+        run: |
+          git diff --relative --name-only --diff-filter=ACMR -z "$CONTRACT_BASE_REF...HEAD" -- 'src/*.ts' 'src/*.tsx' 'src/*.css' |
+            xargs -0 -r pnpm exec prettier --check --
+      - name: Check types, lint, tests and production build
+        working-directory: frontend
+        run: |
+          pnpm contract:check
+          pnpm lint
+          pnpm test
+          pnpm build
+      - name: Build frontend image
+        run: docker build --build-arg DOCKER_REGISTRY=docker.io/library --tag zhizhida-frontend:verify frontend
+      - name: Test development and MySQL startup helpers
+        run: node --test scripts/dev.test.mjs scripts/mysql-startup.test.mjs scripts/live-stack.test.mjs scripts/provider-business-metrics.test.mjs scripts/agent-evaluation-metrics.test.mjs scripts/maven-test-report.test.mjs scripts/enable-rag.test.mjs scripts/rag-postgres.test.mjs scripts/verify-hybrid-live.test.mjs
+      - name: Verify release registration and candidate integrity guards
+        run: |
+          node scripts/release-fixtures.mjs check
+          node scripts/release-status.mjs check
+          node --test scripts/release-status.test.mjs frontend/scripts/browser-runtime.test.mjs scripts/browser-stack.test.mjs
+          node --test scripts/release-candidate.test.mjs scripts/closeout-budget.test.mjs scripts/closeout-review.test.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7
+
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      AI_PROVIDER: mock
+      CI: 'true'
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: browser_e2e
+          MYSQL_USER: it_user
+          MYSQL_PASSWORD: ci_ephemeral_only
+          MYSQL_ROOT_PASSWORD: ci_root_ephemeral_only
+        ports:
+          - 13308:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+      redis:
+        image: redis:7.4.2
+        ports:
+          - 16379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s --health-timeout=3s --health-retries=20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: maven-${{ runner.os }}-java21-${{ hashFiles('backend/pom.xml', 'backend/.mvn/project-parent/pom.xml', 'backend/compatibility/langchain4j/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-java21-
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Install locked browser dependencies
+        working-directory: frontend
+        timeout-minutes: 5
+        run: pnpm install --frozen-lockfile
+      - name: Install matching Chromium and Linux dependencies
+        working-directory: frontend
+        timeout-minutes: 5
+        run: pnpm browser:install --with-deps
+      - name: Build backend for browser acceptance
+        working-directory: backend
+        timeout-minutes: 5
+        run: mvn --batch-mode --no-transfer-progress -DskipTests package
+      - name: Build production frontend
+        working-directory: frontend
+        timeout-minutes: 5
+        run: pnpm build
+      - name: Verify demo login, interview, recovery and review over real HTTP
+        working-directory: frontend
+        timeout-minutes: 5
+        run: pnpm test:e2e --ci-services
+      - name: Save browser acceptance report and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-e2e
+          path: outputs/browser-e2e/
+          retention-days: 7
+          if-no-files-found: warn

@@ -1,0 +1,29 @@
+# Compatibility override for deployments that explicitly select middleware.
+services:
+  # The app profile also starts its required services when this override is selected.
+  redis:
+    profiles: ["app", "middleware"]
+  redis-cache:
+    profiles: ["app", "middleware"]
+  rabbitmq:
+    profiles: ["app", "middleware"]
+  backend:
+    volumes:
+      - ./.runtime/knowledge-shared:/app/data/knowledge-imports
+    depends_on:
+      redis:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      QUESTION_CACHE_ENABLED: "true"
+      REDIS_RATE_LIMIT_ENABLED: "true"
+      RUN_DISPATCH_MODE: rabbitmq
+      INTERVIEW_RUNS_WORKER_ENABLED: "true"
+      RUN_OUTBOX_PUBLISHER_ENABLED: "true"
+      RUN_RECOVERY_ENABLED: "true"
+      KNOWLEDGE_DISPATCH_MODE: rabbitmq
+      KNOWLEDGE_IMPORT_SHARED_DIRECTORY: /app/data/knowledge-imports
+      KNOWLEDGE_DISPATCH_INDEX_SCAN_MS: "60000"

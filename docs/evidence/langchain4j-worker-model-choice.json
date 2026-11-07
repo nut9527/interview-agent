@@ -1,0 +1,33 @@
+{
+  "model": "deepseek-flash",
+  "maxRequests": 4,
+  "maxOutputTokens": 8000,
+  "cases": [
+    "redis-order"
+  ],
+  "initialKnowledgeExcerpts": "WITHHELD",
+  "runs": [
+    {
+      "caseId": "redis-order",
+      "report": "langchain4j-worker-model-choice-redis-order.jsonl",
+      "retainedRequests": 1,
+      "status": "SUCCEEDED",
+      "exitCode": 0,
+      "sourceHash": "e240fccf61c9d8b53e0569c68a71d9120bdbf39743b87ea3b5526a958bd6e464",
+      "error": null,
+      "attempts": 1,
+      "tools": 0,
+      "elapsedMs": 5718,
+      "evidenceCheck": "MISSING_REQUIRED_TOOL_EVIDENCE",
+      "usage": [
+        {
+          "status": "REPORTED",
+          "inputTokens": 4511,
+          "outputTokens": 856,
+          "totalTokens": 5367
+        }
+      ]
+    }
+  ],
+  "result": "FAILED"
+}
