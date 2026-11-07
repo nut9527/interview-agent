@@ -61,6 +61,13 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=12
+      redis:
+        image: redis:7.4.2
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s --health-timeout=3s --health-retries=20
     steps:
       - uses: actions/checkout@v6
         with:
@@ -80,7 +87,12 @@ jobs:
         env:
           FORMAT_BASE: ${{ needs.baseline.outputs.ref }}
         run: mvn --batch-mode --no-transfer-progress spotless:check "-Dformat.base=$FORMAT_BASE"
-      - name: Unit tests, MySQL integration tests and coverage gate
+      - name: Allow fault-injection triggers in the disposable MySQL service
+        env:
+          MYSQL_CONTAINER: ${{ job.services.mysql.id }}
+        run: |
+          docker exec "$MYSQL_CONTAINER" sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --user=root --execute="SET GLOBAL log_bin_trust_function_creators = 1;"'
+      - name: Unit tests, MySQL and Redis integration tests and coverage gate
         working-directory: backend
         run: mvn --batch-mode --no-transfer-progress verify
       - name: Check the isolated LangChain4j protocol suite
@@ -93,7 +105,7 @@ jobs:
         run: node --test --test-name-pattern="container Java health probe" scripts/dev-smoke.test.mjs
       - name: Build backend Java 21 image
         run: docker build --build-arg DOCKER_REGISTRY=docker.io/library --tag zhizhida-backend:verify backend
-      - name: Smoke test Java 21 runtime image with MySQL
+      - name: Smoke test Java 21 runtime image with MySQL and Redis
         shell: bash
         run: |
           container=$(docker run -d --network host \
