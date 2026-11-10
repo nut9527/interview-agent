@@ -1,6 +1,7 @@
 package cn.edu.whu.zhizhida.ai;
 
 import cn.edu.whu.zhizhida.common.BusinessException;
+import cn.edu.whu.zhizhida.common.ErrorCode;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
@@ -41,8 +42,14 @@ class AiCallGuardTest {
                 if (invocation.getMethod().getName().equals("execute")) return List.of(status, 0L);
                 return RETURNS_DEFAULTS.answer(invocation);
             });
-            unavailable(new AiCallGuard(redis, "test", 4, 3, 30, BusinessMetrics.disabled()),
-                    () -> { throw new AssertionError("provider must not run"); });
+            var guard = new AiCallGuard(redis, "test", 4, 3, 30, BusinessMetrics.disabled());
+            assertThatThrownBy(() -> guard.execute(TIMEOUT,
+                    () -> { throw new AssertionError("provider must not run"); }))
+                    .isInstanceOfSatisfying(BusinessException.class, ex -> {
+                        assertThat(ex.status()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+                        assertThat(ex.code()).isEqualTo(status == -1L
+                                ? ErrorCode.AI_CIRCUIT_OPEN : ErrorCode.SERVICE_UNAVAILABLE);
+                    });
             assertThat(mockingDetails(redis).getInvocations()).hasSize(1);
         }
     }

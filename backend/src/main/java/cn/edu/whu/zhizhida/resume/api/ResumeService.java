@@ -23,7 +23,7 @@ public interface ResumeService {
     ResumeProfile update(Long id, ResumeProfileRequest request);
 
     /** 仅解析为待确认字段，不创建简历或历史版本。 */
-    ResumeProfileRequest parseDocument(MultipartFile file, String targetRole);
+    ResumeImportResult parseDocument(MultipartFile file, String targetRole);
 
     PageResult<ResumeVersionSummary> versions(Long resumeId, PageRequest page);
 

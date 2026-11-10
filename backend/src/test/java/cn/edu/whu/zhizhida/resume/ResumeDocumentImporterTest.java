@@ -1,10 +1,18 @@
 package cn.edu.whu.zhizhida.resume;
 
-import cn.edu.whu.zhizhida.resume.api.ResumeProfile.ResumeProfileRequest;
+import cn.edu.whu.zhizhida.ai.api.AiMode;
 
 import cn.edu.whu.zhizhida.common.BusinessException;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -15,12 +23,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ResumeDocumentImporterTest {
+    private final Logger logger = (Logger) LoggerFactory.getLogger(ResumeDocumentImporter.class);
+    private Level previousLevel;
+
+    @BeforeEach
+    void enableImportLogs() {
+        previousLevel = logger.getLevel();
+        logger.setLevel(Level.INFO);
+    }
+
+    @AfterEach
+    void restoreLogLevel() {
+        logger.setLevel(previousLevel);
+    }
 
     private final ResumeDocumentImporter importer = new ResumeDocumentImporter(
-            new ResumeTextParser()::parse, "target/pdfbox-font-cache");
+            new ResumeAiConfiguration().resumeImportRecognizer(AiMode.MOCK, null, new ResumeTextParser()), "target/pdfbox-font-cache");
 
     @Test
-    void importsDocxTextWithoutPersistingOriginalFile() throws Exception {
+    @ExtendWith(OutputCaptureExtension.class)
+    void importsDocxTextWithoutPersistingOriginalFile(CapturedOutput logs) throws Exception {
         byte[] content;
         try (XWPFDocument document = new XWPFDocument(); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             document.createParagraph().createRun().setText("Name: Alice");
@@ -34,12 +56,14 @@ class ResumeDocumentImporterTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "alice.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", content);
 
-        ResumeProfileRequest result = importer.importDocument(file, null);
+        var result = importer.importDocument(file, null).draft();
 
         assertThat(result.ownerName()).isEqualTo("Alice");
         assertThat(result.targetRole()).isEqualTo("Backend Engineer");
         assertThat(result.skills()).containsExactly("Java", "Spring Boot", "MySQL");
         assertThat(result.educationExperiences()).containsExactly("Wuhan University - Software Engineering");
+        assertThat(logs.getAll()).contains("stage=extract outcome=success format=docx textChars=")
+                .doesNotContain("Alice", "alice.docx", "Wuhan University");
     }
 
     @Test
@@ -80,7 +104,7 @@ class ResumeDocumentImporterTest {
         MockMultipartFile file = new MockMultipartFile("file", "实习简历.docx",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document", content);
 
-        ResumeProfileRequest result = importer.importDocument(file, null);
+        var result = importer.importDocument(file, null).draft();
 
         assertThat(result.ownerName()).isEqualTo("陈明");
         assertThat(result.targetRole()).isEqualTo("Java 后端实习生");
@@ -108,7 +132,7 @@ class ResumeDocumentImporterTest {
                 "Tech Stack: Spring Boot / MySQL", "Implemented booking reminders.");
         MockMultipartFile file = new MockMultipartFile("file", "bob.pdf", "application/pdf", content);
 
-        ResumeProfileRequest result = importer.importDocument(file, null);
+        var result = importer.importDocument(file, null).draft();
 
         assertThat(result.ownerName()).isEqualTo("Bob");
         assertThat(result.targetRole()).isEqualTo("Java Engineer");

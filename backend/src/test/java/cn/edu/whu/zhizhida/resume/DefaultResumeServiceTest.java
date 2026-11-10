@@ -1,5 +1,7 @@
 package cn.edu.whu.zhizhida.resume;
 
+import cn.edu.whu.zhizhida.resume.api.ResumeImportResult;
+
 import cn.edu.whu.zhizhida.resume.api.ResumeComparison.ResumeCompareRequest;
 import cn.edu.whu.zhizhida.resume.api.ResumeComparison;
 import cn.edu.whu.zhizhida.resume.api.ResumeComparison.ResumeFieldDiff;
@@ -77,8 +79,9 @@ class DefaultResumeServiceTest {
     @Test
     void parsingRequiresIdentityAndDoesNotCreateResumeOrVersion() {
         MultipartFile file = new MockMultipartFile("file", "resume.pdf", "application/pdf", new byte[]{1});
-        when(documentImporter.importDocument(file, "Java")).thenReturn(sampleRequest);
-        assertThat(service.parseDocument(file, "Java")).isSameAs(sampleRequest);
+        var parsed = new ResumeImportResult(sampleRequest, List.of(), ResumeImportResult.RecognitionMode.LOCAL);
+        when(documentImporter.importDocument(file, "Java")).thenReturn(parsed);
+        assertThat(service.parseDocument(file, "Java")).isSameAs(parsed);
         verify(currentUserProvider).requireUserId();
         verifyNoInteractions(resumeRepository, versionRepository);
     }

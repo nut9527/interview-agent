@@ -36,7 +36,11 @@ try {
     const ok = data => route.fulfill({ json: { success: true, message: '', data } });
     if (url.pathname === '/api/resumes/import/parse') {
       parseCalls++; const gate = parseGate; parseGate = undefined; if (gate) await gate.promise;
-      return ok({ ...fixture(0), id: undefined, ownerName: '待核对姓名', targetRole: '' });
+      return ok({ draft: { ...fixture(0), id: undefined, ownerName: '', targetRole: '' }, recognitionMode: 'AI', warnings: [
+        { field: 'ownerName', code: 'MISSING_FIELD', message: '姓名未识别，请补填。' },
+        { field: 'details.contact.phone', code: 'INVALID_VALUE', message: '联系电话格式无效，已留空。' },
+        { field: 'details.graduationDate', code: 'SEMANTIC_MISMATCH', message: '毕业年月未找到原文依据，已留空。' },
+      ] });
     }
     if (url.pathname === '/api/ai/resume/optimize-draft') {
       const data = request.postDataJSON();
@@ -167,16 +171,29 @@ try {
   await page.goto(`${origin}/resumes`); await page.getByRole('button', { name: /导入简历$/ }).click();
   const beforeImport = writes.length;
   await page.locator('input[type=file]').setInputFiles({ name: 'review.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', buffer: Buffer.from('synthetic') });
-  await page.waitForURL('**/resumes/edit?import=1'); await page.getByLabel('姓名', { exact: true }).fill('纠正姓名');
+  await page.waitForURL('**/resumes/edit?import=1');
+  await waitText('待核对 3 项'); assert.equal(writes.length, beforeImport);
+  assert.equal(await page.getByLabel('预计毕业年月', { exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('textbox', { name: '教育经历文字记录', exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('textbox', { name: '项目经历文字记录', exact: true }).isVisible(), true);
+  await page.getByRole('button', { name: '联系电话', exact: true }).click();
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'resume-identity');
+  await page.getByRole('button', { name: '确认并保存导入' }).click();
+  await waitText('请输入姓名'); assert.equal(writes.length, beforeImport);
+  await page.getByLabel('姓名', { exact: true }).fill('纠正姓名');
   await page.getByRole('button', { name: '确认并保存导入' }).click();
   await waitText('请输入目标岗位'); assert.equal(writes.length, beforeImport);
   await page.getByLabel('目标岗位', { exact: true }).fill('纠正岗位');
   await page.reload(); await page.getByRole('button', { name: '恢复草稿', exact: true }).click();
   assert.equal(await page.getByLabel('姓名', { exact: true }).inputValue(), '纠正姓名');
+  await waitText('待核对 3 项');
+  assert.equal((await draft())[0].importReview.warnings.length, 3);
   await page.getByRole('button', { name: '确认并保存导入' }).click(); await page.waitForURL('**/resumes/edit?resumeId=10');
   await waitText('当前内容已与服务器同步');
   assert.equal(writes.length, beforeImport + 1); assert.equal(saved.get(10).targetRole, '纠正岗位');
   assert.equal((await draft()).length, 0); results.push('导入先解析，必填检查，纠正草稿刷新恢复，确认后仅创建一次');
+  assert.equal(await page.getByText('待核对 3 项', { exact: true }).count(), 0);
+  results.push('部分识别警告可定位，清空字段可补填；编辑与刷新保留警告，确认保存后清除');
 
   await page.getByRole('button', { name: /返\s*回$/ }).click(); await page.waitForURL('**/resumes');
   await page.getByRole('button', { name: /新建简历$/ }).first().click();

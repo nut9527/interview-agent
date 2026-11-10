@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import cn.edu.whu.zhizhida.common.BusinessException;
+import cn.edu.whu.zhizhida.common.ErrorCode;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 
 /** 同一 Redis 命名空间内共享 AI 并发及熔断状态；Redis 故障时拒绝新调用。 */
@@ -103,9 +104,9 @@ public class AiCallGuard {
         } catch (RuntimeException ex) {
             throw unavailable("AI 请求保护服务暂时不可用，请稍后重试。");
         }
-        if ((Long) result.get(0) != 1) {
-            throw unavailable((Long) result.get(0) == 0 ? "AI 服务繁忙，请稍后重试。" : "AI 服务暂时不可用，请稍后重试。");
-        }
+        if ((Long) result.get(0) == 0) throw unavailable("AI 服务繁忙，请稍后重试。");
+        if ((Long) result.get(0) == -1)
+            throw new BusinessException(ErrorCode.AI_CIRCUIT_OPEN, "AI 服务连续调用失败，正在短暂冷却，请稍后重试。");
         return (Long) result.get(1);
     }
 

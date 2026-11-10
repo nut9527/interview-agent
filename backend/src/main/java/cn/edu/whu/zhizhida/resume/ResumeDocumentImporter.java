@@ -1,6 +1,6 @@
 package cn.edu.whu.zhizhida.resume;
 
-import cn.edu.whu.zhizhida.resume.api.ResumeProfile.ResumeProfileRequest;
+import cn.edu.whu.zhizhida.resume.api.ResumeImportResult;
 
 import cn.edu.whu.zhizhida.common.BusinessException;
 import org.apache.pdfbox.Loader;
@@ -10,6 +10,8 @@ import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,7 @@ import java.util.Locale;
  */
 @Component
 public class ResumeDocumentImporter {
+    private static final Logger log = LoggerFactory.getLogger(ResumeDocumentImporter.class);
 
     static final long MAX_FILE_SIZE = 5L * 1024 * 1024;
     private static final int MAX_PDF_PAGES = 30;
@@ -40,17 +43,28 @@ public class ResumeDocumentImporter {
         configurePdfFontCache(fontCacheDir);
     }
 
-    public ResumeProfileRequest importDocument(MultipartFile file, String fallbackTargetRole) {
-        validateFile(file);
-        String fileName = file.getOriginalFilename();
-        String text = extract(file, extension(fileName)).strip();
-        if (text.isBlank()) {
-            throw new BusinessException(HttpStatus.BAD_REQUEST, "文档中未检测到可导入文本，请确认文件不是扫描图片");
+    public ResumeImportResult importDocument(MultipartFile file, String fallbackTargetRole) {
+        long started = System.nanoTime();
+        String format = "unknown";
+        String text;
+        try {
+            validateFile(file);
+            format = extension(file.getOriginalFilename());
+            text = extract(file, format).strip();
+            if (text.isBlank()) {
+                throw new BusinessException(HttpStatus.BAD_REQUEST, "文档中未检测到可导入文本，请确认文件不是扫描图片");
+            }
+            if (text.length() > MAX_TEXT_LENGTH) {
+                throw new BusinessException(HttpStatus.BAD_REQUEST, "简历正文超过 10 万字符，请精简后重试");
+            }
+        } catch (BusinessException ex) {
+            log.warn("Resume import; stage=extract outcome=failure format={} code={} durationMs={}",
+                    format, ex.code(), (System.nanoTime() - started) / 1_000_000);
+            throw ex;
         }
-        if (text.length() > MAX_TEXT_LENGTH) {
-            throw new BusinessException(HttpStatus.BAD_REQUEST, "简历正文超过 10 万字符，请精简后重试");
-        }
-        return recognizer.recognize(text, fileName, fallbackTargetRole);
+        log.info("Resume import; stage=extract outcome=success format={} textChars={} durationMs={}",
+                format, text.length(), (System.nanoTime() - started) / 1_000_000);
+        return recognizer.recognize(text, file.getOriginalFilename(), fallbackTargetRole);
     }
 
     private String extract(MultipartFile file, String extension) {

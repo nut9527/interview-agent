@@ -1,6 +1,7 @@
 import type { ResumeProfile, ResumeProfileRequest } from '@/types/api.d';
 import { captureAccountScope } from '@/api/accountScope';
 import { ApiError, isRequestCanceled } from '@/api/ApiError';
+import type { ResumeImportReview } from '@/api/modules/resume';
 import { equal, formValues, normalizeValues, mergeChoices, toRequest, type Choices, type EditorValues } from './editorData';
 import { readDraft, writeDraft, removeDraft, pruneExpiredDrafts, type DraftKey, type ResumeDraft } from './resumeDraft';
 
@@ -14,6 +15,7 @@ export interface EditorState {
   saving: boolean;
   dirty: boolean;
   imported: boolean;
+  importReview: ResumeImportReview | null;
   recovery: ResumeDraft | null;
   conflict: ResumeProfile | null;
   error: string;
@@ -21,7 +23,7 @@ export interface EditorState {
   savedAt: number | null;
 }
 export const emptyEditorState = (): EditorState => ({ id: null, base: formValues(), values: formValues(),
-  ready: false, loading: false, saving: false, dirty: false, imported: false, recovery: null, conflict: null,
+  ready: false, loading: false, saving: false, dirty: false, imported: false, importReview: null, recovery: null, conflict: null,
   error: '', storageError: '', savedAt: null });
 
 interface Dependencies {
@@ -53,13 +55,15 @@ export function createEditorController(deps: Dependencies) {
   const persist = () => {
     if (!current() || !state.ready || state.recovery) return;
     const ok = state.dirty ? writeDraft({ schema: 1, userId: deps.userId, key,
-      revision: state.revision, updatedAt: Date.now(), base: state.base, values: state.values, imported: state.imported })
+      revision: state.revision, updatedAt: Date.now(), base: state.base, values: state.values, imported: state.imported,
+      importReview: state.importReview ?? undefined })
       : removeDraft(deps.userId, key);
     const storageError = ok ? '' : '本地草稿未能保存或清除，请保持页面打开并尽快保存到服务器。';
     if (state.storageError !== storageError) emit({ storageError });
   };
   const replace = (values: EditorValues, patch: Partial<EditorState>) => {
-    emit({ ...patch, values, dirty: !equal(values, patch.base ?? state.base) });
+    const review = patch.importReview === undefined ? state.importReview : patch.importReview;
+    emit({ ...patch, values, dirty: !equal(values, patch.base ?? state.base) || !!review });
     deps.fill(structuredClone(values));
     persist();
   };
@@ -88,12 +92,12 @@ export function createEditorController(deps: Dependencies) {
         const base = formValues(saved ?? {});
         const { draft, error } = readDraft(deps.userId, key);
         pruneExpiredDrafts();
-        // 内容相同表示先前保存已完成，即使保存响应丢失。
-        const recovery = draft && !equal(draft.values, base) ? draft : null;
+        // 无待确认的导入信息时，内容相同表示先前保存已完成，即使保存响应丢失。
+        const recovery = draft && (!equal(draft.values, base) || draft.importReview) ? draft : null;
         emit({ id: saved?.id ?? null, revision: saved?.revision ?? (saved ? 0 : undefined),
-          base, ready: true, recovery, imported: key === 'import', storageError: error ?? '' });
+          base, ready: true, recovery, imported: key === 'import', importReview: null, storageError: error ?? '' });
         if (deps.freshImport && recovery && key === 'import') {
-          replace(recovery.values, { recovery: null, imported: true });
+          replace(recovery.values, { recovery: null, imported: true, importReview: recovery.importReview ?? null });
         } else replace(base, {});
         if (error) emit({ storageError: error });
       } catch (error) {
@@ -106,7 +110,7 @@ export function createEditorController(deps: Dependencies) {
       if (!current() || !state.ready || state.recovery) return;
       const normalized = normalizeValues(values);
       if (equal(normalized, state.values)) return;
-      emit({ values: structuredClone(normalized), dirty: !equal(normalized, state.base) });
+      emit({ values: structuredClone(normalized), dirty: !equal(normalized, state.base) || !!state.importReview });
       persist();
     },
     recover() {
@@ -114,6 +118,7 @@ export function createEditorController(deps: Dependencies) {
       if (!current() || !draft) return;
       const server = state.id ? { ...toRequest(state.base), id: state.id, revision: state.revision } as ResumeProfile : null;
       replace(draft.values, { recovery: null, base: draft.base, revision: draft.revision, imported: draft.imported,
+        importReview: draft.importReview ?? null,
         conflict: server && server.revision !== draft.revision ? server : null });
     },
     discardRecovery() {
@@ -144,7 +149,7 @@ export function createEditorController(deps: Dependencies) {
         key = saved.id;
         // 基线使用实际提交的表单，后续输入仍保留为未保存改动，包括空白。
         emit({ id: saved.id, revision: saved.revision ?? 0, base: submitted,
-          dirty: !equal(state.values, submitted), imported: false, savedAt: Date.now() });
+          dirty: !equal(state.values, submitted), imported: false, importReview: null, savedAt: Date.now() });
         if (oldKey !== key) removeDraft(deps.userId, oldKey);
         persist();
         if (created) deps.created(saved.id);

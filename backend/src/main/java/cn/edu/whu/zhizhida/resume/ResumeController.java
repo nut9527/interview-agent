@@ -6,6 +6,7 @@ import cn.edu.whu.zhizhida.common.PageRequest;
 import cn.edu.whu.zhizhida.resume.api.ResumeComparison.ResumeCompareRequest;
 import cn.edu.whu.zhizhida.resume.api.ResumeComparison;
 import cn.edu.whu.zhizhida.resume.api.ResumeProfile;
+import cn.edu.whu.zhizhida.resume.api.ResumeImportResult;
 import cn.edu.whu.zhizhida.resume.api.ResumeProfile.ResumeProfileRequest;
 import cn.edu.whu.zhizhida.resume.api.ResumeService;
 import cn.edu.whu.zhizhida.resume.api.ResumeVersionView;
@@ -55,7 +56,7 @@ public class ResumeController {
 
     /** 仅解析并返回待确认字段；客户端核对后通过创建接口保存正文和初始版本。 */
     @PostMapping("/import/parse")
-    public ApiResponse<ResumeProfileRequest> parseDocument(
+    public ApiResponse<ResumeImportResult> parseDocument(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "targetRole", required = false) String targetRole) {
         return ApiResponse.ok(resumeService.parseDocument(file, targetRole));

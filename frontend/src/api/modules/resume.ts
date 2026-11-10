@@ -6,6 +6,10 @@ import type {
   ResumeComparison,
 } from '@/types/api.d';
 import { get, post, put, del } from '@/api/request';
+import type { Schemas } from '@/types/generated/openapi';
+
+export type ResumeImportResult = Schemas['cn.edu.whu.zhizhida.resume.api.ResumeImportResult'];
+export type ResumeImportReview = Pick<ResumeImportResult, 'warnings' | 'recognitionMode'>;
 
 export const resumeImportNotice = '启用 AI 识别时，系统会将提取的简历正文（含其中的联系方式）发送给已配置的模型服务。离线模式使用本地规则识别。';
 
@@ -34,10 +38,10 @@ export const resumeService = {
   },
 
   /** 仅解析资料，确认时通过表单校验后调用正常创建接口。 */
-  parseDocument: (file: File, signal?: AbortSignal): Promise<ResumeProfileRequest> => {
+  parseDocument: (file: File, signal?: AbortSignal): Promise<ResumeImportResult> => {
     const data = new FormData();
     data.append('file', file);
-    return post<ResumeProfileRequest>('/api/resumes/import/parse', data, { signal, timeout: 120000 });
+    return post<ResumeImportResult>('/api/resumes/import/parse', data, { signal, timeout: 120000 });
   },
 
   getVersionHistory: (resumeId: number, page = 1): Promise<PageResult<ResumeVersionSummary>> => {

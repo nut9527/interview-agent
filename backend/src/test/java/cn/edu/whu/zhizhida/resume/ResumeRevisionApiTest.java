@@ -1,6 +1,7 @@
 package cn.edu.whu.zhizhida.resume;
 
 import cn.edu.whu.zhizhida.resume.api.ResumeService;
+import cn.edu.whu.zhizhida.resume.api.ResumeImportResult;
 
 import cn.edu.whu.zhizhida.common.ApiExceptionHandler;
 import cn.edu.whu.zhizhida.common.RequestIdFilter;
@@ -29,12 +30,18 @@ class ResumeRevisionApiTest {
     void parseReturnsEditableRequestWithoutCallingLegacyImportOrCreate() throws Exception {
         var parsed = new cn.edu.whu.zhizhida.resume.api.ResumeProfile.ResumeProfileRequest("待核对", "Java", "原文",
                 java.util.List.of(), java.util.List.of(), java.util.List.of(), java.util.List.of(), java.util.List.of(), "classic");
-        when(service.parseDocument(any(), eq("Java"))).thenReturn(parsed);
+        var warning = new ResumeImportResult.Warning("skills[1]",
+                cn.edu.whu.zhizhida.common.StructuredOutput.RejectionReason.SEMANTIC_MISMATCH, "该技能未在原文中找到，请核对后补充。");
+        when(service.parseDocument(any(), eq("Java"))).thenReturn(new ResumeImportResult(parsed,
+                java.util.List.of(warning), ResumeImportResult.RecognitionMode.AI));
         mvc.perform(multipart("/api/resumes/import/parse")
                         .file(new org.springframework.mock.web.MockMultipartFile("file", "resume.pdf", "application/pdf", new byte[]{1}))
                         .param("targetRole", "Java"))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.data.ownerName").value("待核对"))
-                .andExpect(jsonPath("$.data.id").doesNotExist());
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.draft.ownerName").value("待核对"))
+                .andExpect(jsonPath("$.data.draft.id").doesNotExist())
+                .andExpect(jsonPath("$.data.recognitionMode").value("AI"))
+                .andExpect(jsonPath("$.data.warnings[0].field").value("skills[1]"))
+                .andExpect(jsonPath("$.data.warnings[0].code").value("SEMANTIC_MISMATCH"));
         verify(service).parseDocument(any(), eq("Java"));
         verifyNoMoreInteractions(service);
     }

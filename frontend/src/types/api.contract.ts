@@ -3,6 +3,7 @@ import type * as Jobs from './targetJob';
 import type * as Questions from './questionBank';
 import type * as Knowledge from './knowledge';
 import type * as InterviewLearning from '../api/modules/interviewLearning';
+import type { ResumeImportResult } from '../api/modules/resume';
 import type { Schemas } from './generated/openapi';
 
 type Equal<A, B> = [A] extends [B] ? [B] extends [A] ? true : false : false;
@@ -55,6 +56,10 @@ export type ApiContractChecks = [
   Assert<Shape<UI.ChangePasswordRequest, Schemas['cn.edu.whu.zhizhida.auth.api.ChangePasswordRequest']>>,
   Assert<Shape<UI.DeleteAccountRequest, Schemas['cn.edu.whu.zhizhida.auth.api.DeleteAccountRequest']>>,
   Assert<Shape<UI.ResumeProfileRequest, Schemas['cn.edu.whu.zhizhida.resume.api.ResumeProfileRequest']>>,
+  Assert<Shape<{ draft: UI.ResumeProfileRequest; recognitionMode: 'AI' | 'LOCAL'; warnings: Array<{
+    field: string; message: string;
+    code: 'MISSING_FIELD' | 'TYPE_MISMATCH' | 'EMPTY_VALUE' | 'LIMIT_EXCEEDED' | 'INVALID_VALUE' | 'INVALID_JSON' | 'SEMANTIC_MISMATCH';
+  }> }, ResumeImportResult>>,
   Assert<Shape<UI.ResumeProfile, Schemas['cn.edu.whu.zhizhida.resume.api.ResumeProfile']>>,
   Assert<Shape<UI.ResumeDetails, Schemas['cn.edu.whu.zhizhida.resume.api.ResumeDetails']>>,
   Assert<Shape<UI.ResumeVersionView, Schemas['cn.edu.whu.zhizhida.resume.api.ResumeVersionView']>>,

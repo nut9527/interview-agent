@@ -5,6 +5,7 @@ import { formValues, differences, mergeChoices, toRequest } from './editorData.t
 import { readDraft, writeDraft, stageImport, pruneExpiredDrafts, hasResumeDrafts, DRAFT_TTL } from './resumeDraft.ts';
 import { resetAccountScope } from '../../../api/accountScope.ts';
 import { ApiError } from '../../../api/ApiError.ts';
+import { importWarningTarget } from '../../../components/resume/importReview.ts';
 
 const profile = (summary = '原文', revision = 1) => ({ id: 5, revision, ...toRequest(formValues({ ownerName: '张三', targetRole: 'Java', summary })) });
 const deferred = () => { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; };
@@ -18,6 +19,10 @@ const setup = (overrides = {}) => {
   return { controller, updates, creates, fills, created };
 };
 const edit = (controller, summary) => controller.edit({ ...controller.getState().values, summary });
+const review = { recognitionMode: 'AI', warnings: [
+  { field: 'details.contact.phone', code: 'INVALID_VALUE', message: '联系电话格式无效，已留空。' },
+  { field: 'details.projects[2].contributions[1]', code: 'SEMANTIC_MISMATCH', message: '未找到原文依据，已移除。' },
+] };
 
 test('refresh offers a draft; discarding never writes the server', async () => {
   const first = setup(); await first.controller.load(); edit(first.controller, '未保存\n'); first.controller.dispose();
@@ -177,4 +182,109 @@ test('corrupt JSON is removed and the editor reports why recovery was skipped', 
   const { controller } = setup(); await controller.load();
   assert.match(controller.getState().storageError, /损坏/); assert.equal(sessionStorage.length, 0);
   assert.equal(controller.getState().values.summary, '原文');
+});
+
+test('import review survives edits, refresh and failed save, then clears only on confirmed save', async () => {
+  stageImport(1, formValues({ ownerName: '待核对', targetRole: 'Java' }), review);
+  const first = setup({ key: 'import', freshImport: true });
+  await first.controller.load();
+  assert.deepEqual(first.controller.getState().importReview, review);
+  first.controller.edit(formValues());
+  assert.equal(first.controller.getState().dirty, true);
+  assert.deepEqual(readDraft(1, 'import').draft.importReview, review);
+  first.controller.dispose();
+
+  let fail = true;
+  const requests = [];
+  const next = setup({ key: 'import', create: async request => {
+    requests.push(request);
+    if (fail) throw new ApiError('保存失败', { status: 503 });
+    return { ...request, id: 9, revision: 0 };
+  } });
+  await next.controller.load();
+  assert.deepEqual(next.controller.getState().recovery.importReview, review);
+  next.controller.recover();
+  next.controller.edit(formValues({ ownerName: '人工确认姓名', targetRole: 'Java' }));
+  await next.controller.save();
+  assert.deepEqual(next.controller.getState().importReview, review);
+  assert.deepEqual(readDraft(1, 'import').draft.importReview, review);
+  fail = false;
+  await next.controller.save();
+  assert.equal(next.controller.getState().importReview, null);
+  assert.equal(next.controller.getState().imported, false);
+  assert.equal(readDraft(1, 'import').draft, null);
+  assert.equal(readDraft(1, 9).draft, null);
+  assert.equal('importReview' in requests[1], false);
+  assert.equal('warnings' in requests[1], false);
+  assert.equal(requests[1].ownerName, '人工确认姓名');
+});
+
+test('successful import save clears review while retaining later input in the migrated draft', async () => {
+  const gate = deferred();
+  const local = { warnings: [], recognitionMode: 'LOCAL' };
+  stageImport(1, formValues({ ownerName: '姓名', targetRole: 'Java' }), local);
+  const { controller } = setup({ key: 'import', freshImport: true, create: async request => {
+    await gate.promise;
+    return { ...request, id: 8, revision: 0 };
+  } });
+  await controller.load();
+  assert.equal(controller.getState().importReview.recognitionMode, 'LOCAL');
+  const saving = controller.save();
+  edit(controller, '保存期间的新输入');
+  gate.resolve();
+  await saving;
+  assert.equal(controller.getState().importReview, null);
+  assert.equal(readDraft(1, 8).draft.values.summary, '保存期间的新输入');
+  assert.equal(readDraft(1, 8).draft.importReview, undefined);
+  assert.equal(readDraft(1, 'import').draft, null);
+});
+
+test('matching server fields cannot implicitly dismiss a pending import review', async () => {
+  const values = formValues(profile());
+  writeDraft({ schema: 1, userId: 1, key: 5, revision: 1, updatedAt: Date.now(), base: values, values, imported: true, importReview: review });
+  const { controller } = setup();
+  await controller.load();
+  assert.ok(controller.getState().recovery);
+  controller.recover();
+  assert.equal(controller.getState().dirty, true);
+  assert.deepEqual(readDraft(1, 5).draft.importReview, review);
+  await controller.save();
+  assert.equal(readDraft(1, 5).draft, null);
+});
+
+test('old import drafts remain recoverable and malformed review metadata is rejected', async () => {
+  stageImport(1, formValues({ ownerName: '旧草稿' }));
+  const { controller } = setup({ key: 'import' });
+  await controller.load(); controller.recover();
+  assert.equal(controller.getState().values.ownerName, '旧草稿');
+  assert.equal(controller.getState().importReview, null);
+  const draft = readDraft(1, 'import').draft;
+  writeDraft({ ...draft, importReview: { recognitionMode: 'AI', warnings: [null] } });
+  assert.equal(readDraft(1, 'import').draft, null);
+});
+
+test('account switching removes import review and a late save cannot recreate it', async () => {
+  stageImport(1, formValues({ ownerName: '甲', targetRole: 'Java' }), review);
+  const gate = deferred();
+  const first = setup({ key: 'import', freshImport: true, create: () => gate.promise });
+  await first.controller.load();
+  const saving = first.controller.save();
+  resetAccountScope();
+  gate.resolve(profile());
+  await saving;
+  const next = setup({ userId: 2, key: 'import' });
+  await next.controller.load();
+  assert.equal(next.controller.getState().importReview, null);
+  assert.equal(next.controller.getState().recovery, null);
+  assert.equal(sessionStorage.length, 0);
+  assert.equal(first.created.length, 0);
+});
+
+test('warning navigation uses stable sections instead of discarded source array indexes', () => {
+  assert.deepEqual(importWarningTarget('details.projects[4].contributions[2]'), { label: '个人贡献', section: 'resume-projects' });
+  assert.deepEqual(importWarningTarget('details.education[1].startDate'), { label: '入学年月', section: 'resume-education' });
+  assert.equal(importWarningTarget('skills[5]').formField[0], 'skills');
+  assert.deepEqual(importWarningTarget('details.contact.email').formField, ['details', 'contact', 'email']);
+  assert.equal(importWarningTarget('details.contact.links[2].url').label, '作品与个人链接');
+  assert.equal(importWarningTarget('$').label, '导入内容');
 });

@@ -18,4 +18,9 @@ public final class InvalidModelOutputException extends UpstreamServiceException 
     public Reason reason() {
         return reason;
     }
+
+    @Override
+    public ErrorCode errorCode() {
+        return ErrorCode.AI_INVALID_RESPONSE;
+    }
 }

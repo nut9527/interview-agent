@@ -75,7 +75,7 @@ public class OpenApiConfig {
                     .required(List.of("success", "message", "data", "code")));
             api.getPaths().forEach((path, item) -> item.readOperations().forEach(operation -> {
                 if (!PUBLIC_PATHS.contains(path)) operation.addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
-                for (String status : List.of("400", "401", "403", "404", "405", "409", "415", "429", "500", "501", "502", "503")) {
+                for (String status : List.of("400", "401", "403", "404", "405", "409", "415", "429", "500", "501", "502", "503", "504")) {
                     if (!operation.getResponses().containsKey(status)) operation.getResponses().addApiResponse(status,
                             new ApiResponse().description("统一错误响应；code 稳定，message 用于展示")
                                     .content(new Content().addMediaType("application/json", new MediaType()

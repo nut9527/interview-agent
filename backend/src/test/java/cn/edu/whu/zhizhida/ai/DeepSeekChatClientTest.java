@@ -1,6 +1,7 @@
 package cn.edu.whu.zhizhida.ai;
 
 import cn.edu.whu.zhizhida.common.UpstreamServiceException;
+import cn.edu.whu.zhizhida.common.ErrorCode;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -117,8 +118,10 @@ class DeepSeekChatClientTest {
     @Test
     void shouldRejectMissingApiKeyBeforeSendingRequest() {
         assertThatThrownBy(() -> client("").completeJson("system", "user", 0.5, 600))
-                .isInstanceOf(UpstreamServiceException.class)
-                .hasMessageContaining("DEEPSEEK_API_KEY");
+                .isInstanceOfSatisfying(UpstreamServiceException.class,
+                        ex -> assertThat(ex.errorCode()).isEqualTo(ErrorCode.AI_CONFIGURATION_ERROR))
+                .hasMessage("MODEL_CONFIGURATION");
+        verifyNoInteractions(httpClient);
     }
 
     @Test
@@ -127,7 +130,19 @@ class DeepSeekChatClientTest {
                 .thenReturn(CompletableFuture.failedFuture(new HttpTimeoutException("timeout")));
 
         assertThatThrownBy(() -> client("test-key").completeJson("system", "user", 0.5, 600))
-                .isInstanceOf(UpstreamServiceException.class)
+                .isInstanceOfSatisfying(UpstreamServiceException.class,
+                        ex -> assertThat(ex.errorCode()).isEqualTo(ErrorCode.AI_TIMEOUT))
+                .hasMessage("MODEL_NETWORK");
+    }
+
+    @Test
+    void shouldDistinguishNetworkFailureFromTimeout() throws Exception {
+        when(httpClient.sendAsync(any(HttpRequest.class), anyStringBodyHandler()))
+                .thenReturn(CompletableFuture.failedFuture(new java.net.ConnectException("private host")));
+
+        assertThatThrownBy(() -> client("test-key").completeJson("system", "user", 0.5, 600))
+                .isInstanceOfSatisfying(UpstreamServiceException.class,
+                        ex -> assertThat(ex.errorCode()).isEqualTo(ErrorCode.AI_NETWORK_ERROR))
                 .hasMessage("MODEL_NETWORK");
     }
 
@@ -137,8 +152,9 @@ class DeepSeekChatClientTest {
         when(httpClient.sendAsync(any(HttpRequest.class), anyStringBodyHandler())).thenReturn(CompletableFuture.completedFuture(response));
 
         assertThatThrownBy(() -> client("test-key").completeJson("system", "user", 0.5, 600))
-                .isInstanceOf(UpstreamServiceException.class)
-                .hasMessageContaining("余额或稍后重试")
+                .isInstanceOfSatisfying(UpstreamServiceException.class,
+                        ex -> assertThat(ex.errorCode()).isEqualTo(ErrorCode.AI_RATE_LIMITED))
+                .hasMessage("MODEL_HTTP_429")
                 .hasMessageNotContaining("provider internal details");
     }
 
@@ -148,8 +164,9 @@ class DeepSeekChatClientTest {
         when(httpClient.sendAsync(any(HttpRequest.class), anyStringBodyHandler())).thenReturn(CompletableFuture.completedFuture(response));
 
         assertThatThrownBy(() -> client("test-key").completeJson("system", "user", 0.5, 600))
-                .isInstanceOf(UpstreamServiceException.class)
-                .hasMessageContaining("鉴权失败");
+                .isInstanceOfSatisfying(UpstreamServiceException.class,
+                        ex -> assertThat(ex.errorCode()).isEqualTo(ErrorCode.AI_AUTH_FAILED))
+                .hasMessage("MODEL_HTTP_401");
     }
 
     @Test
@@ -158,8 +175,9 @@ class DeepSeekChatClientTest {
         when(httpClient.sendAsync(any(HttpRequest.class), anyStringBodyHandler())).thenReturn(CompletableFuture.completedFuture(response));
 
         assertThatThrownBy(() -> client("test-key").completeJson("system", "user", 0.5, 600))
-                .isInstanceOf(UpstreamServiceException.class)
-                .hasMessageContaining("鉴权失败");
+                .isInstanceOfSatisfying(UpstreamServiceException.class,
+                        ex -> assertThat(ex.errorCode()).isEqualTo(ErrorCode.AI_AUTH_FAILED))
+                .hasMessage("MODEL_HTTP_403");
     }
 
     @Test
@@ -178,7 +196,8 @@ class DeepSeekChatClientTest {
         when(httpClient.sendAsync(any(HttpRequest.class), anyStringBodyHandler())).thenReturn(CompletableFuture.completedFuture(response));
 
         assertThatThrownBy(() -> client("test-key").completeJson("system", "user", 0.5, 600))
-                .isInstanceOf(UpstreamServiceException.class)
+                .isInstanceOfSatisfying(UpstreamServiceException.class,
+                        ex -> assertThat(ex.errorCode()).isEqualTo(ErrorCode.AI_INVALID_RESPONSE))
                 .hasMessageContaining("被截断");
     }
 
@@ -206,14 +225,14 @@ class DeepSeekChatClientTest {
     void shouldRejectBlankApiKey() {
         assertThatThrownBy(() -> client("   ").completeJson("system", "user", 0.5, 600))
                 .isInstanceOf(UpstreamServiceException.class)
-                .hasMessageContaining("DEEPSEEK_API_KEY");
+                .hasMessage("MODEL_CONFIGURATION");
     }
 
     @Test
     void shouldHandleNullApiKey() {
         assertThatThrownBy(() -> client(null).completeJson("system", "user", 0.5, 600))
                 .isInstanceOf(UpstreamServiceException.class)
-                .hasMessageContaining("DEEPSEEK_API_KEY");
+                .hasMessage("MODEL_CONFIGURATION");
     }
 
     @Test
@@ -222,8 +241,8 @@ class DeepSeekChatClientTest {
         when(httpClient.sendAsync(any(HttpRequest.class), anyStringBodyHandler())).thenReturn(CompletableFuture.completedFuture(response));
 
         assertThatThrownBy(() -> client("test-key").completeJson("system", "user", 0.5, 600))
-                .isInstanceOf(UpstreamServiceException.class)
-                .hasMessageContaining("HTTP 500");
+                .isInstanceOfSatisfying(UpstreamServiceException.class,
+                        ex -> assertThat(ex.code()).isEqualTo("MODEL_HTTP_500"));
     }
 
     @ParameterizedTest

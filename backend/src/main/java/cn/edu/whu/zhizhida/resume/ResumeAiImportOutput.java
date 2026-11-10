@@ -1,7 +1,10 @@
 package cn.edu.whu.zhizhida.resume;
 
 import cn.edu.whu.zhizhida.common.StructuredOutput;
+import cn.edu.whu.zhizhida.common.StructuredOutput.RejectionReason;
 import cn.edu.whu.zhizhida.resume.api.ResumeDetails;
+import cn.edu.whu.zhizhida.resume.api.ResumeImportResult;
+import cn.edu.whu.zhizhida.resume.api.ResumeImportResult.Warning;
 import cn.edu.whu.zhizhida.resume.api.ResumeProfile.ResumeProfileRequest;
 import tools.jackson.databind.JsonNode;
 
@@ -10,82 +13,111 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /** 模型只负责从文档摘录和分类；模板、用户指定岗位、校验及缺失项由应用决定。 */
 final class ResumeAiImportOutput {
     private static final Pattern MONTH = Pattern.compile("(?<![0-9])((?:19|20)[0-9]{2})\\h*[年./-]\\h*(0?[1-9]|1[0-2])月?(?![0-9])");
+    private static final Pattern DATE_RANGE = Pattern.compile("(?<![0-9])((?:19|20)[0-9]{2}-(?:0[1-9]|1[0-2]))\\h*(?:[-至~]\\h*((?:19|20)[0-9]{2}-(?:0[1-9]|1[0-2])|至今)|(至今))(?![0-9])");
     private static final Pattern SPACING = Pattern.compile("[\\s\\p{Z}\\u00ad\\u200b]+");
     // 数字中的逗号和冒号、英文句点、斜杠、加号及井号具有实际含义。
     private static final Pattern LAYOUT = Pattern.compile("[|、。•▪▣]|(?<![0-9])[,;:]|[,;:](?![0-9])");
     private static final Pattern PLACEHOLDER = Pattern.compile("(?i)x{2,}|[_＊*＿—-]{2,}|待补充(?:姓名|目标岗位)?|未提供|未知|不详|无|n/a");
     private final String original;
+    private final String document;
     private final String source;
     private final String sourceWithoutLayout;
+    private final List<Warning> warnings = new ArrayList<>();
 
     private ResumeAiImportOutput(String original) {
+        this.document = original;
         this.original = Normalizer.normalize(original, Normalizer.Form.NFKC);
         source = comparable(this.original);
         sourceWithoutLayout = LAYOUT.matcher(source).replaceAll("");
     }
 
-    static ResumeProfileRequest parse(JsonNode payload, String source, ResumeProfileRequest local, String targetRoleOverride) {
+    static ResumeImportResult parse(JsonNode payload, String source, ResumeProfileRequest local, String targetRoleOverride) {
         if (payload == null || !payload.isObject()) throw StructuredOutput.invalid("$");
         return new ResumeAiImportOutput(source).read(payload, local, targetRoleOverride);
     }
 
-    private ResumeProfileRequest read(JsonNode root, ResumeProfileRequest local, String override) {
+    private ResumeImportResult read(JsonNode root, ResumeProfileRequest local, String override) {
         String owner = excerpt(root, "ownerName", 80);
-        String role = excerpt(root, "targetRole", 120);
+        String role = override == null || override.isBlank() ? null : override.strip();
+        if (role != null && (role.length() > 120 || PLACEHOLDER.matcher(role).matches())) {
+            warn("targetRole", role.length() > 120 ? RejectionReason.LIMIT_EXCEEDED : RejectionReason.INVALID_VALUE);
+            role = null;
+        }
+        boolean roleOverridden = role != null;
+        if (role == null) role = excerpt(root, "targetRole", 120);
         String summary = excerpt(root, "summary", 4000);
         List<String> skills = excerpts(root, "skills", 30, 80);
         var educationText = new LinkedHashSet<>(excerpts(root, "educationExperiences", 100, 3000));
         List<String> projectText = excerpts(root, "projectExperiences", 100, 3000);
         List<String> internships = excerpts(root, "internshipExperiences", 100, 3000);
         List<String> certificates = excerpts(root, "certificates", 30, 80);
-        JsonNode detail = object(root, "details");
+        JsonNode detail = object(root, "details", "details");
         List<ResumeDetails.Education> education = new ArrayList<>();
-        for (JsonNode entry : objects(detail, "education", 10)) {
-            String school = excerpt(entry, "school", 160);
-            String major = excerpt(entry, "major", 160);
-            String degree = excerpt(entry, "degree", 80);
-            String start = excerpt(entry, "startDate", 120);
-            String end = excerpt(entry, "endDate", 120);
+        for (Entry item : objects(detail, "education", "details.education", 10)) {
+            JsonNode entry = item.value();
+            String path = item.path();
+            String school = excerpt(entry, "school", 160, path + ".school");
+            String major = excerpt(entry, "major", 160, path + ".major");
+            String degree = excerpt(entry, "degree", 80, path + ".degree");
+            String start = excerpt(entry, "startDate", 120, path + ".startDate");
+            String end = excerpt(entry, "endDate", 120, path + ".endDate");
             var row = new ResumeDetails.Education(school, major, degree, start, end);
             if (school != null && major != null && degree != null && validMonth(start)
                     && (validMonth(end) || "至今".equals(end)) && row.isPeriodValid()) {
                 education.add(row);
             } else {
-                // 旧文本栏可以完整保留缺少入学年月等必填项的履历。
-                String raw = String.join(" ", Stream.of(school, major, degree, start, end).filter(Objects::nonNull).toList());
-                if (!raw.isEmpty()) educationText.add(raw);
+                warn(path, Stream.of(school, major, degree, start, end).anyMatch(value -> value == null)
+                        ? RejectionReason.MISSING_FIELD : RejectionReason.INVALID_VALUE);
+                String raw = educationExcerpt(school, major, degree, start, end);
+                if (raw != null) educationText.add(raw);
             }
         }
         List<ResumeDetails.Project> projects = new ArrayList<>();
-        for (JsonNode entry : objects(detail, "projects", 20)) {
-            String name = excerpt(entry, "name", 120);
-            if (name == null) throw StructuredOutput.invalid("name");
-            projects.add(new ResumeDetails.Project(name, excerpt(entry, "role", 120), excerpt(entry, "period", 120),
-                    excerpt(entry, "background", 2000), excerpts(entry, "contributions", 30, 3000),
-                    excerpts(entry, "techStack", 30, 80)));
+        for (Entry item : objects(detail, "projects", "details.projects", 20)) {
+            JsonNode entry = item.value();
+            String path = item.path();
+            String name = excerpt(entry, "name", 120, path + ".name");
+            if (name == null) {
+                missing(path + ".name");
+                continue;
+            }
+            projects.add(new ResumeDetails.Project(name, excerpt(entry, "role", 120, path + ".role"),
+                    excerpt(entry, "period", 120, path + ".period"), excerpt(entry, "background", 2000, path + ".background"),
+                    excerpts(entry, "contributions", 30, 3000, path + ".contributions"),
+                    excerpts(entry, "techStack", 30, 80, path + ".techStack")));
         }
 
-        String graduation = excerpt(detail, "graduationDate", 120);
-        String availability = excerpt(detail, "availability", 200);
-        ResumeDetails.Contact contact = readContact(object(detail, "contact"));
+        String graduation = excerpt(detail, "graduationDate", 120, "details.graduationDate");
+        String availability = excerpt(detail, "availability", 200, "details.availability");
+        ResumeDetails.Contact contact = readContact(object(detail, "contact", "details.contact"));
         boolean body = summary != null || !skills.isEmpty() || !educationText.isEmpty() || !education.isEmpty()
                 || !projectText.isEmpty() || !projects.isEmpty() || !internships.isEmpty() || !certificates.isEmpty();
-        if (!body && ((owner == null && role == null && contact == null && availability == null && graduation == null)
-                || hasLocalSections(local))) throw StructuredOutput.invalid("$", StructuredOutput.RejectionReason.EMPTY_VALUE);
+        if (!body && owner == null && contact == null && availability == null && graduation == null
+                && (role == null || roleOverridden)) {
+            if (!warnings.isEmpty()) {
+                Warning first = warnings.getFirst();
+                String field = first.field().replaceAll("\\[[0-9]+\\]", "");
+                throw StructuredOutput.invalid(field.substring(field.lastIndexOf('.') + 1), first.code());
+            }
+            throw StructuredOutput.invalid("$", RejectionReason.EMPTY_VALUE);
+        }
+        if (!body && hasLocalSections(local)) warn("$", RejectionReason.MISSING_FIELD);
+        if (owner == null) missing("ownerName");
+        if (role == null) missing("targetRole");
 
         ResumeDetails localDetails = local.details() == null ? ResumeDetails.empty() : local.details();
-        var details = new ResumeDetails(first(graduation, localDetails.graduationDate()), availability, projects,
+        var details = new ResumeDetails(first(graduation, localValue("details.graduationDate", localDetails.graduationDate())), availability, projects,
                 mergeContact(contact, localDetails.contact()), education);
-        String target = override == null || override.isBlank() ? first(role, "待补充目标岗位") : override.strip();
-        return new ResumeProfileRequest(first(owner, "待补充姓名"), target.substring(0, Math.min(120, target.length())),
+        var draft = new ResumeProfileRequest(first(owner, ""), first(role, ""),
                 summary, skills, List.copyOf(educationText), projectText, internships, certificates, "classic", null, details);
+        return new ResumeImportResult(draft, List.copyOf(warnings), ResumeImportResult.RecognitionMode.AI);
     }
 
     private ResumeDetails.Contact readContact(JsonNode node) {
@@ -93,16 +125,29 @@ final class ResumeAiImportOutput {
         var checked = new ResumeImportContact();
         for (String key : List.of("phone", "email", "location")) {
             int limit = switch (key) { case "phone" -> 40; case "email" -> 254; default -> 120; };
-            String value = excerpt(node, key, limit);
+            String value = excerpt(node, key, limit, "details.contact." + key);
             if (value != null && (Normalizer.normalize(value, Normalizer.Form.NFKC).matches("(?s).*[|;\\t].*")
-                    || !checked.consume(key + ":" + value))) throw StructuredOutput.invalid(key);
+                    || !checked.consume(key + ":" + value))) warn("details.contact." + key, RejectionReason.INVALID_VALUE);
         }
         List<ResumeDetails.Link> links = new ArrayList<>();
-        for (JsonNode entry : objects(node, "links", 8)) {
-            String url = excerpt(entry, "url", 1000);
-            if (url == null || !url.matches("(?i)https?://[^\\s/]+(?:/[^\\s]*)?")) throw StructuredOutput.invalid("url");
-            String label = optional(entry, "label", 80);
-            links.add(new ResumeDetails.Link(label != null && source.contains(comparable(label)) ? label : "个人链接", url));
+        for (Entry item : objects(node, "links", "details.contact.links", 8)) {
+            JsonNode entry = item.value();
+            String url = excerpt(entry, "url", 1000, item.path() + ".url");
+            if (url == null) {
+                missing(item.path() + ".url");
+                continue;
+            }
+            if (!url.matches("(?i)https?://[^\\s/]+(?:/[^\\s]*)?")) {
+                warn(item.path() + ".url", RejectionReason.INVALID_VALUE);
+                continue;
+            }
+            String label = checked(item.path() + ".label", () -> optional(entry, "label", 80));
+            if (label != null && !source.contains(comparable(label))) {
+                warnings.add(new Warning(item.path() + ".label", RejectionReason.SEMANTIC_MISMATCH,
+                        "链接名称无法与原文核对，链接已保留并显示为“个人链接”。"));
+                label = null;
+            }
+            links.add(new ResumeDetails.Link(first(label, "个人链接"), url));
         }
         var values = checked.result();
         if (values == null && links.isEmpty()) return null;
@@ -110,11 +155,28 @@ final class ResumeAiImportOutput {
                 : new ResumeDetails.Contact(values.phone(), values.email(), values.location(), links);
     }
 
-    private static ResumeDetails.Contact mergeContact(ResumeDetails.Contact model, ResumeDetails.Contact local) {
-        if (model == null) return local;
+    private ResumeDetails.Contact mergeContact(ResumeDetails.Contact model, ResumeDetails.Contact local) {
         if (local == null) return model;
-        return new ResumeDetails.Contact(first(model.phone(), local.phone()), first(model.email(), local.email()),
-                first(model.location(), local.location()), model.links().isEmpty() ? local.links() : model.links());
+        String phone = first(model == null ? null : model.phone(), localValue("details.contact.phone", local.phone()));
+        String email = first(model == null ? null : model.email(), localValue("details.contact.email", local.email()));
+        String location = first(model == null ? null : model.location(), localValue("details.contact.location", local.location()));
+        List<ResumeDetails.Link> links = model == null ? List.of() : model.links();
+        return phone == null && email == null && location == null && links.isEmpty() ? null
+                : new ResumeDetails.Contact(phone, email, location, links);
+    }
+
+    private String localValue(String path, String value) {
+        return warnings.stream().anyMatch(warning -> path.equals(warning.field()) || path.startsWith(warning.field() + "."))
+                ? null : value;
+    }
+
+    private String educationExcerpt(String school, String major, String degree, String start, String end) {
+        if (school == null) return null;
+        var markers = Stream.of(school, major, degree, start, end).filter(value -> value != null).map(ResumeAiImportOutput::comparable).toList();
+        if (markers.size() < 2) return null;
+        var lines = document.lines().filter(line -> line.length() <= 3000
+                && markers.stream().allMatch(marker -> comparable(line).contains(marker))).toList();
+        return lines.size() == 1 ? lines.getFirst().strip() : null;
     }
 
     private static boolean hasLocalSections(ResumeProfileRequest local) {
@@ -135,24 +197,69 @@ final class ResumeAiImportOutput {
         String normalized = Normalizer.normalize(input, Normalizer.Form.NFKC).toLowerCase(Locale.ROOT);
         String dates = MONTH.matcher(normalized.replace('–', '-').replace('—', '-')).replaceAll(match ->
                 match.group(1) + "-" + (match.group(2).length() == 1 ? "0" : "") + match.group(2));
-        return SPACING.matcher(dates).replaceAll("");
+        String ranges = DATE_RANGE.matcher(dates).replaceAll(match ->
+                match.group(1) + "-" + (match.group(2) == null ? match.group(3) : match.group(2)));
+        return SPACING.matcher(ranges).replaceAll("");
     }
 
-    private static JsonNode object(JsonNode node, String field) {
+    private JsonNode object(JsonNode node, String field, String path) {
         if (node == null || !node.hasNonNull(field)) return null;
         JsonNode value = node.get(field);
-        if (!value.isObject()) throw StructuredOutput.invalid(field);
+        if (!value.isObject()) {
+            warn(path, RejectionReason.TYPE_MISMATCH);
+            return null;
+        }
         return value;
     }
 
-    private static List<JsonNode> objects(JsonNode node, String field, int limit) {
-        if (node == null || !node.hasNonNull(field)) return List.of();
-        List<JsonNode> rows = new ArrayList<>();
-        for (JsonNode value : StructuredOutput.array(node, field, limit)) {
-            if (!value.isObject()) throw StructuredOutput.invalid(field);
-            rows.add(value);
+    private record Entry(JsonNode value, String path) {}
+
+    private List<Entry> objects(JsonNode node, String field, String path, int limit) {
+        JsonNode values = array(node, field, path, limit);
+        if (values == null) return List.of();
+        List<Entry> rows = new ArrayList<>();
+        for (int index = 0; index < Math.min(values.size(), limit); index++) {
+            JsonNode value = values.get(index);
+            String itemPath = path + "[" + index + "]";
+            if (!value.isObject()) warn(itemPath, RejectionReason.TYPE_MISMATCH);
+            else rows.add(new Entry(value, itemPath));
         }
         return rows;
+    }
+
+    private JsonNode array(JsonNode node, String field, String path, int limit) {
+        if (node == null || !node.hasNonNull(field)) return null;
+        JsonNode values = node.get(field);
+        if (!values.isArray()) {
+            warn(path, RejectionReason.TYPE_MISMATCH);
+            return null;
+        }
+        if (values.size() > limit) warn(path, RejectionReason.LIMIT_EXCEEDED);
+        return values;
+    }
+
+    private <T> T checked(String path, Supplier<T> reader) {
+        try {
+            return reader.get();
+        } catch (StructuredOutput.FieldValidationException ex) {
+            warn(path, ex.reason());
+            return null;
+        }
+    }
+
+    private void missing(String path) {
+        if (warnings.stream().noneMatch(warning -> warning.field().equals(path))) warn(path, RejectionReason.MISSING_FIELD);
+    }
+
+    private void warn(String path, RejectionReason reason) {
+        String message = switch (reason) {
+            case MISSING_FIELD -> "信息不完整，请对照原文补充。";
+            case TYPE_MISMATCH, INVALID_JSON -> "识别结果格式不正确，已跳过，请核对补充。";
+            case LIMIT_EXCEEDED -> "识别内容超过字段上限，已跳过超出部分，请核对补充。";
+            case SEMANTIC_MISMATCH -> "识别内容无法与原文核对，已清除，请核对补充。";
+            default -> "识别内容不符合字段格式，已清除，请核对补充。";
+        };
+        warnings.add(new Warning(path, reason, message));
     }
 
     private static String optional(JsonNode node, String field, int limit) {
@@ -164,16 +271,38 @@ final class ResumeAiImportOutput {
     }
 
     private String excerpt(JsonNode node, String field, int limit) {
-        String value = optional(node, field, limit);
-        if (value != null) verifyExcerpt(field, value);
-        return value;
+        return excerpt(node, field, limit, field);
+    }
+
+    private String excerpt(JsonNode node, String field, int limit, String path) {
+        return checked(path, () -> {
+            String value = optional(node, field, limit);
+            if (value != null) verifyExcerpt(field, value);
+            return value;
+        });
     }
 
     private List<String> excerpts(JsonNode node, String field, int count, int limit) {
-        if (node == null || !node.hasNonNull(field)) return List.of();
-        var values = new LinkedHashSet<>(StructuredOutput.texts(node, field, count, limit));
-        for (String value : values) verifyExcerpt(field, value);
-        return List.copyOf(values);
+        return excerpts(node, field, count, limit, field);
+    }
+
+    private List<String> excerpts(JsonNode node, String field, int count, int limit, String path) {
+        JsonNode values = array(node, field, path, count);
+        if (values == null) return List.of();
+        var result = new LinkedHashSet<String>();
+        for (int index = 0; index < Math.min(values.size(), count); index++) {
+            JsonNode value = values.get(index);
+            String text = checked(path + "[" + index + "]", () -> {
+                if (!value.isTextual()) throw StructuredOutput.invalid(field, RejectionReason.TYPE_MISMATCH);
+                String item = value.textValue().strip();
+                if (item.isEmpty()) throw StructuredOutput.invalid(field, RejectionReason.EMPTY_VALUE);
+                if (item.length() > limit) throw StructuredOutput.invalid(field, RejectionReason.LIMIT_EXCEEDED);
+                verifyExcerpt(field, item);
+                return item;
+            });
+            if (text != null) result.add(text);
+        }
+        return List.copyOf(result);
     }
 
     private void verifyExcerpt(String field, String value) {

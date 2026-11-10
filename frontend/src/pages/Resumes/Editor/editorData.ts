@@ -1,4 +1,5 @@
 import type { ResumeProfileRequest } from '@/types/api.d';
+import type { ResumeImportResult } from '@/api/modules/resume';
 
 /** 草稿保留原始多行输入，包括尚未完成的行。 */
 export interface EditorValues {
@@ -14,9 +15,10 @@ export interface EditorValues {
   details: NonNullable<ResumeProfileRequest['details']>;
 }
 
-export function formValues(value: Partial<ResumeProfileRequest> = {}): EditorValues {
+export function formValues(value: Partial<ResumeProfileRequest> | ResumeImportResult['draft'] = {}): EditorValues {
   return normalizeValues({ ...value, summary: value.summary ?? '', skills: value.skills ?? [],
-    certificates: value.certificates ?? [], templateKey: value.templateKey ?? 'classic', details: value.details ?? undefined,
+    certificates: value.certificates ?? [], templateKey: value.templateKey ?? 'classic',
+    details: value.details ? { ...value.details, projects: value.details.projects ?? [] } : undefined,
     educationExperiences: value.educationExperiences?.join('\n'),
     projectExperiences: value.projectExperiences?.join('\n'),
     internshipExperiences: value.internshipExperiences?.join('\n'),

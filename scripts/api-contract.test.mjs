@@ -1,84 +1,89 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compareContracts, generateTypes, interviewFocusBaseline, springBoot41Baseline, runCapacityBaseline } from './api-contract.mjs';
+import { compareContracts, generateTypes, interviewFocusBaseline, springBoot41Baseline, registeredErrorCodeBaseline, resumeImportResultBaseline } from './api-contract.mjs';
 
 const baseline = JSON.parse(readFileSync(new URL('../contracts/openapi.json', import.meta.url), 'utf8'));
 const dto = 'cn.edu.whu.zhizhida.resume.api.ResumeProfile';
 const changed = mutation => { const copy = structuredClone(baseline); mutation(copy); return copy; };
 const breaks = mutation => assert.notDeepEqual(compareContracts(baseline, changed(mutation)), []);
 
-const capacityRegistration = JSON.parse(readFileSync(new URL('../contracts/run-capacity-error-codes.json', import.meta.url), 'utf8'));
-const capacityCodes = ['RUN_USER_CAPACITY', 'RUN_QUEUE_FULL'];
+const errorCodeRegistration = JSON.parse(readFileSync(new URL('../contracts/error-code-additions.json', import.meta.url), 'utf8'));
+const importResultRegistration = JSON.parse(readFileSync(new URL('../contracts/resume-import-result.json', import.meta.url), 'utf8'));
+const registeredCodes = ['RUN_USER_CAPACITY', 'RUN_QUEUE_FULL', 'AI_TIMEOUT', 'AI_NETWORK_ERROR', 'AI_AUTH_FAILED',
+  'AI_CONFIGURATION_ERROR', 'AI_RATE_LIMITED', 'AI_INVALID_RESPONSE', 'AI_CIRCUIT_OPEN', 'RESUME_IMPORT_VALIDATION_FAILED'];
 const atPointer = (document, pointer) => pointer.slice(1).split('/').reduce(
   (node, part) => node?.[part.replaceAll('~1', '/').replaceAll('~0', '~')], document);
-const beforeCapacity = () => changed(document => {
-  for (const pointer of capacityRegistration.enumPointers) {
+const beforeRegisteredCodes = () => changed(document => {
+  for (const pointer of errorCodeRegistration.enumPointers) {
     const values = atPointer(document, pointer);
-    for (const code of capacityCodes) {
+    for (const code of registeredCodes) {
       assert.ok(values.includes(code), pointer);
       values.splice(values.indexOf(code), 1);
     }
   }
 });
 
-test('registered capacity additions cover only reviewed values and historical enum locations without mutating inputs', () => {
-  assert.deepEqual(Object.entries(capacityRegistration.additions).map(([code, entry]) => [code, entry.httpStatus]),
-    [['RUN_USER_CAPACITY', 429], ['RUN_QUEUE_FULL', 503]]);
-  assert.equal(new Set(capacityRegistration.enumPointers).size, capacityRegistration.enumPointers.length);
-  for (const pointer of capacityRegistration.enumPointers) {
+test('registered error codes cover only reviewed values and enum locations without mutating inputs', () => {
+  assert.deepEqual(Object.entries(errorCodeRegistration.additions).map(([code, entry]) => [code, entry.httpStatus]),
+    [['RUN_USER_CAPACITY', 429], ['RUN_QUEUE_FULL', 503], ['AI_TIMEOUT', 504], ['AI_NETWORK_ERROR', 502], ['AI_AUTH_FAILED', 502],
+      ['AI_CONFIGURATION_ERROR', 503], ['AI_RATE_LIMITED', 503], ['AI_INVALID_RESPONSE', 502], ['AI_CIRCUIT_OPEN', 503],
+      ['RESUME_IMPORT_VALIDATION_FAILED', 502]]);
+  assert.equal(new Set(errorCodeRegistration.enumPointers).size, errorCodeRegistration.enumPointers.length);
+  for (const pointer of errorCodeRegistration.enumPointers) {
     assert.ok(Array.isArray(atPointer(baseline, pointer)), pointer);
-    for (const code of capacityCodes) assert.ok(atPointer(baseline, pointer).includes(code), pointer);
+    for (const code of registeredCodes) assert.ok(atPointer(baseline, pointer).includes(code), pointer);
   }
-  const old = beforeCapacity(), savedOld = structuredClone(old), savedCurrent = structuredClone(baseline);
+  const old = beforeRegisteredCodes(), savedOld = structuredClone(old), savedCurrent = structuredClone(baseline);
   assert.notDeepEqual(compareContracts(old, baseline), []);
-  assert.deepEqual(compareContracts(runCapacityBaseline(old, baseline), baseline), []);
-  const adjusted = runCapacityBaseline(old, baseline);
-  assert.deepEqual(runCapacityBaseline(adjusted, baseline), adjusted);
+  assert.deepEqual(compareContracts(registeredErrorCodeBaseline(old, baseline), baseline), []);
+  const adjusted = registeredErrorCodeBaseline(old, baseline);
+  assert.deepEqual(registeredErrorCodeBaseline(adjusted, baseline), adjusted);
   assert.deepEqual(old, savedOld);
   assert.deepEqual(baseline, savedCurrent);
 });
 
-test('capacity registration does not excuse unknown additions, removed values, renamed values or duplicates', () => {
-  const old = beforeCapacity();
-  for (const pointer of capacityRegistration.enumPointers) {
+test('error-code registration does not excuse unknown additions, removed values, renamed values or duplicates', () => {
+  const old = beforeRegisteredCodes();
+  for (const pointer of errorCodeRegistration.enumPointers) {
     for (const mutate of [
       values => values.push('UNREVIEWED_CODE'),
       values => values.splice(values.indexOf('INVALID_REQUEST'), 1),
       values => values.splice(values.indexOf('INVALID_REQUEST'), 1, 'RENAMED_INVALID_REQUEST'),
       values => values.push('RUN_QUEUE_FULL'),
+      values => values.push('AI_TIMEOUT'),
     ]) {
       assert.ok(atPointer(baseline, pointer).includes('INVALID_REQUEST'), pointer);
       const next = changed(document => mutate(atPointer(document, pointer)));
-      assert.notDeepEqual(compareContracts(runCapacityBaseline(old, next), next), [], pointer);
+      assert.notDeepEqual(compareContracts(registeredErrorCodeBaseline(old, next), next), [], pointer);
     }
   }
 });
 
-test('capacity values cannot change unregistered enums and cannot be removed once present in the baseline', () => {
-  const old = beforeCapacity();
+test('registered error codes cannot change unregistered enums and cannot be removed once present in the baseline', () => {
+  const old = beforeRegisteredCodes();
   old.components.schemas.UnrelatedStatus = { type: 'string', enum: ['OPEN'] };
   const next = structuredClone(old);
-  next.components.schemas.UnrelatedStatus.enum.push(...capacityCodes);
-  assert.notDeepEqual(compareContracts(runCapacityBaseline(old, next), next), []);
+  next.components.schemas.UnrelatedStatus.enum.push(...registeredCodes);
+  assert.notDeepEqual(compareContracts(registeredErrorCodeBaseline(old, next), next), []);
   // 名称像统一响应也不构成授权，必须逐位置登记。
   const unregistered = 'cn.edu.whu.zhizhida.common.ApiResponseUnregistered';
   old.components.schemas[unregistered] = { type: 'object', properties: { code: { type: 'string', enum: ['INVALID_REQUEST'] } } };
   const inline = structuredClone(old);
-  inline.components.schemas[unregistered].properties.code.enum.push(...capacityCodes);
-  assert.notDeepEqual(compareContracts(runCapacityBaseline(old, inline), inline), []);
-  for (const pointer of capacityRegistration.enumPointers) {
-    for (const code of capacityCodes) {
+  inline.components.schemas[unregistered].properties.code.enum.push(...registeredCodes);
+  assert.notDeepEqual(compareContracts(registeredErrorCodeBaseline(old, inline), inline), []);
+  for (const pointer of errorCodeRegistration.enumPointers) {
+    for (const code of registeredCodes) {
       const removed = changed(document => {
         const values = atPointer(document, pointer); values.splice(values.indexOf(code), 1);
       });
-      assert.notDeepEqual(compareContracts(runCapacityBaseline(baseline, removed), removed), [], pointer);
+      assert.notDeepEqual(compareContracts(registeredErrorCodeBaseline(baseline, removed), removed), [], pointer);
     }
   }
 });
 
-test('capacity baseline keeps response structure, validation and authentication changes visible', () => {
-  const old = beforeCapacity();
+test('error-code baseline keeps response structure, validation and authentication changes visible', () => {
+  const old = beforeRegisteredCodes();
   for (const mutation of [
     document => { delete document.paths['/api/resumes'].post.responses['200']; },
     document => { document.paths['/api/resumes'].get.security = []; },
@@ -87,7 +92,102 @@ test('capacity baseline keeps response structure, validation and authentication 
     document => { document.components.schemas.ErrorCode.nullable = true; },
   ]) {
     const next = changed(mutation);
-    assert.notDeepEqual(compareContracts(runCapacityBaseline(old, next), next), []);
+    assert.notDeepEqual(compareContracts(registeredErrorCodeBaseline(old, next), next), []);
+  }
+});
+
+test('registered timeout response permits only the new 504 uniform error response', () => {
+  assert.equal(errorCodeRegistration.timeoutResponse.status, '504');
+  const old = changed(document => {
+    delete document.paths['/api/resumes/import/parse'].post.responses['504'];
+  });
+  assert.notDeepEqual(compareContracts(old, baseline), []);
+  assert.deepEqual(compareContracts(registeredErrorCodeBaseline(old, baseline), baseline), []);
+  for (const mutation of [
+    responses => { responses['504'].content['application/json'].schema.$ref = '#/components/schemas/ErrorCode'; },
+    responses => { responses['504'].headers = { 'Retry-After': { schema: { type: 'string' } } }; },
+    responses => { responses['505'] = structuredClone(responses['504']); },
+  ]) {
+    const next = changed(document => mutation(document.paths['/api/resumes/import/parse'].post.responses));
+    assert.notDeepEqual(compareContracts(registeredErrorCodeBaseline(old, next), next), []);
+  }
+  assert.notDeepEqual(compareContracts(registeredErrorCodeBaseline(baseline, old), old), []);
+  const rewritten = changed(document => {
+    document.paths['/api/resumes/import/parse'].post.responses['504'].content['application/json'].schema.type = 'string';
+  });
+  assert.notDeepEqual(compareContracts(registeredErrorCodeBaseline(baseline, rewritten), rewritten), []);
+});
+
+const beforeImportResult = () => changed(document => {
+  const change = importResultRegistration;
+  document.paths[change.path][change.method].responses[change.status].content[change.mediaType].schema.$ref =
+    '#/components/schemas/' + change.previousEnvelope;
+  document.components.schemas[change.previousEnvelope] = structuredClone(document.components.schemas[change.envelope]);
+  document.components.schemas[change.previousEnvelope].properties.data.$ref = '#/components/schemas/' + change.draftSchema;
+  delete document.components.schemas[change.envelope];
+  for (const name of Object.keys(change.schemas)) delete document.components.schemas[name];
+});
+
+test('reviewed import result migrates only its response wrapper and preserves input snapshots', () => {
+  assert.equal(importResultRegistration.path, '/api/resumes/import/parse');
+  assert.equal(importResultRegistration.method, 'post');
+  assert.equal(importResultRegistration.status, '200');
+  const old = beforeImportResult(), savedOld = structuredClone(old), savedCurrent = structuredClone(baseline);
+  assert.notDeepEqual(compareContracts(old, baseline), []);
+  const adjusted = resumeImportResultBaseline(old, baseline);
+  assert.deepEqual(compareContracts(adjusted, baseline), []);
+  assert.deepEqual(adjusted.components.schemas[importResultRegistration.draftSchema],
+    old.components.schemas[importResultRegistration.draftSchema]);
+  assert.deepEqual(resumeImportResultBaseline(adjusted, baseline), adjusted);
+  assert.deepEqual(old, savedOld);
+  assert.deepEqual(baseline, savedCurrent);
+});
+
+test('import migration requires the reviewed draft, warning and recognition mode schemas', () => {
+  const old = beforeImportResult(), result = importResultRegistration.resultSchema;
+  for (const mutate of [
+    schemas => { schemas[result].properties.draft.$ref = '#/components/schemas/' + dto; },
+    schemas => { schemas[result].properties.recognitionMode.enum.push('GUESS'); },
+    schemas => { schemas[result].required = ['draft']; },
+    schemas => { schemas[result + '$Draft'].properties.ownerName.minLength = 1; },
+    schemas => { schemas[result + '$Warning'].properties.code.enum.push('UNKNOWN'); },
+    schemas => { schemas[result + '$Warning'].properties.message.type = 'object'; },
+  ]) {
+    const next = changed(document => mutate(document.components.schemas));
+    assert.notDeepEqual(compareContracts(resumeImportResultBaseline(old, next), next), []);
+    assert.notDeepEqual(compareContracts(resumeImportResultBaseline(baseline, next), next), []);
+  }
+});
+
+test('import response permits blank identity while create and update still require nonblank identity', () => {
+  const schemaAt = ref => baseline.components.schemas[ref.slice('#/components/schemas/'.length)];
+  const envelope = schemaAt(baseline.paths['/api/resumes/import/parse'].post.responses['200'].content['application/json'].schema.$ref);
+  const result = schemaAt(envelope.properties.data.$ref);
+  const draft = schemaAt(result.properties.draft.$ref);
+  for (const field of ['ownerName', 'targetRole']) {
+    assert.ok(draft.required.includes(field));
+    assert.deepEqual(draft.properties[field], { type: 'string' });
+    for (const [path, method] of [['/api/resumes', 'post'], ['/api/resumes/{id}', 'put']]) {
+      const request = schemaAt(baseline.paths[path][method].requestBody.content['application/json'].schema.$ref);
+      assert.ok(request.required.includes(field));
+      assert.equal(request.properties[field].minLength, 1);
+    }
+  }
+});
+
+test('import migration does not excuse envelope, request, auth or other response changes', () => {
+  const old = beforeImportResult(), change = importResultRegistration;
+  for (const mutation of [
+    document => { document.components.schemas[change.envelope].required = ['data']; },
+    document => { document.components.schemas[change.envelope].properties.code.enum.push('UNREVIEWED_CODE'); },
+    document => { document.components.schemas[change.draftSchema].properties.ownerName.minLength = 8; },
+    document => { document.paths[change.path].post.parameters[0].required = true; },
+    document => { document.paths[change.path].post.security = []; },
+    document => { delete document.paths[change.path].post.responses['504']; },
+    document => { document.paths['/api/resumes'].post.responses['200'] = structuredClone(document.paths[change.path].post.responses['200']); },
+  ]) {
+    const next = changed(mutation);
+    assert.notDeepEqual(compareContracts(registeredErrorCodeBaseline(resumeImportResultBaseline(old, next), next), next), []);
   }
 });
 

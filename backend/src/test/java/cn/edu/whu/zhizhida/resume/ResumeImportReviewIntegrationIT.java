@@ -30,7 +30,10 @@ class ResumeImportReviewIntegrationIT extends IntegrationTestBase {
                 var parsed = mockMvc.perform(multipart("/api/resumes/import/parse").file(file)
                         .header("Authorization", "Bearer " + owner)).andReturn();
                 assertThat(parsed.getResponse().getStatus()).isEqualTo(200);
-                assertThat(((Map<?, ?>) parseJsonResult(parsed).get("data")).containsKey("id")).isFalse();
+                var result = (Map<?, ?>) parseJsonResult(parsed).get("data");
+                assertThat(((Map<?, ?>) result.get("draft")).containsKey("id")).isFalse();
+                assertThat(result.get("recognitionMode")).isEqualTo("LOCAL");
+                assertThat((java.util.List<?>) result.get("warnings")).isEmpty();
             }
             assertThat((java.util.List<?>) parseJsonResult(performGet("/api/resumes", owner)).get("data")).isEmpty();
             assertThat(performPost("/api/resumes", Map.of("ownerName", "", "targetRole", "Java"), owner)

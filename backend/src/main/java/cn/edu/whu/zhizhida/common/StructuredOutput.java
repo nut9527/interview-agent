@@ -19,7 +19,11 @@ public final class StructuredOutput {
             "agentDecision.gap", "agentDecision.nextCompetencyId", "agentDecision.reason", "agentDecision.practice", "agentDecision.intent",
             "level", "action", "probe", "gap", "nextCompetencyId", "reason", "practice", "intent",
             "agentInputBudget", "agentContext", "version", "phase", "result",
-            "knowledgeQuestions", "knowledgeQuestion", "knowledgeQuestionSource", "knowledgeQuestionQuote", "knowledgeQuestionText");
+            "knowledgeQuestions", "knowledgeQuestion", "knowledgeQuestionSource", "knowledgeQuestionQuote", "knowledgeQuestionText",
+            "ownerName", "targetRole", "summary", "skills", "educationExperiences", "projectExperiences",
+            "internshipExperiences", "certificates", "details", "education", "school", "major", "degree", "startDate", "endDate",
+            "projects", "name", "role", "period", "background", "contributions", "techStack", "graduationDate", "availability",
+            "contact", "phone", "email", "location", "links", "url", "label");
     private StructuredOutput() { }
 
     public static String text(JsonNode payload, String field, int maxLength) {

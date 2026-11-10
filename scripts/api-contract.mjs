@@ -9,7 +9,8 @@ const snapshot = resolve(root, 'contracts/openapi.json');
 const generated = resolve(root, 'frontend/src/types/generated/openapi.ts');
 const retirements = JSON.parse(readFileSync(resolve(root, 'contracts/interview-focus-retirements.json'), 'utf8'));
 const boot41Documentation = JSON.parse(readFileSync(resolve(root, 'contracts/spring-boot-4.1-documentation.json'), 'utf8'));
-const runCapacityErrors = JSON.parse(readFileSync(resolve(root, 'contracts/run-capacity-error-codes.json'), 'utf8'));
+const errorCodeAdditions = JSON.parse(readFileSync(resolve(root, 'contracts/error-code-additions.json'), 'utf8'));
+const resumeImportResult = JSON.parse(readFileSync(resolve(root, 'contracts/resume-import-result.json'), 'utf8'));
 const methods = new Set(['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace']);
 const annotations = new Set(['description', 'summary', 'title', 'example', 'examples', 'externalDocs', 'tags']);
 const schemaKeys = new Set(['$ref', 'type', 'enum', 'nullable', 'properties', 'required', 'items',
@@ -205,18 +206,49 @@ export function springBoot41Baseline(before, after) {
   return baseline;
 }
 
-/** 仅补入明确登记的位置与错误码；不改写既有值，删除或其他枚举变更仍由严格比较拒绝。 */
-export function runCapacityBaseline(before, after) {
+/** 仅补入登记的错误码与统一超时响应；既有值、其他结构和约束仍由严格比较保护。 */
+export function registeredErrorCodeBaseline(before, after) {
   const baseline = structuredClone(before);
-  for (const pointer of runCapacityErrors.enumPointers) {
+  for (const pointer of errorCodeAdditions.enumPointers) {
     const parts = pointer.slice(1).split('/').map(part => part.replaceAll('~1', '/').replaceAll('~0', '~'));
     let previous = baseline, current = after;
     for (const part of parts) { previous = previous?.[part]; current = current?.[part]; }
     if (!Array.isArray(previous) || !Array.isArray(current)) continue;
-    for (const code of Object.keys(runCapacityErrors.additions)) {
+    for (const code of Object.keys(errorCodeAdditions.additions)) {
       if (!previous.includes(code) && current.includes(code)) previous.push(code);
     }
   }
+  const timeout = errorCodeAdditions.timeoutResponse;
+  for (const [path, item] of Object.entries(baseline.paths)) for (const [method, operation] of Object.entries(item)) {
+    if (!methods.has(method)) continue;
+    const current = after.paths[path]?.[method]?.responses?.[timeout.status];
+    if (!Object.hasOwn(operation.responses, timeout.status)
+        && isDeepStrictEqual(structural(operation.responses['503']), timeout.response)
+        && isDeepStrictEqual(structural(current), timeout.response)) {
+      operation.responses[timeout.status] = structuredClone(current);
+    }
+  }
+  return baseline;
+}
+
+/** 仅迁移登记的导入成功响应；原 envelope 的校验、错误码和其他接口继续参与严格比较。 */
+export function resumeImportResultBaseline(before, after) {
+  const baseline = structuredClone(before);
+  const change = resumeImportResult;
+  const content = document => document.paths[change.path]?.[change.method]?.responses?.[change.status]?.content?.[change.mediaType];
+  const ref = name => ({ $ref: '#/components/schemas/' + name });
+  const previous = content(baseline), current = content(after);
+  const envelope = baseline.components.schemas[change.previousEnvelope];
+  if (!isDeepStrictEqual(previous?.schema, ref(change.previousEnvelope))
+      || !isDeepStrictEqual(current?.schema, ref(change.envelope))
+      || !isDeepStrictEqual(envelope?.properties?.data, ref(change.draftSchema))
+      || baseline.components.schemas[change.envelope]
+      || Object.entries(change.schemas).some(([name, schema]) =>
+        !isDeepStrictEqual(structural(after.components.schemas[name]), structural(schema)))) return baseline;
+  previous.schema = ref(change.envelope);
+  baseline.components.schemas[change.envelope] = structuredClone(envelope);
+  baseline.components.schemas[change.envelope].properties.data = ref(change.resultSchema);
+  if (!after.components.schemas[change.previousEnvelope]) delete baseline.components.schemas[change.previousEnvelope];
   return baseline;
 }
 
@@ -229,7 +261,7 @@ function checkBase(document, reference) {
   }
   const before = JSON.parse(execFileSync('git', ['show', `${reference}:contracts/openapi.json`], { cwd: root, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }));
   const baseline = springBoot41Baseline(interviewFocusBaseline(before, document), document);
-  const errors = compareContracts(runCapacityBaseline(baseline, document), document);
+  const errors = compareContracts(registeredErrorCodeBaseline(resumeImportResultBaseline(baseline, document), document), document);
   if (errors.length) throw new Error(`Incompatible API change against ${reference}:\n${errors.join('\n')}`);
   console.log(`Existing contract preserved against ${reference}.`);
 }

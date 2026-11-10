@@ -1,5 +1,7 @@
 package cn.edu.whu.zhizhida.resume;
 
+import cn.edu.whu.zhizhida.resume.api.ResumeImportResult;
+
 import cn.edu.whu.zhizhida.resume.api.ResumeVersionView.ResumeVersionSummary;
 import cn.edu.whu.zhizhida.common.PageResult;
 import cn.edu.whu.zhizhida.common.PageRequest;
@@ -79,7 +81,7 @@ public class DefaultResumeService implements ResumeService {
     }
 
     @Override
-    public ResumeProfileRequest parseDocument(MultipartFile file, String targetRole) {
+    public ResumeImportResult parseDocument(MultipartFile file, String targetRole) {
         currentUserId();
         return documentImporter.importDocument(file, targetRole);
     }

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Form, Input, Modal, Upload } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
-import { resumeImportNotice, resumeService } from '@/api/modules/resume';
+import { resumeImportNotice, resumeService, type ResumeImportResult } from '@/api/modules/resume';
 import { ContactFields, EducationFields, ProjectFields } from '@/components/resume/ResumeDetailFields';
+import ResumeImportReview from '@/components/resume/ResumeImportReview';
+import { importWarningTarget } from '@/components/resume/importReview';
 import { targetJobService } from '@/api/modules/targetJob';
 import { captureAccountScope } from '@/api/accountScope';
 import { isRequestCanceled } from '@/api/ApiError';
@@ -37,7 +39,7 @@ const lines = (value: string | undefined) => (value ?? '').split('\n').map(line 
 
 export function ResumeImport({ onClose, onSaved }: { onClose: () => void; onSaved: (resume: ResumeProfile) => void }) {
   const [form] = Form.useForm<ResumeFields>();
-  const [parsed, setParsed] = useState<ResumeProfileRequest | null>(null);
+  const [parsed, setParsed] = useState<ResumeImportResult | null>(null);
   const request = useImportRequest();
   const importFile = (file: File) => {
     if (!/\.(pdf|doc|docx)$/i.test(file.name) || file.size === 0 || file.size > 5 * 1024 * 1024) {
@@ -45,9 +47,10 @@ export function ResumeImport({ onClose, onSaved }: { onClose: () => void; onSave
     }
     void request.run(signal => resumeService.parseDocument(file, signal), result => {
       setParsed(result);
-      form.setFieldValue('details', result.details);
-      form.setFieldsValue({ ownerName: result.ownerName, targetRole: result.targetRole, summary: result.summary ?? '',
-        ...Object.fromEntries(sections.map(([key]) => [key, (result[key] ?? []).join('\n')])) });
+      const { draft } = result;
+      form.setFieldValue('details', draft.details);
+      form.setFieldsValue({ ownerName: draft.ownerName, targetRole: draft.targetRole, summary: draft.summary ?? '',
+        ...Object.fromEntries(sections.map(([key]) => [key, (draft[key] ?? []).join('\n')])) });
     });
     return false;
   };
@@ -64,7 +67,16 @@ export function ResumeImport({ onClose, onSaved }: { onClose: () => void; onSave
       <p role="status">{request.saving ? '正在保存简历…' : request.busy ? '正在识别简历，可取消等待' : '点击或拖入简历文件'}</p>
       <p className="ant-upload-hint">文字型 PDF、DOC、DOCX，最大 5 MB，PDF 最多 30 页。</p>
     </Upload.Dragger>
-    {parsed && <Alert type="info" showIcon message="请逐项核对下方内容，确认保存后即可用于面试。" className={styles.feedback} />}
+    {parsed && <ResumeImportReview review={parsed} message="请逐项核对下方内容，确认保存后即可用于面试。" className={styles.feedback}
+      onLocate={field => {
+        const target = importWarningTarget(field);
+        if (target.formField) form.scrollToField(target.formField, { block: 'center', focus: true });
+        else {
+          const section = document.getElementById(`interview-${target.section}`);
+          section?.focus({ preventScroll: true });
+          section?.scrollIntoView({ block: 'center' });
+        }
+      }} />}
     {request.error && <Alert type="error" showIcon message={request.error} className={styles.feedback} />}
     <Form form={form} layout="vertical" className={styles.importForm} onFinish={save} disabled={request.busy}>
       <div className={styles.formRow}><Form.Item name="ownerName" label="姓名 / 简历称呼" rules={[{ required: true, whitespace: true, max: 80 }]}><Input maxLength={80} /></Form.Item>
@@ -75,13 +87,13 @@ export function ResumeImport({ onClose, onSaved }: { onClose: () => void; onSave
           ? Promise.resolve() : Promise.reject(new Error('最多 100 项，每项不超过 3000 字；请精简后保存。')) }]}>
         <Input.TextArea rows={rows} placeholder={key === 'skills' ? 'Java\nMySQL\nSpring Boot' : undefined} />
       </Form.Item>)}
-      {parsed?.details?.contact && <ContactFields />}
-      {!!parsed?.details?.education?.length && <EducationFields />}
-      {parsed?.details?.graduationDate && <Form.Item name={['details', 'graduationDate']} label="预计毕业年月">
+      {parsed && <div id="interview-resume-identity" tabIndex={-1}><ContactFields /></div>}
+      {parsed && <div id="interview-resume-education" tabIndex={-1}><EducationFields /></div>}
+      {parsed && <Form.Item name={['details', 'graduationDate']} label="预计毕业年月">
         <Input maxLength={120} />
       </Form.Item>}
-      {!!parsed?.details?.projects?.length && <ProjectFields />}
-      {parsed?.details?.availability && <Form.Item name={['details', 'availability']} label="实习安排">
+      {parsed && <div id="interview-resume-projects" tabIndex={-1}><ProjectFields /></div>}
+      {parsed && <Form.Item name={['details', 'availability']} label="实习安排">
         <Input maxLength={200} />
       </Form.Item>}
       <div className={styles.dialogActions}><Button disabled={request.saving} onClick={onClose}>取消</Button><Button type="primary" htmlType="submit" loading={request.saving}>确认保存并用于面试</Button></div>

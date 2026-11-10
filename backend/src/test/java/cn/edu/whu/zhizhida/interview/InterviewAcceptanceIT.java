@@ -190,7 +190,7 @@ class InterviewAcceptanceIT {
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document", bytes))
                     .header("Authorization", "Bearer " + token)).andReturn());
             assertThat(data(performGet("/api/resumes", token))).isEmpty();
-            var corrected = (ObjectNode) parsed.deepCopy(); corrected.put("ownerName", "核对后的候选人");
+            var corrected = (ObjectNode) parsed.path("draft").deepCopy(); corrected.put("ownerName", "核对后的候选人");
             var project = corrected.putObject("details").putArray("projects").addObject()
                     .put("name", "订单履约服务").put("role", "接口负责人").put("background", "订单交付");
             project.putArray("contributions").add("我负责订单接口设计与对照测试");

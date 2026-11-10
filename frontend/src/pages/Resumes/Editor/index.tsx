@@ -18,6 +18,8 @@ import ResumePreviewModal from '@/components/resume/ResumePreviewModal';
 import { toRequest } from './editorData';
 import type { ResumeProfile } from '@/types/api.d';
 import { useResumeEditorStatus } from '@/stores/resumeEditorStatus';
+import ResumeImportReview from '@/components/resume/ResumeImportReview';
+import { importWarningTarget } from '@/components/resume/importReview';
 
 function ResumeEditor({ resumeId, draftKey, freshImport, onCreated }: {
   resumeId: number | null; draftKey: DraftKey; freshImport: boolean; onCreated: (id: number) => void;
@@ -102,8 +104,11 @@ function ResumeEditor({ resumeId, draftKey, freshImport, onCreated }: {
           onClick={handleSubmit}>{state.imported ? '确认并保存导入' : '保存'}</Button>
       </div>
     </header>
-    {state.imported && <Alert type="info" showIcon style={{ marginBlock: 16 }}
-      message="请核对导入的联系方式、日期和经历，再确认保存。" />}
+    {state.imported && <ResumeImportReview review={state.importReview} onLocate={field => {
+      const target = document.getElementById(importWarningTarget(field).section);
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({ block: 'start' });
+    }} />}
     <div role="status" aria-live="polite" className={styles.status}>
       <Typography.Text strong>{status}</Typography.Text>
       <Typography.Text type="secondary">{state.savedAt ? ` · 最近保存 ${new Date(state.savedAt).toLocaleTimeString()}` : ''}
@@ -134,7 +139,7 @@ function ResumeEditor({ resumeId, draftKey, freshImport, onCreated }: {
       <Skeleton loading={state.loading && !state.ready} active>
         <Form form={form} className={styles.form} layout="vertical" disabled={locked}
           initialValues={formValues()} onValuesChange={() => controller.current?.edit(normalizeValues(form.getFieldsValue(true)))}>
-          <ResumeEditorFields key={formEpoch} />
+          <ResumeEditorFields key={formEpoch} imported={state.imported} />
         </Form>
       </Skeleton>
     </div>

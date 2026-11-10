@@ -1,4 +1,5 @@
 import { onAccountReset } from '@/api/accountScope';
+import type { ResumeImportReview } from '@/api/modules/resume';
 import { formValues, normalizeValues, type EditorValues } from './editorData';
 
 const PREFIX = 'zhizhida:resume-draft:v1:';
@@ -13,8 +14,15 @@ export interface ResumeDraft {
   base: EditorValues;
   values: EditorValues;
   imported: boolean;
+  importReview?: ResumeImportReview;
 }
 const keyFor = (userId: number, key: DraftKey) => `${PREFIX}${userId}:${key}`;
+
+function validImportReview(value: ResumeImportReview | undefined): boolean {
+  return value === undefined || !!value && ['AI', 'LOCAL'].includes(value.recognitionMode)
+    && Array.isArray(value.warnings) && value.warnings.every(warning => warning
+      && typeof warning.field === 'string' && typeof warning.code === 'string' && typeof warning.message === 'string');
+}
 
 // 存储内容视为不可信输入，允许未完成的表单，拒绝格式错误的结构。
 function validValues(value: unknown): value is EditorValues {
@@ -47,7 +55,8 @@ export function readDraft(userId: number, key: DraftKey, now = Date.now()): { dr
     if (!value || raw.length > 1_000_000 || value.schema !== 1 || value.userId !== userId || value.key !== key
       || !Number.isFinite(value.updatedAt) || value.updatedAt > now || now - value.updatedAt > DRAFT_TTL
       || (typeof key === 'number' && (!Number.isSafeInteger(value.revision) || value.revision! < 0))
-      || typeof value.imported !== 'boolean' || !validValues(value.values) || !validValues(value.base)) {
+      || typeof value.imported !== 'boolean' || !validImportReview(value.importReview)
+      || !validValues(value.values) || !validValues(value.base)) {
       sessionStorage.removeItem(keyFor(userId, key));
       return { draft: null, error: '草稿已过期或损坏，已忽略。' };
     }
@@ -67,9 +76,9 @@ export function writeDraft(draft: ResumeDraft): boolean {
 export function removeDraft(userId: number, key: DraftKey): boolean {
   try { sessionStorage.removeItem(keyFor(userId, key)); return true; } catch { return false; }
 }
-export function stageImport(userId: number, values: EditorValues) {
+export function stageImport(userId: number, values: EditorValues, importReview?: ResumeImportReview) {
   pruneExpiredDrafts();
-  return writeDraft({ schema: 1, userId, key: 'import', updatedAt: Date.now(), base: formValues(), values, imported: true });
+  return writeDraft({ schema: 1, userId, key: 'import', updatedAt: Date.now(), base: formValues(), values, imported: true, importReview });
 }
 
 export function pruneExpiredDrafts(now = Date.now()) {

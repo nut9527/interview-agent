@@ -4,9 +4,14 @@ import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
 import cn.edu.whu.zhizhida.common.BusinessException;
 import cn.edu.whu.zhizhida.common.ErrorCode;
 import cn.edu.whu.zhizhida.common.StructuredOutput;
-import cn.edu.whu.zhizhida.resume.api.ResumeProfile.ResumeProfileRequest;
+import cn.edu.whu.zhizhida.common.UpstreamServiceException;
+import cn.edu.whu.zhizhida.resume.api.ResumeImportResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tools.jackson.databind.JsonNode;
 
 final class AiResumeImportRecognizer implements ResumeImportRecognizer {
+    private static final Logger log = LoggerFactory.getLogger(AiResumeImportRecognizer.class);
     private static final int MAX_INPUT_CHARS = 32_000;
     private static final int MAX_OUTPUT_TOKENS = 8_192;
     private static final String SYSTEM_PROMPT = """
@@ -44,18 +49,43 @@ final class AiResumeImportRecognizer implements ResumeImportRecognizer {
     }
 
     @Override
-    public ResumeProfileRequest recognize(String text, String fileName, String fallbackTargetRole) {
+    public ResumeImportResult recognize(String text, String fileName, String fallbackTargetRole) {
         if (text.length() > MAX_INPUT_CHARS) {
+            log.warn("Resume import; stage=model outcome=rejected reason=INPUT_TOO_LONG textChars={}", text.length());
             throw new BusinessException("AI 识别支持最多 32000 个字符，请精简简历后重新导入。");
         }
         // 文件名与调用者提供的岗位仅用于本地处理，模型只接收提取的正文。
-        var payload = client.completeJsonDirectly(SYSTEM_PROMPT, text, 0.0, MAX_OUTPUT_TOKENS);
-        var local = localParser.parse(text, fileName, fallbackTargetRole);
+        long started = System.nanoTime();
+        JsonNode payload;
         try {
-            return ResumeAiImportOutput.parse(payload, text, local, fallbackTargetRole);
+            payload = client.completeJsonDirectly(SYSTEM_PROMPT, text, 0.0, MAX_OUTPUT_TOKENS);
+        } catch (UpstreamServiceException ex) {
+            log.warn("Resume import; stage=model outcome=failure code={} durationMs={}",
+                    ex.errorCode(), (System.nanoTime() - started) / 1_000_000);
+            throw ex;
+        } catch (BusinessException ex) {
+            log.warn("Resume import; stage=model outcome=rejected code={} durationMs={}",
+                    ex.code(), (System.nanoTime() - started) / 1_000_000);
+            throw ex;
+        }
+        log.info("Resume import; stage=model outcome=success durationMs={}",
+                (System.nanoTime() - started) / 1_000_000);
+        var local = localParser.parse(text, fileName, fallbackTargetRole);
+        started = System.nanoTime();
+        try {
+            var result = ResumeAiImportOutput.parse(payload, text, local, fallbackTargetRole);
+            for (var warning : result.warnings()) {
+                log.warn("Resume import; stage=validate outcome=partial field={} reason={}", warning.field(), warning.code());
+            }
+            log.info("Resume import; stage=validate outcome={} warnings={} durationMs={}",
+                    result.warnings().isEmpty() ? "success" : "partial", result.warnings().size(),
+                    (System.nanoTime() - started) / 1_000_000);
+            return result;
         } catch (StructuredOutput.FieldValidationException ex) {
-            throw new BusinessException(ErrorCode.UPSTREAM_FAILURE,
-                    "AI 返回的字段未通过原文或格式校验。请重新识别，或检查文档中的文字能否正常复制。");
+            log.warn("Resume import; stage=validate outcome=failure field={} reason={} durationMs={}",
+                    ex.fieldPath(), ex.reason(), (System.nanoTime() - started) / 1_000_000);
+            throw new BusinessException(ErrorCode.RESUME_IMPORT_VALIDATION_FAILED,
+                    "AI 返回的字段未通过原文或格式校验，请重新识别。可提供请求编号排查具体字段。");
         }
     }
 }

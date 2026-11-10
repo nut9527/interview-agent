@@ -110,9 +110,23 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(UpstreamServiceException.class)
     public ResponseEntity<ApiResponse<Void>> handleUpstream(UpstreamServiceException ex) {
-        // 异常类型决定 HTTP 分类；内部 reason 不作为面向用户的错误文案。
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                .body(ApiResponse.fail(ErrorCode.UPSTREAM_FAILURE, "AI 服务暂时不可用或返回内容无效，请稍后重试。"));
+        ErrorCode code = ex.errorCode();
+        String reason = ex instanceof InvalidModelOutputException output ? output.reason().name()
+                : ex instanceof StructuredOutput.FieldValidationException field ? field.reason().name() : "NONE";
+        log.warn("AI request failed; code={} upstreamCode={} reason={} type={}",
+                code, ex.code(), reason, ex.getClass().getSimpleName());
+        String message = switch (code) {
+            case AI_TIMEOUT -> "AI 处理超时，请稍后重试。";
+            case AI_NETWORK_ERROR -> "连接 AI 服务失败，请稍后重试。";
+            case AI_AUTH_FAILED -> "AI 服务鉴权失败，请联系管理员检查模型凭据。";
+            case AI_CONFIGURATION_ERROR -> "AI 服务尚未配置，请联系管理员。";
+            case AI_RATE_LIMITED -> "AI 服务请求受限，请稍后重试。";
+            case AI_INVALID_RESPONSE -> ex instanceof InvalidModelOutputException output
+                    && output.reason() == InvalidModelOutputException.Reason.TRUNCATED
+                    ? "AI 返回内容被截断，请精简输入后重试。" : "AI 返回内容格式无效，请重新识别或重试。";
+            default -> "AI 服务暂时不可用或返回内容无效，请稍后重试。";
+        };
+        return ResponseEntity.status(code.httpStatus()).body(ApiResponse.fail(code, message));
     }
 
     @ExceptionHandler(Exception.class)

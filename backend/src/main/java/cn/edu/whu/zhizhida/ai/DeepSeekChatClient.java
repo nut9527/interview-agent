@@ -145,27 +145,15 @@ public class DeepSeekChatClient implements JsonChatClient {
     }
 
     private JsonChatResponse send(ObjectNode body, Duration requestTimeout) {
-        try {
-            // 仅关联追踪：独立 JSON 调用不生成持久 Run 的尝试记录。
-            return new LangChain4jExchange<>(
-                            objectMapper,
-                            transport,
-                            body,
-                            requestTimeout,
-                            "json-" + java.util.UUID.randomUUID(),
-                            this::parsePayload)
-                    .execute(baseUrl, apiKey);
-        } catch (UpstreamServiceException ex) {
-            String code = ex.code();
-            if ("MODEL_HTTP_401".equals(code) || "MODEL_HTTP_403".equals(code))
-                throw new UpstreamServiceException("DeepSeek API 鉴权失败，请检查 DEEPSEEK_API_KEY。", ex);
-            if ("MODEL_HTTP_429".equals(code))
-                throw new UpstreamServiceException("DeepSeek API 请求受限，请检查余额或稍后重试。", ex);
-            if (code != null && code.startsWith("MODEL_HTTP_"))
-                throw new UpstreamServiceException(
-                        "DeepSeek API 调用失败：HTTP " + code.substring(11) + "，请稍后重试。", ex);
-            throw ex;
-        }
+        // 仅关联追踪：独立 JSON 调用不生成持久 Run 的尝试记录。
+        return new LangChain4jExchange<>(
+                        objectMapper,
+                        transport,
+                        body,
+                        requestTimeout,
+                        "json-" + java.util.UUID.randomUUID(),
+                        this::parsePayload)
+                .execute(baseUrl, apiKey);
     }
 
     private Duration requestTimeout(int maxTokens) {
@@ -212,7 +200,7 @@ public class DeepSeekChatClient implements JsonChatClient {
                         .with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
                         .readTree(responseBody);
         if (response == null || !response.isObject()) {
-            throw new UpstreamServiceException("DeepSeek API 响应格式无效，请重试。");
+            throw UpstreamServiceException.coded("MODEL_PROTOCOL");
         }
         ModelUsage usage = DeepSeekUsage.parse(response.path("usage"));
         // 即使后续生成状态或业务字段校验失败，也记录已获得的模型令牌用量。
@@ -224,7 +212,7 @@ public class DeepSeekChatClient implements JsonChatClient {
                     InvalidModelOutputException.Reason.TRUNCATED, "DeepSeek API 输出被截断，请重试。");
         }
         if (!"stop".equals(firstChoice.path("finish_reason").asText())) {
-            throw new UpstreamServiceException("DeepSeek API 未正常完成生成，请重试。");
+            throw UpstreamServiceException.coded("MODEL_PROTOCOL");
         }
         JsonNode contentNode = firstChoice.path("message").path("content");
         String content = contentNode.isTextual() ? contentNode.textValue().trim() : "";
@@ -264,8 +252,7 @@ public class DeepSeekChatClient implements JsonChatClient {
 
     private void requireApiKey() {
         if (apiKey == null || apiKey.isBlank()) {
-            throw new UpstreamServiceException(
-                    "DeepSeek API Key 未配置。请设置环境变量 DEEPSEEK_API_KEY 或 AI_API_KEY。");
+            throw UpstreamServiceException.coded("MODEL_CONFIGURATION");
         }
     }
 

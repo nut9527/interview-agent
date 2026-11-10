@@ -11,6 +11,8 @@ import cn.edu.whu.zhizhida.quota.QuotaExceededException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -176,18 +178,68 @@ class ApiExceptionHandlerTest {
         assertThat(response.getBody().message()).isEqualTo("AI 服务暂时不可用或返回内容无效，请稍后重试。");
     }
 
+    @ParameterizedTest
+    @CsvSource({
+        "MODEL_HTTP_401, AI_AUTH_FAILED, 502", "MODEL_HTTP_403, AI_AUTH_FAILED, 502",
+        "MODEL_HTTP_429, AI_RATE_LIMITED, 503", "MODEL_CONFIGURATION, AI_CONFIGURATION_ERROR, 503",
+        "MODEL_HTTP_408, AI_TIMEOUT, 504", "MODEL_HTTP_504, AI_TIMEOUT, 504",
+        "MODEL_NETWORK, AI_NETWORK_ERROR, 502", "MODEL_PROTOCOL, AI_INVALID_RESPONSE, 502",
+        "MODEL_RESPONSE_LIMIT, AI_INVALID_RESPONSE, 502", "MODEL_HTTP_500, UPSTREAM_FAILURE, 502"
+    })
+    void upstreamCodesDeterminePublicClassification(String upstreamCode, ErrorCode expected, int status) {
+        var response = handler.handleUpstream(UpstreamServiceException.coded(upstreamCode,
+                new IllegalStateException("private provider response")));
+        assertThat(response.getStatusCode().value()).isEqualTo(status);
+        assertThat(response.getBody().code()).isEqualTo(expected);
+        assertThat(response.getBody().message()).doesNotContain("private", upstreamCode);
+    }
+
+    @Test
+    void transportDeadlineIsReportedAsTimeoutWithoutChangingTheRunFailureCode() {
+        var ex = UpstreamServiceException.coded("MODEL_NETWORK", new java.net.http.HttpTimeoutException("private URL"));
+        var response = handler.handleUpstream(ex);
+        assertThat(ex.code()).isEqualTo("MODEL_NETWORK");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT);
+        assertThat(response.getBody().code()).isEqualTo(ErrorCode.AI_TIMEOUT);
+    }
+
+    @Test
+    void truncatedOutputIsIdentifiableWithoutLoggingGeneratedContent() {
+        var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ApiExceptionHandler.class);
+        var logs = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        logs.start();
+        logger.addAppender(logs);
+        try {
+            var response = handler.handleUpstream(new InvalidModelOutputException(
+                    InvalidModelOutputException.Reason.TRUNCATED, "private generated content"));
+            assertThat(response.getBody().code()).isEqualTo(ErrorCode.AI_INVALID_RESPONSE);
+            assertThat(response.getBody().message()).contains("截断").doesNotContain("private");
+            assertThat(logs.list).singleElement().satisfies(event -> {
+                assertThat(event.getFormattedMessage()).contains("AI_INVALID_RESPONSE", "TRUNCATED").doesNotContain("private");
+                assertThat(event.getThrowableProxy()).isNull();
+            });
+        } finally {
+            logger.detachAppender(logs);
+            logs.stop();
+        }
+    }
+
     @Test
     void mvcDistinguishesUpstreamFailuresFromInternalStateErrors() throws Exception {
         var mvc =
                 MockMvcBuilders.standaloneSetup(new FailureController())
                         .setControllerAdvice(handler)
                         .build();
-        for (String path : List.of("upstream", "output", "field")) {
+        for (String path : List.of("upstream", "field")) {
             mvc.perform(get("/failure/" + path))
                     .andExpect(status().isBadGateway())
                     .andExpect(jsonPath("$.code").value(ErrorCode.UPSTREAM_FAILURE.name()))
                     .andExpect(jsonPath("$.message").value("AI 服务暂时不可用或返回内容无效，请稍后重试。"));
         }
+        mvc.perform(get("/failure/output"))
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.code").value(ErrorCode.AI_INVALID_RESPONSE.name()))
+                .andExpect(jsonPath("$.message").value("AI 返回内容格式无效，请重新识别或重试。"));
         mvc.perform(get("/failure/internal"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.code").value(ErrorCode.INTERNAL_ERROR.name()))

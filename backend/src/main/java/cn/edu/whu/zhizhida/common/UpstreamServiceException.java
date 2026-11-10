@@ -33,4 +33,21 @@ public class UpstreamServiceException extends IllegalStateException {
     }
 
     public String code() { return code; }
+
+    public ErrorCode errorCode() {
+        if (code == null) return ErrorCode.UPSTREAM_FAILURE;
+        return switch (code) {
+            // 保留 Run 账本的 MODEL_NETWORK 分类，不改变已有重试策略。
+            case "MODEL_NETWORK" -> getCause() instanceof java.net.http.HttpTimeoutException
+                    || getCause() instanceof java.io.IOException io
+                    && io.getCause() instanceof java.net.http.HttpTimeoutException
+                    ? ErrorCode.AI_TIMEOUT : ErrorCode.AI_NETWORK_ERROR;
+            case "MODEL_HTTP_408", "MODEL_HTTP_504" -> ErrorCode.AI_TIMEOUT;
+            case "MODEL_HTTP_401", "MODEL_HTTP_403" -> ErrorCode.AI_AUTH_FAILED;
+            case "MODEL_CONFIGURATION" -> ErrorCode.AI_CONFIGURATION_ERROR;
+            case "MODEL_HTTP_429" -> ErrorCode.AI_RATE_LIMITED;
+            case "MODEL_PROTOCOL", "MODEL_RESPONSE_LIMIT" -> ErrorCode.AI_INVALID_RESPONSE;
+            default -> ErrorCode.UPSTREAM_FAILURE;
+        };
+    }
 }

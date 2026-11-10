@@ -1,0 +1,54 @@
+{
+  "reason": "简历导入预览改为返回草稿、字段警告和识别方式；仅迁移该接口的成功响应，前后端消费者须同步更新。创建与更新简历的请求契约保持不变。",
+  "path": "/api/resumes/import/parse",
+  "method": "post",
+  "status": "200",
+  "mediaType": "application/json",
+  "previousEnvelope": "cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.resume.api.ResumeProfileRequest",
+  "envelope": "cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.resume.api.ResumeImportResult",
+  "draftSchema": "cn.edu.whu.zhizhida.resume.api.ResumeProfileRequest",
+  "resultSchema": "cn.edu.whu.zhizhida.resume.api.ResumeImportResult",
+  "schemas": {
+    "cn.edu.whu.zhizhida.resume.api.ResumeImportResult": {
+      "type": "object",
+      "required": ["draft", "recognitionMode", "warnings"],
+      "properties": {
+        "draft": { "$ref": "#/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeImportResult$Draft" },
+        "recognitionMode": { "type": "string", "enum": ["AI", "LOCAL"] },
+        "warnings": {
+          "type": "array",
+          "items": { "$ref": "#/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeImportResult$Warning" }
+        }
+      }
+    },
+    "cn.edu.whu.zhizhida.resume.api.ResumeImportResult$Draft": {
+      "type": "object",
+      "required": ["certificates", "details", "educationExperiences", "internshipExperiences", "ownerName", "projectExperiences", "skills", "targetRole", "templateKey"],
+      "properties": {
+        "certificates": { "type": "array", "items": { "type": "string" } },
+        "details": { "$ref": "#/components/schemas/cn.edu.whu.zhizhida.resume.api.ResumeDetails" },
+        "educationExperiences": { "type": "array", "items": { "type": "string" } },
+        "internshipExperiences": { "type": "array", "items": { "type": "string" } },
+        "ownerName": { "type": "string" },
+        "projectExperiences": { "type": "array", "items": { "type": "string" } },
+        "revision": { "type": "integer", "format": "int64" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "summary": { "type": "string" },
+        "targetRole": { "type": "string" },
+        "templateKey": { "type": "string" }
+      }
+    },
+    "cn.edu.whu.zhizhida.resume.api.ResumeImportResult$Warning": {
+      "type": "object",
+      "required": ["code", "field", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": ["MISSING_FIELD", "TYPE_MISMATCH", "EMPTY_VALUE", "LIMIT_EXCEEDED", "INVALID_VALUE", "INVALID_JSON", "SEMANTIC_MISMATCH"]
+        },
+        "field": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    }
+  }
+}
