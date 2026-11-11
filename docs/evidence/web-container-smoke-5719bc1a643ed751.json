@@ -1,0 +1,100 @@
+{
+  "run": "5719bc1a643ed751",
+  "startedAt": "2026-11-11T13:29:16.125Z",
+  "builds": [
+    {
+      "service": "mcp-reference",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 2.147
+    },
+    {
+      "service": "frontend",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 2.802
+    }
+  ],
+  "checks": [
+    {
+      "name": "mcp.health",
+      "passed": true
+    },
+    {
+      "name": "mcp.initialize",
+      "passed": true
+    },
+    {
+      "name": "mcp.tools",
+      "passed": true
+    },
+    {
+      "name": "mcp.reference-search",
+      "passed": true,
+      "hits": 1
+    },
+    {
+      "name": "mcp.non-root",
+      "passed": true
+    },
+    {
+      "name": "frontend.health",
+      "passed": true
+    },
+    {
+      "name": "frontend.entry",
+      "passed": true
+    },
+    {
+      "name": "frontend.asset-reference",
+      "passed": true
+    },
+    {
+      "name": "frontend.javascript",
+      "passed": true,
+      "bytes": 125118
+    },
+    {
+      "name": "frontend.spa-route",
+      "passed": true
+    },
+    {
+      "name": "frontend.security-headers",
+      "passed": true
+    }
+  ],
+  "cleanup": [
+    {
+      "name": "zhizhida-web-acceptance-frontend-5719bc1a643ed751",
+      "removed": true
+    },
+    {
+      "name": "zhizhida-web-acceptance-mcp-5719bc1a643ed751",
+      "removed": true
+    }
+  ],
+  "mcpImage": {
+    "tag": "zhizhida-mcp-reference:acceptance-20261111",
+    "imageId": "sha256:52103498b8bcb843311a740131c16470b376faae4e559f556933be5715807cc5"
+  },
+  "frontendImage": {
+    "tag": "zhizhida-frontend:acceptance-20261111",
+    "imageId": "sha256:7a7b6779b0d4d9c5483f23589ce800485a71b2ff0db69a8be1701618a745e5f7"
+  },
+  "passed": true,
+  "scope": "Real Docker builds and HTTP checks; frontend static assets/SPA only, no backend API integration.",
+  "finishedAt": "2026-11-11T13:29:25.323Z",
+  "initialFrontendBuild": {
+    "exitCode": 0,
+    "sourceRun": "c2f7c0dfec199a57",
+    "log": "outputs/web-container-acceptance/5719bc1a643ed751/frontend-initial-build.log",
+    "seconds": 23.54,
+    "checks": [
+      "pnpm install --frozen-lockfile",
+      "TypeScript typecheck",
+      "Vite production build"
+    ]
+  },
+  "harnessCorrection": "The first smoke query used the generic word Redis, which is not an indexed catalog term. The final run uses the existing Redis TTL topic and returns one reference; no production service code or dependency was changed.",
+  "registryObservation": "Docker Hub endpoint timed out; existing public.ecr.aws Dockerfile defaults succeeded. No Docker registry, proxy or other global configuration was changed."
+}

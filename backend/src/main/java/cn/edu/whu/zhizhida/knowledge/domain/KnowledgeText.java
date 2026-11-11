@@ -142,10 +142,6 @@ public final class KnowledgeText {
         return result.stream().limit(24).toList();
     }
 
-    public static int score(String text, String query) {
-        return score(text, groups(query));
-    }
-
     /** 标题只提供上下文，不单独作为可引用的事实证据。保留原始分块与偏移供历史引用使用。 */
     public static boolean isEvidence(Chunk chunk) {
         return chunk.content().lines().map(String::strip)
@@ -158,50 +154,74 @@ public final class KnowledgeText {
                 ? chunk.content() : chunk.heading() + "\n" + chunk.content();
     }
 
-    private static int score(String text, List<List<String>> groups) {
-        String lower = lower(text);
-        return groups.stream().filter(g -> g.stream().anyMatch(t -> contains(lower, t)))
-                .mapToInt(g -> g.size() > 1 ? 10 : GENERIC.contains(g.getFirst()) ? 1 : 4).sum();
-    }
-
-    /**
-     * 实时检索与归档训练来源共用同一套排序规则，不改动原文及其偏移量。
-     */
+    /** BM25F：语料稀有度、词频饱和、正文长度归一化；标题只加权，不单独生成证据。 */
     public static List<Hit> rank(List<Hit> candidates, String query, int limit) {
         var groups = groups(query);
+        var evidence = candidates.stream().filter(h -> isEvidence(h.chunk())).toList();
+        if (evidence.isEmpty() || groups.isEmpty() || limit <= 0) return List.of();
+        double averageLength = evidence.stream().mapToInt(h -> h.chunk().content().length()).average().orElseThrow();
+        var frequencies = new ArrayList<double[]>();
+        int[] documentFrequency = new int[groups.size()];
+        for (var hit : evidence) {
+            String body = lower(hit.chunk().content());
+            String heading = lower(hit.chunk().heading());
+            String title = lower(hit.title());
+            double normalization = 0.25 + 0.75 * body.length() / averageLength;
+            double[] terms = new double[groups.size()];
+            for (int i = 0; i < groups.size(); i++) {
+                var aliases = groups.get(i);
+                int bodyCount = aliases.stream().mapToInt(t -> occurrences(body, t)).max().orElseThrow();
+                int headingCount = aliases.stream().mapToInt(t -> occurrences(heading, t)).max().orElseThrow();
+                // 文档标题不能让整个无关章节进入候选集。
+                if (bodyCount == 0 && headingCount == 0) continue;
+                int titleCount = aliases.stream().mapToInt(t -> occurrences(title, t)).max().orElseThrow();
+                terms[i] = bodyCount / normalization + 0.35 * headingCount + 3 * titleCount;
+                documentFrequency[i]++;
+            }
+            frequencies.add(terms);
+        }
+        double[] weights = new double[groups.size()];
+        for (int i = 0; i < groups.size(); i++) {
+            double idf = Math.log(1 + (evidence.size() - documentFrequency[i] + 0.5) / (documentFrequency[i] + 0.5));
+            weights[i] = idf * (groups.get(i).size() > 1 ? 1.5 : GENERIC.contains(groups.get(i).getFirst()) ? 0.25 : 1);
+        }
         var covered = new HashSet<Integer>();
-        var pool = new ArrayList<Hit>();
-        for (var h : candidates) {
-            if (!isEvidence(h.chunk()))
-                continue;
-            int body = score(h.chunk().content(), groups);
-            if (body == 0 && score(h.chunk().heading(), groups) == 0)
-                continue;
-            pool.add(new Hit(h.documentId(), h.title(), h.sourceName(), h.version(), h.chunk(),
-                    body + score(h.chunk().heading(), groups) / 3 + score(h.title(), groups) / 3));
+        var pool = new ArrayList<Ranked>();
+        for (int row = 0; row < evidence.size(); row++) {
+            var h = evidence.get(row);
+            double score = 0;
+            double[] terms = frequencies.get(row);
+            for (int i = 0; i < terms.length; i++) score += weights[i] * terms[i] * 2.2 / (terms[i] + 1.2);
+            if (score > 0) pool.add(new Ranked(new Hit(h.documentId(), h.title(), h.sourceName(), h.version(), h.chunk(),
+                    (int) Math.round(score * 1000)), score, terms));
         }
         var result = new ArrayList<Hit>();
         while (!pool.isEmpty() && result.size() < limit) {
-            var order = Comparator.<Hit>comparingInt(h -> h.score() + novel(h, groups, covered)).reversed()
-                    .thenComparing(Hit::documentId).thenComparingInt(h -> h.chunk().ordinal());
+            var order = Comparator.<Ranked>comparingDouble(h -> h.score() + novel(h.terms(), weights, covered)).reversed()
+                    .thenComparing(h -> h.hit().documentId()).thenComparingInt(h -> h.hit().chunk().ordinal());
             var best = pool.stream().min(order).orElseThrow();
             pool.remove(best);
-            result.add(best);
-            for (int i = 0; i < groups.size(); i++) {
-                String body = lower(best.chunk().content());
-                if (groups.get(i).stream().anyMatch(t -> contains(body, t)))
-                    covered.add(i);
-            }
+            result.add(best.hit());
+            for (int i = 0; i < groups.size(); i++) if (best.terms()[i] > 0) covered.add(i);
         }
         return List.copyOf(result);
     }
 
-    private static int novel(Hit h, List<List<String>> groups, Set<Integer> covered) {
-        int gain = 0;
-        String body = lower(h.chunk().content());
-        for (int i = 0; i < groups.size(); i++)
-            if (!covered.contains(i) && groups.get(i).stream().anyMatch(t -> contains(body, t)))
-                gain += groups.get(i).size() > 1 ? 8 : GENERIC.contains(groups.get(i).getFirst()) ? 0 : 4;
+    private record Ranked(Hit hit, double score, double[] terms) { }
+
+    private static double novel(double[] terms, double[] weights, Set<Integer> covered) {
+        double gain = 0;
+        for (int i = 0; i < terms.length; i++) if (!covered.contains(i) && terms[i] > 0) gain += 0.35 * weights[i];
         return gain;
+    }
+
+    private static int occurrences(String text, String term) {
+        boolean word = term.chars().allMatch(c -> latin((char) c) || c == '-');
+        int count = 0;
+        for (int at = text.indexOf(term); at >= 0; at = text.indexOf(term, at + term.length())) {
+            int end = at + term.length();
+            if (!word || (at == 0 || !latin(text.charAt(at - 1))) && (end == text.length() || !latin(text.charAt(end)))) count++;
+        }
+        return count;
     }
 }

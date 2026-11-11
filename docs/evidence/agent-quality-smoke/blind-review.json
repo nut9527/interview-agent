@@ -1,0 +1,170 @@
+{
+  "version": "agent-quality-review-v1",
+  "rubric": {
+    "followUpRelevance": "1 偏题；3 相关但未触及关键缺口；5 准确追问缺口，证据充足时合理推进",
+    "evidenceSupport": "1 无依据或曲解原文；3 部分支持；5 结论与原文和回答一致",
+    "specificity": "1 空泛或不可回答；3 有方向但宽泛；5 清晰具体且可由候选人回答",
+    "unsupportedCorrection": "是否无依据纠错，true/false",
+    "repeatedQuestion": "是否重复原问题而无推进，true/false",
+    "notes": "人工给出评分依据；不得用模型评分或运行成功率代替"
+  },
+  "instruction": "Only edit review fields. Review independently without opening key.json, evidence.json or summary.json. method must be HUMAN_BLIND.",
+  "rows": [
+    {
+      "blindId": "1957f22f-e6fc-4451-91e2-56bdda77c4bf",
+      "question": "请说明你在这个项目中如何实现归属充分，以及验证依据。",
+      "answer": "每个查询都带本人 ID；跨账号读取和写入测试返回 404，条件更新影响行数必须为一。",
+      "source": "# 归属充分\n\n当前回答已说明本人查询、条件写入与越权测试。",
+      "nextQuestion": "请举一个你在实现归属校验时遇到的具体问题，说明你如何定位原因、在两三个方案间如何取舍，以及最终用什么结果证明处理有效。",
+      "assessment": {
+        "level": "PARTIAL",
+        "evidence": "每个查询都带本人 ID；跨账号读取和写入测试返回 404，条件更新影响行数必须为一。",
+        "gap": "缺个人职责边界（独立设计/落实既有规范）与岗位关联说明，未体现在归属控制上的取舍。",
+        "reason": "回答给出了归属校验做法与验证结果，属于部分体现岗位经历；个人贡献和方案取舍还需展开。",
+        "practice": "用三句话复述：我的角色→关键判断→验证结果，每句各对应岗位要求中的一项。",
+        "intent": "进入问题解决能力，了解你在归属控制实现中如何定位问题、做取舍与验证判断。"
+      },
+      "review": {
+        "reviewer": null,
+        "method": null,
+        "reviewedAt": null,
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null,
+        "unsupportedCorrection": null,
+        "repeatedQuestion": null,
+        "notes": ""
+      }
+    },
+    {
+      "blindId": "6743c908-e4ce-449c-bddb-c5e312bbb521",
+      "question": "请说明你在这个项目中如何实现归属充分，以及验证依据。",
+      "answer": "每个查询都带本人 ID；跨账号读取和写入测试返回 404，条件更新影响行数必须为一。",
+      "source": "# 归属充分\n\n当前回答已说明本人查询、条件写入与越权测试。",
+      "nextQuestion": "请补充说明：这个归属校验方案中，404 而非 403 的选择、以及用影响行数判定写入成功，是你自己决定的还是团队规范？当时是否比较过其他方案，最终依据什么证据确认它有效？",
+      "assessment": {
+        "level": "PARTIAL",
+        "evidence": "每个查询都带本人 ID；跨账号读取和写入测试返回 404，条件更新影响行数必须为一。",
+        "gap": "缺少个人角色界定、方案由谁决定、替代方案比较及验证结果的可核对事实。",
+        "reason": "回答体现归属校验与验证手段，但未说明个人贡献边界与方案依据。",
+        "practice": "用 STAR 补一段表述：先写场景与约束，再写你做的选择与替代方案，最后写验证证据。",
+        "intent": "核实方案决策归属与替代方案比较，验证个人贡献边界。"
+      },
+      "review": {
+        "reviewer": null,
+        "method": null,
+        "reviewedAt": null,
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null,
+        "unsupportedCorrection": null,
+        "repeatedQuestion": null,
+        "notes": ""
+      }
+    },
+    {
+      "blindId": "73e1f19b-8369-48b9-9872-86b0847f099e",
+      "question": "请说明你在这个项目中如何实现Redis 下单幂等，以及验证依据。",
+      "answer": "我只用 Redis SETNX 保证重复下单不会出错。",
+      "source": "# Redis 下单幂等\n\nRedis 成功后数据库写入失败仍要处理重试；请求号与订单唯一约束共同决定重复行为。",
+      "nextQuestion": "你在下单幂等中使用 SETNX 后，如果 Redis 标记成功但数据库写入失败，重复请求到来时你会如何处理？请说明键设计、过期时间和重试判断依据。",
+      "assessment": {
+        "level": "INSUFFICIENT",
+        "evidence": "我只用 Redis SETNX 保证重复下单不会出错。",
+        "gap": "缺少 SETNX 键设计、过期时间、Redis 成功后数据库写失败的重试与兜底，以及验证依据。",
+        "reason": "回答仅给出工具名和结论，未说明具体实现与失败处理，岗位关联和个人贡献证据不足。",
+        "practice": "用一段话补齐：键结构与过期时间、成功/失败分支、数据库失败重试策略，以及如何验证重复请求不产生脏单。",
+        "intent": "验证候选人对 SETNX 幂等的具体实现细节，以及 Redis 成功但数据库失败时的事实性处理方案。"
+      },
+      "review": {
+        "reviewer": null,
+        "method": null,
+        "reviewedAt": null,
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null,
+        "unsupportedCorrection": null,
+        "repeatedQuestion": null,
+        "notes": ""
+      }
+    },
+    {
+      "blindId": "92810625-fcba-4ab0-bf2a-238f1d326fd2",
+      "question": "请说明你在这个项目中如何实现Redis 下单幂等，以及验证依据。",
+      "answer": "我只用 Redis SETNX 保证重复下单不会出错。",
+      "source": "# Redis 下单幂等\n\nRedis 成功后数据库写入失败仍要处理重试；请求号与订单唯一约束共同决定重复行为。",
+      "nextQuestion": "请结合这个练习项目，具体说明：SETNX 的键由什么组成、何时设置过期或释放，以及 Redis 成功但数据库写入失败时你的重试流程是怎样的，并说明你做过哪些验证来确认重复请求不会产生重复订单。",
+      "assessment": {
+        "level": "PARTIAL",
+        "evidence": "我只用 Redis SETNX 保证重复下单不会出错。",
+        "gap": "未说明幂等键组成、过期或释放时机、数据库失败后的重试处理，以及验证方式和验证结果。",
+        "reason": "回答仅提到 SETNX，缺少个人实现细节与验证依据。",
+        "practice": "练习用 STAR 结构描述一个幂等方案：键设计、过期策略、失败重试三段各一句话，并补一句验证结果。",
+        "intent": "验证你是否能具体说明幂等键设计、失败重试与验证依据，补足个人贡献事实。"
+      },
+      "review": {
+        "reviewer": null,
+        "method": null,
+        "reviewedAt": null,
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null,
+        "unsupportedCorrection": null,
+        "repeatedQuestion": null,
+        "notes": ""
+      }
+    },
+    {
+      "blindId": "dbcc5dc1-356c-43fa-8fb5-3b2acfdc8fb8",
+      "question": "请说明你在这个项目中如何实现归属充分，以及验证依据。",
+      "answer": "每个查询都带本人 ID；跨账号读取和写入测试返回 404，条件更新影响行数必须为一。",
+      "source": "# 归属充分\n\n当前回答已说明本人查询、条件写入与越权测试。",
+      "nextQuestion": "请举一个你在判断或方案取舍上遇到困难的例子：当时有哪些可选做法，你依据什么做决定，后来如何验证这个决定是对的？",
+      "assessment": {
+        "level": "PARTIAL",
+        "evidence": "每个查询都带本人 ID；跨账号读取和写入测试返回 404，条件更新影响行数必须为一。",
+        "gap": "缺少归属方案的选择依据（如 404 与 403 的取舍）、条件更新影响行数非一时的失败处理，以及批量或间接引用场景的覆盖验证。",
+        "reason": "回答列出了归属校验的三项控制点，能对应岗位所需的数据访问边界意识；但未说明设计理由和失败路径，需转向问题解决能力继续验证判断与取舍。",
+        "practice": "针对归属校验做一次失败路径推演：列出跨账号读、跨账号写、条件更新影响行数为 0 或多于 1 的场景，分别写出预期响应和日志记录方式。",
+        "intent": "验证候选人能否说明方案选择依据、行动过程和验证方式，观察其判断是否基于可核对的证据而非仅陈述做法。"
+      },
+      "review": {
+        "reviewer": null,
+        "method": null,
+        "reviewedAt": null,
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null,
+        "unsupportedCorrection": null,
+        "repeatedQuestion": null,
+        "notes": ""
+      }
+    },
+    {
+      "blindId": "e7c17551-a288-4cc1-9fb4-c25985fcd28e",
+      "question": "请说明你在这个项目中如何实现Redis 下单幂等，以及验证依据。",
+      "answer": "我只用 Redis SETNX 保证重复下单不会出错。",
+      "source": "# Redis 下单幂等\n\nRedis 成功后数据库写入失败仍要处理重试；请求号与订单唯一约束共同决定重复行为。",
+      "nextQuestion": "围绕你提到的 SETNX 方案，请具体说明：幂等 key 由哪些业务要素构成、你个人负责了哪部分实现，以及你用什么方式验证过重复请求确实被正确拦截？",
+      "assessment": {
+        "level": "INSUFFICIENT",
+        "evidence": "我只用 Redis SETNX 保证重复下单不会出错。",
+        "gap": "缺少个人角色与贡献、幂等 key 构造、覆盖场景及验证依据，无法判断“不会出错”的事实基础。",
+        "reason": "回答只给出技术手段结论，未说明个人职责与验证依据，岗位经历关联性待补。",
+        "practice": "用“场景—我的行动—验证结果”三句话重写该项目经历，每句至少含一个具体要素。",
+        "intent": "验证候选人在该练习项目中的具体职责、幂等 key 设计依据与验证方式，区分本人贡献与团队工作。"
+      },
+      "review": {
+        "reviewer": null,
+        "method": null,
+        "reviewedAt": null,
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null,
+        "unsupportedCorrection": null,
+        "repeatedQuestion": null,
+        "notes": ""
+      }
+    }
+  ]
+}

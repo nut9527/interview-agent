@@ -5,10 +5,12 @@ import cn.edu.whu.zhizhida.questionbank.domain.QuestionContentRules;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -36,17 +38,8 @@ public class QuestionSnapshotCache {
 
     public QuestionSnapshot read(String id, int version, Supplier<QuestionSnapshot> source) {
         String key=prefix+id+":v"+version;
-        try {
-            String value=redis.opsForValue().get(key);
-            if(value!=null) {
-                Entry entry=json.readValue(value,Entry.class);
-                if(entry.schemaVersion()!=1) throw new IllegalArgumentException("CACHE_SCHEMA");
-                validate(entry.snapshot(),id,version);
-                count("hit");
-                return entry.snapshot();
-            }
-            count("miss");
-        } catch(RuntimeException ex) { count("read_error"); }
+        var cached = cached(key, id, version);
+        if (cached != null) return cached;
 
         var load = new CompletableFuture<QuestionSnapshot>();
         var active = loads.putIfAbsent(key, load);
@@ -65,10 +58,11 @@ public class QuestionSnapshotCache {
         try {
             var snapshot = fromSource(id, version, source);
             load.complete(snapshot);
+            String encoded = json.writeValueAsString(new Entry(1,snapshot));
             try {
-                redis.opsForValue().set(key,json.writeValueAsString(new Entry(1,snapshot)),
+                redis.opsForValue().set(key,encoded,
                         Duration.ofSeconds(1200+ThreadLocalRandom.current().nextInt(121)));
-            } catch(RuntimeException ex) { count("write_error"); }
+            } catch(DataAccessException ex) { count("write_error"); }
             return snapshot;
         } catch (RuntimeException | Error ex) {
             load.completeExceptionally(ex);
@@ -77,6 +71,20 @@ public class QuestionSnapshotCache {
             loads.remove(key, load);
         }
     }
+    private QuestionSnapshot cached(String key, String id, int version) {
+        String value;
+        try { value = redis.opsForValue().get(key); }
+        catch (DataAccessException ex) { count("read_error"); return null; }
+        if (value == null) { count("miss"); return null; }
+        Entry entry;
+        try {
+            entry = json.readValue(value, Entry.class);
+            if (entry == null || entry.schemaVersion() != 1) throw new IllegalArgumentException("CACHE_SCHEMA");
+            validate(entry.snapshot(), id, version);
+        } catch (JacksonException | IllegalArgumentException ex) { count("corrupt"); return null; }
+        count("hit");
+        return entry.snapshot();
+    }
     private QuestionSnapshot fromSource(String id, int version, Supplier<QuestionSnapshot> source) {
         count("source");
         var snapshot = source.get();
@@ -84,7 +92,8 @@ public class QuestionSnapshotCache {
         return snapshot;
     }
     private static void validate(QuestionSnapshot snapshot,String id,int version) {
-        if(snapshot==null || !id.equals(snapshot.id()) || version!=snapshot.version())
+        if(snapshot==null || !id.equals(snapshot.id()) || version!=snapshot.version()
+                || snapshot.topic()==null || snapshot.sourceType()==null)
             throw new IllegalArgumentException("CACHE_IDENTITY");
         QuestionContentRules.validate(snapshot);
     }

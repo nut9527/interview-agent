@@ -140,33 +140,6 @@ public class MybatisPlusInterviewSessionRepository implements InterviewSessionRe
     }
 
     @Override
-    public List<cn.edu.whu.zhizhida.interview.api.InterviewAgentState> recentAgentStates(
-            Long userId, InterviewMode mode) {
-        return interviewSessionMapper
-                .selectList(
-                        Wrappers.<InterviewSessionEntity>lambdaQuery()
-                                .select(InterviewSessionEntity::getAgentJson)
-                                .eq(InterviewSessionEntity::getUserId, userId)
-                                .eq(InterviewSessionEntity::getMode, mode.name())
-                                .eq(
-                                        InterviewSessionEntity::getState,
-                                        InterviewState.FINISHED.name())
-                                .isNotNull(InterviewSessionEntity::getAgentJson)
-                                .orderByDesc(InterviewSessionEntity::getUpdatedAt)
-                                .orderByDesc(InterviewSessionEntity::getSessionId)
-                                .last("LIMIT 8"))
-                .stream()
-                .map(
-                        e ->
-                                jsonCodec.read(
-                                        e.getAgentJson(),
-                                        cn.edu.whu.zhizhida.interview.api.InterviewAgentState
-                                                .class))
-                .filter(a -> sourceGuard.usable(userId, a))
-                .toList();
-    }
-
-    @Override
     public Optional<InterviewSession> findByIdForUpdate(Long userId, String sessionId) {
         return findEntity(userId, sessionId, true).map(this::toSession);
     }

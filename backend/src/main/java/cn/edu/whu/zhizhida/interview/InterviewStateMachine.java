@@ -249,14 +249,7 @@ public class InterviewStateMachine {
                 request.difficulty() == null ? InterviewDifficulty.STANDARD : request.difficulty();
         if (source != null) difficulty = source.difficulty();
         String sessionId = UUID.randomUUID().toString();
-        // 使用可复核的学习观察替代无法复核的近期会话计数。
-        // 带版本的记忆实验通过前保持自适应使用关闭，同时兼容旧版独立适配器。
-        var memory =
-                interviewAiService.supportsAgentDecisions() && learningJournal == null
-                        ? agentPolicy.practiceMemory(
-                                sessionRepository.recentAgentStates(userId, mode),
-                                interviewAiService.executionMode())
-                        : List.<InterviewAgentState.PracticeMemory>of();
+        var memory = List.<InterviewAgentState.PracticeMemory>of();
         var agent =
                 interviewAiService.supportsAgentDecisions()
                         ? agentPolicy.plan(

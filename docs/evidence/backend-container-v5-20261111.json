@@ -1,0 +1,22 @@
+{
+  "packagedPromptsMatchWorkspace": true,
+  "passed": true,
+  "createdAt": "2026-11-11T13:32:00.657865243Z",
+  "imageId": "sha256:bc6dec0fddfcba96703341281796c578e72899850e606fc98793e8cc2a60e5b0",
+  "scope": "Docker image build plus direct JAR resource verification from a created, never-started container. No backend runtime smoke.",
+  "backendProcessStarted": false,
+  "tag": "zhizhida-backend:acceptance-20261111-v5",
+  "buildLog": "outputs/backend-v5-container-acceptance/build.log",
+  "promptFilesSha256": {
+    "repair.txt": "c89ca36be3ee034b1bfba1e2c89f86fcf3b045bfae46b62a87bd590a22a4041e",
+    "opening.txt": "202c14a04e105c0687be9d1d1f92d142dfe4ca1131263d6c1abfc26f1becc69a",
+    "adaptiveRouting.txt": "458b2fa0901c673383d2d8eaca965e544d92e65172084bdf2b3913c71861b32d",
+    "review.txt": "2d95ec348842aba8eb4bfda194ff979b1de62ef6090e14084723983fa544a7b5",
+    "routing.txt": "63d27747fba65fd92f748983f896544e60fde54c040b6b1fd8ee9abd9694865a",
+    "knowledgeOpening.txt": "28615cf1b0dc05c34ffd1d4f1b970256e5c2ad4d6da92b1b161ad3cd8e3a91dd",
+    "agent.txt": "24bb1d798c779c63fbc68633a33f7149e8982b395b307e5f8d08849f73f6236d",
+    "assessment.txt": "092de7dc36c49cda47ff5bc5d9a4615920116586550e52ac334eeb089786b81f",
+    "version.txt": "b3433d8d2b78771cfcc8062d9c9d624df13e466b69f720e4224e76cbdbeb65e7"
+  },
+  "promptVersion": "interview-prompts-v5"
+}

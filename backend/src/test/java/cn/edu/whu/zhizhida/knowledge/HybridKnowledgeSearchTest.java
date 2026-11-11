@@ -24,13 +24,16 @@ class HybridKnowledgeSearchTest {
                 new KnowledgeVectors.Match(scope, chunk.id()), new KnowledgeVectors.Match(scope, chunk.id())));
         assertThat(new HybridKnowledgeSearch(vector, metrics).search(List.of(doc), List.of(hit), "consistency", 6)).containsExactly(hit);
     }
-    @Test void vectorFailureFallsBackToLexicalAndRecordsDegradation() {
+    @Test void vectorFailureIsVisibleInsteadOfReportingLexicalFallbackAsHybridSuccess() {
         var vector = mock(KnowledgeVectors.class); var metrics = new SimpleMeterRegistry();
         var doc = new KnowledgeSnapshot("doc", "资料", "fixture", 1, "hash", "cache consistency", List.of());
         var hit = new Hit("doc", "资料", "fixture", 1, KnowledgeText.split("doc", doc.content()).getFirst(), 0);
         when(vector.search(anyList(), anyString(), anyInt())).thenThrow(new IllegalStateException("unavailable"));
-        assertThat(new HybridKnowledgeSearch(vector, metrics).search(List.of(doc), List.of(hit), "cache", 6)).hasSize(1);
-        assertThat(metrics.get("knowledge.retrieval.degraded").counter().count()).isEqualTo(1);
+        assertThatThrownBy(() -> new HybridKnowledgeSearch(vector, metrics).search(List.of(doc), List.of(hit), "cache", 6))
+                .isInstanceOf(cn.edu.whu.zhizhida.common.BusinessException.class)
+                .hasMessage("资料检索服务暂不可用，请稍后重试。")
+                .hasCauseInstanceOf(IllegalStateException.class);
+        assertThat(metrics.get("knowledge.retrieval.failures").counter().count()).isEqualTo(1);
     }
 
     @Test void oldHeadingOnlyVectorsAndForeignLexicalCandidatesCannotBecomeEvidence() {
@@ -70,7 +73,7 @@ class HybridKnowledgeSearchTest {
 
     @Test void usesConfiguredCandidateBudgetsAndSeparatesRetrievalFromIndexFingerprint() {
         var vector = mock(KnowledgeVectors.class);
-        when(vector.fingerprint()).thenReturn("embedding-v1");
+        when(vector.retrievalFingerprint()).thenReturn("embedding-v1");
         when(vector.search(anyList(), anyString(), anyInt())).thenReturn(List.of());
         var settings = new KnowledgeRetrievalSettings(20, 1, 50, 1);
         var search = new HybridKnowledgeSearch(vector, new SimpleMeterRegistry(), settings);

@@ -1,0 +1,342 @@
+{
+  "version": "agent-quality-summary-v1",
+  "expectedRuns": 90,
+  "observedRuns": 6,
+  "humanReviewedRuns": 0,
+  "groups": [
+    {
+      "route": "LEGACY",
+      "expected": 30,
+      "observed": 2,
+      "succeeded": 2,
+      "failed": 0,
+      "missing": 28,
+      "reviewed": 0
+    },
+    {
+      "route": "FIXED",
+      "expected": 30,
+      "observed": 2,
+      "succeeded": 2,
+      "failed": 0,
+      "missing": 28,
+      "reviewed": 0
+    },
+    {
+      "route": "TOOL",
+      "expected": 30,
+      "observed": 2,
+      "succeeded": 2,
+      "failed": 0,
+      "missing": 28,
+      "reviewed": 0
+    }
+  ],
+  "comparisons": [
+    {
+      "partition": "development",
+      "baseline": "LEGACY",
+      "candidate": "FIXED",
+      "pairedCases": 0,
+      "meanDelta": {
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null
+      },
+      "pairs": [],
+      "excluded": [
+        {
+          "caseId": "redis-order",
+          "reason": "UNSCORED"
+        },
+        {
+          "caseId": "mysql-unique",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "mq-ack",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "outbox",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "cache-delete",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "lease-clock",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "cas-version",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "threadpool",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "lock-order",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "pagination",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "jwt-owner",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "sse-cursor",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "http-retry",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "upload-hash",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "sql-index",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "isolation",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-owner",
+          "reason": "UNSCORED"
+        },
+        {
+          "caseId": "adequate-cas",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-budget",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-cancel",
+          "reason": "MISSING_RUN"
+        }
+      ]
+    },
+    {
+      "partition": "development",
+      "baseline": "FIXED",
+      "candidate": "TOOL",
+      "pairedCases": 0,
+      "meanDelta": {
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null
+      },
+      "pairs": [],
+      "excluded": [
+        {
+          "caseId": "redis-order",
+          "reason": "UNSCORED"
+        },
+        {
+          "caseId": "mysql-unique",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "mq-ack",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "outbox",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "cache-delete",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "lease-clock",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "cas-version",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "threadpool",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "lock-order",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "pagination",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "jwt-owner",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "sse-cursor",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "http-retry",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "upload-hash",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "sql-index",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "isolation",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-owner",
+          "reason": "UNSCORED"
+        },
+        {
+          "caseId": "adequate-cas",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-budget",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-cancel",
+          "reason": "MISSING_RUN"
+        }
+      ]
+    },
+    {
+      "partition": "validation",
+      "baseline": "LEGACY",
+      "candidate": "FIXED",
+      "pairedCases": 0,
+      "meanDelta": {
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null
+      },
+      "pairs": [],
+      "excluded": [
+        {
+          "caseId": "cancel-race",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "rate-limit",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "snapshot",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "injection",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "ttl-order",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "connection-pool",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "batch-tools",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-cache",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-sse",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-lease",
+          "reason": "MISSING_RUN"
+        }
+      ]
+    },
+    {
+      "partition": "validation",
+      "baseline": "FIXED",
+      "candidate": "TOOL",
+      "pairedCases": 0,
+      "meanDelta": {
+        "followUpRelevance": null,
+        "evidenceSupport": null,
+        "specificity": null
+      },
+      "pairs": [],
+      "excluded": [
+        {
+          "caseId": "cancel-race",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "rate-limit",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "snapshot",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "injection",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "ttl-order",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "connection-pool",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "batch-tools",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-cache",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-sse",
+          "reason": "MISSING_RUN"
+        },
+        {
+          "caseId": "adequate-lease",
+          "reason": "MISSING_RUN"
+        }
+      ]
+    }
+  ],
+  "reviewStatus": "INCOMPLETE_NO_QUALITY_CLAIM",
+  "qualityImprovementClaim": "NOT_ESTABLISHED",
+  "limitations": [
+    "Human identity/blindness is a reviewer declaration, not independently authenticated.",
+    "Failed and missing runs remain in coverage; paired means condition on successful comparable reviewed pairs.",
+    "30 synthetic single-turn families do not establish production or heldout quality.",
+    "Development scores are diagnostic; validation results must be reported separately.",
+    "This offline tool makes zero provider calls and never invents ratings."
+  ]
+}

@@ -36,13 +36,25 @@ public class RunDispatchConfiguration {
     public static final String QUEUE="zhizhida.agent.run.q";
     public static final String KEY="run.ready";
     @Bean
+    RunDispatchRetry runDispatchRetry(org.springframework.amqp.rabbit.core.RabbitTemplate rabbit,
+            @org.springframework.beans.factory.annotation.Value("${app.run-dispatch.namespace:zhizhida.agent}") String namespace) {
+        return new RunDispatchRetry(rabbit, namespace);
+    }
+    @Bean
     Declarables runTopology(@org.springframework.beans.factory.annotation.Value("${app.run-dispatch.namespace:zhizhida.agent}") String namespace) {
         var exchange=new DirectExchange(namespace+".x",true,false);
         var dead=new DirectExchange(namespace+".dlx",true,false);
         var queue=QueueBuilder.durable(namespace+".run.q").deadLetterExchange(dead.getName()).deadLetterRoutingKey("invalid").build();
         var diagnostic=QueueBuilder.durable(namespace+".dead.q").build();
-        return new Declarables(exchange,dead,queue,diagnostic,
+        var retryExchange=new DirectExchange(namespace+".retry.x",true,false);
+        var retry=QueueBuilder.durable(namespace+".retry.q").quorum().ttl(2000)
+                .withArgument("x-dead-letter-strategy", "at-least-once")
+                .withArgument("x-overflow", "reject-publish")
+                .maxLength(10000)
+                .deadLetterExchange(exchange.getName()).deadLetterRoutingKey(KEY).build();
+        return new Declarables(exchange,dead,queue,diagnostic,retryExchange,retry,
                 BindingBuilder.bind(queue).to(exchange).with(KEY),
+                BindingBuilder.bind(retry).to(retryExchange).with(KEY),
                 BindingBuilder.bind(diagnostic).to(dead).with("invalid"));
     }
 }

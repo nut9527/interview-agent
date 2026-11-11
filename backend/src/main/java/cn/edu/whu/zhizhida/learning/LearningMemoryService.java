@@ -93,8 +93,8 @@ public class LearningMemoryService {
         var source=sources.lock(event.owner(),event.session());
         store.preferences(event.owner());
         if(!store.lockEvent(event.id())) return;
-        store.withdrawChanged(event.owner(),event.session(),source.map(s->s.source().version()).orElse(null));
         if(source.isPresent()) for(var fact:source.get().facts()) store.add(event.owner(),source.get().source(),fact);
+        store.withdrawChanged(event.owner(),event.session(),source.map(s->s.source().version()).orElse(null));
         store.processed(event.id()); rebuild(event.owner());
     }
     @Transactional

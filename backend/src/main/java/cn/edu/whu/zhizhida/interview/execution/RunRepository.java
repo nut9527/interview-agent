@@ -60,9 +60,9 @@ final class RunRepository {
         return jdbc.query("SELECT * FROM interview_runs WHERE id=?",mapper,id).stream().findFirst();
     }
 
-    void remindSoon(String id) {
-        jdbc.update("UPDATE interview_runs SET next_dispatch_at=LEAST(next_dispatch_at,TIMESTAMPADD(SECOND,1,CURRENT_TIMESTAMP(6))) "
-                + "WHERE id=? AND status='ACCEPTED'", id);
+    boolean needsDispatch(String id) {
+        return Integer.valueOf(1).equals(jdbc.queryForObject(
+                "SELECT COUNT(*) FROM interview_runs WHERE id=? AND " + CLAIMABLE, Integer.class, id));
     }
 
     List<Row> forSession(long owner,String session) {

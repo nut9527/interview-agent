@@ -118,24 +118,6 @@ public final class InterviewAgentPolicy {
         return candidates.stream().filter(c -> c.name().equals(competency.name())).findFirst().orElse(candidates.get(0));
     }
 
-    public List<PracticeMemory> practiceMemory(List<InterviewAgentState> history, String executionMode) {
-        var groups = new HashMap<String, List<Evaluation>>();
-        for (var state : history) {
-            if (!executionMode.equals(state.executionMode())) continue;
-            for (var e : state.evaluations()) {
-                if (e.answeredProbe() == null || e.answeredProbe() == Probe.NONE) continue;
-                String key = e.competencyId() + ":" + e.answeredProbe().name();
-                groups.computeIfAbsent(key, ignored -> new ArrayList<>()).add(e);
-            }
-        }
-        return groups.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(entry -> {
-            var values = entry.getValue(); var first = values.get(0);
-            return new PracticeMemory(first.competencyId(), first.answeredProbe(), values.size(),
-                    (int) values.stream().filter(e -> e.decision().level() == Level.INSUFFICIENT).count(),
-                    (int) values.stream().filter(e -> e.decision().level() == Level.PARTIAL).count());
-        }).toList();
-    }
-
     private int relevance(Competency c, InterviewPlanningContext m) {
         return matches(c, m.job()) * 3 + matches(c, String.join(" ", m.skills())) + m.projects().stream()
                 .mapToInt(p -> matches(c, p.contributions() + " " + p.technologies())).max().orElse(0);

@@ -81,6 +81,8 @@ class MiddlewareApplicationIT extends IntegrationTestBase {
             var admin = new RabbitAdmin(connection);
             admin.deleteQueue(namespace + ".run.q");
             admin.deleteQueue(namespace + ".dead.q");
+            admin.deleteQueue(namespace + ".retry.q");
+            admin.deleteExchange(namespace + ".retry.x");
             admin.deleteExchange(namespace + ".x");
             admin.deleteExchange(namespace + ".dlx");
         }
@@ -90,8 +92,11 @@ class MiddlewareApplicationIT extends IntegrationTestBase {
         return (Map<String,Object>) parseJsonResult(result).get("data");
     }
     String start() throws Exception {
+        return start(token);
+    }
+    String start(String userToken) throws Exception {
         var result = performPost("/api/interviews/start-commands", Map.of("requestId", UUID.randomUUID().toString(),
-                "configuration", Map.of("targetRole", "Java 后端", "totalRounds", 3, "experienceMode", "FORMAL")), token);
+                "configuration", Map.of("targetRole", "Java 后端", "totalRounds", 3, "experienceMode", "FORMAL")), userToken);
         assertThat(result.getResponse().getStatus()).isEqualTo(202);
         return (String) data(result).get("runId");
     }
@@ -103,6 +108,162 @@ class MiddlewareApplicationIT extends IntegrationTestBase {
         props.setDeliveryTag(delivery.getEnvelope().getDeliveryTag());
         props.setMessageId(delivery.getProps().getMessageId());
         return new Message(delivery.getBody(), props);
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named="RUN_BROKER_FAULT_TESTS", matches="true")
+    void databaseOutageMovesOriginalToRetryBeforeAckAndCommitsOnceAfterRecovery() throws Exception {
+        String id = start();
+        extendTestQueueDeadline(id);
+        publisher.publish();
+        try (var raw = connection.getRabbitConnectionFactory().newConnection(); var channel = raw.createChannel()) {
+            var original = get(channel, false);
+            docker("MYSQL_TEST_CONTAINER", "stop", "--time", "5");
+            try {
+                consumer.receive(original, verifyRetryBeforeAck(channel));
+            } finally { docker("MYSQL_TEST_CONTAINER", "start"); }
+            awaitDatabase();
+            assertThat(store.get(owner, id).status()).isEqualTo("ACCEPTED");
+            assertThat(store.get(owner, id).attempts()).isZero();
+            consumer.receive(awaitMessage(channel), channel);
+            assertSingleCommit(id);
+        }
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named="RUN_BROKER_FAULT_TESTS", matches="true")
+    void globalCapacityRejectionUsesDelayedBrokerRetryWithoutSpendingModelBudget() throws Exception {
+        var users = new java.util.ArrayList<String>();
+        var claims = new java.util.ArrayList<InterviewRunStore.Claim>();
+        try {
+            int capacity = application.getEnvironment().getProperty("interview.runs.capacity.max-active", Integer.class, 4);
+            for (int i = 0; i < capacity; i++) {
+                String user = registerUniqueUserToken("password123", "占用执行容量");
+                users.add(user);
+                long userId = ((Number) data(performGet("/api/users/me", user)).get("id")).longValue();
+                String busy = start(user);
+                claims.add(store.claim(store.get(userId, busy)));
+                jdbc.update("UPDATE interview_run_outbox SET status='PUBLISHED' WHERE run_id=?", busy);
+            }
+            String id = start();
+            extendTestQueueDeadline(id);
+            publisher.publish();
+            try (var raw = connection.getRabbitConnectionFactory().newConnection(); var channel = raw.createChannel()) {
+                consumer.receive(get(channel, false), verifyRetryBeforeAck(channel));
+                assertThat(store.get(owner, id).status()).isEqualTo("ACCEPTED");
+                assertThat(store.get(owner, id).attempts()).isZero();
+                assertThat(channel.basicGet(namespace + ".run.q", false)).isNull();
+                claims.forEach(claim -> store.fail(claim, "TEST_CAPACITY_RELEASED"));
+                consumer.receive(awaitMessage(channel), channel);
+                assertSingleCommit(id);
+            }
+        } finally {
+            for (String user : users) performDeleteWithBody("/api/users/me", Map.of("currentPassword", "password123"), user);
+        }
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named="RUN_BROKER_FAULT_TESTS", matches="true")
+    void quorumRetrySurvivesBrokerRestartAndUnavailableDeadLetterRoute() throws Exception {
+        String id = start();
+        // RabbitMQ 4.1 默认每 180 秒重试不可路由的 quorum 死信；保持真实 Broker 配置。
+        jdbc.update("UPDATE interview_runs SET queue_deadline=TIMESTAMPADD(SECOND,360,CURRENT_TIMESTAMP(6)),"
+                + "deadline=TIMESTAMPADD(SECOND,360,CURRENT_TIMESTAMP(6)) WHERE id=?", id);
+        var deadline = store.get(owner, id).deadline();
+        jdbc.update("UPDATE interview_runs SET not_before=TIMESTAMPADD(SECOND,60,CURRENT_TIMESTAMP(6)) WHERE id=?", id);
+        publisher.publish();
+        try (var raw = connection.getRabbitConnectionFactory().newConnection(); var channel = raw.createChannel()) {
+            var original = get(channel, false);
+            channel.queueUnbind(namespace + ".run.q", namespace + ".x", RunDispatchConfiguration.KEY);
+            consumer.receive(original, verifyRetryBeforeAck(channel));
+            assertThat(store.get(owner, id).attempts()).isZero();
+        }
+        docker("MQ_TEST_CONTAINER", "restart", "--time", "5");
+        connection.resetConnection();
+        awaitBroker();
+        try (var raw = connection.getRabbitConnectionFactory().newConnection(); var channel = raw.createChannel()) {
+            assertThat(channel.basicGet(namespace + ".run.q", false)).isNull();
+            channel.queueBind(namespace + ".run.q", namespace + ".x", RunDispatchConfiguration.KEY);
+            jdbc.update("UPDATE interview_runs SET not_before=NULL WHERE id=?", id);
+            consumer.receive(awaitMessage(channel, 210), channel);
+            assertSingleCommit(id);
+            assertThat(store.get(owner, id).deadline()).isEqualTo(deadline);
+        }
+    }
+
+    void extendTestQueueDeadline(String id) {
+        jdbc.update("UPDATE interview_runs SET queue_deadline=TIMESTAMPADD(SECOND,90,CURRENT_TIMESTAMP(6)),"
+                + "deadline=TIMESTAMPADD(SECOND,180,CURRENT_TIMESTAMP(6)) WHERE id=?", id);
+    }
+
+    Channel verifyRetryBeforeAck(Channel channel) {
+        return (Channel) Proxy.newProxyInstance(Channel.class.getClassLoader(), new Class<?>[]{Channel.class}, (proxy, method, args) -> {
+            if (method.getName().equals("basicAck"))
+                assertThat(channel.queueDeclarePassive(namespace + ".retry.q").getMessageCount()).isEqualTo(1);
+            return method.invoke(channel, args);
+        });
+    }
+
+    Message awaitMessage(Channel channel) throws Exception {
+        return awaitMessage(channel, 60);
+    }
+    Message awaitMessage(Channel channel, int seconds) throws Exception {
+        long until = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(seconds);
+        while (System.nanoTime() < until) {
+            var delivery = channel.basicGet(namespace + ".run.q", false);
+            if (delivery != null) {
+                var properties = new MessageProperties();
+                properties.setDeliveryTag(delivery.getEnvelope().getDeliveryTag());
+                properties.setMessageId(delivery.getProps().getMessageId());
+                return new Message(delivery.getBody(), properties);
+            }
+            Thread.sleep(100);
+        }
+        throw new AssertionError("Delayed retry never reached the run queue");
+    }
+
+    void assertSingleCommit(String id) {
+        var row = store.get(owner, id);
+        assertThat(row.status()).isEqualTo("SUCCEEDED");
+        assertThat(store.events(owner, id, 0)).filteredOn(event -> event.type().equals("turn.committed")).hasSize(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_sessions WHERE session_id=?", Integer.class, row.sessionId())).isEqualTo(1);
+    }
+
+    void awaitDatabase() throws Exception {
+        long until = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(40);
+        while (System.nanoTime() < until) {
+            try { if (Integer.valueOf(1).equals(jdbc.queryForObject("SELECT 1", Integer.class))) return; }
+            catch (org.springframework.dao.DataAccessException unavailable) { }
+            Thread.sleep(200);
+        }
+        throw new AssertionError("Owned test database did not restart");
+    }
+
+    void awaitBroker() throws Exception {
+        long until = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(40);
+        while (System.nanoTime() < until) {
+            try (var raw = connection.getRabbitConnectionFactory().newConnection()) { if (raw.isOpen()) return; }
+            catch (IOException | java.util.concurrent.TimeoutException unavailable) { }
+            Thread.sleep(200);
+        }
+        throw new AssertionError("Owned test broker did not restart");
+    }
+
+    void docker(String variable, String operation, String... options) throws Exception {
+        String container = System.getenv(variable), label = System.getenv("MQ_ACCEPTANCE_RUN");
+        assertThat(container).startsWith("zhizhida-mq-acceptance-");
+        assertThat(label).isNotBlank();
+        var inspect = new ProcessBuilder("docker", "inspect", "--format", "{{json .Config.Labels}}", container)
+                .redirectErrorStream(true).start();
+        assertThat(inspect.waitFor(20, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+        assertThat(inspect.exitValue()).isZero();
+        assertThat(objectMapper.readTree(inspect.getInputStream().readAllBytes()).path("zhizhida.mq.acceptance").asText()).isEqualTo(label);
+        var command = new java.util.ArrayList<>(java.util.List.of("docker", operation));
+        command.addAll(java.util.List.of(options));
+        command.add(container);
+        var process = new ProcessBuilder(command).redirectErrorStream(true).start();
+        assertThat(process.waitFor(60, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+        assertThat(process.exitValue()).isZero();
     }
     @Test void cacheHitAvoidsAnotherBodyReadButStillChecksPublication() {
         double source = metrics.counter("zhizhida.question.cache", "outcome", "source").count();

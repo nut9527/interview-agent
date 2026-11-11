@@ -150,6 +150,25 @@ class PracticeMemoryRunsIT extends IntegrationTestBase {
         assertThat(memory.freeze(owner,java.util.stream.IntStream.range(0,13).mapToObj(i->"c"+i).toList(),"mock","new").available()).isFalse();
         runs.cancel(owner,id);
     }
+    @Test void recallKeepsEarlierSessionsInsteadOfFillingTheWindowWithOneSessionsRounds() throws Exception {
+        String second=data(startInterview(configuration(),token)).path("sessionId").asText();
+        for(int i=1;i<=3;i++) data(answerInterview(second, Map.of("answer","使用请求号唯一约束，冲突读取已有结果。","expectedTurn",i,"requestId",UUID.randomUUID().toString()),token));
+        for(var event:observations.pending()) if(event.owner()==owner) review.consume(event);
+        enabled(true);
+        var selection=memory.freeze(owner,List.of("storage"),"mock","new-session");
+        var rows=memory.read(owner,selection);
+        assertThat(rows).hasSizeLessThanOrEqualTo(20);
+        assertThat(rows).extracting(LearningMemory.Observation::sourceSessionId).contains(history,second);
+        assertThat(rows.stream().map(r->List.of(r.sourceSessionId(),r.competencyId(),r.dimension(),r.rubricVersion())).toList())
+                .doesNotHaveDuplicates();
+        assertThat(rows).allMatch(r->r.sourceRound()==3);
+        var progress=tools.history(selection,rows,"get_learning_progress",objectMapper.readTree("{\"competencyId\":\"storage\",\"limit\":5}"));
+        assertThat(progress.path("items").isEmpty()).isFalse();
+        for(var group:progress.path("items")) {
+            assertThat(group.path("latest").path("sourceSessionId").asText()).isEqualTo(second);
+            assertThat(group.path("previous").path("sourceSessionId").asText()).isEqualTo(history);
+        }
+    }
     @Test void correctionBeforeReceiptReuseStopsWithoutAnotherModelRequest() throws Exception {
         enabled(true);String id=start();var claim=runs.claim(runs.get(owner,id));var selection=selected(id);var ref=selection.references().getFirst();
         var cp=objectMapper.createObjectNode().put("stage","VALIDATE").put("repaired",false);cp.putArray("sources");cp.putArray("messages");cp.set("response",finalOutput().message());

@@ -114,20 +114,6 @@ class InterviewAgentGuardrailsTest {
                 InterviewAgentContext.encode("完整材料".repeat(3000), state, policy.routing(state, 12, 12)), turns, 12, true);
     }
 
-    @Test void practiceMemoryChangesNextPlanWithoutMixingMockOrUnknownHistory() {
-        var base = policy.plan(InterviewMode.GENERAL, 6, "", "model");
-        var evaluation = new Evaluation(1, "learning", new Decision(Level.INSUFFICIENT, "", "缺口", Action.FINISH,
-                "learning", "依据", "训练", Probe.NONE, "总结", ""), Probe.EVIDENCE, "核对学习过程");
-        var historical = new InterviewAgentState("interview-agent-v3", "model", base.plan(), "learning", List.of(evaluation));
-        var demo = new InterviewAgentState("interview-agent-v3", "mock", base.plan(), "learning", List.of(evaluation));
-        var memory = policy.practiceMemory(List.of(historical, demo), "model");
-        assertThat(memory).containsExactly(new PracticeMemory("learning", Probe.EVIDENCE, 1, 1, 0));
-        var next = policy.plan(InterviewMode.GENERAL, 6, new InterviewPlanningContext("", List.of(), List.of(), List.of(), ""), "model", memory);
-        assertThat(base.plan()).noneMatch(c -> c.id().equals("learning"));
-        assertThat(next.plan().get(1).id()).isEqualTo("learning");
-        assertThat(next.practiceMemory()).isEqualTo(memory);
-    }
-
     @Test void worstEscapingRetainsTheLatestAnswerAndEveryDigestRoundWithinTheModelBudget() {
         var base = policy.plan(InterviewMode.GENERAL, 12, "", "model");
         var digest = new ArrayList<DigestEntry>();

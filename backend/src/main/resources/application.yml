@@ -172,7 +172,7 @@ ai:
     thinking: ${DEEPSEEK_THINKING:}
     timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:30}
 
-# 可选的本地生态适配器；所有资源均需显式启用。
+# 检索参数；标准 Compose 提供 BGE 与 pgvector，源码模式由 enable-rag 配置。
 agent:
   retrieval:
     rrf-k: ${AGENT_RETRIEVAL_RRF_K:60}
@@ -181,6 +181,7 @@ agent:
     max-per-heading: ${AGENT_RETRIEVAL_MAX_PER_HEADING:2}
   vector:
     enabled: ${AGENT_VECTOR_ENABLED:false}
+    min-score: ${AGENT_VECTOR_MIN_SCORE:0.55}
     worker-enabled: ${AGENT_VECTOR_WORKER_ENABLED:true}
     poll-ms: ${AGENT_VECTOR_POLL_MS:5000}
     embedding-url: ${AGENT_VECTOR_EMBEDDING_URL:http://127.0.0.1:18092/v1}
@@ -211,13 +212,13 @@ interview:
       max-outstanding: ${INTERVIEW_RUNS_MAX_OUTSTANDING:20}
       queue-seconds: ${INTERVIEW_RUNS_QUEUE_SECONDS:10}
     loop-policy: ${INTERVIEW_RUNS_LOOP_POLICY:B0}
-    decision-protocol: ${INTERVIEW_RUNS_DECISION_PROTOCOL:legacy}
+    decision-protocol: ${INTERVIEW_RUNS_DECISION_PROTOCOL:phased-v1}
   agent:
     adaptive-routing-enabled: ${INTERVIEW_ADAPTIVE_ROUTING_ENABLED:false}
 
 learning:
   # 新命令使用练习工具时，发布开关与用户偏好必须同时允许。
-  practice-tools-enabled: ${LEARNING_PRACTICE_TOOLS_ENABLED:false}
+  practice-tools-enabled: ${LEARNING_PRACTICE_TOOLS_ENABLED:true}
 
 # 默认保留数据库派发；协调 Redis 始终必需，缓存与 MQ 可选。
 app:

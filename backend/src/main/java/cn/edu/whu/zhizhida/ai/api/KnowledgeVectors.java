@@ -5,6 +5,7 @@ import java.util.List;
 /** 仅为派生索引；调用方先校验资料归属并限定范围，命中后仍须匹配已授权快照的版本、哈希与原文片段。 */
 public interface KnowledgeVectors {
     String fingerprint();
+    default String retrievalFingerprint() { return fingerprint(); }
     record Scope(String documentId, int version, String contentSha256) { }
     record Fragment(String chunkId, String text) { }
     record Match(Scope scope, String chunkId) { }

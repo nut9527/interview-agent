@@ -5,14 +5,14 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
 export const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const files = new Set(['README.md', 'LICENSE', '.gitignore', '.gitattributes', '.editorconfig', '.nvmrc', '.env.example', 'start.cmd',
+const files = new Set(['README.md', 'LICENSE', '.gitignore', '.dockerignore', '.gitattributes', '.editorconfig', '.nvmrc', '.env.example', 'start.cmd',
   'docker-compose.yml', 'docker-compose.middleware.yml', 'docker-compose.split.yml',
   'backend/pom.xml', 'backend/Dockerfile', 'backend/.dockerignore',
   ...['.dockerignore', '.eslintrc.json', '.prettierignore', '.prettierrc.json', 'Dockerfile', 'index.html', 'nginx.conf', 'package.json',
     'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'postcss.config.js', 'tailwind.config.js',
     'tsconfig.json', 'tsconfig.node.json', 'vite.config.ts'].map(name => `frontend/${name}`)]);
 const trees = ['.github/workflows/', 'backend/.mvn/', 'backend/src/', 'backend/docker/',
-  'backend/compatibility/', 'frontend/src/', 'frontend/public/', 'frontend/scripts/', 'services/mcp-reference/', 'contracts/', 'scripts/', 'docs/'];
+  'backend/compatibility/', 'frontend/src/', 'frontend/public/', 'frontend/scripts/', 'services/mcp-reference/', 'services/embedding/', 'contracts/', 'scripts/', 'docs/'];
 const forbidden = /^(?:\.git|\.runtime|\.cache|\.m2|\.pnpm-store|node_modules|target|dist|coverage|outputs|tmp|logs|__pycache__)$/;
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
 export const jsonBytes = value => JSON.stringify(value, null, 2) + '\n';

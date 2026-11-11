@@ -89,32 +89,6 @@ class MybatisPlusInterviewSessionRepositoryTest {
     }
 
     @Test
-    void practiceHistoryLoadsOnlyEightFinishedCheckpointsWithinUserAndMode() {
-        var checkpoint =
-                new cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy()
-                        .plan(InterviewMode.GENERAL, 6, "", "model");
-        var row = new InterviewSessionEntity();
-        row.setAgentJson(
-                new JsonColumnCodec(new tools.jackson.databind.json.JsonMapper())
-                        .write(checkpoint));
-        when(mapper.selectList(any())).thenReturn(List.of(row));
-        assertThat(repository.recentAgentStates(42L, InterviewMode.GENERAL))
-                .containsExactly(checkpoint);
-        ArgumentCaptor<Wrapper<InterviewSessionEntity>> captor = wrapperCaptor();
-        verify(mapper).selectList(captor.capture());
-        assertThat(captor.getValue().getSqlSelect()).isEqualTo("agent_json");
-        assertThat(captor.getValue().getSqlSegment())
-                .contains("user_id", "mode", "state", "LIMIT 8");
-        assertThat(
-                        ((com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<
-                                                InterviewSessionEntity>)
-                                        captor.getValue())
-                                .getParamNameValuePairs()
-                                .values())
-                .contains(42L, "GENERAL", "FINISHED");
-    }
-
-    @Test
     void shouldDeleteHistoryWithinCurrentUserScope() {
         when(mapper.selectOne(any())).thenReturn(historyEntity());
         when(mapper.delete(org.mockito.ArgumentMatchers.<Wrapper<InterviewSessionEntity>>any()))

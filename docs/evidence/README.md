@@ -4,6 +4,12 @@
 
 面试回放测试读取已录制的模型请求、应答和运行结果，校验原始文件的 SHA-256 后复现引文、追问和协议检查。[回放用例](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/InterviewDecisionEvaluationIT.java) · [录制文件与校验值](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/CloseoutRecordedFixtures.java)
 
+## 运行专项结果
+
+当前实现的专项结果集中在[Agent 与中间件运行验收](runtime-acceptance.md)：真实模型单轮生命周期及最终引用复核通过，消息派发与故障回放 6 项通过，前端与 MCP 容器检查 11 项通过，面试相关回归测试 276 项通过。后端、BGE、前端和 MCP 镜像已构建，真实 BGE 推理与 pgvector 查询已验证。
+
+RAG 回答层的 5 个无答案样本正确拒答，误拒修正后的 2 个定向案例通过。该结果与下述检索排序实验分别统计；非空检索候选不代表资料足以回答。真实模型专项覆盖一个合成单轮案例，包含一次正常输出修复及独立 Agent 语义复核。
+
 ## 发布状态与验收边界
 
 当前发布登记为 **`CANDIDATE_NOT_ACCEPTED`**，源码尚未最终冻结。仓库提供可展示的候选版本；已有记录不能支持“完整 AI 质量验收通过”或“生产成熟”的结论。以下状态来自已保存证据，不代表在当前代码上重新执行了所有历史实验。
@@ -12,7 +18,7 @@
 | --- | --- | --- |
 | 单元测试、契约、Mock 全栈及浏览器检查 | [Verify 工作流](../../.github/workflows/verify.yml) 与对应运行报告 | 验证业务、持久化和交互行为；Mock 或录制回放不能衡量真实模型的语义质量。工作流定义本身不是执行通过记录 |
 | 真实模型工具与引文专项 | [引文修复记录](langchain4j-worker-citation-fix.json)为 `PASSED`，覆盖 1 个隐藏初始摘录的场景 | 证明该次服务端检索与引文映射成功；不代表模型能自主选择正确工具，也不代表所有样本通过 |
-| 真实模型失败记录 | [首批收尾台账](closeout-model-budget.jsonl)为 `FAIL`；[预载材料](langchain4j-worker-baseline.json)、[模型自行选工具](langchain4j-worker-model-choice.json)、[检索后引文](langchain4j-worker-retrieval.json)对照未通过 | 保留失败分母。一次后续专项成功不覆盖历史失败，也不能替代同一最终候选上的回归 |
+| 真实模型失败记录 | [收尾台账](closeout-model-budget.jsonl)为 `FAIL`；[预载材料](langchain4j-worker-baseline.json)、[模型自行选工具](langchain4j-worker-model-choice.json)、[检索后引文](langchain4j-worker-retrieval.json)对照未通过 | 属于对应候选与实验条件的结果；与 v5 单轮专项分别保留，不能合并为同一候选的成功率 |
 | 完整发布验收 | [登记](../../contracts/release-v1.0.json)包含 12 个样本及独立的 6+3 连续流程，候选与流程输入尚未冻结，后续执行器工作仍未完成 | 尚无完整最终候选的结果和逐项人工检查，不能宣布发布通过 |
 | 策略泛化与留出集 | [策略台账](kernel-model-budget.json)为开发分区实验，`heldoutExecuted=false` | 不提供留出集表现或泛化效果结论；[内核质量标准](../../contracts/agent-release-criteria.v1.json)要求的最终评测是另外的验收范围 |
 | 知识检索 | 下述 25 条正例与 5 条无答案合成题的检索对照 | 只衡量特定数据与环境的召回和排序；混合检索无答案空检索为 `0/5`，不能据此宣称拒答可靠或答案正确 |
@@ -38,6 +44,10 @@ node --test scripts/release-status.test.mjs
 
 | 数据 | 用途 |
 | --- | --- |
+| [Agent 与中间件运行验收](runtime-acceptance.md) | v5 真实 Worker、引用复核、RAG 回答、消息故障与容器构建的结果和复跑入口 |
+| [缓存证据复核](cache-benchmark.md)与[审计结果](cache-benchmark-audit.json) | 从历史原始样本重算缓存统计，说明命中率、正文回源与 DB 查询的区别；本次未重跑中间件压测 |
+| [向量与章节配额消融](retrieval-ablation.md)与[逐题结果](retrieval-ablation.json) | 词项基线上的四组独立开关对照；本次固定集的配额增量为 0，不能将混合检索整体收益归因于配额 |
+| [Agent 质量评测准备](agent-quality.md)与[覆盖汇总](agent-quality-smoke/summary.json) | 冻结 30 个非保留家族，提供人工盲评入口；目前仅有 6/90 条路线输出、0 条人工评分，不能宣称质量提升 |
 | `closeout-1-*.plan.json`、`closeout-1-*.wire.jsonl` | 该批次的执行计划，以及逐次录制的模型请求与应答 |
 | `closeout-1-*.jsonl`（运行报告）、`*.jsonl.audit.json` | 各场景的任务状态、工具回执，以及模型调用次数核对结果 |
 | [closeout-model-budget.jsonl](closeout-model-budget.jsonl) | 预算和批次验收台账。批次 `closeout-1` 的两个场景均执行完成；`redis-order` 的工具回执检查失败，批次结果为 `FAIL` |
@@ -46,7 +56,7 @@ node --test scripts/release-status.test.mjs
 | [pgvector-acceptance.json](pgvector-acceptance.json) | 使用真实 pgvector 和模拟嵌入服务，验证索引持久化、版本隔离与删除 |
 | [中文检索对照基线](knowledge-retrieval-bge.json) | 正文嵌入策略的检索基线，用于与标题加正文嵌入策略对照；包含逐题结果、无答案题空检索率及查询耗时 |
 | [BGE 检索评测](knowledge-retrieval-bge-current.json) | 标题加正文嵌入策略，使用本地 BGE 和内存向量存储。评测集含 25 条正例与 5 条无答案合成题，指标见下表 |
-| [本地混合 RAG 运行验收](hybrid-live.json) | 运行中的后端、本地 BGE 与 pgvector：P01 词项检索返回 0 条，混合检索返回 4 条并命中写后读原文；覆盖向量库故障时的词项回退和恢复后的语义召回。测试账号、资料和对应向量清理检查通过 |
+| [本地混合 RAG 运行记录](hybrid-live.json) | 对应版本中 P01 词项检索返回 0 条，混合检索返回 4 条并命中写后读原文；包含当时的向量故障回退行为。当前实现对已启用向量服务的故障直接报错，该记录不用于证明当前故障行为 |
 | [供应商连接诊断](provider-business-diagnostic.json) | 模型列表查询与 TLS 连接诊断，推理调用次数为 0；模型可用性按报告中的配置和返回列表核对 |
 
 ## 知识检索指标

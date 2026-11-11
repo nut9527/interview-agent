@@ -143,11 +143,11 @@ public class InterviewRunWorker {
         }
     }
 
-    /** MQ 同步复用准入路径，持久执行或释放完成后才确认消息。 */
-    public void executeCandidate(InterviewRunStore.Row row) {
+    /** 返回 true 时可确认消息；容量或退避等待交还 Broker 延迟重试。 */
+    public boolean executeCandidate(InterviewRunStore.Row row) {
         try (var permit = slots.tryAcquire(row.id(), row.owner())) {
-            if (permit != null) claimAndExecute(row);
-            else store.remindSoon(row.id());
+            if (permit == null) return false;
+            return claimAndExecute(row);
         }
     }
 
@@ -156,16 +156,18 @@ public class InterviewRunWorker {
      *
      * <p>执行返回后须已到终态或已持久安排重试；否则抛错，由消费端或恢复扫描继续处理。
      */
-    private void claimAndExecute(InterviewRunStore.Row row) {
+    private boolean claimAndExecute(InterviewRunStore.Row row) {
         var claim = store.claim(row);
         if (claim == null) {
-            store.remindSoon(row.id());
-            return;
+            // 活跃租约已有执行者；等待容量、退避或过期租约仍须保留通知。
+            return !store.needsDispatch(row.id());
         }
         execute(claim);
         var result = store.dispatchCandidate(row.id());
-        if (result.isPresent() && !result.get().terminal() && !store.retryScheduled(claim))
+        if (result.isEmpty() || result.get().terminal()) return true;
+        if (!store.retryScheduled(claim))
             throw new IllegalStateException("RUN_NOT_TERMINAL");
+        return false;
     }
 
     @Scheduled(scheduler = "runScheduler", fixedDelayString = "${interview.runs.expire-ms:2000}")

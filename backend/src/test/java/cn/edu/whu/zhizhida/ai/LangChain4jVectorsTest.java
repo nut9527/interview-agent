@@ -6,6 +6,7 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
+import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -14,6 +15,33 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class LangChain4jVectorsTest {
+    @Test void batchesGenerationPublicationChecksAndExcludesUnrelatedVectors() {
+        var model = mock(EmbeddingModel.class);
+        when(model.embed(anyString())).thenReturn(Response.from(Embedding.from(new float[]{1, 0})));
+        when(model.embedAll(anyList())).thenAnswer(call -> {
+            List<TextSegment> values = call.getArgument(0);
+            return Response.from(values.stream().map(v -> Embedding.from(v.text().equals("related")
+                    ? new float[]{1, 0} : new float[]{0, 1})).toList());
+        });
+        var store = spy(new InMemoryEmbeddingStore<TextSegment>());
+        var vectors = new LangChain4jKnowledgeVectors(model, store, "fixture-v1", 0.6);
+        var one = new KnowledgeVectors.Scope("one", 1, "sha-one");
+        var two = new KnowledgeVectors.Scope("two", 1, "sha-two");
+        vectors.index(one, List.of(new KnowledgeVectors.Fragment("one-related", "related"),
+                new KnowledgeVectors.Fragment("one-unrelated", "unrelated")));
+        // Manifest uses the first chunk's vector, but publication does not depend on its similarity.
+        vectors.index(two, List.of(new KnowledgeVectors.Fragment("two-unrelated", "unrelated"),
+                new KnowledgeVectors.Fragment("two-related", "related")));
+        clearInvocations(store);
+        assertThat(vectors.search(List.of(one, two), "query", 6)).extracting(KnowledgeVectors.Match::chunkId)
+                .containsExactlyInAnyOrder("one-related", "two-related");
+        verify(store, times(2)).search(any(EmbeddingSearchRequest.class));
+        var stricter = new LangChain4jKnowledgeVectors(model, store, "fixture-v1", 0.8);
+        assertThat(stricter.fingerprint()).isEqualTo(vectors.fingerprint());
+        assertThat(stricter.retrievalFingerprint()).isNotEqualTo(vectors.retrievalFingerprint());
+        assertThatIllegalArgumentException().isThrownBy(() -> new LangChain4jKnowledgeVectors(model, store, "v1", Double.NaN));
+    }
+
     @Test void partialGenerationIsInvisibleUntilPublishedAndOtherVersionsStayIsolated() {
         var model = mock(EmbeddingModel.class); var calls = new AtomicInteger();
         when(model.embed(anyString())).thenReturn(Response.from(Embedding.from(new float[]{1, 0})));

@@ -2,6 +2,8 @@
 评审 JSON 另含 assessment:{"detail":{"protocolVersion":"six-dimensions-v1","items":[...]}}，不要输出旧 items。
 恰好六项，各一次：EVIDENCE_SUFFICIENCY 证据细节与限制；TECHNICAL_CORRECTNESS 技术断言的对照；
 CAUSAL_EXPLANATION 约束、理由与验证关系；TRADEOFFS 备选方案及代价；RESPONSIBILITY 本人职责边界；EXPRESSION 对象、步骤与限定条件的清晰度。
+TRADEOFFS 只有回答比较可替代方案并说明选择所接受的代价时才为 OBSERVED；组件分工或单一方案描述不等于方案取舍，缺少比较或代价则为 NOT_OBSERVED。
+每项先选 citations，再写一条仅概括这些引文的原子观察 claimText；不要罗列引文以外的事实。引用不足就缩小结论，不能用一句局部说明评价整段回答的结构。
 字段、枚举与引文格式见后附契约；claimText写具体观察，limitation写仍需验证的限制。
 各维独立，不按字数/术语数/标准答案字符串评分，不从旧 level 推总分。未覆盖保持未知，不强凑证据。
 status=OBSERVED 只表示引文足以作出 claimText 这条观察，不表示能力充分。

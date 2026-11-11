@@ -5,7 +5,6 @@ import cn.edu.whu.zhizhida.common.PageRequest;
 import cn.edu.whu.zhizhida.interview.api.InterviewService.InterviewHistoryItem;
 import cn.edu.whu.zhizhida.interview.api.InterviewSession;
 
-import java.util.List;
 import java.util.Optional;
 
 /** 以显式用户身份隔离会话；调用方负责身份可信性，写入还须满足来源授权与并发约束。 */
@@ -16,8 +15,6 @@ public interface InterviewSessionRepository {
 
 
     InterviewSession save(Long userId, InterviewSession session);
-
-    List<cn.edu.whu.zhizhida.interview.api.InterviewAgentState> recentAgentStates(Long userId, cn.edu.whu.zhizhida.interview.api.InterviewMode mode);
 
     Optional<InterviewSession> findById(Long userId, String sessionId);
 

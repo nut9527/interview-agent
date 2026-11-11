@@ -71,6 +71,8 @@ class ProviderBusinessAcceptanceTest {
 
     @Test @EnabledIfEnvironmentVariable(named="RUN_PROVIDER_BUSINESS",matches="true")
     void realSyntheticBusinessAcceptance() throws Exception {
+        var reportDirectory=Path.of(System.getProperty("provider.report-directory","target"));
+        Files.createDirectories(reportDirectory);
         assertThat(System.getenv("BUSINESS_MAX_REQUESTS")).isEqualTo("4");
         assertThat(System.getenv("BUSINESS_MAX_OUTPUT_TOKENS")).isEqualTo("3000");
         String model=System.getenv("ACCEPTANCE_MODEL");
@@ -83,7 +85,7 @@ class ProviderBusinessAcceptanceTest {
         report.put("independentReview","PENDING"); report.put("durableWorkerTested",false);
         var rows=evaluate(System.getenv("AI_API_KEY"),System.getenv("ACCEPTANCE_BASE_URL"),model,progress -> {
             report.put("attempts",progress);
-            try { Files.writeString(Path.of("target/provider-business-acceptance.json"),json.writerWithDefaultPrettyPrinter().writeValueAsString(report)); }
+            try { Files.writeString(reportDirectory.resolve("provider-business-acceptance.json"),json.writerWithDefaultPrettyPrinter().writeValueAsString(report)); }
             catch(java.io.IOException ex) { throw new java.io.UncheckedIOException(ex); }
         });
         // 供应商失败保留为证据，不静默丢弃或重试；执行脚本另行检查结果完整性。

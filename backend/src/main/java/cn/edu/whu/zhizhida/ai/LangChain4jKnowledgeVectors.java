@@ -18,12 +18,19 @@ public final class LangChain4jKnowledgeVectors implements KnowledgeVectors {
     private final EmbeddingModel model;
     private final EmbeddingStore<TextSegment> store;
     private final String embeddingVersion;
+    private final double minScore;
     // 预处理改变必须切换代际；RRF 参数只影响查询，不应触发重新嵌入。
     public String fingerprint() { return "knowledge-heading-body-v3:" + embeddingVersion; }
+    public String retrievalFingerprint() { return fingerprint() + ":min-score=" + minScore; }
     public LangChain4jKnowledgeVectors(EmbeddingModel model, EmbeddingStore<TextSegment> store, String embeddingVersion) {
+        this(model, store, embeddingVersion, 0.55);
+    }
+    public LangChain4jKnowledgeVectors(EmbeddingModel model, EmbeddingStore<TextSegment> store, String embeddingVersion, double minScore) {
         this.model = Objects.requireNonNull(model); this.store = Objects.requireNonNull(store);
         if (embeddingVersion == null || embeddingVersion.isBlank()) throw new IllegalArgumentException("Embedding version required");
         this.embeddingVersion = embeddingVersion;
+        if (!Double.isFinite(minScore) || minScore < 0 || minScore > 1) throw new IllegalArgumentException("Vector min score must be between 0 and 1");
+        this.minScore = minScore;
     }
     private String generation(Scope scope) {
         return generation(scope, fingerprint());
@@ -71,15 +78,17 @@ public final class LangChain4jKnowledgeVectors implements KnowledgeVectors {
         if (scopes.size() > 5 || query == null || query.isBlank() || query.length() > 500 || limit < 1 || limit > 100)
             throw new IllegalArgumentException("Invalid vector query");
         var embedding = model.embed(query).content();
+        var generations = new LinkedHashMap<String, Scope>();
+        for (var scope : scopes) generations.put(generation(scope), scope);
         var published = new LinkedHashMap<String, Scope>();
-        for (var scope : scopes) {
-            String generation = generation(scope);
-            var manifest = store.search(EmbeddingSearchRequest.builder().queryEmbedding(embedding).maxResults(1)
-                    .filter(Filter.and(metadataKey("generation").isEqualTo(generation), metadataKey("kind").isEqualTo("manifest"))).build());
-            if (!manifest.matches().isEmpty()) published.put(generation, scope);
+        var manifests = store.search(EmbeddingSearchRequest.builder().queryEmbedding(embedding).maxResults(generations.size())
+                .filter(Filter.and(metadataKey("generation").isIn(generations.keySet()), metadataKey("kind").isEqualTo("manifest"))).build());
+        for (var match : manifests.matches()) {
+            String generation = match.embedded().metadata().getString("generation");
+            if (generations.containsKey(generation)) published.put(generation, generations.get(generation));
         }
         if (published.isEmpty()) return List.of();
-        return store.search(EmbeddingSearchRequest.builder().queryEmbedding(embedding).maxResults(limit)
+        return store.search(EmbeddingSearchRequest.builder().queryEmbedding(embedding).maxResults(limit).minScore(minScore)
                 .filter(Filter.and(metadataKey("generation").isIn(published.keySet()), metadataKey("kind").isEqualTo("chunk"))).build())
                 .matches().stream().filter(m -> m.embedded() != null)
                 .filter(m -> published.containsKey(m.embedded().metadata().getString("generation")))

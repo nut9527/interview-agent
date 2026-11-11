@@ -89,6 +89,26 @@ class InterviewOutputContractTest {
     }
 
     @Test
+    void finalRoutingIsOwnedByTheServerAndGenerationKeepsCitationConstraints() {
+        var state = new InterviewAgentPolicy().plan(InterviewMode.GENERAL, 1, "", "model");
+        var policy = new InterviewAgentPolicy();
+        String context = InterviewAgentContext.encode("", state, policy.routing(state, 1, 1));
+        var payload = json.createObjectNode().put("feedback", "反馈").put("finalSummary", "总结");
+        payload.putObject("agentDecision").put("level", "PARTIAL").put("evidence", "我负责接口")
+                .put("gap", "验证结果待补充").put("reason", "已说明职责").put("practice", "补充验证")
+                .put("intent", "结束复盘");
+        var decision = service.parseReview(payload, context, true).agentDecision();
+        assertThat(decision.action()).isEqualTo(InterviewAgentState.Action.FINISH);
+        assertThat(decision.nextCompetencyId()).isEqualTo(state.activeCompetencyId());
+        assertThat(decision.questionCompetencyId()).isEmpty();
+        assertThat(decision.probe()).isEqualTo(InterviewAgentState.Probe.NONE);
+        assertThat(policy.advance(state, 1, 1, "我负责接口", decision).evaluations()).hasSize(1);
+        var prompt = InterviewOutputContract.prompt(false, true, true);
+        assertThat(prompt).doesNotContain("questionCompetencyId", "nextCompetencyId", "\"action\"", "\"probe\"", "nextQuestion")
+                .contains("one contiguous", "exact source substring", "exactly 6 distinct dimensions");
+    }
+
+    @Test
     void diagnosticFeedbackNeverCopiesUntrustedExceptionText() {
         var rejected = new InterviewReviewRejected(StructuredOutput.invalid("private\nAuthorization: secret"));
         var feedback = json.readTree(rejected.repairFeedback());

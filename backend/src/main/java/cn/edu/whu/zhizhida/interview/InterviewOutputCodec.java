@@ -49,7 +49,7 @@ public final class InterviewOutputCodec {
         try {
             String feedback = StructuredOutput.text(payload, "feedback", InterviewOutputContract.FEEDBACK_MAX).replaceFirst("^即时反馈[:：]\\s*", "");
             if (feedback.isBlank()) throw StructuredOutput.invalid("feedback");
-            var decision = context == null || context.checkpoint() == null ? null : parseDecision(payload);
+            var decision = context == null || context.checkpoint() == null ? null : parseDecision(payload, context, finalRound);
             // 轮次由应用规则决定，模型文本不能直接结束面试状态机。
             return finalRound
                     ? new InterviewAiReply(feedback, "", StructuredOutput.text(payload, "finalSummary", InterviewOutputContract.SUMMARY_MAX), decision, parseAssessment(payload))
@@ -66,22 +66,25 @@ public final class InterviewOutputCodec {
         } catch (RuntimeException ex) { throw new InterviewReviewRejected("assessment 结构或枚举无效", StructuredOutput.RejectionReason.TYPE_MISMATCH, "assessment"); }
     }
 
-    private InterviewAgentState.Decision parseDecision(JsonNode payload) {
+    private InterviewAgentState.Decision parseDecision(JsonNode payload, InterviewAgentContext context, boolean finalRound) {
         JsonNode node = payload.path("agentDecision");
         if (node.isMissingNode() || node.isNull())
             throw StructuredOutput.invalid("agentDecision", StructuredOutput.RejectionReason.MISSING_FIELD);
         if (!node.isObject()) throw StructuredOutput.invalid("agentDecision", StructuredOutput.RejectionReason.TYPE_MISMATCH);
+        var action = finalRound ? InterviewAgentState.Action.FINISH : enumField(InterviewAgentState.Action.class, node, "action");
+        String target = finalRound ? context.routing().current().id() : decisionText(node, "nextCompetencyId", InterviewOutputContract.ID_MAX);
+        var probe = finalRound ? InterviewAgentState.Probe.NONE : enumField(InterviewAgentState.Probe.class, node, "probe");
         return new InterviewAgentState.Decision(
                 enumField(InterviewAgentState.Level.class, node, "level"),
                 optionalEmptyText(node, "evidence", InterviewOutputContract.EVIDENCE_MAX),
                 decisionText(node, "gap", InterviewOutputContract.DECISION_TEXT_MAX),
-                enumField(InterviewAgentState.Action.class, node, "action"),
-                decisionText(node, "nextCompetencyId", InterviewOutputContract.ID_MAX),
+                action,
+                target,
                 decisionText(node, "reason", InterviewOutputContract.DECISION_TEXT_MAX),
                 decisionText(node, "practice", InterviewOutputContract.DECISION_TEXT_MAX),
-                enumField(InterviewAgentState.Probe.class, node, "probe"),
+                probe,
                 decisionText(node, "intent", InterviewOutputContract.INTENT_MAX),
-                optionalEmptyText(node, "questionCompetencyId", InterviewOutputContract.ID_MAX).trim());
+                action == InterviewAgentState.Action.FINISH ? "" : target);
     }
 
     private String decisionText(JsonNode node, String field, int max) {

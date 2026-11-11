@@ -26,6 +26,10 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      embedding:
+        condition: service_healthy
+      pgvector:
+        condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: worker
       QUESTION_CACHE_ENABLED: "true"

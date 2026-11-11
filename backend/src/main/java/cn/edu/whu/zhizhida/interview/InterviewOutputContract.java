@@ -8,11 +8,11 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 
-/** 生成提示与解析器共用的字段契约；不是供应商的 JSON Schema 请求参数。
+/** 领域字段清单及本轮生成契约；服务端派生字段不参与生成，不是供应商的 JSON Schema 请求参数。
  * 长度和引用均以 UTF-16 单位描述，领域间关系仍由策略和证据校验器验证。
  */
 public final class InterviewOutputContract {
-    public static final String VERSION = "interview-output-v2";
+    public static final String VERSION = "interview-output-v3";
     public static final int QUESTION_MAX = 300;
     public static final int FEEDBACK_MAX = 1000;
     public static final int NEXT_QUESTION_MAX = 600;
@@ -34,6 +34,15 @@ public final class InterviewOutputContract {
             ((ObjectNode) assessmentFields.path("detail")).put("type", "required object when assessment is supplied");
         }
         if (!agent) ((ObjectNode) source.path("fields")).remove("assessment");
+        var fields = (ObjectNode) source.path("fields");
+        if (!opening) {
+            fields.remove(finalRound ? "nextQuestion" : "finalSummary");
+            if (agent) {
+                var decision = (ObjectNode) fields.path("agentDecision").path("fields");
+                decision.remove("questionCompetencyId");
+                if (finalRound) decision.remove(java.util.List.of("action", "nextCompetencyId", "probe"));
+            }
+        }
         return "\n服务端字段契约（硬上限；前文较短长度是生成建议）。仅输出该轮字段，未知字段不要生成：\n"
                 + compact(source.path("fields"));
     }
@@ -44,10 +53,11 @@ public final class InterviewOutputContract {
             if (value.startsWith("string;") && value.contains("; maxUTF16=")) {
                 var parts = value.split(";", 4);
                 String maximum = parts[2].trim().replace("maxUTF16=", "");
-                return JSON.getNodeFactory().stringNode(parts[1].contains("nonblank")
-                        ? "nonblank string≤" + maximum + " UTF16" : "string[0.." + maximum + " UTF16]");
+                String shape = parts[1].contains("nonblank")
+                        ? "nonblank string≤" + maximum + " UTF16" : "string[0.." + maximum + " UTF16]";
+                return JSON.getNodeFactory().stringNode(shape + (parts.length == 4 ? ";" + parts[3] : ""));
             }
-            return JSON.getNodeFactory().stringNode(value.split(";", 2)[0]);
+            return JSON.getNodeFactory().stringNode(value);
         }
         var result = JSON.createObjectNode();
         if (source.has("type")) result.set("$type", compact(source.path("type")));
@@ -87,7 +97,7 @@ public final class InterviewOutputContract {
                 .put("unknownFields", "ignored by parser; do not generate");
         var fields = node.putObject("fields");
         fields.put("level", values(InterviewAgentState.Level.class));
-        fields.put("evidence", text(EVIDENCE_MAX, true) + "; exact latest answer quote; empty only for INSUFFICIENT");
+        fields.put("evidence", text(EVIDENCE_MAX, true) + "; one contiguous verbatim substring of the latest answer; no omissions or concatenation; empty only for INSUFFICIENT");
         fields.put("gap", text(DECISION_TEXT_MAX, false));
         fields.put("action", values(InterviewAgentState.Action.class) + "; restricted to allowedActions");
         fields.put("nextCompetencyId", text(ID_MAX, false) + "; FOLLOW_UP/FINISH=current.id; ADVANCE=next.id");
@@ -115,10 +125,10 @@ public final class InterviewOutputContract {
         detailFields.put("protocolVersion", "literal six-dimensions-v1");
         var items = detailFields.putObject("items").put("type", "array; exactly 6 distinct dimensions; unknown item fields rejected");
         var item = items.putObject("itemFields");
-        observation(item, DetailedAssessment.Dimension.class);
-        item.put("majorCorrection", "boolean; true only for OBSERVED TECHNICAL_CORRECTNESS; omitted defaults false");
         item.putObject("citations").put("type", "array; 0..3; OBSERVED requires answer citation and non-INSUFFICIENT; otherwise empty and INSUFFICIENT")
                 .set("itemFields", quote(true));
+        observation(item, DetailedAssessment.Dimension.class);
+        item.put("majorCorrection", "boolean; true only for OBSERVED TECHNICAL_CORRECTNESS; omitted defaults false");
         node.put("relations", "OBSERVED TECHNICAL_CORRECTNESS additionally requires a fixed reference citation; "
                 + "CONTRADICTED requires majorCorrection; answer=SELF_REPORT, reference=SUPPORT/COUNTEREVIDENCE; conflicts remain DISPUTED. "
                 + "Legacy items cannot claim CONTRADICTED; OBSERVED requires quotes and non-INSUFFICIENT, otherwise empty quotes and INSUFFICIENT.");

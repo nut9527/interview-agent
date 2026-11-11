@@ -103,19 +103,24 @@ class InterviewRecoveryIT {
             assertThat(store.get(owner,id).deadline()).isEqualTo(before.deadline());
             assertThat(store.get(owner,id).attempts()).isEqualTo(before.attempts());
             store.deleteOwned(owner);
+            assertThat(store.needsDispatch(id)).isFalse();
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_run_outbox WHERE run_id=?",Integer.class,id)).isZero();
         }
 
         @Test
         void recoveryExpiresQueuedWorkWithoutModelCallsAndRespectsActiveLeases() throws Exception {
             String id=start("outbox_expired_001");
+            assertThat(store.needsDispatch(id)).isTrue();
             var claim=store.claim(store.get(owner,id));
+            assertThat(store.needsDispatch(id)).isFalse();
             jdbc.update("UPDATE interview_runs SET next_dispatch_at=TIMESTAMPADD(SECOND,-1,CURRENT_TIMESTAMP(6)) WHERE id=?",id);
             store.recoverDispatches();
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_run_outbox WHERE run_id=?",Integer.class,id)).isEqualTo(1);
             jdbc.update("UPDATE interview_runs SET lease_until=TIMESTAMPADD(SECOND,-1,CURRENT_TIMESTAMP(6)),deadline=TIMESTAMPADD(SECOND,-1,CURRENT_TIMESTAMP(6)) WHERE id=?",id);
+            assertThat(store.needsDispatch(id)).isTrue();
             store.recoverDispatches();
             assertThat(store.get(owner,id).status()).isEqualTo("EXPIRED");
+            assertThat(store.needsDispatch(id)).isFalse();
             assertThat(store.get(owner,id).attempts()).isZero();
             assertThat(store.heartbeat(claim)).isFalse();
         }
@@ -136,6 +141,7 @@ class InterviewRecoveryIT {
             assertThat(jdbc.queryForObject("SELECT status FROM interview_model_attempts WHERE attempt_id=?",String.class,attempt)).isEqualTo("STARTED");
             assertThat(store.events(owner,id,0)).noneMatch(event -> event.type().equals("model.retry_scheduled"));
             assertThat(store.deferModelFailure(claim,attempt,"MODEL_NETWORK",12,"{}")).isTrue();
+            assertThat(store.needsDispatch(id)).isTrue();
             assertThat(jdbc.queryForObject("SELECT status FROM interview_model_attempts WHERE attempt_id=?",String.class,attempt)).isEqualTo("UNKNOWN");
             assertThatThrownBy(() -> store.deferModelFailure(claim,attempt,"MODEL_NETWORK",12,"{}"))
                     .hasMessage("RUN_FENCED");
@@ -769,13 +775,11 @@ class InterviewRecoveryIT {
         @Test void withdrawnHistoryIsReadOnlyAndExcludedFromSubsequentMemoryAndTasks() throws Exception {
             String sid=opened("TEACHING");
             for(int i=1;i<=3;i++) assertThat(answerInterview(sid,answer(i,"history_revocation_"+i),token).getResponse().getStatus()).isEqualTo(200);
-            assertThat(sessions.recentAgentStates(owner,InterviewMode.BACKEND_BASICS)).isNotEmpty();
             deleteDoc();
             var view=data(performGet("/api/interviews/sessions/"+sid,token));
             assertThat(view.path("sourceRevoked").asBoolean()).isTrue();
             assertThat(view.path("agent").path("training").path("knowledge").get(0).path("content").asText()).isEmpty();
             assertThat(view.path("turns").toString()).contains(ANSWER);
-            assertThat(sessions.recentAgentStates(owner,InterviewMode.BACKEND_BASICS)).isEmpty();
             assertThat(performPost("/api/interviews/training-tasks",Map.of("sourceSessionId",sid,"sourceRound",1),token).getResponse().getStatus()).isEqualTo(409);
             assertThat(data(performGet("/api/interviews/sessions/"+sid+"/resources",token)).isEmpty()).isTrue();
             var replay=answerInterview(sid,answer(1,"history_revocation_1"),token);

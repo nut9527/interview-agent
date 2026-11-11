@@ -18,7 +18,8 @@ class RunDispatchConsumerTest {
     final Channel channel=mock(Channel.class);
     final JsonMapper json=new JsonMapper();
     final SimpleMeterRegistry metrics=new SimpleMeterRegistry();
-    final RunDispatchConsumer consumer=new RunDispatchConsumer(store,worker,json,metrics,true);
+    final RunDispatchRetry retry=mock(RunDispatchRetry.class);
+    final RunDispatchConsumer consumer=new RunDispatchConsumer(store,worker,json,metrics,retry);
     final String id=UUID.randomUUID().toString();
     Message message() {
         var event=new RunDispatchMessage(1,UUID.randomUUID().toString(),"AGENT_RUN_READY",id,0,Instant.now());
@@ -35,33 +36,53 @@ class RunDispatchConsumerTest {
         when(store.dispatchCandidate(id)).thenReturn(Optional.empty());
         consumer.receive(message(),channel);
         var row=mock(InterviewRunStore.Row.class); when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
+        when(worker.executeCandidate(row)).thenReturn(true);
         consumer.receive(message(),channel);
         verify(channel,times(2)).basicAck(7,false); verify(worker).executeCandidate(row);
+        verifyNoInteractions(retry);
     }
     @Test void ackFollowsSharedWorkerAdmissionAndExecution() throws Exception {
         var row=mock(InterviewRunStore.Row.class);
         when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
+        when(worker.executeCandidate(row)).thenReturn(true);
         consumer.receive(message(),channel);
         var ordered=inOrder(store,worker,channel);
         ordered.verify(store).dispatchCandidate(id);
         ordered.verify(worker).executeCandidate(row); ordered.verify(channel).basicAck(7,false);
     }
-    @Test void databaseFailureDefersToDurableRecoveryWithoutBrokerRequeue() throws Exception {
+    @Test void databaseFailureConfirmsDelayedRetryBeforeAck() throws Exception {
         when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException());
-        consumer.receive(message(),channel);
+        var message=message();
+        consumer.receive(message,channel);
+        var ordered=inOrder(retry,channel);
+        ordered.verify(retry).publish(message);
+        ordered.verify(channel).basicAck(7,false);
         verify(channel).basicAck(7,false); verify(channel,never()).basicNack(anyLong(),anyBoolean(),anyBoolean());
-        assertThat(metrics.get("zhizhida.run.delivery").tag("outcome","deferred").counter().count()).isEqualTo(1);
+        assertThat(metrics.get("zhizhida.run.delivery").tag("outcome","retry_execution").counter().count()).isEqualTo(1);
         verifyNoInteractions(worker);
     }
-    @Test void unpersistedResultDefersToLeaseRecovery() throws Exception {
+    @Test void unpersistedResultGetsBrokerRetry() throws Exception {
         var row=mock(InterviewRunStore.Row.class); when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
         doThrow(new IllegalStateException("RUN_NOT_TERMINAL")).when(worker).executeCandidate(row);
         consumer.receive(message(),channel); verify(channel).basicAck(7,false);
+        verify(retry).publish(any(Message.class));
         verify(channel,never()).basicNack(anyLong(),anyBoolean(),anyBoolean());
     }
-    @Test void disabledRecoveryKeepsNotificationForBrokerRetry() throws Exception {
+    @Test void saturatedWorkerRetriesWithoutClaimOrDatabaseReminder() throws Exception {
+        var row=mock(InterviewRunStore.Row.class);
+        when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
+        when(worker.executeCandidate(row)).thenReturn(false);
+        var message=message();
+        consumer.receive(message,channel);
+        var ordered=inOrder(retry,channel);
+        ordered.verify(retry).publish(message);
+        ordered.verify(channel).basicAck(7,false);
+        assertThat(metrics.get("zhizhida.run.delivery").tag("outcome","retry_waiting").counter().count()).isEqualTo(1);
+    }
+    @Test void unconfirmedRetryKeepsOriginalNotification() throws Exception {
         when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException());
-        new RunDispatchConsumer(store,worker,json,metrics,false).receive(message(),channel);
+        doThrow(new org.springframework.amqp.AmqpException("nack")).when(retry).publish(any());
+        consumer.receive(message(),channel);
         verify(channel).basicNack(7,false,true); verify(channel,never()).basicAck(anyLong(),anyBoolean());
     }
     @Test void shutdownReturnsNotificationAndPreservesInterrupt() throws Exception {
@@ -71,15 +92,16 @@ class RunDispatchConsumerTest {
             consumer.receive(message(),channel);
             assertThat(Thread.currentThread().isInterrupted()).isTrue();
             verify(channel).basicNack(7,false,true); verify(channel,never()).basicAck(anyLong(),anyBoolean());
+            verifyNoInteractions(retry);
         } finally { Thread.interrupted(); }
     }
-    @Test void failedDeferredAckPropagatesForBrokerRecovery() throws Exception {
+    @Test void failedAckAfterRetryConfirmationPropagatesForBrokerRecovery() throws Exception {
         when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException());
         doThrow(new java.io.IOException("connection lost")).when(channel).basicAck(7,false);
         assertThatThrownBy(()->consumer.receive(message(),channel)).isInstanceOf(java.io.IOException.class);
         verify(channel,never()).basicNack(anyLong(),anyBoolean(),anyBoolean());
     }
-    @Test void failedDeferredDeliveryDoesNotLogExceptionPayload() throws Exception {
+    @Test void failedDeliveryDoesNotLogExceptionPayload() throws Exception {
         var logger=(ch.qos.logback.classic.Logger)org.slf4j.LoggerFactory.getLogger(RunDispatchConsumer.class);
         var logs=new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
         logs.start();logger.addAppender(logs);
@@ -87,7 +109,7 @@ class RunDispatchConsumerTest {
             when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException("SECRET_PROMPT_AND_CREDENTIAL"));
             consumer.receive(message(),channel);
             assertThat(logs.list).hasSize(1);
-            assertThat(logs.list.getFirst().getFormattedMessage()).contains("outcome=deferred","runId="+id,
+            assertThat(logs.list.getFirst().getFormattedMessage()).contains("outcome=retry","runId="+id,
                     "errorType=IllegalStateException").doesNotContain("SECRET_PROMPT_AND_CREDENTIAL");
             assertThat(logs.list.getFirst().getThrowableProxy()).isNull();
         } finally { logger.detachAppender(logs);logs.stop(); }

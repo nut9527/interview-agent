@@ -28,8 +28,12 @@ public final class EmbeddingServer implements AutoCloseable {
     private final Function<List<String>, List<float[]>> embed;
 
     EmbeddingServer(int port, Function<List<String>, List<float[]>> embed) throws IOException {
+        this("127.0.0.1", port, embed);
+    }
+
+    EmbeddingServer(String host, int port, Function<List<String>, List<float[]>> embed) throws IOException {
         this.embed = embed;
-        server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 16);
+        server = HttpServer.create(new InetSocketAddress(host, port), 16);
         server.setExecutor(executor);
         server.createContext("/", this::handle);
     }
@@ -94,16 +98,17 @@ public final class EmbeddingServer implements AutoCloseable {
     }
 
     public static void main(String[] args) throws Exception {
+        String host = System.getProperty("embedding.host", "127.0.0.1");
         int port = Integer.parseInt(System.getProperty("embedding.port", "18092"));
         if (port < 1024 || port > 65535) throw new IllegalArgumentException("Invalid local embedding port");
         var model = new BgeSmallZhV15QuantizedEmbeddingModel();
         // Load model and native runtime before publishing readiness.
         if (model.embed("准备本地语义检索").content().vector().length != DIMENSION)
             throw new IllegalStateException("Unexpected BGE dimension");
-        var service = new EmbeddingServer(port, texts -> model.embedAll(texts.stream().map(TextSegment::from).toList())
+        var service = new EmbeddingServer(host, port, texts -> model.embedAll(texts.stream().map(TextSegment::from).toList())
                 .content().stream().map(e -> e.vector()).toList());
         Runtime.getRuntime().addShutdownHook(new Thread(service::close));
         service.start();
-        System.out.println(SERVICE + " ready at 127.0.0.1:" + port + " model=" + MODEL + " dimension=" + DIMENSION);
+        System.out.println(SERVICE + " ready at " + host + ":" + port + " model=" + MODEL + " dimension=" + DIMENSION);
     }
 }

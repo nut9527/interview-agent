@@ -75,9 +75,8 @@ class KnowledgeHybridRetrievalEvaluationTest {
                         Integer.parseInt(System.getProperty("agent.retrieval.max-per-heading", "2")));
                 var hybrid = new HybridKnowledgeSearch(vectors, metrics, settings);
                 var results = collect(snapshots, corpus, cases, hybrid);
-                // 向量故障时生产服务会退回词项匹配，不能把这种结果计作混合检索成绩。
-                assertThat(metrics.find("knowledge.retrieval.degraded").counter())
-                        .as("Hybrid evaluation must complete without lexical fallback").isNull();
+                assertThat(metrics.find("knowledge.retrieval.failures").counter())
+                        .as("Hybrid evaluation must complete without vector failures").isNull();
                 reports.put("hybrid", report("hybrid (" + hybrid.fingerprint() + ")", results, json));
             }
         } finally {

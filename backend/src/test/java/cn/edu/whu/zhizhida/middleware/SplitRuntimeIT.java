@@ -601,6 +601,7 @@ class SplitRuntimeIT {
                     if (snapshotKey != null) cache.delete(snapshotKey);
                     var admin = new RabbitAdmin(rabbit);
                     admin.deleteQueue(namespace + ".run.q"); admin.deleteQueue(namespace + ".dead.q");
+                    admin.deleteQueue(namespace + ".retry.q"); admin.deleteExchange(namespace + ".retry.x");
                     admin.deleteExchange(namespace + ".x"); admin.deleteExchange(namespace + ".dlx");
                 }
             }

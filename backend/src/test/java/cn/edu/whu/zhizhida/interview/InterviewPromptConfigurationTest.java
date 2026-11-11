@@ -35,7 +35,7 @@ class InterviewPromptConfigurationTest {
             assertThat(c).hasNotFailed();
             var service = (DefaultInterviewAiService) c.getBean(InterviewAiService.class);
             assertThat(service.templateManifest().path("templateVersion").asText())
-                    .isEqualTo("interview-prompts-v2");
+                    .isEqualTo("interview-prompts-v5");
             assertThat(service.openingInput("Java", "材料", null).system())
                     .startsWith(InterviewPromptTemplates.defaults().get("opening"));
         });

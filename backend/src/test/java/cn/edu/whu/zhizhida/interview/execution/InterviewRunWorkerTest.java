@@ -390,10 +390,10 @@ class InterviewRunWorkerTest {
             scanning.scan();
             assertThat(entered.await(5, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
             assertThat(virtual.get()).isEqualTo(4);
-            scanning.executeCandidate(rows.get(5));
+            assertThat(scanning.executeCandidate(rows.get(5))).isFalse();
             verify(store, never()).claim(rows.get(1));
             verify(store, never()).claim(rows.get(5));
-            verify(store).remindSoon(rows.get(5).id());
+            verify(store, never()).needsDispatch(rows.get(5).id());
             release.countDown();
             assertThat(finished.await(5, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
         } finally {
@@ -412,9 +412,52 @@ class InterviewRunWorkerTest {
                 .thenReturn(null);
         assertThatThrownBy(() -> worker.executeCandidate(row))
                 .isInstanceOf(IllegalStateException.class);
-        worker.executeCandidate(row);
+        assertThat(worker.executeCandidate(row)).isTrue();
         verify(store, org.mockito.Mockito.times(2)).claim(row);
-        verify(store).remindSoon("run-id");
+        verify(store).needsDispatch("run-id");
+    }
+
+    @Test
+    void rejectedClaimRetriesWaitingRunsButAcknowledgesLiveLeasesOrTerminalRuns() {
+        var row = mock(InterviewRunStore.Row.class);
+        when(row.id()).thenReturn("run-id");
+        when(row.owner()).thenReturn(42L);
+        when(store.claim(row)).thenReturn(null);
+        when(store.needsDispatch("run-id")).thenReturn(true, false);
+        assertThat(worker.executeCandidate(row)).isFalse();
+        assertThat(worker.executeCandidate(row)).isTrue();
+        verifyNoInteractions(executors);
+    }
+
+    @Test
+    void persistedModelBackoffKeepsBrokerNotificationUntilTerminal() {
+        var row = mock(InterviewRunStore.Row.class);
+        when(row.id()).thenReturn("run-id");
+        when(row.owner()).thenReturn(42L);
+        when(row.subjectType()).thenReturn("GOAL");
+        when(store.claim(row)).thenReturn(claim);
+        when(store.get(42, "run-id")).thenReturn(row);
+        when(executors.require("GOAL")).thenReturn(mock(RunExecutor.class));
+        when(store.dispatchCandidate("run-id")).thenReturn(java.util.Optional.of(row));
+        when(store.retryScheduled(claim)).thenReturn(true);
+        assertThat(worker.executeCandidate(row)).isFalse();
+
+        when(row.terminal()).thenReturn(true);
+        assertThat(worker.executeCandidate(row)).isTrue();
+    }
+
+    @Test
+    void expiredRunTerminatesBrokerRetryWithoutCallingModel() {
+        var row = mock(InterviewRunStore.Row.class);
+        when(row.id()).thenReturn("run-id");
+        when(row.owner()).thenReturn(42L);
+        when(row.terminal()).thenReturn(true);
+        when(store.claim(row)).thenReturn(claim);
+        when(store.remainingMillis("run-id")).thenReturn(0L);
+        when(store.dispatchCandidate("run-id")).thenReturn(java.util.Optional.of(row));
+        assertThat(worker.executeCandidate(row)).isTrue();
+        verify(store).fail(claim, "RUN_BUDGET");
+        verifyNoInteractions(executors, model);
     }
 
     @Test

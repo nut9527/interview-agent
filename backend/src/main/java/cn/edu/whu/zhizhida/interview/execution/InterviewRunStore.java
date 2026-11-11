@@ -386,8 +386,8 @@ public class InterviewRunStore implements ExecutionPort {
         return rows.dispatchCandidate(id);
     }
 
-    public void remindSoon(String id) {
-        rows.remindSoon(id);
+    public boolean needsDispatch(String id) {
+        return rows.needsDispatch(id);
     }
 
     /** 恢复器只创建有持久间隔的提醒，不改变运行输入、截止时间或执行预算。 */

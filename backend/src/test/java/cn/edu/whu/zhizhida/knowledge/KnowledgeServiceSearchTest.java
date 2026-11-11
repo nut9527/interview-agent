@@ -78,12 +78,13 @@ class KnowledgeServiceSearchTest {
         verifyNoInteractions(vectors);
     }
 
-    @Test void selectedSearchFallsBackToCanonicalTextWhenVectorProviderFails() {
+    @Test void selectedSearchSurfacesVectorProviderFailure() {
         var service = service(true);
         var doc = doc(1, "cache consistency");
         when(repository.find(7L, "owned")).thenReturn(Optional.of(doc));
         when(vectors.search(anyList(), anyString(), anyInt())).thenThrow(new IllegalStateException("offline"));
-        assertThat(service.search("cache", List.of("owned"), 6)).singleElement()
-                .satisfies(h -> assertThat(h.chunk()).isEqualTo(doc.chunks().getFirst()));
+        assertThatThrownBy(() -> service.search("cache", List.of("owned"), 6))
+                .isInstanceOf(cn.edu.whu.zhizhida.common.BusinessException.class)
+                .hasMessage("资料检索服务暂不可用，请稍后重试。");
     }
 }

@@ -63,6 +63,32 @@ services:
       timeout: 3s
       retries: 5
 
+  embedding:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: services/embedding/Dockerfile
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY:-public.ecr.aws/docker/library}
+    restart: unless-stopped
+
+  pgvector:
+    profiles: ["app"]
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: agent_vectors
+      POSTGRES_PASSWORD: ${VECTOR_POSTGRES_PASSWORD:-vector-admin-local}
+      AGENT_VECTOR_PG_PASSWORD: ${AGENT_VECTOR_PG_PASSWORD:-vector-app-local}
+    volumes:
+      - ./.runtime/compose-vectors:/var/lib/postgresql/data
+      - ./services/embedding/init-vectors.sql:/docker-entrypoint-initdb.d/01-vectors.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d agent_vectors"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   mysql:
     image: ${MYSQL_IMAGE:-${DOCKER_REGISTRY:-docker.io/library}/mysql:8.4}
     container_name: zhizhida-mysql
@@ -101,6 +127,10 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      embedding:
+        condition: service_healthy
+      pgvector:
+        condition: service_healthy
       mcp-reference:
         condition: service_started
         required: false
@@ -134,6 +164,23 @@ services:
       KNOWLEDGE_DISPATCH_INDEX_SCAN_MS: "60000"
       AGENT_MCP_REFERENCE_ENABLED: ${AGENT_MCP_REFERENCE_ENABLED:-true}
       AGENT_MCP_REFERENCE_URL: http://mcp-reference:18091/mcp
+      AGENT_VECTOR_ENABLED: ${AGENT_VECTOR_ENABLED:-true}
+      AGENT_VECTOR_EMBEDDING_URL: http://embedding:18092/v1
+      AGENT_VECTOR_EMBEDDING_MODEL: bge-small-zh-v1.5-q
+      AGENT_VECTOR_EMBEDDING_VERSION: bge-zh-v15-q-local-v1
+      AGENT_VECTOR_DIMENSION: 512
+      AGENT_VECTOR_PG_HOST: pgvector
+      AGENT_VECTOR_PG_PORT: 5432
+      AGENT_VECTOR_PG_DATABASE: agent_vectors
+      AGENT_VECTOR_PG_USER: agent_vectors
+      AGENT_VECTOR_PG_PASSWORD: ${AGENT_VECTOR_PG_PASSWORD:-vector-app-local}
+      LEARNING_PRACTICE_TOOLS_ENABLED: ${LEARNING_PRACTICE_TOOLS_ENABLED:-true}
+      INTERVIEW_RUNS_DECISION_PROTOCOL: ${INTERVIEW_RUNS_DECISION_PROTOCOL:-phased-v1}
+      AGENT_VECTOR_MIN_SCORE: ${AGENT_VECTOR_MIN_SCORE:-0.55}
+      AGENT_RETRIEVAL_RRF_K: ${AGENT_RETRIEVAL_RRF_K:-60}
+      AGENT_RETRIEVAL_LEXICAL_TOP_N: ${AGENT_RETRIEVAL_LEXICAL_TOP_N:-30}
+      AGENT_RETRIEVAL_VECTOR_TOP_N: ${AGENT_RETRIEVAL_VECTOR_TOP_N:-30}
+      AGENT_RETRIEVAL_MAX_PER_HEADING: ${AGENT_RETRIEVAL_MAX_PER_HEADING:-2}
       RUN_DISPATCH_CONCURRENCY: ${RUN_DISPATCH_CONCURRENCY:-2}
       KNOWLEDGE_IMPORT_CONCURRENCY: ${KNOWLEDGE_IMPORT_CONCURRENCY:-2}
       KNOWLEDGE_INDEX_CONCURRENCY: ${KNOWLEDGE_INDEX_CONCURRENCY:-1}

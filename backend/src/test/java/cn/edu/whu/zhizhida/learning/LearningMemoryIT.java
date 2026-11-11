@@ -92,6 +92,29 @@ class LearningMemoryIT extends IntegrationTestBase {
         assertThat(list().path("total").asInt()).isZero();
         assertThat(store.pending().stream().filter(e->e.owner()==owner)).isEmpty();
     }
+    @Test void reevaluationUpdatesActiveFactsWithoutResurrectingUserDeletions() throws Exception {
+        String sid=finish();consumeAll();
+        var active=store.recent(owner).stream().filter(r->r.sourceRound()==1).toList();
+        var removed=active.getFirst();
+        data(performPost("/api/learning/observations/"+removed.id()+"/delete",Map.of("expectedRevision",removed.revision()),token));
+        var retained=active.getLast();
+        var session=sessions.findById(owner,sid).orElseThrow();
+        var items=Arrays.stream(Dimension.values()).map(d->new AssessmentDraft.Item(d,Observation.NOT_OBSERVED,
+                "重新评价：证据不足",ClaimStatus.INSUFFICIENT,"仍需补充说明",List.<AssessmentDraft.Quote>of())).toList();
+        var assessment=evaluator.evaluateAnswer(owner,sid+"/answer/1",ANSWER,java.time.Instant.now(),new AssessmentDraft(items),"mock");
+        sessions.save(owner,session.withAgent(session.agent().withAssessment(1,assessment)));
+        consumeAll();
+        var updated=store.get(owner,retained.id());
+        assertThat(updated.status()).isEqualTo("ACTIVE");
+        assertThat(updated.sourceVersion()).isNotEqualTo(retained.sourceVersion());
+        assertThat(updated.revision()).isEqualTo(retained.revision()+1);
+        assertThat(updated.fact().observation()).isEqualTo(Observation.NOT_OBSERVED);
+        assertThat(store.get(owner,removed.id()).status()).isEqualTo("DELETED");
+        assertThat(store.get(owner,removed.id()).fact()).isNull();
+        long revision=updated.revision();
+        jdbc.update("UPDATE learning_observation_events SET status='PENDING' WHERE owner_id=?",owner);consumeAll();
+        assertThat(store.get(owner,retained.id()).revision()).isEqualTo(revision);
+    }
     @Test void sourceRevocationWithdrawsContentAndUnfinishedFormalSessionIsNeverArchived() throws Exception {
         String unfinished=data(startInterview(Map.of("targetRole","Java","totalRounds",3,"experienceMode","FORMAL"),token)).path("sessionId").asText();
         assertThat(source.scan("",100)).noneMatch(r->r.sessionId().equals(unfinished));

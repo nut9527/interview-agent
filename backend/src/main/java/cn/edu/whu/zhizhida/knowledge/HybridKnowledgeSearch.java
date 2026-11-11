@@ -1,6 +1,8 @@
 package cn.edu.whu.zhizhida.knowledge;
 
 import cn.edu.whu.zhizhida.ai.api.KnowledgeVectors;
+import cn.edu.whu.zhizhida.common.BusinessException;
+import cn.edu.whu.zhizhida.common.ErrorCode;
 import cn.edu.whu.zhizhida.interview.api.KnowledgeSnapshot;
 import cn.edu.whu.zhizhida.knowledge.api.KnowledgeDocument.Hit;
 import cn.edu.whu.zhizhida.knowledge.domain.KnowledgeText;
@@ -19,7 +21,7 @@ public final class HybridKnowledgeSearch {
     private final KnowledgeVectors vectors;
     private final MeterRegistry metrics;
     private final KnowledgeRetrievalSettings settings;
-    public String fingerprint() { return settings.fingerprint() + ":" + vectors.fingerprint(); }
+    public String fingerprint() { return settings.fingerprint() + ":" + vectors.retrievalFingerprint(); }
     public HybridKnowledgeSearch(KnowledgeVectors vectors, MeterRegistry metrics) {
         this(vectors, metrics, new KnowledgeRetrievalSettings());
     }
@@ -30,7 +32,7 @@ public final class HybridKnowledgeSearch {
     /**
      * 在固定版本内融合两路排名，按章节分配名额后返回限定数量的片段。
      *
-     * <p>候选集应包含所选快照的完整分块，供向量命中核对原文；向量服务异常时返回词项检索结果。
+     * <p>候选集包含所选快照的完整分块，供向量命中核对原文。
      */
     public List<Hit> search(List<KnowledgeSnapshot> snapshots, List<Hit> candidates, String query, int limit) {
         if (limit <= 0 || snapshots.isEmpty()) return List.of();
@@ -42,10 +44,13 @@ public final class HybridKnowledgeSearch {
         var lexical = KnowledgeText.rank(evidence, query, settings.lexicalTopN());
         metrics.summary("knowledge.retrieval.candidates", "path", "lexical").record(lexical.size());
         List<KnowledgeVectors.Match> semantic;
-        try { semantic = vectors.search(scopes, query, settings.vectorTopN()); }
-        catch (RuntimeException ex) {
-            metrics.counter("knowledge.retrieval.degraded", "reason", "vector_unavailable").increment();
-            return diversify(lexical, limit);
+        try {
+            semantic = vectors.search(scopes, query, settings.vectorTopN());
+        } catch (RuntimeException ex) {
+            metrics.counter("knowledge.retrieval.failures", "reason", "vector_unavailable").increment();
+            var failure = new BusinessException(ErrorCode.SERVICE_UNAVAILABLE, "资料检索服务暂不可用，请稍后重试。");
+            failure.initCause(ex);
+            throw failure;
         }
         var qualified = new HashMap<String, Hit>();
         for (var hit : evidence) qualified.put(key(hit), hit);

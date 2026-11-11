@@ -17,6 +17,8 @@ import static org.assertj.core.api.Assertions.*;
 class ProviderAcceptanceTest {
     @Test void syntheticJsonAndToolContinuation() throws Exception {
         var json = new JsonMapper(); var rows = new ArrayList<Map<String, Object>>();
+        var reportDirectory=Path.of(System.getProperty("provider.report-directory","target"));
+        Files.createDirectories(reportDirectory);
         String key = System.getenv("AI_API_KEY");
         String url = System.getenv("ACCEPTANCE_BASE_URL");
         String model = System.getenv("ACCEPTANCE_MODEL");
@@ -56,7 +58,7 @@ class ProviderAcceptanceTest {
             assertThat(json.readTree(last.message().path("content").asText()).path("answer").asText()).isEqualTo("synthetic-reference");
             finish(row, last.usage(), start);
         } finally {
-            Files.writeString(Path.of("target/provider-acceptance.json"), json.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of(
+            Files.writeString(reportDirectory.resolve("provider-acceptance.json"), json.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of(
                     "recordedAt", java.time.Instant.now().toString(), "scope", "synthetic-protocol-smoke-not-quality",
                     "model", model, "sdkVersion", LangChain4jVersions.OPEN_AI, "maxRequests", 3, "reservedOutputTokens", 4500, "attempts", rows)));
         }

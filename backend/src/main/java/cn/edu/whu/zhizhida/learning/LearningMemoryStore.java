@@ -51,12 +51,28 @@ public class LearningMemoryStore implements ObservationJournal {
         return jdbc.query("SELECT personalization_enabled FROM learning_preferences WHERE owner_id=?",
                 (r,n)->r.getBoolean(1),owner).stream().findFirst().orElse(false);
     }
-    List<Observation> practiceCandidates(long owner,List<String> scope,String mode,java.time.Instant since,String excluded,int limit) {
+    List<Observation> practiceCandidates(long owner,List<String> scope,String mode,java.time.Instant since,String excluded) {
         var args=new ArrayList<Object>(); args.add(owner); args.add(mode); args.add(java.sql.Timestamp.from(since));
-        args.add(excluded); args.addAll(scope); args.add(limit);
-        return jdbc.query("SELECT * FROM learning_observations WHERE owner_id=? AND execution_mode=? AND created_at>=? "
-                + "AND source_session_id<>? AND status='ACTIVE' AND rubric_version IN ('qualitative-v1','behavioral-six-v1') "
-                + "AND competency_id IN ("+String.join(",",Collections.nCopies(scope.size(),"?"))+") ORDER BY created_at DESC,id DESC LIMIT ?",mapper,args.toArray());
+        args.add(excluded); args.addAll(scope);
+        return jdbc.query("""
+                WITH session_samples AS (
+                    SELECT o.*, ROW_NUMBER() OVER (
+                        PARTITION BY competency_id,dimension,rubric_version,source_session_id
+                        ORDER BY source_round DESC,created_at DESC,id DESC
+                    ) AS session_rank
+                    FROM learning_observations o
+                    WHERE owner_id=? AND execution_mode=? AND created_at>=? AND source_session_id<>?
+                        AND status='ACTIVE' AND rubric_version IN ('qualitative-v1','behavioral-six-v1')
+                        AND competency_id IN (%s)
+                ), history_samples AS (
+                    SELECT s.*, ROW_NUMBER() OVER (
+                        PARTITION BY competency_id,dimension,rubric_version
+                        ORDER BY created_at DESC,id DESC
+                    ) AS history_rank
+                    FROM session_samples s WHERE session_rank=1
+                )
+                SELECT * FROM history_samples WHERE history_rank<=4 ORDER BY created_at DESC,id DESC
+                """.formatted(String.join(",",Collections.nCopies(scope.size(),"?"))),mapper,args.toArray());
     }
     private final RowMapper<Observation> mapper=(r,n)->map(r);
     private Observation map(java.sql.ResultSet r) throws java.sql.SQLException { return new Observation(r.getString("id"),r.getString("source_session_id"),
@@ -92,10 +108,25 @@ public class LearningMemoryStore implements ObservationJournal {
     List<Observation> current(long owner,String id) {
         return jdbc.query("SELECT * FROM learning_observations WHERE owner_id=? AND id=? FOR UPDATE",mapper,owner,id);
     }
+    List<Observation> current(long owner,List<String> ids) {
+        if(ids.isEmpty()) return List.of();
+        var args=new ArrayList<Object>(); args.add(owner); args.addAll(ids);
+        return jdbc.query("SELECT * FROM learning_observations WHERE owner_id=? AND id IN ("
+                +String.join(",",Collections.nCopies(ids.size(),"?"))+") ORDER BY id FOR UPDATE",mapper,args.toArray());
+    }
     void add(long owner,PracticeEvidenceSource.SourceRef source,Fact f) {
         String id=Sha256.hex(owner+"/"+source.sessionId()+"/"+f.round()+"/"+f.competencyId()+"/"+f.dimension()+"/"+f.rubricVersion());
-        // 删除标记不得被事件重放、重新评价或对账覆盖。
-        if (jdbc.queryForObject("SELECT COUNT(*) FROM learning_observations WHERE id=?",Long.class,id)>0) return;
+        var existing=current(owner,id);
+        if(!existing.isEmpty()) {
+            var previous=existing.getFirst();
+            // 重新评价更新同一事实；用户更正、删除和来源撤销均不可被重放恢复。
+            if(previous.status().equals("ACTIVE") && !previous.sourceVersion().equals(source.version())) {
+                jdbc.update("UPDATE learning_observations SET source_version=?,execution_mode=?,payload_json=?,revision=revision+1,updated_at=CURRENT_TIMESTAMP(6) WHERE owner_id=? AND id=?",
+                        source.version(),f.executionMode(),json.writeValueAsString(f),owner,id);
+                touch(owner);
+            }
+            return;
+        }
         jdbc.update("INSERT INTO learning_observations(id,owner_id,source_session_id,source_version,source_round,competency_id,dimension,rubric_version,execution_mode,payload_json) "
                 + "VALUES(?,?,?,?,?,?,?,?,?,?)",id,owner,source.sessionId(),source.version(),f.round(),f.competencyId(),f.dimension(),f.rubricVersion(),f.executionMode(),json.writeValueAsString(f));
         touch(owner);

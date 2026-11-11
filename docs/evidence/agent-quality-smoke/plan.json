@@ -1,0 +1,232 @@
+{
+  "version": "agent-quality-plan-v1",
+  "routes": [
+    "LEGACY",
+    "FIXED",
+    "TOOL"
+  ],
+  "expectedRuns": 90,
+  "cases": [
+    {
+      "id": "redis-order",
+      "family": "redis-order",
+      "partition": "development",
+      "fixtureSha256": "bb417e0a7b9d6c6d021a4cfa496275a90358582db62dd196ec43934c59b59530",
+      "sourceSha256": "e240fccf61c9d8b53e0569c68a71d9120bdbf39743b87ea3b5526a958bd6e464"
+    },
+    {
+      "id": "mysql-unique",
+      "family": "mysql-unique",
+      "partition": "development",
+      "fixtureSha256": "44cd86a71f8f46ca805e97796a9b7df51ff977bbc4ee06e2e7f0188f66bc2692",
+      "sourceSha256": "c01f5fe24ca8911c98fe4ff13104663f3f753e0cdbcab9d047d4c01874f3a3da"
+    },
+    {
+      "id": "mq-ack",
+      "family": "mq-ack",
+      "partition": "development",
+      "fixtureSha256": "0c2ec2026e457cdfbfdc5e10027497652f15721f8f0fab95d3c80fc0b2ed7479",
+      "sourceSha256": "847b29cf43fc42f5791f55cc3101e90cabbe2d723bb8cb118fb779951a9b5588"
+    },
+    {
+      "id": "outbox",
+      "family": "outbox",
+      "partition": "development",
+      "fixtureSha256": "f0f051b671af77d7997ee5dcbe873ff0addd6d3e80a1bb9e2af3ad8642552414",
+      "sourceSha256": "c57961dd0b026cbb78d8fa2e9b7596e7f511005a7a9a516afb40c95b6a89dcce"
+    },
+    {
+      "id": "cache-delete",
+      "family": "cache-delete",
+      "partition": "development",
+      "fixtureSha256": "6414d0b38f90d9348ae3819e15681c16004298ed584ab0efc35f231cd7472134",
+      "sourceSha256": "88982ce339e14a9b7e1c604b2d238ffd1d63aa91b89abe8979f1961babbf00c0"
+    },
+    {
+      "id": "lease-clock",
+      "family": "lease-clock",
+      "partition": "development",
+      "fixtureSha256": "d6796c96fdbddff8e1fa8ebad40768193056232d9b829fb106354702ff5ced6f",
+      "sourceSha256": "924e80344b44a78b223da02b3ddac52238c4668da7a3934777901919bdd85f7f"
+    },
+    {
+      "id": "cas-version",
+      "family": "cas-version",
+      "partition": "development",
+      "fixtureSha256": "034becb6b23c479d5b8c402bdfa7d49548bb7296d2f2adeb8522157b024da7f0",
+      "sourceSha256": "be71b7057e890b2acbef747b2b8dd0dee78ad63a72b2d1ceef99d01bec26ee88"
+    },
+    {
+      "id": "threadpool",
+      "family": "threadpool",
+      "partition": "development",
+      "fixtureSha256": "c1e129d92f973036e409661b3a0506cb6f2ae3260811ff6ac907f7e251db7049",
+      "sourceSha256": "77383f1c69cf399ecc54d2c433ae6510c6fddd39b70c98b79099d6758f7fbc38"
+    },
+    {
+      "id": "lock-order",
+      "family": "lock-order",
+      "partition": "development",
+      "fixtureSha256": "0a4764a61df50ebf81d8dd8f7a6de7c14bb3f48d813c857bc682ca0ee98723b2",
+      "sourceSha256": "7fdcfb4b37c44c0df1d2c98416b9243acedad61dd8983bbcc0ed5236b8954620"
+    },
+    {
+      "id": "pagination",
+      "family": "pagination",
+      "partition": "development",
+      "fixtureSha256": "0d7293923cf687e6e926c75121a59770fba083aecc6f2e4629d73caf8e9d47db",
+      "sourceSha256": "452348e914462240019de298c6955f2e3088cea3580c8214ecfd03e704ba0184"
+    },
+    {
+      "id": "jwt-owner",
+      "family": "jwt-owner",
+      "partition": "development",
+      "fixtureSha256": "a9455fcadf7260dda930b13fd9d0e6d30cb030fbc53079ba06859983bf717053",
+      "sourceSha256": "b617960a1fb6938645b1e98a5913d8fe89b6487a6bc0b47efb95dd937e0f06ae"
+    },
+    {
+      "id": "sse-cursor",
+      "family": "sse-cursor",
+      "partition": "development",
+      "fixtureSha256": "83326d11abd184cbf5a44de5abb25b2ae673ab1e4c6d50c58ec6cd8466b2062d",
+      "sourceSha256": "b561692a5de7ca11e4f840f4a68438857560d61590162bf51424c064edaf8f5c"
+    },
+    {
+      "id": "http-retry",
+      "family": "http-retry",
+      "partition": "development",
+      "fixtureSha256": "696f7cfe2a5dc098588f1890748a375bca44756e7e6e4c6ca21f015c822a922f",
+      "sourceSha256": "564a5ed39d2c5841320cc198ecb0ff71d7f20b54093586619d882ecf80454cf9"
+    },
+    {
+      "id": "upload-hash",
+      "family": "upload-hash",
+      "partition": "development",
+      "fixtureSha256": "9037ece66cd78e1a897f2ab8417334ed5b35f64ae69e94e73a689f57f7582e83",
+      "sourceSha256": "98423735202b53b856477ef24608ceb0e1a6e2411fa04cec233ccf2fa1aee64a"
+    },
+    {
+      "id": "sql-index",
+      "family": "sql-index",
+      "partition": "development",
+      "fixtureSha256": "cc5ca1bf80d13f9ba1f499661975754f8f764c71b4c15e69c9826797a712e61d",
+      "sourceSha256": "966948a54bf24c288bd85d1642d2a00b51c13210c10c2e8b23b8653d5a1a5fd5"
+    },
+    {
+      "id": "isolation",
+      "family": "isolation",
+      "partition": "development",
+      "fixtureSha256": "305c6ea4e6a11bf990d29b77149c4257772be05b82b0292f950d7bb9a5158969",
+      "sourceSha256": "ebd563f8cfbc48d415a01fc28dd439c2d1eb9b14c8a8a8b2bcad0e3dd2043c38"
+    },
+    {
+      "id": "cancel-race",
+      "family": "cancel-race",
+      "partition": "validation",
+      "fixtureSha256": "3385b1f0ab8e46c815fe68c94bbdd947bab3fa9728e1f0279d97892d3a7f9f8b",
+      "sourceSha256": "94182cd0ec2533b195d67d4c22f2209d923586687458220d60c5818444f4b763"
+    },
+    {
+      "id": "rate-limit",
+      "family": "rate-limit",
+      "partition": "validation",
+      "fixtureSha256": "303071aa567a4926d790409952830b0bf1056b6bfa9ef9e6e5a0c83c86a59cb5",
+      "sourceSha256": "501e27f3411894b5d99cb1caed441c822427ea0a44939f6a6a59377a4bd3f513"
+    },
+    {
+      "id": "snapshot",
+      "family": "snapshot",
+      "partition": "validation",
+      "fixtureSha256": "0986fe846f2dde51c0214026d3b13aa8c4d738c92855cc689a97f62597892d05",
+      "sourceSha256": "322660f36d2f6e5980e8e374598b4ce8a6d18f13bf4889de7982eb388d5f6e6b"
+    },
+    {
+      "id": "injection",
+      "family": "injection",
+      "partition": "validation",
+      "fixtureSha256": "ae61ac81c65a379760b324f08d93b8180835d3907bcbc253cf4e77a7d3523a5c",
+      "sourceSha256": "7ca060fe34c8a74b51e7f386f8742ad8c4c75f127ef2d84d661e44e1de9d7c7d"
+    },
+    {
+      "id": "ttl-order",
+      "family": "ttl-order",
+      "partition": "validation",
+      "fixtureSha256": "79992517c65eb117ff52c265579e7bd2d9a780c75fa01a9a2aee04a9451c0a61",
+      "sourceSha256": "4eda2c01b9268f71363d97a224b2f01ae6a475454c1f395946fac2c510a08b31"
+    },
+    {
+      "id": "connection-pool",
+      "family": "connection-pool",
+      "partition": "validation",
+      "fixtureSha256": "a5f2a6c317ba7c95fb6f001733d5476668d1f4fb285f769e54c2574263e41965",
+      "sourceSha256": "2da1fcbbf4b3c1b40124ed92b712d505413190c4b504dae4328ab2297883e40c"
+    },
+    {
+      "id": "batch-tools",
+      "family": "batch-tools",
+      "partition": "validation",
+      "fixtureSha256": "bc04bc5a9d121bf732bd81432af3dd650173366b94a4e2a4da8170c7c9d32315",
+      "sourceSha256": "8529e2ec550c63dc17fb53945be029a8cf33cab24683f9f5a6175d06b255326e"
+    },
+    {
+      "id": "adequate-owner",
+      "family": "adequate-owner",
+      "partition": "development",
+      "fixtureSha256": "83bdc71abbf3d06da58f70ca74129c6a500bb52c7c5c00197b250acbcfc73952",
+      "sourceSha256": "156431f0df3c54bc1ca0b090956bc051cd017e5ccf25c18a34e86d343ed4ee8d"
+    },
+    {
+      "id": "adequate-cas",
+      "family": "adequate-cas",
+      "partition": "development",
+      "fixtureSha256": "61ede5d1d93321b836c5989b637416fb06dfc68c2f75d1ab5336c0d80936e863",
+      "sourceSha256": "268004b20a682d5a48da37816a61ff05d3acb8904e732b903a8b9406951bc881"
+    },
+    {
+      "id": "adequate-budget",
+      "family": "adequate-budget",
+      "partition": "development",
+      "fixtureSha256": "47438169bf4ebbe98fed3361d7671b37fad84bc589eb721db9a2e0655e38a1e9",
+      "sourceSha256": "9d065caa2ea299818c00621a73d948b86a11853461b3087ddb4699d6e5e24df1"
+    },
+    {
+      "id": "adequate-cancel",
+      "family": "adequate-cancel",
+      "partition": "development",
+      "fixtureSha256": "656a3410af27e4cfb10fe6e8c6d2197714210514809d6992a0f5265c2e2c3458",
+      "sourceSha256": "7d0450462917905bb71d158e172aa6dd0e18bf3a95438ed3b024c62ed5aa46e4"
+    },
+    {
+      "id": "adequate-cache",
+      "family": "adequate-cache",
+      "partition": "validation",
+      "fixtureSha256": "9eb93dc99457cea561cf7ff8a1679f81d8923123978067e826ad214b1698111f",
+      "sourceSha256": "560eb1ba1dfd3f6b6b080be1ea310d7a00bd3201a23d4e719c1c74d6ecbbb219"
+    },
+    {
+      "id": "adequate-sse",
+      "family": "adequate-sse",
+      "partition": "validation",
+      "fixtureSha256": "314a89ecdc01f48809f45cd42a97d62fe2c80f538752db2ddfbdb34318a3fa6a",
+      "sourceSha256": "4950d0b851fa5d79156cc2a84f26781ac2e706b76c5317c2f602376fe53f2734"
+    },
+    {
+      "id": "adequate-lease",
+      "family": "adequate-lease",
+      "partition": "validation",
+      "fixtureSha256": "0cf207c0f07df6a2c161c74e7b338c0f6bd3b9555735e52d42f68737f06ed051",
+      "sourceSha256": "5f7c2c42a5da414307d7cf02eca4537dd0aa5cc6f84ead415e467ce147eca732"
+    }
+  ],
+  "rubric": {
+    "followUpRelevance": "1 偏题；3 相关但未触及关键缺口；5 准确追问缺口，证据充足时合理推进",
+    "evidenceSupport": "1 无依据或曲解原文；3 部分支持；5 结论与原文和回答一致",
+    "specificity": "1 空泛或不可回答；3 有方向但宽泛；5 清晰具体且可由候选人回答",
+    "unsupportedCorrection": "是否无依据纠错，true/false",
+    "repeatedQuestion": "是否重复原问题而无推进，true/false",
+    "notes": "人工给出评分依据；不得用模型评分或运行成功率代替"
+  },
+  "scope": "30 synthetic single-turn families; report development and validation separately; heldout excluded",
+  "execution": "NOT_EXECUTED_BY_THIS_TOOL; model execution requires separately frozen configuration and budget",
+  "conclusionRule": "Descriptive paired score deltas only; no general quality-improvement claim from this tool"
+}

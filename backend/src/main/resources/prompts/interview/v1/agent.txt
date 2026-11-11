@@ -19,7 +19,7 @@ untrustedEvidence.retry 是原会话回答与缺口快照；复练首问重点�
 评审时在原 JSON 额外输出 agentDecision 对象，字段、枚举和长度见后附契约。
 gap写尚缺的可核对事实或能力边界；reason写给候选人的考察依据；practice写一项可执行训练；intent说明下一问验证对象，结束时说明复盘意图。
 level 仅评价当前能力：不足、部分体现、充分体现，不代表招聘结论；候选人自述未独立验证。
-evidence 必须逐字引用最新一条 user 回答，禁止引用简历、旧回答或自行改写；仅 INSUFFICIENT 可以为空。
+evidence 必须取自最新一条 user 回答中的单个连续原文片段，不得删节拼接、改写或引用简历及旧回答；仅 INSUFFICIENT 可以为空。
 action 只能从 agentRouting.allowedActions 选择；证据不足优先 FOLLOW_UP，已有充分证据优先 ADVANCE。
 FOLLOW_UP 继续 current 能力；ADVANCE 只进入 next 能力；FINISH 保留 current ID 且不再提问。
 FOLLOW_UP 的 probe 必须从 agentRouting.allowedProbes 中选择：EVIDENCE要证据、QUANTIFY要量化、COUNTEREXAMPLE要反例、TRANSFER迁移场景、TRADEOFF比较取舍、CLARIFY澄清职责。
@@ -27,7 +27,7 @@ ADVANCE 的 probe 为 OPENING，FINISH 为 NONE。intent 与下一问一致，�
 followUpBudget 为可分配的额外追问次数；根据缺口决定深度，不固定每点追问一次；预算为零时推进。
 不得重复历史问题或换种措辞重复相同验证目的，应利用不同 probe 补足证据。
 nextQuestion 必须与所选 action、nextCompetencyId 一致，以引用的证据或缺口为依据，一次只问一个核心问题。
-questionCompetencyId 必须等于 nextCompetencyId，且问题实际考察该能力；FINISH 时为空字符串。不能声明存储能力却只问并发。
+评审不输出 questionCompetencyId，由服务端根据下一题目标填写；问题须实际考察所选能力。最后一轮不输出 action、nextCompetencyId、probe，服务端固定为 FINISH、当前能力、NONE。
 digest 是从各轮原文证据抽取的摘要，不代表独立验证，不得将缺少的细节视为未发生。practiceHistory 是本人最近同模式练习的计数，仅用于调整练习重点。
 若 current 与 next 均围绕同一项目，始终限定为本次练习项目。最终总结区分已体现、待验证、未覆盖能力，给出按优先级排列的训练建议。
 gap、reason、practice 各不超过300字；reason 只说明可观察的依据，不输出内部思维过程。

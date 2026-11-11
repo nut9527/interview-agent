@@ -28,16 +28,18 @@ public class LearningPracticeMemory implements PracticeMemoryAccess {
         Instant since=Instant.now().minus(180,ChronoUnit.DAYS);
         var scope=competencies.stream().distinct().sorted().toList();
         if(scope.isEmpty() || scope.size()>12) return Selection.none();
-        var candidates=store.practiceCandidates(owner,scope,mode,since,excludedSession,MAX_REFERENCES);
+        var candidates=store.practiceCandidates(owner,scope,mode,since,excludedSession);
         var versions=lockSources(owner,candidates.stream().map(Observation::sourceSessionId).toList());
         var prefs=store.preferences(owner);
         if(!prefs.personalizationEnabled()) return Selection.none();
         versions.forEach((id,version)->store.withdrawChanged(owner,id,version));
-        var refs=new ArrayList<Reference>();
-        for(var candidate:candidates) for(var row:store.current(owner,candidate.id())) {
+        var qualified=new ArrayList<Observation>();
+        for(var row:store.current(owner,candidates.stream().map(Observation::id).toList())) {
             if(eligible(row,scope,mode,since) && Objects.equals(row.sourceVersion(),versions.get(row.sourceSessionId())))
-                refs.add(new Reference(row.id(),row.revision(),row.sourceSessionId(),row.sourceVersion()));
+                qualified.add(row);
         }
+        var refs=PracticeMemoryRecall.select(qualified,MAX_REFERENCES).stream()
+                .map(row->new Reference(row.id(),row.revision(),row.sourceSessionId(),row.sourceVersion())).toList();
         return new Selection(VERSION,mode,since,scope,refs);
     }
     @Override @Transactional
@@ -53,11 +55,13 @@ public class LearningPracticeMemory implements PracticeMemoryAccess {
         if(versions.containsValue(null)) throw new MemoryRevokedException();
         // 偏好变更只影响新命令；显式更正或删除还会使旧命令中的相关引用失效。
         store.preferences(owner);
+        var current=new HashMap<String,Observation>();
+        store.current(owner,selection.references().stream().map(Reference::id).toList())
+                .forEach(row->current.put(row.id(),row));
         var result=new ArrayList<Observation>();
         for(var ref:selection.references()) {
-            var current=store.current(owner,ref.id());
-            if(current.size()!=1) throw new MemoryRevokedException();
-            var row=current.getFirst();
+            var row=current.get(ref.id());
+            if(row==null) throw new MemoryRevokedException();
             if(row.revision()!=ref.revision() || !row.sourceSessionId().equals(ref.sourceSessionId())
                     || !row.sourceVersion().equals(ref.sourceVersion())
                     || !Objects.equals(row.sourceVersion(),versions.get(row.sourceSessionId()))

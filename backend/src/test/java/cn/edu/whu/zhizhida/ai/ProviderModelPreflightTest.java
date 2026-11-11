@@ -27,6 +27,8 @@ class ProviderModelPreflightTest {
     @Test @EnabledIfEnvironmentVariable(named="RUN_PROVIDER_PREFLIGHT",matches="true")
     void configuredModelMustBeListedBeforeInference() throws Exception {
         var json=new JsonMapper();
+        var reportDirectory=Path.of(System.getProperty("provider.report-directory","target"));
+        Files.createDirectories(reportDirectory);
         String endpoint=System.getenv("ACCEPTANCE_BASE_URL"),model=System.getenv("ACCEPTANCE_MODEL"),key=System.getenv("AI_API_KEY");
         var uri=URI.create(endpoint);
         if(!"https".equals(uri.getScheme()) || !"api.deepseek.com".equals(uri.getHost()) || uri.getPort()!=-1
@@ -55,7 +57,7 @@ class ProviderModelPreflightTest {
                 if(listed(body,model))report.put("result","PASSED");
             }
         } catch(Exception ex) { report.put("errorCategory",ex instanceof javax.net.ssl.SSLException?"TLS_FAILURE":"DISCOVERY_FAILURE"); }
-        finally { Files.writeString(Path.of("target/provider-model-preflight.json"),json.writerWithDefaultPrettyPrinter().writeValueAsString(report)); }
+        finally { Files.writeString(reportDirectory.resolve("provider-model-preflight.json"),json.writerWithDefaultPrettyPrinter().writeValueAsString(report)); }
         assertThat(report.get("result")).as("Configured model must be available; no inference sent").isEqualTo("PASSED");
     }
 }

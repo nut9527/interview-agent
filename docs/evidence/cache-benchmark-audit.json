@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "audit": "PASSED",
+  "auditedAt": "2026-11-10T15:55:46.681Z",
+  "measuredAt": "2026-11-04T05:26:09.716789800Z",
+  "reranBenchmark": false,
+  "evidence": {
+    "path": "docs/evidence/middleware-batch1-2026-11-04.json",
+    "sha256": "667b7df9a9cf998d1174787dbaeb7ce7256687943713689e70228442b84b3836",
+    "restoredFrom": "outputs/release/closeout-batch1-evidence-20261105-01/payload/docs/evidence/middleware-batch1-2026-11-04.json",
+    "provenance": "Byte-for-byte historical archive copy; hash also matched backend/target/middleware-benchmark.json during restoration."
+  },
+  "originalBenchmark": {
+    "archivedPath": "outputs/release/closeout-batch1-evidence-20261105-01/payload/backend/src/test/java/cn/edu/whu/zhizhida/middleware/MiddlewareBenchmarkIT.java",
+    "archivedSha256": "163f95161d685d3b72eb0d002ea4c0213223c4ce6551358b70dd3d3c259ce05e",
+    "currentLocation": "backend/src/test/java/cn/edu/whu/zhizhida/middleware/SplitRuntimeIT.java#Benchmark",
+    "note": "The benchmark was subsequently consolidated into SplitRuntimeIT.Benchmark; raw evidence retains its original date."
+  },
+  "scope": "Historical local integration measurement: real MySQL/Redis, mock AI; 50 serial catalog calls per group, one question/version.",
+  "percentileMethod": "nearest-rank: sorted[ceil(n * q) - 1]",
+  "groups": {
+    "coldCache": {
+      "count": 50,
+      "mean": 3.988222,
+      "p50": 3.9216,
+      "p95": 4.97,
+      "max": 6.1221,
+      "savedHits": 0,
+      "savedBodySourceReads": 50,
+      "recomputedHitRatio": 0
+    },
+    "warmCache": {
+      "count": 50,
+      "mean": 2.37395,
+      "p50": 2.2965,
+      "p95": 2.9393,
+      "max": 4.9157,
+      "savedHits": 50,
+      "savedBodySourceReads": 0,
+      "recomputedHitRatio": 1
+    }
+  },
+  "sourceSnapshots": [
+    {
+      "path": "backend/src/test/java/cn/edu/whu/zhizhida/middleware/SplitRuntimeIT.java",
+      "archivedSha256": "61871106cbb795bea9f2c50f7f886c0aa41a59ba8ff5eb5e1af316d75fc033ac",
+      "currentSha256": "18adc553fb5120b8cd66f5a4b2dab9482328d83078052ed78b48718be76e814d",
+      "sameBytesAsArchivedSource": false
+    },
+    {
+      "path": "backend/src/main/java/cn/edu/whu/zhizhida/questionbank/QuestionSnapshotCache.java",
+      "archivedSha256": "a1790501596aa2deaf707782f722cd1ff631179bde94d6c5f8675ccb992ebe9a",
+      "currentSha256": "9a290f0ed8beaef313358f6e69994e98fd61174c28d8d2383c33b5d35ceee809",
+      "sameBytesAsArchivedSource": false
+    },
+    {
+      "path": "backend/src/main/java/cn/edu/whu/zhizhida/questionbank/DefaultQuestionCatalog.java",
+      "archivedSha256": "b95af0207f87eb68fe9412361278d9e40dbef8826a02fc04b6cce3f385d3ba6e",
+      "currentSha256": "3972ca5752ecfcddb6d4a1e31e2b1925aa31eef24a3c53b29106f1caa22443e6",
+      "sameBytesAsArchivedSource": false
+    },
+    {
+      "path": "backend/src/main/java/cn/edu/whu/zhizhida/questionbank/MybatisPlusQuestionRepository.java",
+      "archivedSha256": "7334b820e085b4f4b9424e517a87fb133bbd57961317fd818927216c3f44af71",
+      "currentSha256": "7334b820e085b4f4b9424e517a87fb133bbd57961317fd818927216c3f44af71",
+      "sameBytesAsArchivedSource": true
+    }
+  ],
+  "limitations": [
+    "Percentiles/mean/max/count recomputed from all 100 raw durations. Hit ratio recomputed from saved hit deltas.",
+    "Source/hit deltas are aggregate Micrometer observations asserted by the original integration test, not independently reconstructed SQL traces.",
+    "Cold calls delete the snapshot key before each call; delete duration is excluded. Warm calls reuse the last cold fill. Both groups still query publication/version in MySQL.",
+    "Catalog timing is not HTTP latency; source count is snapshot-body fallback count, not total DB queries or DB QPS.",
+    "This is a one-key local baseline, not a realistic workload hit rate, concurrent load capacity, or a fresh benchmark of current source.",
+    "Archived source hashes identify the available release archive, not a signed runtime attestation or a guaranteed exact execution revision."
+  ]
+}

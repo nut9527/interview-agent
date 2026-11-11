@@ -160,17 +160,34 @@ class QuestionSnapshotCacheTest {
     void damagedWrongVersionAndUnavailableCacheFallBack() {
         for (String value :
                 List.of(
+                        "null",
                         "bad json",
                         json.writeValueAsString(new QuestionSnapshotCache.Entry(2, snapshot(1))),
                         json.writeValueAsString(new QuestionSnapshotCache.Entry(1, snapshot(2))))) {
             when(values.get(anyString())).thenReturn(value);
             assertThat(cache.read("qb-java-001", 1, source)).isEqualTo(snapshot(1));
         }
-        when(values.get(anyString())).thenThrow(new IllegalStateException("offline"));
-        doThrow(new IllegalStateException("offline"))
+        when(values.get(anyString())).thenThrow(new org.springframework.data.redis.RedisConnectionFailureException("offline"));
+        doThrow(new org.springframework.data.redis.RedisConnectionFailureException("offline"))
                 .when(values)
                 .set(anyString(), anyString(), any(Duration.class));
         assertThat(cache.read("qb-java-001", 1, source)).isEqualTo(snapshot(1));
+    }
+
+    @Test
+    void programmingErrorsAreNotSilentlyTreatedAsCacheOutages() {
+        when(values.get(anyString())).thenThrow(new IllegalStateException("unexpected state"));
+        assertThatThrownBy(() -> cache.read("qb-java-001", 1, source))
+                .isInstanceOf(IllegalStateException.class).hasMessage("unexpected state");
+        verifyNoInteractions(source);
+    }
+
+    @Test
+    void programmingErrorsDuringCacheWritePropagate() {
+        doThrow(new IllegalStateException("unexpected state"))
+                .when(values).set(anyString(), anyString(), any(Duration.class));
+        assertThatThrownBy(() -> cache.read("qb-java-001", 1, source))
+                .isInstanceOf(IllegalStateException.class).hasMessage("unexpected state");
     }
 
     @Test

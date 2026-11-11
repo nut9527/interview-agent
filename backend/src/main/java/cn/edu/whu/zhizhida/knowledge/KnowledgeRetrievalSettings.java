@@ -37,6 +37,6 @@ public final class KnowledgeRetrievalSettings {
     public int vectorTopN() { return vectorTopN; }
     public int maxPerHeading() { return maxPerHeading; }
     public String fingerprint() {
-        return "rrf-sections-v3:k" + rrfK + ":l" + lexicalTopN + ":v" + vectorTopN + ":h" + maxPerHeading;
+        return "bm25-rrf-sections-v4:k" + rrfK + ":l" + lexicalTopN + ":v" + vectorTopN + ":h" + maxPerHeading;
     }
 }

@@ -1,0 +1,13 @@
+**
+!backend/
+!backend/.mvn/
+!backend/.mvn/project-parent/
+!backend/.mvn/project-parent/pom.xml
+!backend/docker/
+!backend/docker/Healthcheck.java
+!services/
+!services/embedding/
+!services/embedding/Dockerfile
+!services/embedding/pom.xml
+!services/embedding/src/
+!services/embedding/src/**

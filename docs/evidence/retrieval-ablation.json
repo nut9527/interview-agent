@@ -1,0 +1,4536 @@
+{
+  "scope": "Offline frozen synthetic corpus; production ranker; actual local BGE embeddings; in-memory vector index; no SQL, pgvector, answer model, latency or human quality claim",
+  "fixtureSha256": "a477f03a3fab9b075b772574dac37931a526163c1d2c9373dd402d8cfcb00309",
+  "documents": 5,
+  "cases": 30,
+  "k": 6,
+  "controls": {
+    "lexicalTopN": 30,
+    "vectorOnlyMeaning": "Enable vector/RRF enhancement on the unchanged lexical baseline; not pure vector retrieval",
+    "sameVectorRankingReplayed": true,
+    "vectorTopN": 30,
+    "rrfK": 60,
+    "embedding": "bge-small-zh-v1.5-q:512"
+  },
+  "corpus": {
+    "evidenceChunks": 17,
+    "maxEvidenceChunksPerSection": 1,
+    "evidenceChunksBySection": {
+      "ops:演练": 1,
+      "cache:TTL": 1,
+      "performance:请求合并": 1,
+      "consistency:写后读": 1,
+      "performance:压测方法": 1,
+      "cache:热点保护": 1,
+      "consistency:并发回填": 1,
+      "ops:观测": 1,
+      "ops:复制监控": 1,
+      "consistency:缓存失效": 1,
+      "cache:边界": 1,
+      "consistency:消息去重": 1,
+      "performance:索引": 1,
+      "other:部署": 1,
+      "other:线程": 1,
+      "other:TTL": 1,
+      "cache:空值缓存": 1
+    }
+  },
+  "groups": {
+    "baseline": {
+      "vectorEnabled": false,
+      "quotaEnabled": false,
+      "maxPerHeading": 6,
+      "lexicalEnabled": true,
+      "metricsByKind": {
+        "all": {
+          "cases": 30,
+          "positiveCases": 25,
+          "noAnswerCases": 5,
+          "noAnswerWithEmptyRetrieval": 1,
+          "emptyRetrievalRateOnNoAnswer": 0.2,
+          "atK": {
+            "1": {
+              "recall": 0.82,
+              "mrr": 0.92,
+              "ndcg": 0.92
+            },
+            "3": {
+              "recall": 0.96,
+              "mrr": 0.9333333333333332,
+              "ndcg": 0.94
+            },
+            "6": {
+              "recall": 0.96,
+              "mrr": 0.9333333333333332,
+              "ndcg": 0.94
+            }
+          }
+        },
+        "direct": {
+          "cases": 5,
+          "positiveCases": 5,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "distractor": {
+          "cases": 4,
+          "positiveCases": 4,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "insufficient": {
+          "cases": 4,
+          "positiveCases": 0,
+          "noAnswerCases": 4,
+          "noAnswerWithEmptyRetrieval": 1,
+          "emptyRetrievalRateOnNoAnswer": 0.25,
+          "atK": {
+            "1": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            },
+            "3": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            },
+            "6": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            }
+          }
+        },
+        "multi": {
+          "cases": 5,
+          "positiveCases": 5,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 0.5,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "paraphrase": {
+          "cases": 5,
+          "positiveCases": 4,
+          "noAnswerCases": 1,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": 0,
+          "atK": {
+            "1": {
+              "recall": 0.5,
+              "mrr": 0.5,
+              "ndcg": 0.5
+            },
+            "3": {
+              "recall": 0.75,
+              "mrr": 0.5833333333333333,
+              "ndcg": 0.625
+            },
+            "6": {
+              "recall": 0.75,
+              "mrr": 0.5833333333333333,
+              "ndcg": 0.625
+            }
+          }
+        },
+        "synonym": {
+          "cases": 7,
+          "positiveCases": 7,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        }
+      }
+    },
+    "vector_only": {
+      "vectorEnabled": true,
+      "quotaEnabled": false,
+      "maxPerHeading": 6,
+      "lexicalEnabled": true,
+      "metricsByKind": {
+        "all": {
+          "cases": 30,
+          "positiveCases": 25,
+          "noAnswerCases": 5,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": 0,
+          "atK": {
+            "1": {
+              "recall": 0.86,
+              "mrr": 0.96,
+              "ndcg": 0.96
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 0.9733333333333333,
+              "ndcg": 0.98
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 0.9733333333333333,
+              "ndcg": 0.98
+            }
+          }
+        },
+        "direct": {
+          "cases": 5,
+          "positiveCases": 5,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "distractor": {
+          "cases": 4,
+          "positiveCases": 4,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "insufficient": {
+          "cases": 4,
+          "positiveCases": 0,
+          "noAnswerCases": 4,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": 0,
+          "atK": {
+            "1": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            },
+            "3": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            },
+            "6": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            }
+          }
+        },
+        "multi": {
+          "cases": 5,
+          "positiveCases": 5,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 0.5,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "paraphrase": {
+          "cases": 5,
+          "positiveCases": 4,
+          "noAnswerCases": 1,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": 0,
+          "atK": {
+            "1": {
+              "recall": 0.75,
+              "mrr": 0.75,
+              "ndcg": 0.75
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 0.8333333333333333,
+              "ndcg": 0.875
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 0.8333333333333333,
+              "ndcg": 0.875
+            }
+          }
+        },
+        "synonym": {
+          "cases": 7,
+          "positiveCases": 7,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        }
+      }
+    },
+    "quota_only": {
+      "vectorEnabled": false,
+      "quotaEnabled": true,
+      "maxPerHeading": 2,
+      "lexicalEnabled": true,
+      "metricsByKind": {
+        "all": {
+          "cases": 30,
+          "positiveCases": 25,
+          "noAnswerCases": 5,
+          "noAnswerWithEmptyRetrieval": 1,
+          "emptyRetrievalRateOnNoAnswer": 0.2,
+          "atK": {
+            "1": {
+              "recall": 0.82,
+              "mrr": 0.92,
+              "ndcg": 0.92
+            },
+            "3": {
+              "recall": 0.96,
+              "mrr": 0.9333333333333332,
+              "ndcg": 0.94
+            },
+            "6": {
+              "recall": 0.96,
+              "mrr": 0.9333333333333332,
+              "ndcg": 0.94
+            }
+          }
+        },
+        "direct": {
+          "cases": 5,
+          "positiveCases": 5,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "distractor": {
+          "cases": 4,
+          "positiveCases": 4,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "insufficient": {
+          "cases": 4,
+          "positiveCases": 0,
+          "noAnswerCases": 4,
+          "noAnswerWithEmptyRetrieval": 1,
+          "emptyRetrievalRateOnNoAnswer": 0.25,
+          "atK": {
+            "1": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            },
+            "3": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            },
+            "6": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            }
+          }
+        },
+        "multi": {
+          "cases": 5,
+          "positiveCases": 5,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 0.5,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "paraphrase": {
+          "cases": 5,
+          "positiveCases": 4,
+          "noAnswerCases": 1,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": 0,
+          "atK": {
+            "1": {
+              "recall": 0.5,
+              "mrr": 0.5,
+              "ndcg": 0.5
+            },
+            "3": {
+              "recall": 0.75,
+              "mrr": 0.5833333333333333,
+              "ndcg": 0.625
+            },
+            "6": {
+              "recall": 0.75,
+              "mrr": 0.5833333333333333,
+              "ndcg": 0.625
+            }
+          }
+        },
+        "synonym": {
+          "cases": 7,
+          "positiveCases": 7,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        }
+      }
+    },
+    "all_enabled": {
+      "vectorEnabled": true,
+      "quotaEnabled": true,
+      "maxPerHeading": 2,
+      "lexicalEnabled": true,
+      "metricsByKind": {
+        "all": {
+          "cases": 30,
+          "positiveCases": 25,
+          "noAnswerCases": 5,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": 0,
+          "atK": {
+            "1": {
+              "recall": 0.86,
+              "mrr": 0.96,
+              "ndcg": 0.96
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 0.9733333333333333,
+              "ndcg": 0.98
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 0.9733333333333333,
+              "ndcg": 0.98
+            }
+          }
+        },
+        "direct": {
+          "cases": 5,
+          "positiveCases": 5,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "distractor": {
+          "cases": 4,
+          "positiveCases": 4,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "insufficient": {
+          "cases": 4,
+          "positiveCases": 0,
+          "noAnswerCases": 4,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": 0,
+          "atK": {
+            "1": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            },
+            "3": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            },
+            "6": {
+              "recall": null,
+              "mrr": null,
+              "ndcg": null
+            }
+          }
+        },
+        "multi": {
+          "cases": 5,
+          "positiveCases": 5,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 0.5,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        },
+        "paraphrase": {
+          "cases": 5,
+          "positiveCases": 4,
+          "noAnswerCases": 1,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": 0,
+          "atK": {
+            "1": {
+              "recall": 0.75,
+              "mrr": 0.75,
+              "ndcg": 0.75
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 0.8333333333333333,
+              "ndcg": 0.875
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 0.8333333333333333,
+              "ndcg": 0.875
+            }
+          }
+        },
+        "synonym": {
+          "cases": 7,
+          "positiveCases": 7,
+          "noAnswerCases": 0,
+          "noAnswerWithEmptyRetrieval": 0,
+          "emptyRetrievalRateOnNoAnswer": null,
+          "atK": {
+            "1": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "3": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            },
+            "6": {
+              "recall": 1,
+              "mrr": 1,
+              "ndcg": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "pairedEffects": {
+    "vectorWithoutQuota": {
+      "positivePairs": 25,
+      "recallAt6Delta": 0.04,
+      "mrrAt6Delta": 0.04,
+      "ndcgAt6Delta": 0.04
+    },
+    "vectorWithQuota": {
+      "positivePairs": 25,
+      "recallAt6Delta": 0.04,
+      "mrrAt6Delta": 0.04,
+      "ndcgAt6Delta": 0.04
+    },
+    "quotaWithVector": {
+      "positivePairs": 25,
+      "recallAt6Delta": 0,
+      "mrrAt6Delta": 0,
+      "ndcgAt6Delta": 0,
+      "changedRankingsAmongAllCases": 0
+    },
+    "quotaWithoutVector": {
+      "positivePairs": 25,
+      "recallAt6Delta": 0,
+      "mrrAt6Delta": 0,
+      "ndcgAt6Delta": 0,
+      "changedRankingsAmongAllCases": 0
+    }
+  },
+  "details": [
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        }
+      ],
+      "kind": "direct",
+      "id": "D01",
+      "expected": [
+        "cache:TTL"
+      ],
+      "question": "TTL 基准值",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3"
+          ],
+          "sources": [
+            "cache:TTL"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5",
+            "cache:7",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:热点保护",
+            "cache:边界"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3"
+          ],
+          "sources": [
+            "cache:TTL"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5",
+            "cache:7",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:热点保护",
+            "cache:边界"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        }
+      ],
+      "kind": "direct",
+      "id": "D02",
+      "expected": [
+        "cache:空值缓存"
+      ],
+      "question": "空值缓存保存多久",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:5"
+          ],
+          "sources": [
+            "cache:空值缓存"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:5",
+            "cache:3",
+            "cache:7",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:空值缓存",
+            "cache:TTL",
+            "cache:热点保护",
+            "cache:边界"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:5"
+          ],
+          "sources": [
+            "cache:空值缓存"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:5",
+            "cache:3",
+            "cache:7",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:空值缓存",
+            "cache:TTL",
+            "cache:热点保护",
+            "cache:边界"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        }
+      ],
+      "kind": "direct",
+      "id": "D03",
+      "expected": [
+        "cache:热点保护"
+      ],
+      "question": "single-flight 等待预算",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:7"
+          ],
+          "sources": [
+            "cache:热点保护"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:7",
+            "cache:3",
+            "cache:9",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "cache:TTL",
+            "cache:边界",
+            "cache:空值缓存"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:7"
+          ],
+          "sources": [
+            "cache:热点保护"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:7",
+            "cache:3",
+            "cache:9",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "cache:TTL",
+            "cache:边界",
+            "cache:空值缓存"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        }
+      ],
+      "kind": "direct",
+      "id": "D04",
+      "expected": [
+        "consistency:写后读"
+      ],
+      "question": "写后读如何避免复制延迟",
+      "scope": [
+        "consistency"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "consistency:3"
+          ],
+          "sources": [
+            "consistency:写后读"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "consistency:3",
+            "consistency:7",
+            "consistency:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:写后读",
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:消息去重"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "consistency:3"
+          ],
+          "sources": [
+            "consistency:写后读"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "consistency:3",
+            "consistency:7",
+            "consistency:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:写后读",
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:消息去重"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        }
+      ],
+      "kind": "direct",
+      "id": "D05",
+      "expected": [
+        "consistency:缓存失效"
+      ],
+      "question": "删除缓存失败怎么处理",
+      "scope": [
+        "consistency"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "consistency:5",
+            "consistency:7",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:消息去重"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "consistency:5",
+            "consistency:7",
+            "consistency:9",
+            "consistency:3"
+          ],
+          "sources": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:消息去重",
+            "consistency:写后读"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "consistency:5",
+            "consistency:7",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:消息去重"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "consistency:5",
+            "consistency:7",
+            "consistency:9",
+            "consistency:3"
+          ],
+          "sources": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:消息去重",
+            "consistency:写后读"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        }
+      ],
+      "kind": "synonym",
+      "id": "S01",
+      "expected": [
+        "cache:TTL"
+      ],
+      "question": "商品缓存过期时间是多少",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5",
+            "cache:7",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:热点保护",
+            "cache:边界"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5",
+            "cache:7",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:热点保护",
+            "cache:边界"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        }
+      ],
+      "kind": "synonym",
+      "id": "S02",
+      "expected": [
+        "cache:TTL"
+      ],
+      "question": "缓存生存时间",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5",
+            "cache:9",
+            "cache:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:边界",
+            "cache:热点保护"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:3",
+            "cache:5",
+            "cache:9",
+            "cache:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:边界",
+            "cache:热点保护"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        }
+      ],
+      "kind": "synonym",
+      "id": "S03",
+      "expected": [
+        "cache:TTL"
+      ],
+      "question": "随机抖动的范围",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3"
+          ],
+          "sources": [
+            "cache:TTL"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:3",
+            "cache:9",
+            "cache:7",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:边界",
+            "cache:热点保护",
+            "cache:空值缓存"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3"
+          ],
+          "sources": [
+            "cache:TTL"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:3",
+            "cache:9",
+            "cache:7",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:边界",
+            "cache:热点保护",
+            "cache:空值缓存"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        }
+      ],
+      "kind": "synonym",
+      "id": "S04",
+      "expected": [
+        "cache:空值缓存"
+      ],
+      "question": "缓存穿透如何处理",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:5"
+          ],
+          "sources": [
+            "cache:空值缓存"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:5",
+            "cache:3",
+            "cache:9",
+            "cache:7"
+          ],
+          "sources": [
+            "cache:空值缓存",
+            "cache:TTL",
+            "cache:边界",
+            "cache:热点保护"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:5"
+          ],
+          "sources": [
+            "cache:空值缓存"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:5",
+            "cache:3",
+            "cache:9",
+            "cache:7"
+          ],
+          "sources": [
+            "cache:空值缓存",
+            "cache:TTL",
+            "cache:边界",
+            "cache:热点保护"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        }
+      ],
+      "kind": "synonym",
+      "id": "S05",
+      "expected": [
+        "cache:热点保护"
+      ],
+      "question": "请求合并等待多久",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:7"
+          ],
+          "sources": [
+            "cache:热点保护"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:7",
+            "cache:5",
+            "cache:3",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "cache:空值缓存",
+            "cache:TTL",
+            "cache:边界"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:7"
+          ],
+          "sources": [
+            "cache:热点保护"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:7",
+            "cache:5",
+            "cache:3",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "cache:空值缓存",
+            "cache:TTL",
+            "cache:边界"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        }
+      ],
+      "kind": "synonym",
+      "id": "S06",
+      "expected": [
+        "consistency:写后读"
+      ],
+      "question": "read after write 的保证范围",
+      "scope": [
+        "consistency"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "consistency:3"
+          ],
+          "sources": [
+            "consistency:写后读"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "consistency:3",
+            "consistency:7",
+            "consistency:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:写后读",
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:消息去重"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "consistency:3"
+          ],
+          "sources": [
+            "consistency:写后读"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "consistency:3",
+            "consistency:7",
+            "consistency:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:写后读",
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:消息去重"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        }
+      ],
+      "kind": "synonym",
+      "id": "S07",
+      "expected": [
+        "consistency:消息去重"
+      ],
+      "question": "重复消费如何避免",
+      "scope": [
+        "consistency"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "consistency:9",
+            "consistency:3"
+          ],
+          "sources": [
+            "consistency:消息去重",
+            "consistency:写后读"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "consistency:9",
+            "consistency:3",
+            "consistency:5",
+            "consistency:7"
+          ],
+          "sources": [
+            "consistency:消息去重",
+            "consistency:写后读",
+            "consistency:缓存失效",
+            "consistency:并发回填"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "consistency:9",
+            "consistency:3"
+          ],
+          "sources": [
+            "consistency:消息去重",
+            "consistency:写后读"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "consistency:9",
+            "consistency:3",
+            "consistency:5",
+            "consistency:7"
+          ],
+          "sources": [
+            "consistency:消息去重",
+            "consistency:写后读",
+            "consistency:缓存失效",
+            "consistency:并发回填"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        }
+      ],
+      "kind": "multi",
+      "id": "M01",
+      "expected": [
+        "cache:TTL",
+        "cache:空值缓存"
+      ],
+      "question": "TTL 和空值缓存分别保存多久",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:5",
+            "cache:3"
+          ],
+          "sources": [
+            "cache:空值缓存",
+            "cache:TTL"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:5",
+            "cache:3",
+            "cache:7",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:空值缓存",
+            "cache:TTL",
+            "cache:热点保护",
+            "cache:边界"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:5",
+            "cache:3"
+          ],
+          "sources": [
+            "cache:空值缓存",
+            "cache:TTL"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:5",
+            "cache:3",
+            "cache:7",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:空值缓存",
+            "cache:TTL",
+            "cache:热点保护",
+            "cache:边界"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        }
+      ],
+      "kind": "multi",
+      "id": "M02",
+      "expected": [
+        "consistency:缓存失效",
+        "consistency:并发回填"
+      ],
+      "question": "数据库提交后删除缓存的顺序及并发回填旧值的处理",
+      "scope": [
+        "consistency"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "consistency:7",
+            "consistency:5",
+            "consistency:3",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:写后读",
+            "consistency:消息去重"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "consistency:5",
+            "consistency:7",
+            "consistency:3",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:写后读",
+            "consistency:消息去重"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "consistency:7",
+            "consistency:5",
+            "consistency:3",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:写后读",
+            "consistency:消息去重"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "consistency:5",
+            "consistency:7",
+            "consistency:3",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:缓存失效",
+            "consistency:并发回填",
+            "consistency:写后读",
+            "consistency:消息去重"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:3"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        }
+      ],
+      "kind": "multi",
+      "id": "M03",
+      "expected": [
+        "cache:TTL",
+        "ops:观测"
+      ],
+      "question": "TTL 随机抖动方案及实验观测指标",
+      "scope": [
+        "cache",
+        "ops"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3",
+            "ops:3"
+          ],
+          "sources": [
+            "cache:TTL",
+            "ops:观测"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "ops:3",
+            "cache:3",
+            "ops:5",
+            "cache:9",
+            "ops:7",
+            "cache:7"
+          ],
+          "sources": [
+            "ops:观测",
+            "cache:TTL",
+            "ops:复制监控",
+            "cache:边界",
+            "ops:演练",
+            "cache:热点保护"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3",
+            "ops:3"
+          ],
+          "sources": [
+            "cache:TTL",
+            "ops:观测"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "ops:3",
+            "cache:3",
+            "ops:5",
+            "cache:9",
+            "ops:7",
+            "cache:7"
+          ],
+          "sources": [
+            "ops:观测",
+            "cache:TTL",
+            "ops:复制监控",
+            "cache:边界",
+            "ops:演练",
+            "cache:热点保护"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:5"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        }
+      ],
+      "kind": "multi",
+      "id": "M04",
+      "expected": [
+        "consistency:写后读",
+        "ops:复制监控"
+      ],
+      "question": "写后读主库的保证范围和复制延迟告警阈值",
+      "scope": [
+        "consistency",
+        "ops"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "consistency:3",
+            "ops:5",
+            "ops:3"
+          ],
+          "sources": [
+            "consistency:写后读",
+            "ops:复制监控",
+            "ops:观测"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "consistency:3",
+            "ops:5",
+            "ops:3",
+            "consistency:7",
+            "ops:7",
+            "consistency:5"
+          ],
+          "sources": [
+            "consistency:写后读",
+            "ops:复制监控",
+            "ops:观测",
+            "consistency:并发回填",
+            "ops:演练",
+            "consistency:缓存失效"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "consistency:3",
+            "ops:5",
+            "ops:3"
+          ],
+          "sources": [
+            "consistency:写后读",
+            "ops:复制监控",
+            "ops:观测"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "consistency:3",
+            "ops:5",
+            "ops:3",
+            "consistency:7",
+            "ops:7",
+            "consistency:5"
+          ],
+          "sources": [
+            "consistency:写后读",
+            "ops:复制监控",
+            "ops:观测",
+            "consistency:并发回填",
+            "ops:演练",
+            "consistency:缓存失效"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:5"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        }
+      ],
+      "kind": "multi",
+      "id": "M05",
+      "expected": [
+        "cache:热点保护",
+        "performance:请求合并"
+      ],
+      "question": "热点键请求合并的预算和实验对照方式",
+      "scope": [
+        "cache",
+        "performance"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:7",
+            "performance:3"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "performance:请求合并"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:7",
+            "performance:3",
+            "performance:5",
+            "performance:7",
+            "cache:3",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "performance:请求合并",
+            "performance:索引",
+            "performance:压测方法",
+            "cache:TTL",
+            "cache:边界"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:7",
+            "performance:3"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "performance:请求合并"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:7",
+            "performance:3",
+            "performance:5",
+            "performance:7",
+            "cache:3",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "performance:请求合并",
+            "performance:索引",
+            "performance:压测方法",
+            "cache:TTL",
+            "cache:边界"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:3"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        }
+      ],
+      "kind": "distractor",
+      "id": "N01",
+      "expected": [
+        "cache:TTL"
+      ],
+      "question": "星桥商品 TTL",
+      "scope": [
+        "cache",
+        "other"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "cache:5",
+            "other:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "cache:空值缓存",
+            "other:部署"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "other:7",
+            "cache:5",
+            "cache:7",
+            "other:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "other:部署",
+            "cache:空值缓存",
+            "cache:热点保护",
+            "other:线程"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "cache:5",
+            "other:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "cache:空值缓存",
+            "other:部署"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "other:7",
+            "cache:5",
+            "cache:7",
+            "other:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "other:部署",
+            "cache:空值缓存",
+            "cache:热点保护",
+            "other:线程"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:3"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:7"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        }
+      ],
+      "kind": "distractor",
+      "id": "N02",
+      "expected": [
+        "cache:TTL"
+      ],
+      "question": "星桥缓存过期时间",
+      "scope": [
+        "cache",
+        "other"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "cache:5",
+            "other:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "cache:空值缓存",
+            "other:部署"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "other:7",
+            "cache:5",
+            "other:5",
+            "cache:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "other:部署",
+            "cache:空值缓存",
+            "other:线程",
+            "cache:热点保护"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "cache:5",
+            "other:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "cache:空值缓存",
+            "other:部署"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "other:7",
+            "cache:5",
+            "other:5",
+            "cache:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "other:部署",
+            "cache:空值缓存",
+            "other:线程",
+            "cache:热点保护"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        }
+      ],
+      "kind": "distractor",
+      "id": "N03",
+      "expected": [
+        "cache:TTL"
+      ],
+      "question": "TTL",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3"
+          ],
+          "sources": [
+            "cache:TTL"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:3",
+            "cache:7",
+            "cache:5",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:热点保护",
+            "cache:空值缓存",
+            "cache:边界"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3"
+          ],
+          "sources": [
+            "cache:TTL"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:3",
+            "cache:7",
+            "cache:5",
+            "cache:9"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:热点保护",
+            "cache:空值缓存",
+            "cache:边界"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:5"
+        }
+      ],
+      "kind": "distractor",
+      "id": "N04",
+      "expected": [
+        "performance:索引"
+      ],
+      "question": "订单索引扫描行数",
+      "scope": [
+        "cache",
+        "consistency",
+        "performance",
+        "other"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "performance:5",
+            "consistency:3"
+          ],
+          "sources": [
+            "performance:索引",
+            "consistency:写后读"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "performance:5",
+            "consistency:3",
+            "performance:3",
+            "cache:5",
+            "cache:3",
+            "performance:7"
+          ],
+          "sources": [
+            "performance:索引",
+            "consistency:写后读",
+            "performance:请求合并",
+            "cache:空值缓存",
+            "cache:TTL",
+            "performance:压测方法"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "performance:5",
+            "consistency:3"
+          ],
+          "sources": [
+            "performance:索引",
+            "consistency:写后读"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "performance:5",
+            "consistency:3",
+            "performance:3",
+            "cache:5",
+            "cache:3",
+            "performance:7"
+          ],
+          "sources": [
+            "performance:索引",
+            "consistency:写后读",
+            "performance:请求合并",
+            "cache:空值缓存",
+            "cache:TTL",
+            "performance:压测方法"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        }
+      ],
+      "kind": "insufficient",
+      "id": "I01",
+      "expected": [],
+      "question": "火星半径是多少",
+      "scope": [
+        "cache",
+        "consistency"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [],
+          "sources": []
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:3",
+            "cache:7",
+            "consistency:9",
+            "cache:9",
+            "consistency:5",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:热点保护",
+            "consistency:消息去重",
+            "cache:边界",
+            "consistency:缓存失效",
+            "cache:空值缓存"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [],
+          "sources": []
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:3",
+            "cache:7",
+            "consistency:9",
+            "cache:9",
+            "consistency:5",
+            "cache:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:热点保护",
+            "consistency:消息去重",
+            "cache:边界",
+            "consistency:缓存失效",
+            "cache:空值缓存"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        }
+      ],
+      "kind": "insufficient",
+      "id": "I02",
+      "expected": [],
+      "question": "Redis 内存上限具体配置多少 GB",
+      "scope": [
+        "cache"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:9"
+          ],
+          "sources": [
+            "cache:边界"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:9",
+            "cache:3",
+            "cache:5",
+            "cache:7"
+          ],
+          "sources": [
+            "cache:边界",
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:热点保护"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:9"
+          ],
+          "sources": [
+            "cache:边界"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:9",
+            "cache:3",
+            "cache:5",
+            "cache:7"
+          ],
+          "sources": [
+            "cache:边界",
+            "cache:TTL",
+            "cache:空值缓存",
+            "cache:热点保护"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:5"
+        }
+      ],
+      "kind": "insufficient",
+      "id": "I03",
+      "expected": [],
+      "question": "星桥实测吞吐提升百分比是多少",
+      "scope": [
+        "cache",
+        "performance"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "performance:7",
+            "cache:9",
+            "cache:3"
+          ],
+          "sources": [
+            "performance:压测方法",
+            "cache:边界",
+            "cache:TTL"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "performance:7",
+            "cache:3",
+            "cache:9",
+            "performance:3",
+            "cache:7",
+            "cache:5"
+          ],
+          "sources": [
+            "performance:压测方法",
+            "cache:TTL",
+            "cache:边界",
+            "performance:请求合并",
+            "cache:热点保护",
+            "cache:空值缓存"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "performance:7",
+            "cache:9",
+            "cache:3"
+          ],
+          "sources": [
+            "performance:压测方法",
+            "cache:边界",
+            "cache:TTL"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "performance:7",
+            "cache:3",
+            "cache:9",
+            "performance:3",
+            "cache:7",
+            "cache:5"
+          ],
+          "sources": [
+            "performance:压测方法",
+            "cache:TTL",
+            "cache:边界",
+            "performance:请求合并",
+            "cache:热点保护",
+            "cache:空值缓存"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        }
+      ],
+      "kind": "insufficient",
+      "id": "I04",
+      "expected": [],
+      "question": "订单复制延迟告警后自动切换机房的步骤",
+      "scope": [
+        "consistency",
+        "ops"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "ops:5",
+            "consistency:3",
+            "ops:3"
+          ],
+          "sources": [
+            "ops:复制监控",
+            "consistency:写后读",
+            "ops:观测"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "ops:5",
+            "consistency:3",
+            "ops:3",
+            "ops:7",
+            "consistency:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "ops:复制监控",
+            "consistency:写后读",
+            "ops:观测",
+            "ops:演练",
+            "consistency:缓存失效",
+            "consistency:消息去重"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "ops:5",
+            "consistency:3",
+            "ops:3"
+          ],
+          "sources": [
+            "ops:复制监控",
+            "consistency:写后读",
+            "ops:观测"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "ops:5",
+            "consistency:3",
+            "ops:3",
+            "ops:7",
+            "consistency:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "ops:复制监控",
+            "consistency:写后读",
+            "ops:观测",
+            "ops:演练",
+            "consistency:缓存失效",
+            "consistency:消息去重"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:5"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:3"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:7"
+        }
+      ],
+      "kind": "paraphrase",
+      "id": "P01",
+      "expected": [
+        "consistency:写后读"
+      ],
+      "question": "刚下完单就刷新，页面为什么还显示修改前的内容？这次应该去哪儿查？",
+      "scope": [
+        "cache",
+        "consistency",
+        "ops",
+        "performance"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [],
+          "sources": []
+        },
+        "vector_only": {
+          "chunkIds": [
+            "consistency:7",
+            "consistency:5",
+            "consistency:3",
+            "ops:7",
+            "cache:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:写后读",
+            "ops:演练",
+            "cache:空值缓存",
+            "consistency:消息去重"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [],
+          "sources": []
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "consistency:7",
+            "consistency:5",
+            "consistency:3",
+            "ops:7",
+            "cache:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "consistency:并发回填",
+            "consistency:缓存失效",
+            "consistency:写后读",
+            "ops:演练",
+            "cache:空值缓存",
+            "consistency:消息去重"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:5"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:3"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:3"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:7"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:7"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:5"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:5"
+        }
+      ],
+      "kind": "paraphrase",
+      "id": "P02",
+      "expected": [
+        "consistency:消息去重"
+      ],
+      "question": "同一条扣货通知送到了两遍，怎样让库存只减少一次？",
+      "scope": [
+        "cache",
+        "consistency",
+        "ops",
+        "other",
+        "performance"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "consistency:9",
+            "ops:7"
+          ],
+          "sources": [
+            "consistency:消息去重",
+            "ops:演练"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "consistency:9",
+            "ops:7",
+            "consistency:3",
+            "consistency:5",
+            "cache:5",
+            "other:7"
+          ],
+          "sources": [
+            "consistency:消息去重",
+            "ops:演练",
+            "consistency:写后读",
+            "consistency:缓存失效",
+            "cache:空值缓存",
+            "other:部署"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "consistency:9",
+            "ops:7"
+          ],
+          "sources": [
+            "consistency:消息去重",
+            "ops:演练"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "consistency:9",
+            "ops:7",
+            "consistency:3",
+            "consistency:5",
+            "cache:5",
+            "other:7"
+          ],
+          "sources": [
+            "consistency:消息去重",
+            "ops:演练",
+            "consistency:写后读",
+            "consistency:缓存失效",
+            "cache:空值缓存",
+            "other:部署"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:3"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:7"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:3"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:7"
+        }
+      ],
+      "kind": "paraphrase",
+      "id": "P03",
+      "expected": [
+        "cache:热点保护"
+      ],
+      "question": "大家一窝蜂读取同一个刚失效的热门条目时，能否让一个人去取，其余人等一会儿？",
+      "scope": [
+        "cache",
+        "consistency",
+        "ops",
+        "performance"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3",
+            "consistency:3",
+            "cache:7",
+            "ops:5",
+            "consistency:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "consistency:写后读",
+            "cache:热点保护",
+            "ops:复制监控",
+            "consistency:缓存失效"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:7",
+            "consistency:3",
+            "ops:5",
+            "cache:3",
+            "consistency:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "consistency:写后读",
+            "ops:复制监控",
+            "cache:TTL",
+            "consistency:缓存失效",
+            "consistency:消息去重"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3",
+            "consistency:3",
+            "cache:7",
+            "ops:5",
+            "consistency:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "consistency:写后读",
+            "cache:热点保护",
+            "ops:复制监控",
+            "consistency:缓存失效"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:7",
+            "consistency:3",
+            "ops:5",
+            "cache:3",
+            "consistency:5",
+            "consistency:9"
+          ],
+          "sources": [
+            "cache:热点保护",
+            "consistency:写后读",
+            "ops:复制监控",
+            "cache:TTL",
+            "consistency:缓存失效",
+            "consistency:消息去重"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:7"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:3"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:3"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:5"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:5"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:5"
+        }
+      ],
+      "kind": "paraphrase",
+      "id": "P04",
+      "expected": [
+        "cache:TTL"
+      ],
+      "question": "很多条目在同一刻作废会压垮后台，星桥怎样把它们的失效时刻错开？",
+      "scope": [
+        "cache",
+        "consistency",
+        "ops",
+        "other",
+        "performance"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:3",
+            "cache:7",
+            "ops:3",
+            "other:3",
+            "consistency:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:热点保护",
+            "ops:观测",
+            "other:TTL",
+            "consistency:缓存失效"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "cache:7",
+            "consistency:5",
+            "ops:3",
+            "ops:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "cache:热点保护",
+            "consistency:缓存失效",
+            "ops:观测",
+            "ops:演练"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:3",
+            "cache:7",
+            "ops:3",
+            "other:3",
+            "consistency:5"
+          ],
+          "sources": [
+            "cache:TTL",
+            "cache:热点保护",
+            "ops:观测",
+            "other:TTL",
+            "consistency:缓存失效"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:3",
+            "other:3",
+            "cache:7",
+            "consistency:5",
+            "ops:3",
+            "ops:7"
+          ],
+          "sources": [
+            "cache:TTL",
+            "other:TTL",
+            "cache:热点保护",
+            "consistency:缓存失效",
+            "ops:观测",
+            "ops:演练"
+          ]
+        }
+      }
+    },
+    {
+      "vectorRanking": [
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:3"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:5"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:9"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:3"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:7"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:5"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:5"
+        },
+        {
+          "scope": {
+            "documentId": "cache",
+            "version": 1,
+            "contentSha256": "7fdb263068a6fcce53349ff1817644f58a3bb4816080c945ded2556e81b42cef"
+          },
+          "chunkId": "cache:7"
+        },
+        {
+          "scope": {
+            "documentId": "ops",
+            "version": 1,
+            "contentSha256": "7d64f186b5ec0eee13119d686b51536b620535b58091829f9535fa993d9766c6"
+          },
+          "chunkId": "ops:7"
+        },
+        {
+          "scope": {
+            "documentId": "other",
+            "version": 1,
+            "contentSha256": "464416464ca43a8bc0f5fb3a01f5b313dd536c23f0f635c3ac4dda5e2ef2031d"
+          },
+          "chunkId": "other:7"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:7"
+        },
+        {
+          "scope": {
+            "documentId": "performance",
+            "version": 1,
+            "contentSha256": "4bcda24c25dd7508f9f3381af929035b96fd68c941d17fdb83932e553348570a"
+          },
+          "chunkId": "performance:3"
+        },
+        {
+          "scope": {
+            "documentId": "consistency",
+            "version": 1,
+            "contentSha256": "c8231ba52f4ec4b2fbf5efbe9582e9b3fa6043ac779601b09c21cc45e06dc93d"
+          },
+          "chunkId": "consistency:9"
+        }
+      ],
+      "kind": "paraphrase",
+      "id": "P05",
+      "expected": [],
+      "question": "秒杀系统最高能卖出多少单，笔记有没有每秒成交量的实测数字？",
+      "scope": [
+        "cache",
+        "consistency",
+        "ops",
+        "other",
+        "performance"
+      ],
+      "outputs": {
+        "baseline": {
+          "chunkIds": [
+            "cache:9",
+            "other:3"
+          ],
+          "sources": [
+            "cache:边界",
+            "other:TTL"
+          ]
+        },
+        "vector_only": {
+          "chunkIds": [
+            "cache:9",
+            "other:3",
+            "cache:5",
+            "cache:3",
+            "ops:5",
+            "performance:5"
+          ],
+          "sources": [
+            "cache:边界",
+            "other:TTL",
+            "cache:空值缓存",
+            "cache:TTL",
+            "ops:复制监控",
+            "performance:索引"
+          ]
+        },
+        "quota_only": {
+          "chunkIds": [
+            "cache:9",
+            "other:3"
+          ],
+          "sources": [
+            "cache:边界",
+            "other:TTL"
+          ]
+        },
+        "all_enabled": {
+          "chunkIds": [
+            "cache:9",
+            "other:3",
+            "cache:5",
+            "cache:3",
+            "ops:5",
+            "performance:5"
+          ],
+          "sources": [
+            "cache:边界",
+            "other:TTL",
+            "cache:空值缓存",
+            "cache:TTL",
+            "ops:复制监控",
+            "performance:索引"
+          ]
+        }
+      }
+    }
+  ],
+  "generatedAt": "2026-11-10T15:57:25.251Z",
+  "command": "node scripts/evaluate-retrieval-ablation.mjs",
+  "sourceSha256": {
+    "scripts/evaluate-retrieval-ablation.mjs": "32721fbf60dc26637feef1e289104627a442c8596a5d9c1bc542a3c943403e27",
+    "backend/src/test/java/cn/edu/whu/zhizhida/knowledge/KnowledgeRetrievalAblationTest.java": "c458c46c8b35ee4a545e70d63e9423c71ff13fc4ccb4f717bfe3734295f1ef95",
+    "backend/src/test/java/cn/edu/whu/zhizhida/knowledge/KnowledgeRetrievalMetrics.java": "bf8e3fe26e32e32c5e8a8d4ed15f142841522bc18828cd89947f8114409d7d9e",
+    "backend/src/test/resources/knowledge-retrieval.json": "a477f03a3fab9b075b772574dac37931a526163c1d2c9373dd402d8cfcb00309",
+    "backend/src/main/java/cn/edu/whu/zhizhida/knowledge/HybridKnowledgeSearch.java": "178ffe9f3f68d37335010c53a4030c6f4bdf720525b7ce136748ecc839db2f42",
+    "backend/src/main/java/cn/edu/whu/zhizhida/knowledge/domain/KnowledgeText.java": "20ccb38d310903f0753c760ac72234ab723485c2c5e452a45d64cd5b543e4c92",
+    "backend/src/main/java/cn/edu/whu/zhizhida/knowledge/KnowledgeRetrievalSettings.java": "ede58c8720c0ae4c66dbdcef04ce8e1032cc3d8d841ea3f675368248d9835637",
+    "backend/src/main/java/cn/edu/whu/zhizhida/ai/LangChain4jKnowledgeVectors.java": "e8eee9fcace115c4784dcfec031573584aa8ce341c1cb9af5a737413734cd986",
+    "services/embedding/src/main/java/cn/edu/whu/zhizhida/embedding/EmbeddingServer.java": "dff169309b198a8e4f1f692980054cf2af3b305d885d476278b18bacc96eaeb3"
+  },
+  "embeddingArtifact": {
+    "file": "langchain4j-embeddings-bge-small-zh-v15-q-1.23.0-beta33.jar",
+    "sha256": "68fdf59a29108d9453c33ff51714ae3f90d23ba75829b027e03f650e26c65275"
+  },
+  "validation": [
+    "[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.40 s -- in cn.edu.whu.zhizhida.knowledge.HybridKnowledgeSearchTest",
+    "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.126 s -- in cn.edu.whu.zhizhida.knowledge.KnowledgeRetrievalAblationTest",
+    "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in cn.edu.whu.zhizhida.knowledge.KnowledgeRetrievalMetricsTest",
+    "[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0",
+    "[INFO] BUILD SUCCESS"
+  ]
+}

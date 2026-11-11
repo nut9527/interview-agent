@@ -25,7 +25,7 @@ public class TrainingKnowledgeCatalog implements KnowledgeCatalog {
 
     @Override
     public String retrievalProfile() {
-        return hybrid == null ? "lexical-v1" : hybrid.fingerprint();
+        return hybrid == null ? "bm25-lexical-v2" : hybrid.fingerprint();
     }
 
     public TrainingKnowledgeCatalog(KnowledgeService documents) {
