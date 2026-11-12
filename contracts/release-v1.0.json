@@ -18,7 +18,7 @@
     "adapter": "langchain4j",
     "route": "TOOL",
     "loopPolicy": "B0",
-    "decisionProtocol": "legacy",
+    "decisionProtocol": "phased-v2",
     "citationProtocol": "anchor-v1",
     "legacyCitationCompatibility": "STRICT_RAW_UTF16_OFFSETS",
     "promptVersion": "interview-run-contract-v6",
@@ -52,8 +52,8 @@
     },
     "generation": {
       "temperature": "PROVIDER_DEFAULT",
-      "openingMaxTokens": 2000,
-      "reviewMaxTokens": 2000
+      "openingMaxTokens": 3000,
+      "reviewMaxTokens": 3000
     }
   },
   "samples": [

@@ -41,4 +41,10 @@ public final class GoalRunSubject implements RunSubject {
     }
 
     private record State(long revision, String status, boolean live) { }
+
+    public void clearPrivate(long owner,String subjectId,String runId) {
+        jdbc.update("UPDATE learning_goal_model_attempts a JOIN learning_goal_planning p ON p.run_id=a.run_id "
+                + "SET a.response_json=NULL WHERE p.owner_id=? AND p.run_id=?",owner,runId);
+        jdbc.update("UPDATE learning_goal_planning SET checkpoint_json='{}' WHERE owner_id=? AND run_id=?",owner,runId);
+    }
 }

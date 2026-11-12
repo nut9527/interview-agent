@@ -1,7 +1,6 @@
 package cn.edu.whu.zhizhida.interview;
 
 
-import cn.edu.whu.zhizhida.interview.api.InterviewAiService;
 
 import cn.edu.whu.zhizhida.interview.api.InterviewService.InterviewHistoryItem;
 import cn.edu.whu.zhizhida.interview.api.InterviewMode;
@@ -42,8 +41,6 @@ class InterviewStateMachineTest {
     @Mock
     private CurrentUserProvider currentUserProvider;
     @Mock
-    private InterviewAiService interviewAiService;
-    @Mock
     private ResumeSnapshotReader resumeRepository;
 
     private InterviewStateMachine stateMachine;
@@ -54,7 +51,7 @@ class InterviewStateMachineTest {
         stateMachine = InterviewMachineFixture.machine(
                 sessionRepository,
                 currentUserProvider,
-                interviewAiService,
+                cn.edu.whu.zhizhida.ai.api.AiMode.MOCK,
                 resumeRepository
         );
     }
@@ -108,7 +105,6 @@ class InterviewStateMachineTest {
     void preparesInputWithoutCallingModelOrWritingSession() {
         var prepared = stateMachine.prepareStart(new InterviewStartRequest("Java 后端工程师", "Spring Boot 项目经验", null));
         assertThat(prepared.turns()).extracting(InterviewTurn::speaker).containsExactly("system");
-        verify(interviewAiService, never()).openingQuestion(any(), any());
         verify(sessionRepository, never()).save(any(), any());
     }
 
@@ -139,7 +135,6 @@ class InterviewStateMachineTest {
         assertThat(session.resumeSnapshot()).doesNotContain("不应采用这段手填摘要");
         assertThat(session.turns().get(0).content()).contains("已载入所选简历");
         verify(resumeRepository).requireOwned(7L);
-        verify(interviewAiService, never()).openingQuestion(any(), any());
     }
 
     @Test
@@ -152,7 +147,6 @@ class InterviewStateMachineTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("resume not found");
 
-        verify(interviewAiService, never()).openingQuestion(any(), any());
         verify(sessionRepository, never()).save(any(), any());
     }
 

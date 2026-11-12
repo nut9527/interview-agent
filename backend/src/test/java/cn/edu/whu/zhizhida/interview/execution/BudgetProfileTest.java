@@ -9,6 +9,17 @@ import static org.assertj.core.api.Assertions.*;
 class BudgetProfileTest {
     private final JsonMapper json = new JsonMapper();
 
+    @Test void adaptiveProfileReservesEvidenceReviewAndFinalRepair() {
+        var profile = BudgetProfile.production("A1");
+        assertThat(profile.execution().explicit()).isTrue();
+        assertThat(profile.execution().maxModelAttempts()).isEqualTo(6);
+        assertThat(profile.attemptLimit("ACTION", false)).isEqualTo(4);
+        assertThat(profile.attemptLimit("FINAL", false)).isEqualTo(5);
+        assertThat(profile.attemptLimit("FINAL", true)).isEqualTo(6);
+        assertThat(profile.execution().deadlineMillis()).isEqualTo(120_000);
+        assertThat(profile.execution().boundary(4, 3, 2, 4, 100_000)).isEqualTo("STEP_LIMIT");
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"B0", "S1", "S3"})
     void supportedProfilesRetainFrozenLimits(String name) {
@@ -16,7 +27,6 @@ class BudgetProfileTest {
         assertThat(profile.execution().maxSteps()).isEqualTo(name.equals("S1") ? 1 : 3);
         assertThat(profile.execution().maxModelAttempts()).isEqualTo(4);
         assertThat(profile.execution().deadlineMillis()).isEqualTo(90_000);
-        assertThat(profile.tokens()).isNull();
         assertThat(profile.attemptLimit("ACTION", false)).isEqualTo(2);
         assertThat(profile.attemptLimit("FINAL", false)).isEqualTo(3);
         assertThat(profile.attemptLimit("FINAL", true)).isEqualTo(4);
@@ -24,7 +34,7 @@ class BudgetProfileTest {
         assertThat(json.readTree(json.writeValueAsString(profile))).isEqualTo(json.readTree("""
                 {"version":"budget-v1","execution":{"version":"%s","maxSteps":%d,
                  "maxModelAttempts":4,"maxToolBatches":2,"maxToolExecutions":3,"maxRepairs":1,
-                 "deadlineMillis":90000,"callMillis":25000},"tokens":null,"finalRequests":2,"finalCallMillis":25000}
+                 "deadlineMillis":90000,"callMillis":25000},"finalRequests":2,"finalCallMillis":25000}
                 """.formatted(name, name.equals("S1") ? 1 : 3)));
     }
 
@@ -34,10 +44,9 @@ class BudgetProfileTest {
         assertThatThrownBy(() -> BudgetProfile.production(name)).hasMessageContaining("not enabled");
     }
 
-    @Test void oldBaselineKeepsItsActualLimitsAndHasNoInventedTokenBudget() {
+    @Test void baselineReservesFinalOutputAndRejectsRemovedPhase() {
         var p = BudgetProfile.production("B0");
-        assertThat(p.tokens()).isNull();
-        assertThat(p.callTimeout("LEGACY", false, 20_000)).isEqualTo(15_000);
+        assertThatThrownBy(() -> p.callTimeout("LEGACY", false, 20_000)).hasMessage("RUN_CHECKPOINT_INVALID");
         assertThat(p.callTimeout("FINAL", false, 50_000)).isEqualTo(20_000);
         assertThatThrownBy(() -> p.callTimeout("FINAL", false, 30_000)).hasMessage("RUN_BUDGET");
         assertThatThrownBy(() -> p.reservedRequests("invented", false)).hasMessage("RUN_CHECKPOINT_INVALID");

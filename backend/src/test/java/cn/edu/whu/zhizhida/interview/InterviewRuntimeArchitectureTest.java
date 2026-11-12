@@ -13,8 +13,8 @@ class InterviewRuntimeArchitectureTest {
                 .haveSimpleName("ExecutionPort").check(classes);
         noClasses().that().haveSimpleName("GoalRunSubject").should().dependOnClassesThat()
                 .haveSimpleName("LearningGoalService").check(classes);
-        noClasses().that().haveSimpleName("InterviewRunModel").should().dependOnClassesThat()
-                .haveSimpleName("DefaultInterviewAiService").check(classes);
+        noClasses().that().resideInAPackage("..interview..").should().dependOnClassesThat()
+                .haveSimpleName("JsonChatClient").check(classes);
         noClasses().that().haveNameMatching(".*ToolRegistry(\\$.*)?").should().dependOnClassesThat()
                 .resideInAnyPackage("..interview..", "..learning..", "..knowledge..")
                 .check(classes);

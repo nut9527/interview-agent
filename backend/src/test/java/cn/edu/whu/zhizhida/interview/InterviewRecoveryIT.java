@@ -2,7 +2,7 @@ package cn.edu.whu.zhizhida.interview;
 
 import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.common.PageRequest;
-import cn.edu.whu.zhizhida.interview.api.InterviewAiService.InterviewAiReply;
+import cn.edu.whu.zhizhida.interview.api.InterviewAiReply;
 import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
 import cn.edu.whu.zhizhida.interview.execution.*;
 import cn.edu.whu.zhizhida.knowledge.KnowledgeRepository;
@@ -48,6 +48,17 @@ class InterviewRecoveryIT {
 
         String start(String key) throws Exception {
             return acceptStart(key, config());
+        }
+
+        String modelCheckpoint(InterviewRunStore.Claim claim, String phase, boolean repaired) {
+            var cp = objectMapper.createObjectNode().put("stage", "MODEL").put("outputPhase", phase)
+                    .put("repaired", repaired).put("actionRepaired", false);
+            cp.putArray("sources");
+            cp.putArray("messages").addObject().put("role", "system").put("content", phase + " fixture");
+            String saved = cp.toString();
+            if (repaired) store.repair(claim, saved);
+            else store.checkpoint(claim, saved, "MODEL", null, null);
+            return saved;
         }
 
         String opened() throws Exception {
@@ -129,21 +140,22 @@ class InterviewRecoveryIT {
         void retryReleaseRollsBackAtomicallyAndFencesDuplicateSettlement() throws Exception {
             String id = start("retry_atomic_001");
             var claim = store.claim(store.get(owner,id));
+            String savedCheckpoint = modelCheckpoint(claim, "ACTION", false);
             String attempt = store.reserveModelAttempt(claim, prepared("input-hash")).id();
             transaction.executeWithoutResult(status -> {
-                assertThat(store.deferModelFailure(claim,attempt,"MODEL_NETWORK",12,"{}")).isTrue();
+                assertThat(store.deferModelFailure(claim,attempt,"MODEL_NETWORK",12,store.get(claim.owner(),claim.id()).checkpoint())).isTrue();
                 assertThat(store.retryScheduled(claim)).isTrue();
                 status.setRollbackOnly();
             });
             assertThat(store.get(owner,id).status()).isEqualTo("RUNNING");
-            assertThat(store.get(owner,id).checkpoint()).isNull();
+            assertThat(store.get(owner,id).checkpoint()).isEqualTo(savedCheckpoint);
             assertThat(store.retryScheduled(claim)).isFalse();
             assertThat(jdbc.queryForObject("SELECT status FROM interview_model_attempts WHERE attempt_id=?",String.class,attempt)).isEqualTo("STARTED");
             assertThat(store.events(owner,id,0)).noneMatch(event -> event.type().equals("model.retry_scheduled"));
-            assertThat(store.deferModelFailure(claim,attempt,"MODEL_NETWORK",12,"{}")).isTrue();
+            assertThat(store.deferModelFailure(claim,attempt,"MODEL_NETWORK",12,store.get(claim.owner(),claim.id()).checkpoint())).isTrue();
             assertThat(store.needsDispatch(id)).isTrue();
             assertThat(jdbc.queryForObject("SELECT status FROM interview_model_attempts WHERE attempt_id=?",String.class,attempt)).isEqualTo("UNKNOWN");
-            assertThatThrownBy(() -> store.deferModelFailure(claim,attempt,"MODEL_NETWORK",12,"{}"))
+            assertThatThrownBy(() -> store.deferModelFailure(claim,attempt,"MODEL_NETWORK",12,store.get(claim.owner(),claim.id()).checkpoint()))
                     .hasMessage("RUN_FENCED");
             store.fail(claim,"LATE_FAILURE");
             assertThat(store.get(owner,id).status()).isEqualTo("ACCEPTED");
@@ -156,8 +168,9 @@ class InterviewRecoveryIT {
             String quotaKey = InterviewRunStore.sha("ai-day:" + owner);
             assertThat(jdbc.queryForObject("SELECT SUM(used_units) FROM request_quotas WHERE scope_key=?",Integer.class,quotaKey)).isEqualTo(5);
             var claim = store.claim(store.get(owner,id));
+            String savedCheckpoint = modelCheckpoint(claim, "ACTION", false);
             String attempt = store.reserveModelAttempt(claim, prepared("hash")).id();
-            assertThat(store.deferModelFailure(claim,attempt,"MODEL_HTTP_429",1,"{}")).isTrue();
+            assertThat(store.deferModelFailure(claim,attempt,"MODEL_HTTP_429",1,store.get(claim.owner(),claim.id()).checkpoint())).isTrue();
             assertThat(answer(session,"retry_answer_001")).isEqualTo(id);
             assertThat(jdbc.queryForObject("SELECT active_run_id FROM interview_sessions WHERE session_id=?",String.class,session)).isEqualTo(id);
             assertThat(performPost("/api/interviews/sessions/" + session + "/answer-commands",
@@ -173,8 +186,9 @@ class InterviewRecoveryIT {
         void retryRemindersWaitUntilDueAndConcurrentClaimsHaveOneWinner() throws Exception {
             String id = start("retry_dispatch_001");
             var initial = store.claim(store.get(owner,id));
+            String savedCheckpoint = modelCheckpoint(initial, "ACTION", false);
             String attempt = store.reserveModelAttempt(initial, prepared("hash")).id();
-            assertThat(store.deferModelFailure(initial,attempt,"MODEL_HTTP_503",1,"{}")).isTrue();
+            assertThat(store.deferModelFailure(initial,attempt,"MODEL_HTTP_503",1,store.get(initial.owner(),initial.id()).checkpoint())).isTrue();
             jdbc.update("UPDATE interview_run_outbox SET status='PUBLISHED' WHERE run_id=?",id);
             jdbc.update("UPDATE interview_runs SET not_before=TIMESTAMPADD(SECOND,30,CURRENT_TIMESTAMP(6)),"
                     + "next_dispatch_at=TIMESTAMPADD(SECOND,-1,CURRENT_TIMESTAMP(6)) WHERE id=?",id);
@@ -202,9 +216,10 @@ class InterviewRecoveryIT {
         void retryCannotExtendDeadlineOrExceedAttemptLimit() throws Exception {
             String id = start("retry_budget_001");
             var claim = store.claim(store.get(owner,id));
+            String savedCheckpoint = modelCheckpoint(claim, "ACTION", false);
             String attempt = store.reserveModelAttempt(claim, prepared("hash")).id();
             jdbc.update("UPDATE interview_runs SET deadline=TIMESTAMPADD(MICROSECOND,6500000,CURRENT_TIMESTAMP(6)) WHERE id=?",id);
-            assertThat(store.deferModelFailure(claim,attempt,"MODEL_HTTP_429",1,"{}")).isFalse();
+            assertThat(store.deferModelFailure(claim,attempt,"MODEL_HTTP_429",1,store.get(claim.owner(),claim.id()).checkpoint())).isFalse();
             assertThat(store.retryScheduled(claim)).isFalse();
             assertThat(jdbc.queryForObject("SELECT status FROM interview_model_attempts WHERE attempt_id=?",String.class,attempt)).isEqualTo("FAILED");
             store.fail(claim,"MODEL_HTTP_429");
@@ -212,10 +227,11 @@ class InterviewRecoveryIT {
             var last = store.claim(store.get(owner,limited));
             String lastAttempt = null;
             for (int i=0;i<4;i++) {
+                modelCheckpoint(last, i < 2 ? "ACTION" : "FINAL", i == 3);
                 lastAttempt = store.reserveModelAttempt(last, prepared("hash")).id();
                 if (i<3) store.attemptFailure(last,lastAttempt,"MODEL_HTTP_503",1);
             }
-            assertThat(store.deferModelFailure(last,lastAttempt,"MODEL_HTTP_503",1,"{}")).isFalse();
+            assertThat(store.deferModelFailure(last,lastAttempt,"MODEL_HTTP_503",1,store.get(last.owner(),last.id()).checkpoint())).isFalse();
             assertThat(store.get(owner,limited).attempts()).isEqualTo(4);
             assertThatThrownBy(() -> store.reserveModelAttempt(last, prepared("fifth")).id()).hasMessage("RUN_BUDGET");
         }
@@ -224,8 +240,9 @@ class InterviewRecoveryIT {
         void expiredRetryIsReapedEvenBeforeItsEligibilityOrReminderTime() throws Exception {
             String id = start("retry_expiry_001");
             var claim = store.claim(store.get(owner,id));
+            String savedCheckpoint = modelCheckpoint(claim, "ACTION", false);
             String attempt = store.reserveModelAttempt(claim, prepared("hash")).id();
-            assertThat(store.deferModelFailure(claim,attempt,"MODEL_HTTP_429",1,"{}")).isTrue();
+            assertThat(store.deferModelFailure(claim,attempt,"MODEL_HTTP_429",1,store.get(claim.owner(),claim.id()).checkpoint())).isTrue();
             jdbc.update("UPDATE interview_runs SET deadline=TIMESTAMPADD(SECOND,-1,CURRENT_TIMESTAMP(6)),"
                     + "not_before=TIMESTAMPADD(SECOND,30,CURRENT_TIMESTAMP(6)),"
                     + "next_dispatch_at=TIMESTAMPADD(SECOND,30,CURRENT_TIMESTAMP(6)) WHERE id=?",id);
@@ -240,16 +257,17 @@ class InterviewRecoveryIT {
         void phasedRetryPreservesRepairTimeAndRejectsUnreservedOrPermanentFailure() throws Exception {
             String id = start("retry_reserve_001");
             var claim = store.claim(store.get(owner,id));
+            String savedCheckpoint = modelCheckpoint(claim, "ACTION", false);
             String attempt = store.reserveModelAttempt(claim, prepared("hash")).id();
-            assertThatThrownBy(() -> store.deferModelFailure(claim,attempt,"MODEL_HTTP_401",1,"{}"))
+            assertThatThrownBy(() -> store.deferModelFailure(claim,attempt,"MODEL_HTTP_401",1,store.get(claim.owner(),claim.id()).checkpoint()))
                     .isInstanceOf(IllegalArgumentException.class);
-            assertThatThrownBy(() -> store.deferModelFailure(claim,"not-reserved","MODEL_HTTP_503",1,"{}"))
+            assertThatThrownBy(() -> store.deferModelFailure(claim,"not-reserved","MODEL_HTTP_503",1,store.get(claim.owner(),claim.id()).checkpoint()))
                     .hasMessage("RUN_FENCED");
             assertThat(jdbc.queryForObject("SELECT status FROM interview_model_attempts WHERE attempt_id=?",String.class,attempt)).isEqualTo("STARTED");
             jdbc.update("UPDATE interview_runs SET deadline=TIMESTAMPADD(SECOND,30,CURRENT_TIMESTAMP(6)) WHERE id=?",id);
-            assertThat(store.deferModelFailure(claim,attempt,"MODEL_HTTP_503",1,"{\"outputPhase\":\"ACTION\"}")).isFalse();
+            assertThat(store.deferModelFailure(claim,attempt,"MODEL_HTTP_503",1,savedCheckpoint)).isFalse();
             assertThat(store.get(owner,id).status()).isEqualTo("RUNNING");
-            assertThat(store.get(owner,id).checkpoint()).isNull();
+            assertThat(store.get(owner,id).checkpoint()).isEqualTo(savedCheckpoint);
             assertThat(store.get(owner,id).attempts()).isEqualTo(1);
         }
 
@@ -293,7 +311,7 @@ class InterviewRecoveryIT {
             assertThat(start("start_replay_001")).isEqualTo(id);
             assertThat(
                     jdbc.queryForObject("SELECT COUNT(*) FROM interview_model_attempts WHERE run_id=?", Integer.class, id))
-                    .isEqualTo(1);
+                    .isEqualTo(2);
         }
 
         @Test
@@ -322,6 +340,7 @@ class InterviewRecoveryIT {
         void recoveryKeepsUnknownAttemptAndFencesEveryOldWrite() throws Exception {
             String id = start("recover_epoch_001");
             var first = store.claim(store.get(owner, id));
+            modelCheckpoint(first, "ACTION", false);
             var old = store.reserveModelAttempt(first, prepared("f".repeat(64)));
             // 模拟出站投影字段启用前已发送、尚未写回结果的旧账本。
             assertThat(jdbc.update("UPDATE interview_model_attempts SET context_version=NULL,input_chars=NULL,"
@@ -340,7 +359,7 @@ class InterviewRecoveryIT {
                     .hasMessage("RUN_FENCED");
             worker.execute(next);
             assertThat(store.get(owner, id).status()).isEqualTo("SUCCEEDED");
-            assertThat(store.get(owner, id).attempts()).isEqualTo(2);
+            assertThat(store.get(owner, id).attempts()).isEqualTo(3);
         }
 
         @Test
@@ -417,8 +436,10 @@ class InterviewRecoveryIT {
         void repairAndAttemptBudgetSurviveRecovery() throws Exception {
             String id = start("budget_start_001");
             var claim = store.claim(store.get(owner, id));
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++) {
+                modelCheckpoint(claim, i < 2 ? "ACTION" : "FINAL", i == 3);
                 store.reserveModelAttempt(claim, prepared("hash")).id();
+            }
             assertThatThrownBy(() -> store.reserveModelAttempt(claim, prepared("fifth")).id()).hasMessage("RUN_BUDGET");
             assertThatThrownBy(() -> store.batch(claim, 1, "{}")).hasMessage("RUN_TOOL_BUDGET");
             assertThat(store.get(owner, id).attempts()).isEqualTo(4);
@@ -436,7 +457,7 @@ class InterviewRecoveryIT {
             assertThat(start("retention_start_001")).isEqualTo(id);
             assertThat(
                     jdbc.queryForObject("SELECT COUNT(*) FROM interview_model_attempts WHERE run_id=?", Integer.class, id))
-                    .isEqualTo(1);
+                    .isEqualTo(2);
         }
 
         @Test
@@ -604,6 +625,7 @@ class InterviewRecoveryIT {
             assertThat(store.claim(store.get(owner, id))).isNull();
             String deadline = start("call_deadline_001");
             var late = store.claim(store.get(owner, deadline));
+            modelCheckpoint(late, "ACTION", false);
             jdbc.update("UPDATE interview_runs SET deadline=TIMESTAMPADD(SECOND,4,CURRENT_TIMESTAMP(6)) WHERE id=?",
                     deadline);
             assertThatThrownBy(() -> store.reserveModelAttempt(late, prepared("hash")).id()).hasMessage("RUN_BUDGET");
@@ -639,7 +661,7 @@ class InterviewRecoveryIT {
             worker.execute(claim);
             assertThat(saves.get()).isEqualTo(2);
             assertThat(store.get(claim.owner(),claim.id()).status()).isEqualTo("SUCCEEDED");
-            assertThat(store.get(claim.owner(),claim.id()).attempts()).isEqualTo(1);
+            assertThat(store.get(claim.owner(),claim.id()).attempts()).isEqualTo(2);
             assertThat(sessions.page(claim.owner(), new PageRequest(1, 1)).total()).isEqualTo(1);
             assertThat(store.events(claim.owner(),claim.id(),0)).filteredOn(e -> e.type().equals("turn.committed")).hasSize(1);
         }
@@ -663,7 +685,7 @@ class InterviewRecoveryIT {
             for(var c:claims) {
                 var row=store.get(c.owner(),c.id());
                 assertThat(row.status()).as("error=%s",row.error()).isEqualTo("SUCCEEDED");
-                assertThat(row.attempts()).isEqualTo(1);
+                assertThat(row.attempts()).isEqualTo(2);
                 assertThat(sessions.findById(c.owner(),c.sessionId())).isPresent();
                 assertThat(store.events(c.owner(),c.id(),0)).filteredOn(e -> e.type().equals("turn.committed")).hasSize(1);
             }

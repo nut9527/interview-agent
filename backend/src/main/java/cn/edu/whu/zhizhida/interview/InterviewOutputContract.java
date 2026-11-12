@@ -12,7 +12,7 @@ import tools.jackson.databind.node.ObjectNode;
  * 长度和引用均以 UTF-16 单位描述，领域间关系仍由策略和证据校验器验证。
  */
 public final class InterviewOutputContract {
-    public static final String VERSION = "interview-output-v3";
+    public static final String VERSION = "interview-output-v4";
     public static final int QUESTION_MAX = 300;
     public static final int FEEDBACK_MAX = 1000;
     public static final int NEXT_QUESTION_MAX = 600;
@@ -26,7 +26,11 @@ public final class InterviewOutputContract {
     private InterviewOutputContract() { }
 
     public static String prompt(boolean opening, boolean agent, boolean finalRound) {
-        var source = contract(opening, agent, finalRound).deepCopy();
+        return prompt(opening, agent, finalRound, false);
+    }
+
+    public static String prompt(boolean opening, boolean agent, boolean finalRound, boolean planning) {
+        var source = contract(opening, agent, finalRound, planning).deepCopy();
         // 本轮生成只要求新版 detail；旧 items 的兼容契约仍保留在完整清单中。
         if (!opening) {
             var assessmentFields = (ObjectNode) source.path("fields").path("assessment").path("fields");
@@ -71,6 +75,10 @@ public final class InterviewOutputContract {
     }
 
     public static JsonNode contract(boolean opening, boolean agent, boolean finalRound) {
+        return contract(opening, agent, finalRound, false);
+    }
+
+    public static JsonNode contract(boolean opening, boolean agent, boolean finalRound, boolean planning) {
         var result = JSON.createObjectNode().put("version", VERSION).put("lengthUnit", "UTF16")
                 .put("mode", opening ? "OPENING" : finalRound ? "FINAL_REVIEW" : "REVIEW")
                 .put("unknownRootFields", "ignored by parser; do not generate")
@@ -84,7 +92,7 @@ public final class InterviewOutputContract {
         fields.put("feedback", text(FEEDBACK_MAX, false));
         fields.put("nextQuestion", finalRound ? "empty string; ignored by parser" : text(NEXT_QUESTION_MAX, false));
         fields.put("finalSummary", finalRound ? text(SUMMARY_MAX, false) : "empty string; ignored by parser");
-        if (agent) fields.set("agentDecision", decision());
+        if (agent) fields.set("agentDecision", decision(planning));
         fields.set("assessment", assessment());
         result.put("semantics", "Structure alone does not validate evidence. Server validates allowed actions/probes, coverage, "
                 + "citations against current owner and fixed source versions, RAW_UTF16 offsets, observation consistency and revocation. "
@@ -92,7 +100,7 @@ public final class InterviewOutputContract {
         return result;
     }
 
-    private static ObjectNode decision() {
+    private static ObjectNode decision(boolean planning) {
         var node = JSON.createObjectNode().put("type", "object").put("required", "all fields")
                 .put("unknownFields", "ignored by parser; do not generate");
         var fields = node.putObject("fields");
@@ -100,12 +108,19 @@ public final class InterviewOutputContract {
         fields.put("evidence", text(EVIDENCE_MAX, true) + "; one contiguous verbatim substring of the latest answer; no omissions or concatenation; empty only for INSUFFICIENT");
         fields.put("gap", text(DECISION_TEXT_MAX, false));
         fields.put("action", values(InterviewAgentState.Action.class) + "; restricted to allowedActions");
-        fields.put("nextCompetencyId", text(ID_MAX, false) + "; FOLLOW_UP/FINISH=current.id; ADVANCE=next.id");
+        fields.put("nextCompetencyId", text(ID_MAX, false) + "; target allowed by agentRouting");
         fields.put("reason", text(DECISION_TEXT_MAX, false));
         fields.put("practice", text(DECISION_TEXT_MAX, false));
         fields.put("probe", values(InterviewAgentState.Probe.class) + "; FOLLOW_UP=allowedProbes; ADVANCE=OPENING; FINISH=NONE");
         fields.put("intent", text(INTENT_MAX, false));
         fields.put("questionCompetencyId", text(ID_MAX, true) + "; equals nextCompetencyId except FINISH=empty");
+        if (planning) {
+            var focus = fields.putObject("focus").put("type", "required object").putObject("fields");
+            focus.put("dimension", values(cn.edu.whu.zhizhida.interview.api.InterviewPlanning.Dimension.class));
+            focus.put("scenario", values(cn.edu.whu.zhizhida.interview.api.InterviewPlanning.Scenario.class));
+            focus.put("claimToVerify", text(INTENT_MAX, false));
+            focus.put("expectedEvidence", text(INTENT_MAX, false));
+        }
         return node;
     }
 

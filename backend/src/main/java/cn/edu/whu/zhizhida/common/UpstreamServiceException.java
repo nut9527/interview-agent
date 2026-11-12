@@ -46,7 +46,7 @@ public class UpstreamServiceException extends IllegalStateException {
             case "MODEL_HTTP_401", "MODEL_HTTP_403" -> ErrorCode.AI_AUTH_FAILED;
             case "MODEL_CONFIGURATION" -> ErrorCode.AI_CONFIGURATION_ERROR;
             case "MODEL_HTTP_429" -> ErrorCode.AI_RATE_LIMITED;
-            case "MODEL_PROTOCOL", "MODEL_RESPONSE_LIMIT" -> ErrorCode.AI_INVALID_RESPONSE;
+            case "MODEL_PROTOCOL", "MODEL_RESPONSE_LIMIT", "MODEL_FINISH_LENGTH", "MODEL_FINISH_CONTENT_FILTER" -> ErrorCode.AI_INVALID_RESPONSE;
             default -> ErrorCode.UPSTREAM_FAILURE;
         };
     }

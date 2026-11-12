@@ -20,6 +20,7 @@ final class RunRetention {
     private final ObjectMapper policyJson;
     private final PracticeMemoryAccess memory;
     private final Consumer<Row> lockSubject;
+    private final Consumer<Row> clearSubject;
     private final RunRetentionCoordinator coordinator;
 
     RunRetention(
@@ -29,6 +30,7 @@ final class RunRetention {
             ObjectMapper json,
             PracticeMemoryAccess memory,
             Consumer<Row> lockSubject,
+            Consumer<Row> clearSubject,
             RunRetentionCoordinator coordinator) {
         this.jdbc = jdbc;
         this.tx = tx;
@@ -36,6 +38,7 @@ final class RunRetention {
         this.policyJson = json;
         this.memory = memory;
         this.lockSubject = lockSubject;
+        this.clearSubject = clearSubject;
         this.coordinator = coordinator;
     }
 
@@ -88,11 +91,13 @@ final class RunRetention {
                 s -> {
                     lockSubject.accept(known);
                     var row = rows.lock(known.owner(), known.id());
-                    if (row.terminal()) clearPrivate(row.id());
+                    if (row.terminal()) clearPrivate(row);
                 });
     }
 
-    void clearPrivate(String id) {
+    void clearPrivate(Row row) {
+        String id=row.id();
+        if(!row.subjectType().equals("INTERVIEW")) clearSubject.accept(row);
         jdbc.update(
                 "UPDATE interview_run_steps SET"
                     + " before_hash=NULL,after_hash=NULL,action_key=NULL,source_keys_json=NULL"

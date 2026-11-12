@@ -12,6 +12,8 @@ public interface ExecutionPort {
     Run accept(Command command);
     /** 仅查询指定 owner 的运行，不存在与归属不符均按资源不存在处理。 */
     Run read(long owner, String id);
+    /** 模型调用前核对当前执行租约和任务截止时间。 */
+    void requireActive(Context context);
     /** 在同一事务中复核租约、取消状态与截止时间，再执行 mutation 并提交运行终态；失败整体回滚。 */
     void complete(Context context, Runnable mutation);
 }

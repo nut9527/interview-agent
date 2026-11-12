@@ -36,7 +36,7 @@ test('reservation includes model context overhead and rejects unpriced request v
   assert.equal(reservationFor(body(), p).microCny, 2113152);
   assert.equal(reservationFor(body({ max_tokens: 600 }), p).microCny, 2101952);
   for (const change of [{ stream: true }, { model: 'other' }, { thinking: { type: 'enabled' } },
-    { max_tokens: 2001 }, { max_tokens: 0 }, { n: 2 }, { messages: [] },
+    { max_tokens: 3001 }, { max_tokens: 0 }, { n: 2 }, { messages: [] },
     { messages: [{ content: [{ type: 'image_url' }] }] }]) assert.throws(() => reservationFor(body(change), p));
   assert.throws(() => reservationFor(Buffer.alloc(480001), p));
   assert.throws(() => validatePrice({ ...p, validUntil: new Date(Date.now() - 1).toISOString() }));
@@ -169,6 +169,8 @@ test('evaluation process receives only local credentials and explicit B0 switche
     DEEPSEEK_BASE_URL: 'https://other', INTERVIEW_RUNS_LOOP_POLICY: 'S3', JAVA_TOOL_OPTIONS: '-Drisky=true',
     MAVEN_ARGS: '-DskipTests', SPRING_APPLICATION_JSON: '{"ai":{"api-key":"secret"}}' },
   'http://127.0.0.1:1234', 'local-token', 'synthetic.jsonl');
+  assert.equal(env.SPRING_PROFILES_ACTIVE, 'agent-evaluation');
+  assert.equal(env.INTERVIEW_RUNS_DECISION_PROTOCOL, 'phased-v2');
   assert.equal(env.PATH, 'tools'); assert.equal(env.INTERVIEW_RUNS_LOOP_POLICY, 'B0');
   assert.equal(env.DEEPSEEK_API_KEY, 'local-token'); assert.equal(env.AI_API_KEY, 'local-token');
   assert.equal(env.JAVA_TOOL_OPTIONS, undefined); assert.equal(env.SPRING_APPLICATION_JSON, undefined);

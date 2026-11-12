@@ -15,7 +15,7 @@ public final class StructuredOutput {
     // 日志只允许服务端协议字段；未知或动态字段一律归并，避免把模型键名写入诊断日志。
     private static final Set<String> DIAGNOSTIC_FIELDS = Set.of("$", "question", "questionCompetencyId",
             "feedback", "finalSummary", "nextQuestion", "assessment", "agentDecision", "agentDecision.evidence",
-            "agentDecision.questionCompetencyId", "agentDecision.level", "agentDecision.action", "agentDecision.probe",
+            "agentDecision.questionCompetencyId", "agentDecision.level", "agentDecision.action", "agentDecision.probe", "agentDecision.focus",
             "agentDecision.gap", "agentDecision.nextCompetencyId", "agentDecision.reason", "agentDecision.practice", "agentDecision.intent",
             "level", "action", "probe", "gap", "nextCompetencyId", "reason", "practice", "intent",
             "agentInputBudget", "agentContext", "version", "phase", "result",

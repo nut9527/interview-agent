@@ -60,16 +60,15 @@ final class InterviewRunCheckpoint {
         integer(cp, "toolIndex", false, "toolIndex");
         messages(cp);
         loop(cp);
-        if (cp.has("outputPhase")) {
-            if (!Set.of("ACTION", "FINAL").contains(cp.path("outputPhase").asText()))
-                throw invalid(Reason.INVALID_VALUE, "outputPhase");
-            bool(cp, "actionRepaired", true);
-            if (stage.asText().equals("ACTION_VALIDATE") && !cp.path("outputPhase").asText().equals("ACTION")
-                    || stage.asText().equals("VALIDATE") && !cp.path("outputPhase").asText().equals("FINAL")
-                    || stage.asText().equals("TOOL") && (!cp.path("outputPhase").asText().equals("ACTION")
-                        || cp.path("actionRepaired").asBoolean()))
-                throw invalid(Reason.INCONSISTENT_STATE, "outputPhase");
-        } else if (stage.asText().equals("ACTION_VALIDATE")) throw invalid(Reason.MISSING_FIELD, "outputPhase");
+        field(cp, "outputPhase", "outputPhase");
+        if (!Set.of("ACTION", "FINAL").contains(cp.path("outputPhase").asText()))
+            throw invalid(Reason.INVALID_VALUE, "outputPhase");
+        bool(cp, "actionRepaired", true);
+        if (stage.asText().equals("ACTION_VALIDATE") && !cp.path("outputPhase").asText().equals("ACTION")
+                || stage.asText().equals("VALIDATE") && !cp.path("outputPhase").asText().equals("FINAL")
+                || stage.asText().equals("TOOL") && (!cp.path("outputPhase").asText().equals("ACTION")
+                    || cp.path("actionRepaired").asBoolean()))
+            throw invalid(Reason.INCONSISTENT_STATE, "outputPhase");
         switch (stage.asText()) {
             case "FIXED" -> {
                 if (!"FIXED".equals(route) || cp.path("repaired").asBoolean())
@@ -78,7 +77,7 @@ final class InterviewRunCheckpoint {
             case "KNOWLEDGE_PREFETCH" -> {
                 if (!"TOOL".equals(route) || cp.path("repaired").asBoolean() || cp.has("response")
                         || !cp.path("sources").isEmpty() || cp.path("actionRepaired").asBoolean()
-                        || (cp.has("outputPhase") && !"ACTION".equals(cp.path("outputPhase").asText())))
+                        || !"ACTION".equals(cp.path("outputPhase").asText()))
                     throw invalid(Reason.INCONSISTENT_STATE, "stage");
             }
             case "TOOL" -> toolStage(cp, route);

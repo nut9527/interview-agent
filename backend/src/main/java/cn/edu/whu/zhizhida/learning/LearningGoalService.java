@@ -58,7 +58,9 @@ public class LearningGoalService implements MissionBudget {
                 r.getString("status"),r.getLong("revision"),r.getInt("max_runs"),r.getInt("max_training"),r.getInt("max_model_attempts"),r.getInt("max_tools"),
                 r.getInt("reserved_runs"),r.getInt("reserved_training"),r.getInt("reserved_model_attempts"),r.getInt("reserved_tools"),
                 Instant.ofEpochSecond(r.getLong("expires_epoch")),plans(owner,id),r.getLong("criteria_revision"),
-                json.readValue(r.getString("dimensions_json"),new TypeReference<List<String>>(){})),owner,id).stream().findFirst()
+                json.readValue(r.getString("dimensions_json"),new TypeReference<List<String>>(){}),
+                r.getBoolean("auto_adjust"),coachState(owner,r.getString("coach_state"),r.getString("planning_run_id")),
+                planning(owner,r.getString("planning_run_id"),r.getString("planning_trigger"),r.getString("planning_source_session"))),owner,id).stream().findFirst()
                 .orElseThrow(()->new ResourceNotFoundException("目标不存在"));
     }
     public LearningGoal get(String id) { return display(users.requireUserId(),id); }
@@ -103,9 +105,9 @@ public class LearningGoalService implements MissionBudget {
             throw new UserInputException("最多保留 30 个目标");
         String id=UUID.randomUUID().toString();
         jdbc.update("INSERT INTO learning_goals(id,owner_id,request_id,request_hash,title,competency_id,completion_criterion,required_scenarios,question_ids_json,"
-                + "max_runs,max_training,max_model_attempts,max_tools,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,TIMESTAMPADD(DAY,30,CURRENT_TIMESTAMP(6)))",
+                + "max_runs,max_training,max_model_attempts,max_tools,auto_adjust,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,TIMESTAMPADD(DAY,30,CURRENT_TIMESTAMP(6)))",
                 id,owner,input.requestId(),hash,input.title().trim(),competency,CRITERION,input.requiredScenarios(),json.writeValueAsString(input.questionIds()),
-                input.maxRuns(),input.maxTraining(),input.maxModelAttempts(),input.maxTools());
+                input.maxRuns(),input.maxTraining(),input.maxModelAttempts(),input.maxTools(),Boolean.TRUE.equals(input.autoAdjust()));
         jdbc.update("INSERT INTO learning_goal_criteria(goal_id,revision,required_scenarios,dimensions_json) SELECT id,criteria_revision,required_scenarios,dimensions_json FROM learning_goals WHERE id=?",id);
         return goal(owner,id);
     }
@@ -131,11 +133,78 @@ public class LearningGoalService implements MissionBudget {
         // 观察来源先于目标加锁，与计划提交和回答提交的锁顺序保持一致。
         var refs=history.freeze(owner,scope.getFirst(),input.observationIds());
         lock(owner,id);
-        // 运行受理时先检查幂等重放，再预占预算；此确定性规划器不调用模型。
-        return runs.accept(new ExecutionPort.Command(owner,"GOAL",id,input.expectedRevision(),"GOAL_PLAN",input.requestId(),
-                json.writeValueAsString(refs.isEmpty()?Map.of("expectedRevision",input.expectedRevision(),"goalId",id):
-                        Map.of("expectedRevision",input.expectedRevision(),"goalId",id,"observationRefs",refs))));
+        return acceptPlan(owner,id,input.expectedRevision(),input.requestId(),refs,"USER_REQUEST",null);
     }
+    private ExecutionPort.Run acceptPlan(long owner,String id,long revision,String requestId,
+            List<PracticeMemoryAccess.Reference> refs,String trigger,String session) {
+        var run=runs.accept(new ExecutionPort.Command(owner,"GOAL",id,revision,"GOAL_PLAN",requestId,
+                json.writeValueAsString(Map.of("expectedRevision",revision,"goalId",id,"observationRefs",refs))));
+        if(!Set.of("SUCCEEDED","FAILED","CANCELLED","EXPIRED").contains(run.status()))
+            jdbc.update("UPDATE learning_goals SET planning_run_id=?,planning_trigger=?,planning_source_session=?,coach_state='PLANNING' WHERE id=?",
+                    run.id(),trigger,session,id);
+        return run;
+    }
+    private Planning planning(long owner,String run,String trigger,String session) {
+        if(run==null) return null;
+        var current=runs.read(owner,run);
+        return new Planning(run,current.status(),trigger,session,current.error());
+    }
+    private String coachState(long owner,String state,String run) {
+        if(!state.equals("PLANNING")||run==null) return state;
+        return Set.of("FAILED","CANCELLED","EXPIRED").contains(runs.read(owner,run).status())?"FAILED":state;
+    }
+    @Transactional
+    public GoalPlanner.Input planningInput(long owner,String id,long revision,List<PracticeMemoryAccess.Reference> refs) {
+        var observations=history.qualify(owner,refs);
+        var results=training.results(owner,id);
+        var goal=goal(owner,id);active(goal);
+        if(goal.revision()!=revision) throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_GOAL_CHANGED");
+        var available=observations.stream().map(LearningMemory.Observation::id).collect(java.util.stream.Collectors.toSet());
+        var previous=goal.plans().isEmpty()?List.<Focus>of():goal.plans().getFirst().focus().stream()
+                .filter(f->available.containsAll(f.observationIds())).toList();
+        return new GoalPlanner.Input(goal,goal.questionIds().stream().map(q->training.question(owner,q,null)).toList(),observations,results,previous);
+    }
+    @Transactional
+    public void requirePlanningScope(long owner,String id,long revision,List<PracticeMemoryAccess.Reference> refs) {
+        history.qualify(owner,refs);
+        var goal=goal(owner,id);active(goal);
+        if(goal.revision()!=revision) throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_GOAL_CHANGED");
+    }
+
+    @Transactional
+    public boolean replan(long owner,String id,String session,String version) {
+        var results=training.results(owner,id);
+        if(results.stream().noneMatch(r->r.sessionId().equals(session)&&r.completed()&&Objects.equals(r.sourceVersion(),version))) return true;
+        var scope=jdbc.queryForObject("SELECT competency_id FROM learning_goals WHERE owner_id=? AND id=?",String.class,owner,id);
+        var sessions=results.stream().map(GoalTraining.Result::sessionId).collect(java.util.stream.Collectors.toSet());
+        var refs=history.forSessions(owner,scope,sessions);
+        var review=review(owner,id);var goal=goal(owner,id);
+        if(!goal.autoAdjust()||!goal.status().equals("ACTIVE")||goal.expiresAt().isBefore(Instant.now())) return true;
+        String evidenceHash=hash(goal.revision()+"\n"+json.writeValueAsString(results.stream().filter(GoalTraining.Result::completed)
+                .sorted(Comparator.comparing(GoalTraining.Result::taskId)).map(r->List.of(r.taskId(),r.sourceVersion())).toList()));
+        if(evidenceHash.equals(jdbc.queryForObject("SELECT last_auto_evidence_hash FROM learning_goals WHERE id=?",String.class,id))) return true;
+        if(goal.coachState().equals("PLANNING")) return false;
+        if(review.outcome().equals("AWAITING_HUMAN_REVIEW")) {
+            jdbc.update("UPDATE learning_goals SET coach_state='AWAITING_HUMAN_REVIEW' WHERE id=?",id);
+            return true;
+        }
+        var completed=results.stream().filter(GoalTraining.Result::completed).map(GoalTraining.Result::taskId)
+                .collect(java.util.stream.Collectors.toSet());
+        var applied=goal.plans().stream().filter(p->p.status().equals("APPLIED")).findFirst();
+        if(applied.isPresent()&&!completed.containsAll(applied.get().taskIds())) {
+            jdbc.update("UPDATE learning_goals SET coach_state='WAITING_PRACTICE' WHERE id=?",id);
+            return true;
+        }
+        if(goal.reservedRuns()>=goal.maxRuns()||goal.reservedTraining()>=goal.maxTraining()
+                ||goal.reservedModelAttempts()+3>goal.maxModelAttempts()||goal.reservedTools()+3>goal.maxTools()) {
+            jdbc.update("UPDATE learning_goals SET coach_state='BUDGET_EXHAUSTED' WHERE id=?",id);
+            return true;
+        }
+        acceptPlan(owner,id,goal.revision(),"goal-auto-"+evidenceHash,refs,"TRAINING_COMPLETED",session);
+        jdbc.update("UPDATE learning_goals SET last_auto_evidence_hash=? WHERE id=?",evidenceHash,id);
+        return true;
+    }
+
     /**
      * 在目标锁内一次性预占运行、训练、模型调用和工具预算。
      *
@@ -161,30 +230,20 @@ public class LearningGoalService implements MissionBudget {
      * <p>来源资格、运行归属和目标修订号共同约束提交，计划写入与运行终态同步生效。
      */
     @Transactional
-    public void commitProposal(ExecutionPort.Context context,String id,long revision,List<PracticeMemoryAccess.Reference> refs) {
-        var observations=history.qualify(context.owner(),refs); // 先锁定来源，再获取运行与目标的锁。
-        runs.complete(context,()->proposed(context.owner(),id,revision,refs,observations));
+    public void commitProposal(ExecutionPort.Context context,String id,long revision,List<PracticeMemoryAccess.Reference> refs,Draft draft) {
+        history.qualify(context.owner(),refs);
+        runs.complete(context,()->proposed(context.owner(),id,revision,refs,draft));
     }
-    private void proposed(long owner,String id,long revision,List<PracticeMemoryAccess.Reference> refs,List<LearningMemory.Observation> observations) {
+    private void proposed(long owner,String id,long revision,List<PracticeMemoryAccess.Reference> refs,Draft draft) {
         lock(owner,id);var goal=goal(owner,id);active(goal);
         if(goal.revision()!=revision) throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_GOAL_CHANGED");
-        var items=new ArrayList<GoalTraining.Item>();
-        var gaps=observations.stream().filter(o->o.fact().observation()!=cn.edu.whu.zhizhida.evaluation.api.AssessmentResult.Observation.OBSERVED
-                ||o.fact().claim().status()!=cn.edu.whu.zhizhida.evaluation.api.AssessmentResult.ClaimStatus.SUPPORTED)
-                .map(LearningMemory.Observation::dimension).distinct().sorted().toList();
-        String acceptance=gaps.isEmpty()?"完成真实作答；复核职责、因果解释与失败边界，未观察到的部分保留未知。":
-                "历史观察在这些维度尚缺充分支持："+String.join("、",gaps)+"。请在本题新场景取证，不把历史缺口等同于能力不足。";
-        for(var qid:goal.questionIds()) {
-            var q=training.question(owner,qid,null);
-            items.add(new GoalTraining.Item("item-"+(items.size()+1),q.id(),q.version(),q.title(),acceptance));
-        }
-        String encoded=validate(owner,goal,items),plan=UUID.randomUUID().toString();
+        String encoded=validate(owner,goal,draft.items()),plan=UUID.randomUUID().toString();
         jdbc.update("UPDATE learning_plan_revisions r JOIN learning_plans p ON p.id=r.plan_id AND p.revision=r.revision SET r.status='SUPERSEDED' WHERE p.owner_id=? AND p.goal_id=? AND p.status='PENDING_CONFIRMATION'",owner,id);
         jdbc.update("UPDATE learning_plans SET status='SUPERSEDED' WHERE owner_id=? AND goal_id=? AND status='PENDING_CONFIRMATION'",owner,id);
-        jdbc.update("INSERT INTO learning_plans(id,owner_id,goal_id,content_hash,items_json,limitation,observation_refs_json,expires_at) SELECT ?,?,?,?,?,?,?,LEAST(TIMESTAMPADD(DAY,7,CURRENT_TIMESTAMP(6)),expires_at) FROM learning_goals WHERE id=?",
-                plan,owner,id,hash(encoded),encoded,refs.isEmpty()?"尚未诊断个人能力；按用户指定范围提出练习顺序，不将选题当作已存在的能力缺口。等待本人审阅确认。":
-                "依据本人选择的 "+refs.size()+" 条有效学习观察提出复核方向；未覆盖或争议不等于能力不足，已有观察也不证明达标。请核对来源并确认。",json.writeValueAsString(refs),id);
+        jdbc.update("INSERT INTO learning_plans(id,owner_id,goal_id,content_hash,items_json,limitation,observation_refs_json,focus_json,expires_at) SELECT ?,?,?,?,?,?,?,?,LEAST(TIMESTAMPADD(DAY,7,CURRENT_TIMESTAMP(6)),expires_at) FROM learning_goals WHERE id=?",
+                plan,owner,id,hash(encoded),encoded,draft.reason(),json.writeValueAsString(refs),json.writeValueAsString(draft.focus()),id);
         history(plan,1,"PENDING_CONFIRMATION",encoded);
+        jdbc.update("UPDATE learning_goals SET coach_state='PENDING_CONFIRMATION' WHERE id=?",id);
     }
     private String validate(long owner,LearningGoal goal,List<GoalTraining.Item> items) {
         if(items.isEmpty()||items.size()>3||items.stream().map(GoalTraining.Item::itemKey).distinct().count()!=items.size()
@@ -205,7 +264,7 @@ public class LearningGoalService implements MissionBudget {
                 r.getString("status").equals("PENDING_CONFIRMATION")&&r.getBoolean("expired")?"EXPIRED":r.getString("status"),
                 r.getString("content_hash"),json.readValue(r.getString("items_json"),new TypeReference<List<GoalTraining.Item>>(){}),
                 r.getString("limitation"),Instant.ofEpochSecond(r.getLong("expires_epoch")),jdbc.queryForList("SELECT task_id FROM learning_plan_applications WHERE owner_id=? AND plan_id=? ORDER BY item_key FOR SHARE",String.class,r.getLong("owner_id"),r.getString("id")),
-                refs(r.getString("observation_refs_json")));
+                refs(r.getString("observation_refs_json")),r.getString("focus_json")==null?List.of():json.readValue(r.getString("focus_json"),new TypeReference<List<Focus>>(){}));
     }
     private List<PracticeMemoryAccess.Reference> refs(String value) { return value==null?List.of():json.readValue(value,new TypeReference<List<PracticeMemoryAccess.Reference>>(){}); }
     private Plan plan(long owner,String id) {
@@ -263,6 +322,7 @@ public class LearningGoalService implements MissionBudget {
         }
         jdbc.update("UPDATE learning_plans SET status='APPLIED' WHERE id=?",id);
         jdbc.update("UPDATE learning_plan_revisions SET status='APPLIED' WHERE plan_id=? AND revision=?",id,plan.revision());
+        jdbc.update("UPDATE learning_goals SET coach_state='WAITING_PRACTICE' WHERE id=?",goal.id());
         return plan(owner,id);
     }
     @Transactional

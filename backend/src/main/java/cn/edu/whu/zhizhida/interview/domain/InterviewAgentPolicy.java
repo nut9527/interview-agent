@@ -5,6 +5,8 @@ import cn.edu.whu.zhizhida.interview.api.InterviewAgentState.*;
 import cn.edu.whu.zhizhida.interview.api.InterviewMode;
 import cn.edu.whu.zhizhida.interview.api.InterviewPlanningContext;
 import cn.edu.whu.zhizhida.interview.api.InterviewTraining;
+import cn.edu.whu.zhizhida.interview.api.InterviewDifficulty;
+import cn.edu.whu.zhizhida.interview.api.InterviewPlanning.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -14,18 +16,23 @@ import java.util.HashMap;
 
 /** 在限定范围内规划、观察并行动；模型决策不能扩展计划或预算。 */
 public final class InterviewAgentPolicy {
-    public static final String ADAPTIVE_VERSION = "interview-agent-v5";
+    public static final String ADAPTIVE_VERSION = "interview-agent-v6";
 
     public static boolean adaptive(InterviewAgentState state) {
+        return planning(state) || "interview-agent-v5".equals(state.version());
+    }
+
+    public static boolean planning(InterviewAgentState state) {
         return ADAPTIVE_VERSION.equals(state.version());
     }
 
     /** 新教学会话冻结策略，历史会话沿用原策略。 */
     public InterviewAgentState adaptivePlan(InterviewAgentState state) {
-        if (state.training() != null || !state.evaluations().isEmpty())
-            throw new IllegalArgumentException("Only a new general interview can select adaptive routing");
+        if (!state.evaluations().isEmpty())
+            throw new IllegalArgumentException("Only a new interview can select adaptive routing");
         return new InterviewAgentState(ADAPTIVE_VERSION, state.executionMode(), state.plan(),
-                state.activeCompetencyId(), state.evaluations(), state.digest(), state.practiceMemory());
+                state.activeCompetencyId(), state.evaluations(), state.digest(), state.practiceMemory(),
+                state.training(), state.memoryReferences(), state.planningRevisions());
     }
     private static final List<Probe> PROBES = List.of(Probe.EVIDENCE, Probe.QUANTIFY, Probe.COUNTEREXAMPLE,
             Probe.TRANSFER, Probe.TRADEOFF, Probe.CLARIFY);
@@ -237,7 +244,7 @@ public final class InterviewAgentPolicy {
     private Routing adaptiveRouting(InterviewAgentState state, int answered, int total) {
         var ids = state.plan().stream().map(Competency::id).toList();
         var covered = state.evaluations().stream().map(Evaluation::competencyId).collect(java.util.stream.Collectors.toSet());
-        if (state.training() != null || ids.isEmpty() || ids.stream().distinct().count() != ids.size()
+        if (ids.isEmpty() || ids.stream().distinct().count() != ids.size()
                 || !ids.containsAll(covered) || total < ids.size() || total > 12
                 || answered < 0 || answered > total
                 || (answered == 0 ? !state.evaluations().isEmpty() : answered != state.evaluations().size() + 1))
@@ -249,7 +256,7 @@ public final class InterviewAgentPolicy {
         int budget = Math.max(0, remaining - unvisited.size());
         var used = state.evaluations().stream().filter(e -> e.competencyId().equals(current.id())
                 && e.decision().action() == Action.FOLLOW_UP).map(e -> e.decision().probe()).toList();
-        var probes = PROBES.stream().filter(p -> !used.contains(p)).toList();
+        var probes = planning(state) ? PROBES : PROBES.stream().filter(p -> !used.contains(p)).toList();
         var allowed = new ArrayList<Action>();
         if (answered == total && unvisited.isEmpty()) allowed.add(Action.FINISH);
         else if (remaining >= unvisited.size()) {
@@ -263,6 +270,11 @@ public final class InterviewAgentPolicy {
     }
 
     public InterviewAgentState advance(InterviewAgentState state, int answered, int total, String answer, Decision decision) {
+        return advance(state, answered, total, answer, decision, "", "", InterviewDifficulty.STANDARD, "");
+    }
+
+    public InterviewAgentState advance(InterviewAgentState state, int answered, int total, String answer, Decision decision,
+            String sessionId, String answerVersion, InterviewDifficulty difficulty, String nextQuestion) {
         var route = routing(state, answered, total);
         if (decision == null || decision.level() == null || decision.action() == null || !route.allowedActions().contains(decision.action()))
             throw new IllegalArgumentException("agentDecision.action 必须属于 allowedActions=" + route.allowedActions());
@@ -288,13 +300,56 @@ public final class InterviewAgentPolicy {
                 : decision.probe() != (decision.action() == Action.ADVANCE ? Probe.OPENING : Probe.NONE))
             throw new IllegalArgumentException("agentDecision.probe 不符合动作或重复策略；FOLLOW_UP 可用策略=" + route.allowedProbes()
                     + "，ADVANCE 使用 OPENING，FINISH 使用 NONE");
+        if (planning(state)) validateFocus(state, decision);
         var previous = state.evaluations().isEmpty() ? null : state.evaluations().get(state.evaluations().size() - 1).decision();
         var evaluations = new ArrayList<>(state.evaluations());
         evaluations.add(new Evaluation(answered, route.current().id(), decision,
                 previous == null ? Probe.OPENING : previous.probe(), previous == null ? route.current().objective() : previous.intent()));
         var digest = evaluations.stream().map(e -> new DigestEntry(e.round(), e.competencyId(), e.decision().level(),
                 clip(e.decision().evidence(), 120), clip(e.decision().gap(), 100), e.answeredProbe())).toList();
-        return new InterviewAgentState(state.version(), state.executionMode(), state.plan(), expected, evaluations, digest, state.practiceMemory(), state.training(), state.memoryReferences(), state.planningRevisions());
+        var revisions = new ArrayList<>(state.planningRevisions());
+        if (planning(state)) revisions.add(revision(revisions.size() + 1, answered, sessionId, answerVersion, answer, decision, difficulty, nextQuestion));
+        return new InterviewAgentState(state.version(), state.executionMode(), state.plan(), expected, evaluations, digest, state.practiceMemory(), state.training(), state.memoryReferences(), revisions);
+    }
+
+    private void validateFocus(InterviewAgentState state, Decision decision) {
+        var focus = decision.focus();
+        if (focus == null || focus.dimension() == null || focus.scenario() == null
+                || blank(focus.claimToVerify()) || focus.claimToVerify().length() > 200
+                || blank(focus.expectedEvidence()) || focus.expectedEvidence().length() > 200)
+            throw new IllegalArgumentException("agentDecision.focus 必须包含维度、场景、待核对主张和预期证据，文本各为1至200字");
+        if (decision.action() == Action.FINISH) return;
+        boolean repeated = state.evaluations().stream().map(Evaluation::decision)
+                .filter(prior -> prior.focus() != null && prior.action() != Action.FINISH)
+                .anyMatch(prior -> prior.nextCompetencyId().equals(decision.nextCompetencyId())
+                        && prior.focus().scenario() == focus.scenario()
+                        && normalized(prior.focus().claimToVerify()).equals(normalized(focus.claimToVerify())));
+        if (repeated) throw new IllegalArgumentException("agentDecision.focus 重复已验证目标；请依据新缺口选择主张或场景");
+    }
+
+    private String normalized(String text) {
+        return text.strip().replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
+    }
+
+    private PlanRevision revision(int revision, int round, String sessionId, String answerVersion, String answer, Decision decision,
+            InterviewDifficulty difficulty, String nextQuestion) {
+        if (decision.action() == Action.FINISH)
+            return new PlanRevision(revision, round, ADAPTIVE_VERSION, difficulty, List.of(), List.of(), "", false, decision.reason());
+        var focus = decision.focus();
+        String quote = decision.evidence();
+        int start = quote.isEmpty() ? -1 : answer.indexOf(quote);
+        if (start >= 0 && answer.indexOf(quote, start + 1) >= 0)
+            throw new IllegalArgumentException("agentDecision.evidence 必须唯一定位本轮回答中的依据");
+        int end = start < 0 ? -1 : start + quote.length();
+        String source = sessionId + ":answer:" + round;
+        var gap = new EvidenceGap("gap-" + round, focus.dimension(),
+                quote.isEmpty() ? GapStatus.NOT_OBSERVED : GapStatus.NEEDS_VERIFICATION,
+                decision.gap(), source, answerVersion, "RAW_UTF16", start, end, quote);
+        var intent = new QuestionIntent(decision.nextCompetencyId(), decision.probe(), focus.dimension(), focus.scenario(),
+                focus.claimToVerify(), focus.expectedEvidence(), quote, start, end, difficulty, nextQuestion);
+        String key = "intent-" + round;
+        return new PlanRevision(revision, round, ADAPTIVE_VERSION, difficulty,
+                List.of(new Candidate(key, intent, gap, 1)), List.of(), key, false, decision.reason());
     }
 
     /** 仅拦截明显偏离能力主题的技术问题；元数据匹配不能证明语义一致。 */

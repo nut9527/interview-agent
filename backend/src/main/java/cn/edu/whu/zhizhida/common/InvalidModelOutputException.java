@@ -20,6 +20,15 @@ public final class InvalidModelOutputException extends UpstreamServiceException 
     }
 
     @Override
+    public String code() {
+        return switch (reason) {
+            case TRUNCATED -> "MODEL_FINISH_LENGTH";
+            case EMPTY -> "MODEL_PROTOCOL";
+            default -> super.code();
+        };
+    }
+
+    @Override
     public ErrorCode errorCode() {
         return ErrorCode.AI_INVALID_RESPONSE;
     }

@@ -191,8 +191,10 @@ class KnowledgeIT extends IntegrationTestBase {
         var contexts = new ArrayList<JsonNode>();
         org.mockito.Mockito.doAnswer(call -> {
             var reply = (cn.edu.whu.zhizhida.interview.InterviewRunModel.Reply) call.callRealMethod();
+            if ("ACTION".equals(call.getArgument(9))) return reply;
             var message = (tools.jackson.databind.node.ObjectNode) reply.message().deepCopy();
-            var output = (tools.jackson.databind.node.ObjectNode) objectMapper.readTree(message.path("content").asText());
+            var envelope = (tools.jackson.databind.node.ObjectNode) objectMapper.readTree(message.path("content").asText());
+            var output = (tools.jackson.databind.node.ObjectNode) envelope.path("result");
             if (call.getArgument(7) == null) {
                 output.put("question", "请根据资料中的 TTL，说明缓存过期时间的选择及你会怎样验证数据库请求量的变化。");
             } else {
@@ -206,12 +208,12 @@ class KnowledgeIT extends IntegrationTestBase {
                         ? "请结合数据库写后读方案，说明订单提交后从主库读取的一致性保证范围和复制延迟的影响。"
                         : "你会怎样验证数据库写后读的一致性边界，并说明复制延迟超出预期时的处理方法？");
             }
-            message.put("content", output.toString());
+            message.put("content", envelope.toString());
             return new cn.edu.whu.zhizhida.interview.InterviewRunModel.Reply(message, reply.finish(), reply.usage());
         }).when(interviewModel).call(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyList(),
                 org.mockito.ArgumentMatchers.anyList(), org.mockito.ArgumentMatchers.anyBoolean(), org.mockito.ArgumentMatchers.anyLong(),
                 org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.anyString());
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString());
         var session = data(startInterview(Map.of("targetRole", "资料训练", "trainingTopic",
                 "DATABASE", "totalRounds", 3, "knowledgeDocumentIds", List.of(id)), token));
         String sid = session.path("sessionId").asText();

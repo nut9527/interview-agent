@@ -3,7 +3,7 @@ package cn.edu.whu.zhizhida.interview.execution;
 /** 版本化的执行预算；观察步数与模型尝试次数分别计账。 */
 public record AgentLoopPolicy(String version, int maxSteps, int maxModelAttempts, int maxToolBatches,
         int maxToolExecutions, int maxRepairs, long deadlineMillis, long callMillis) {
-    public static final long COMMIT_RESERVE_MILLIS = 5_000;
+    public static final long COMMIT_RESERVE_MILLIS = cn.edu.whu.zhizhida.common.execution.AgentExecution.COMMIT_RESERVE_MILLIS;
     public static final long MIN_MODEL_BUDGET_MILLIS = 6_000;
     public static final long MIN_TOOL_BUDGET_MILLIS = 7_000;
     private static final long MIN_OBSERVATION_BUDGET_MILLIS = 12_000;

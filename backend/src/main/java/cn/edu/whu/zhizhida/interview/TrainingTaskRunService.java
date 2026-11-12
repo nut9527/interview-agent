@@ -40,8 +40,9 @@ public class TrainingTaskRunService {
         var replay = transaction.execute(s -> startLocked(id, requestKey, false));
         if(replay!=null) return replay;
         // 资料版本资格检查要求事务；构造准入摘要后先释放锁，再访问 Redis。
-        var request=transaction.execute(s -> tasks.startRequest(tasks.find(id)));
-        runs.admitStart(new InterviewRun.Start(requestKey,request));
+        var task = transaction.execute(s -> tasks.find(id));
+        var request = transaction.execute(s -> tasks.startRequest(task));
+        runs.admitStart(new InterviewRun.Start(requestKey, request), task.goalId() == null ? null : task.gap());
         return transaction.execute(s -> startLocked(id, requestKey, true));
     }
 
@@ -66,10 +67,13 @@ public class TrainingTaskRunService {
         if(!admitted) return null;
         var request = tasks.startRequest(task);
         var run = runs.acceptStart(
-                new InterviewRun.Start(requestKey, request));
+                new InterviewRun.Start(requestKey, request), task.goalId() == null ? null : task.gap());
         if (java.util.Set.of("FAILED", "CANCELLED", "EXPIRED").contains(run.status()))
             return run;
-        if(task.goalId()!=null) budget.reserve(owner,task.goalId(),run.runId(),true,4,3);
+        if(task.goalId()!=null) {
+            var limits = store.executionBudget(owner, run.runId());
+            budget.reserve(owner,task.goalId(),run.runId(),true,limits.maxModelAttempts(),limits.maxToolExecutions());
+        }
         jdbc.update(
                 "UPDATE interview_runs SET training_task_id=? WHERE id=? AND owner_id=? AND training_task_id IS NULL",
                 id, run.runId(), owner);

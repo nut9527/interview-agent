@@ -1,13 +1,12 @@
 package cn.edu.whu.zhizhida.interview;
 
-import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 import static org.assertj.core.api.Assertions.*;
 
 class InterviewAssessmentProtocolTest {
     final JsonMapper json = new JsonMapper();
-    final MockInterviewAiService parser = new MockInterviewAiService(json, BusinessMetrics.disabled());
+    final InterviewOutputCodec parser = new InterviewOutputCodec();
     @Test void rejectsModelOwnedIdentityWrongEnumsUnknownFieldsAndCoercedOffsets() {
         String item = """
                 {"dimension":"RESPONSIBILITY","status":"OBSERVED","claimText":"职责自述","claimStatus":"SUPPORTED",

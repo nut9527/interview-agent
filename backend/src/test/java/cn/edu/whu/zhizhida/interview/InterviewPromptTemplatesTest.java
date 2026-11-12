@@ -20,19 +20,19 @@ class InterviewPromptTemplatesTest {
     private static final Map<String, String> VERSIONED_HASHES = Map.of(
             "knowledgeOpening", "28615cf1b0dc05c34ffd1d4f1b970256e5c2ad4d6da92b1b161ad3cd8e3a91dd",
             "routing", "63d27747fba65fd92f748983f896544e60fde54c040b6b1fd8ee9abd9694865a",
-            "adaptiveRouting", "458b2fa0901c673383d2d8eaca965e544d92e65172084bdf2b3913c71861b32d",
+            "adaptiveRouting", "eaef47f5f9606d65414fc5c5091f99d944e3c633a3f0eb6bd31ee277e82e8bb2",
             "opening", "202c14a04e105c0687be9d1d1f92d142dfe4ca1131263d6c1abfc26f1becc69a",
             "review", "2d95ec348842aba8eb4bfda194ff979b1de62ef6090e14084723983fa544a7b5",
             "repair", "c89ca36be3ee034b1bfba1e2c89f86fcf3b045bfae46b62a87bd590a22a4041e",
             "assessment", "092de7dc36c49cda47ff5bc5d9a4615920116586550e52ac334eeb089786b81f",
-            "agent", "24bb1d798c779c63fbc68633a33f7149e8982b395b307e5f8d08849f73f6236d");
+            "agent", "cf9b2f7601c29c5f46ed825e064f6d7401254cad41a644c1bb5997adbff48483");
 
     @TempDir Path directory;
 
     @Test
     void bundledTemplatesMatchVersionedHashes() throws Exception {
         var templates = InterviewPromptTemplates.defaults();
-        assertThat(templates.version()).isEqualTo("interview-prompts-v5");
+        assertThat(templates.version()).isEqualTo("interview-prompts-v6");
         for (var expected : VERSIONED_HASHES.entrySet()) {
             String hash = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                     .digest(templates.get(expected.getKey()).getBytes(StandardCharsets.UTF_8)));

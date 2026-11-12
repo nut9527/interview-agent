@@ -12,6 +12,8 @@ if (process.env.CLOSEOUT_BUDGET_PROXY !== 'true') {
 }
 if (!(process.env.DEEPSEEK_API_KEY || process.env.AI_API_KEY)) throw new Error('Configure a model API key before real evaluation');
 // 仅在此入口显式开启真实模型评估，其余后端验证默认使用离线模拟。
+process.env.SPRING_PROFILES_ACTIVE = 'agent-evaluation';
+process.env.INTERVIEW_RUNS_DECISION_PROTOCOL = 'phased-v2';
 process.env.RUN_REAL_AGENT_EVAL = 'true';process.env.RUN_EVAL_ROUTE = route;
 process.env.MAVEN_OPTS = `${process.env.MAVEN_OPTS || ''} -Dmaven.repo.local=${resolve('.m2/repository').replaceAll('\\', '/')}`;
 process.env.MAVEN_ARGS = `${process.env.MAVEN_ARGS || ''} -Dtest=DeepSeekToolChatClientTest -Dit.test=InterviewDecisionEvaluationIT$RealEvaluation -Djacoco.skip=true`;

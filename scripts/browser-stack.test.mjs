@@ -33,10 +33,12 @@ test('browser stack discards developer credentials and configuration while prese
   assert.equal(result.PATH, base.PATH);
   assert.equal(result.SystemRoot, base.SystemRoot);
   assert.equal(result.PLAYWRIGHT_BROWSERS_PATH, base.PLAYWRIGHT_BROWSERS_PATH);
-  for (const key of ['SPRING_APPLICATION_JSON', 'SPRING_CONFIG_LOCATION', 'SPRING_PROFILES_ACTIVE',
+  for (const key of ['SPRING_APPLICATION_JSON', 'SPRING_CONFIG_LOCATION',
     'JAVA_TOOL_OPTIONS', 'NODE_OPTIONS', 'METRICS_TOKEN', 'AGENT_MCP_REFERENCE_URL']) assert.equal(result[key], undefined);
   assert.equal(result.SPRING_CONFIG_IMPORT, pathToFileURL(join(dir, 'empty.properties')).href);
   assert.equal(result.AI_PROVIDER, 'mock');
+  assert.equal(result.SPRING_PROFILES_ACTIVE, 'test');
+  assert.equal(result.INTERVIEW_RUNS_DECISION_PROTOCOL, 'phased-v2');
   assert.equal(result.AI_API_KEY, ''); assert.equal(result.DEEPSEEK_API_KEY, '');
   assert.match(result.SPRING_DATASOURCE_URL, /^jdbc:mysql:\/\/127\.0\.0\.1:13308\/browser_e2e\?/);
   assert.equal(result.SPRING_DATASOURCE_PASSWORD, 'owned-database-password');

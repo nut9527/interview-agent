@@ -6,9 +6,9 @@ import { checkWorkerEvidence, verifiedKnowledgeCitations } from './agent-evaluat
 
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
-  console.log('node scripts/verify-langchain4j-provider.mjs --real --max-requests=8 --max-output-tokens=16000 [--windows-root]');
+  console.log('node scripts/verify-langchain4j-provider.mjs --real --max-requests=8 --max-output-tokens=24000 [--windows-root]');
   console.log('Two synthetic cases through the durable Worker and disposable MySQL. Each case requires four requests of remaining budget before it starts; caps below eight may stop before case two.');
-  console.log('With --retrieval-probe, choose 1–4 requests and 2000 output tokens per request to run redis-order with initial document excerpts withheld.');
+  console.log('With --retrieval-probe, choose 1–4 requests and 3000 output tokens per request to run redis-order with initial document excerpts withheld.');
 } else {
   const requests = Number(args.find(arg => arg.startsWith('--max-requests='))?.split('=')[1]);
   const outputTokens = Number(args.find(arg => arg.startsWith('--max-output-tokens='))?.split('=')[1]);
@@ -16,7 +16,7 @@ if (args.includes('--help')) {
   const retrievalProbe = args.includes('--retrieval-probe');
   if (!required.every(arg => args.includes(arg)) || args.some(arg => ![...required, '--windows-root', '--retrieval-probe'].includes(arg))
       || new Set(args).size !== args.length || !Number.isInteger(requests)
-      || requests < (retrievalProbe ? 1 : 4) || requests > (retrievalProbe ? 4 : 8) || outputTokens !== requests * 2000)
+      || requests < (retrievalProbe ? 1 : 4) || requests > (retrievalProbe ? 4 : 8) || outputTokens !== requests * 3000)
     throw new Error('Use --help for the bounded real-provider command.');
   const local = parseEnv(await readFile(join(PROJECT_ROOT, '.env'), 'utf8'));
   const config = { ...local, ...process.env };
@@ -56,12 +56,12 @@ if (args.includes('--help')) {
       summary.runs.push(run);
       await save();
       const env = { ...process.env, AI_API_KEY: key, DEEPSEEK_API_KEY: key, DEEPSEEK_BASE_URL: endpoint,
-        DEEPSEEK_MODEL: model, DEEPSEEK_THINKING: 'disabled', RUN_EVAL_IDS: caseId, RUN_EVAL_REPORT: report,
+        SPRING_PROFILES_ACTIVE: 'agent-evaluation', DEEPSEEK_MODEL: model, DEEPSEEK_THINKING: 'disabled', RUN_EVAL_IDS: caseId, RUN_EVAL_REPORT: report,
         RUN_EVAL_MAX_ATTEMPTS: String(caseLimit), RUN_EVAL_WITHHOLD_EXCERPTS: String(retrievalProbe),
-        MAVEN_ARGS: '-Dinterview.runs.loop-policy=B0 -Dinterview.runs.decision-protocol=legacy'
+        MAVEN_ARGS: '-Dinterview.runs.loop-policy=B0 -Dinterview.runs.decision-protocol=phased-v2'
           + (args.includes('--windows-root') ? ' -Djavax.net.ssl.trustStoreType=Windows-ROOT -Djavax.net.ssl.trustStore=NONE' : ''),
         MAVEN_OPTS: '' };
-      console.log(`[worker-provider] ${caseId}: at most ${caseLimit} requests / ${caseLimit * 2000} output tokens.`);
+      console.log(`[worker-provider] ${caseId}: at most ${caseLimit} requests / ${caseLimit * 3000} output tokens.`);
       try {
         const result = await capture(process.execPath, [join(PROJECT_ROOT, 'scripts/evaluate-agent-runs.mjs'), 'TOOL'],
           { cwd: PROJECT_ROOT, env, timeout: 300000 });

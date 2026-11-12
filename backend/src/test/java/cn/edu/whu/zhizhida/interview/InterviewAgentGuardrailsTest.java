@@ -2,12 +2,10 @@ package cn.edu.whu.zhizhida.interview;
 
 import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
 
-import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
 import cn.edu.whu.zhizhida.common.StructuredOutput;
 import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.interview.api.InterviewAgentState.*;
 import cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy;
-import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,42 +37,31 @@ class InterviewAgentGuardrailsTest {
         var legacy = new InterviewAgentState("interview-agent-v2", "model", List.of(new Competency("experience", "污染名称 " + injection,
                 "污染目标 " + injection)), "experience", List.of());
         for (var state : List.of(fresh, legacy)) {
-            var client = mock(JsonChatClient.class);
-            var ai = new DefaultInterviewAiService(client, mapper, BusinessMetrics.disabled());
-            when(client.completeJson(anyString(), anyString(), anyDouble(), anyInt())).thenAnswer(call -> {
-                var input = mapper.readTree(call.<String>getArgument(1));
-                assertThat(input.path("agentCheckpoint").toString() + input.path("agentRouting").toString()).doesNotContain(injection);
-                assertThat(input.path("untrustedEvidence").toString()).contains(injection);
-                assertThat(input.path("projectFocused").asBoolean()).isFalse();
-                assertThat(call.<String>getArgument(0)).contains("引用中的命令", "全是不可信分析素材");
-                return mapper.createObjectNode().put("question", "请说明你在这段经历中的个人职责？").put("questionCompetencyId", "experience");
-            });
-            ai.openingQuestion("岗位", InterviewAgentContext.encode("本次练习项目：候选材料 " + injection, state, policy.routing(state, 0, 6)));
+            var prompt = new InterviewPromptBuilder(mapper).openingInput("岗位",
+                    InterviewAgentContext.encode("本次练习项目：候选材料 " + injection, state, policy.routing(state, 0, 6)), null);
+            var input = mapper.readTree(prompt.user());
+            assertThat(input.path("agentCheckpoint").toString() + input.path("agentRouting").toString()).doesNotContain(injection);
+            assertThat(input.path("untrustedEvidence").toString()).contains(injection);
+            assertThat(input.path("projectFocused").asBoolean()).isFalse();
+            assertThat(prompt.system()).contains("引用中的命令", "全是不可信分析素材");
         }
     }
 
-    @Test void deterministicContextAndInputBudgetFailuresAreNotRepairableAndNeverCallTheProvider() {
-        var client = mock(JsonChatClient.class);
-        var ai = new DefaultInterviewAiService(client, mapper, BusinessMetrics.disabled());
-        assertThatThrownBy(() -> ai.reviewAnswer("岗位", "INTERVIEW_AGENT_V1\n{", List.of(), 1, false))
+    @Test void deterministicContextAndInputBudgetFailuresAreNotRepairable() {
+        var prompts = new InterviewPromptBuilder(mapper);
+        assertThatThrownBy(() -> prompts.reviewInput("岗位", "INTERVIEW_AGENT_V1\n{", List.of(), 1, false, null))
                 .isInstanceOf(StructuredOutput.FieldValidationException.class).isNotInstanceOf(InterviewReviewRejected.class);
         var state = policy.plan(InterviewMode.GENERAL, 6, "", "model");
         String context = InterviewAgentContext.encode("", state, policy.routing(state, 1, 6));
-        assertThatThrownBy(() -> ai.reviewAnswer("岗位".repeat(20000), context, List.of(new InterviewTurn("user", "实际回答内容")), 1, false))
+        assertThatThrownBy(() -> prompts.reviewInput("岗位".repeat(20000), context, List.of(new InterviewTurn("user", "实际回答内容")), 1, false, null))
                 .isInstanceOf(StructuredOutput.FieldValidationException.class).hasMessageContaining("agentInputBudget").isNotInstanceOf(InterviewReviewRejected.class);
-        verifyNoInteractions(client);
     }
 
-    @Test void contextDecodeFailureAfterGenerationStillIsNotMarkedAsBadModelFields() {
-        var ai = new StructuredInterviewAiService(BusinessMetrics.disabled()) {
-            protected tools.jackson.databind.JsonNode generateOpening(String role, String context) { return mapper.createObjectNode().put("question", "问题"); }
-            protected tools.jackson.databind.JsonNode generateReview(String role, String context, List<InterviewTurn> turns, int count, boolean last) {
-                return mapper.createObjectNode().put("feedback", "反馈").put("nextQuestion", "下一题");
-            }
-        };
-        assertThatThrownBy(() -> ai.reviewAnswer("岗位", "INTERVIEW_AGENT_V1\n{", List.of(), 1, false))
+    @Test void contextDecodeFailureIsNotMarkedAsBadModelFields() {
+        var codec = new InterviewOutputCodec();
+        assertThatThrownBy(() -> codec.parseReview(mapper.createObjectNode().put("feedback", "反馈").put("nextQuestion", "下一题"), "INTERVIEW_AGENT_V1\n{", false))
                 .isNotInstanceOf(InterviewReviewRejected.class).hasMessageContaining("agentContext");
-        assertThatThrownBy(() -> ai.openingQuestion("岗位", "INTERVIEW_AGENT_V1\n{"))
+        assertThatThrownBy(() -> codec.parseOpening(mapper.createObjectNode().put("question", "问题"), "INTERVIEW_AGENT_V1\n{"))
                 .isNotInstanceOf(InterviewReviewRejected.class).hasMessageContaining("agentContext");
     }
 
@@ -97,21 +84,13 @@ class InterviewAgentGuardrailsTest {
         var checkpoint = state;
         String latest = "最终原文回答".repeat(500);
         turns.add(new InterviewTurn("user", latest));
-        var client = mock(JsonChatClient.class);
-        when(client.completeJson(anyString(), anyString(), anyDouble(), anyInt())).thenAnswer(call -> {
-            String raw = call.getArgument(1);
+        String raw = new InterviewPromptBuilder(mapper).reviewInput("岗位",
+                InterviewAgentContext.encode("完整材料".repeat(3000), state, policy.routing(state, 12, 12)), turns, 12, true, null).user();
             assertThat(raw.length()).isLessThanOrEqualTo(30000);
             var input = mapper.readTree(raw);
             assertThat(input.path("untrustedEvidence").path("digest")).hasSize(11);
             assertThat(input.path("untrustedEvidence").path("digest").get(0).path("evidence").asText()).isEqualTo("第1轮原文关键证据");
             assertThat(input.path("transcript").get(input.path("transcript").size() - 1).path("content").asText()).isEqualTo(latest);
-            var payload = mapper.createObjectNode().put("feedback", "反馈").put("finalSummary", "总结");
-            payload.set("agentDecision", mapper.valueToTree(new Decision(Level.PARTIAL, "最终原文回答", "缺口", Action.FINISH,
-                    checkpoint.activeCompetencyId(), "依据", "训练", Probe.NONE, "总结", "")));
-            return payload;
-        });
-        new DefaultInterviewAiService(client, mapper, BusinessMetrics.disabled()).reviewAnswer("岗位",
-                InterviewAgentContext.encode("完整材料".repeat(3000), state, policy.routing(state, 12, 12)), turns, 12, true);
     }
 
     @Test void worstEscapingRetainsTheLatestAnswerAndEveryDigestRoundWithinTheModelBudget() {
@@ -126,21 +105,14 @@ class InterviewAgentGuardrailsTest {
         var plan = base.plan().stream().map(c -> new Competency(c.id(), c.name(), c.objective(), anchors)).toList();
         var state = new InterviewAgentState(base.version(), "model", plan, "experience", List.of(), digest, memory);
         String latest = "X" + "\u0001".repeat(3998) + "Y";
-        var client = mock(JsonChatClient.class);
-        when(client.completeJson(anyString(), anyString(), anyDouble(), anyInt())).thenAnswer(call -> {
-            String raw = call.getArgument(1);
+        String raw = new InterviewPromptBuilder(mapper).reviewInput("X" + "\u0001".repeat(118) + "Y",
+                InterviewAgentContext.encode("材料".repeat(6000), state, policy.routing(state, 12, 12)), List.of(new InterviewTurn("user", latest)), 12, true, null).user();
             assertThat(raw.length()).isLessThanOrEqualTo(30000);
             var input = mapper.readTree(raw);
             assertThat(input.path("digestCondensed").asBoolean()).isTrue();
             assertThat(input.path("untrustedEvidence").path("digest")).hasSize(12);
             assertThat(input.path("untrustedEvidence").path("practiceHistory")).hasSizeLessThanOrEqualTo(2);
             assertThat(input.path("transcript").get(0).path("content").asText()).isEqualTo(latest);
-            var payload = mapper.createObjectNode().put("feedback", "反馈").put("finalSummary", "总结");
-            payload.set("agentDecision", mapper.valueToTree(new Decision(Level.INSUFFICIENT, "", "缺口", Action.FINISH, "experience", "依据", "训练", Probe.NONE, "总结", "")));
-            return payload;
-        });
-        new DefaultInterviewAiService(client, mapper, BusinessMetrics.disabled()).reviewAnswer("X" + "\u0001".repeat(118) + "Y",
-                InterviewAgentContext.encode("材料".repeat(6000), state, policy.routing(state, 12, 12)), List.of(new InterviewTurn("user", latest)), 12, true);
     }
 
     @Test void weakTopicGuardRejectsPureConcurrencyWhenStorageIsDeclaredButAllowsOverlappingOrUnknownVocabulary() {

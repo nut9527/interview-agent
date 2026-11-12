@@ -15,18 +15,22 @@ import cn.edu.whu.zhizhida.interview.api.InterviewAgentState;
 import cn.edu.whu.zhizhida.interview.api.InterviewMode;
 import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
 import cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy;
-import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 class InterviewOutputContractTest {
     private final JsonMapper json = new JsonMapper();
-    private final DefaultInterviewAiService service = new DefaultInterviewAiService(org.mockito.Mockito.mock(cn.edu.whu.zhizhida.ai.api.JsonChatClient.class), json, BusinessMetrics.disabled());
+    private final InterviewOutputCodec service = new InterviewOutputCodec();
+    private final InterviewPromptBuilder prompts = new InterviewPromptBuilder(json);
 
     @Test
-    void everyDeclaredNestedRecordFieldHasAContractWithoutRetiredPlanning() {
-        var fields = InterviewOutputContract.contract(false, true, false).path("fields");
+    void everyDeclaredNestedRecordFieldHasAContractIncludingActiveFocus() {
+        var fields = InterviewOutputContract.contract(false, true, false, true).path("fields");
         sameFields(fields.path("agentDecision").path("fields"), InterviewAgentState.Decision.class);
+        sameFields(fields.path("agentDecision").path("fields").path("focus").path("fields"),
+                cn.edu.whu.zhizhida.interview.api.InterviewPlanning.Focus.class);
+        assertThat(InterviewOutputContract.prompt(false, true, false)).doesNotContain("claimToVerify");
+        assertThat(InterviewOutputContract.prompt(false, true, false, true)).contains("claimToVerify", "expectedEvidence", "NEW_CONTEXT");
         var assessment = fields.path("assessment").path("fields");
         sameFields(assessment, AssessmentDraft.class);
         sameFields(assessment.path("items").path("itemFields"), AssessmentDraft.Item.class);
@@ -39,8 +43,8 @@ class InterviewOutputContractTest {
         assertThat(InterviewOutputContract.contract(false, true, true).path("fields").has("planProposal")).isFalse();
         assertThat(InterviewOutputContract.contract(true, false, false).path("fields").has("questionCompetencyId")).isFalse();
         assertThat(InterviewOutputContract.contract(true, true, false).path("fields").has("questionCompetencyId")).isTrue();
-        var renderedVariants = service.templateManifest().path("renderedContracts");
-        assertThat(renderedVariants.size()).isEqualTo(6);
+        var renderedVariants = prompts.templateManifest().path("renderedContracts");
+        assertThat(renderedVariants.size()).isEqualTo(8);
         for (var variant : renderedVariants) {
             String prompt = variant.asText();
             assertThat(json.readTree(prompt.substring(prompt.lastIndexOf('\n') + 1)).isObject()).isTrue();
@@ -54,17 +58,17 @@ class InterviewOutputContractTest {
         var v4 = new InterviewAgentState("interview-agent-v4", state.executionMode(), state.plan(), state.activeCompetencyId(), List.of());
         var context = InterviewAgentContext.encode("private material", v4, policy.routing(v4, 1, 6));
         var reason = new InterviewReviewRejected(StructuredOutput.invalid("agentDecision.gap", StructuredOutput.RejectionReason.MISSING_FIELD));
-        var input = service.reviewInput("Java", context, List.of(new InterviewTurn("user", "private answer")), 1, false, reason.repairFeedback());
+        var input = prompts.reviewInput("Java", context, List.of(new InterviewTurn("user", "private answer")), 1, false, reason.repairFeedback());
         assertThat(input.system()).contains(InterviewOutputContract.prompt(false, true, false));
         assertThat(input.system().length()).isLessThanOrEqualTo(7500);
         assertThat(json.readTree(input.user()).path("validationFeedback").path("path").asText()).isEqualTo("agentDecision.gap");
-        assertThat(service.templateManifest().toString()).doesNotContain("private material", "private answer");
-        assertThat(service.templateManifest().path("renderedContracts").toString()).doesNotContain("planProposal");
+        assertThat(prompts.templateManifest().toString()).doesNotContain("private material", "private answer");
+        assertThat(prompts.templateManifest().path("renderedContracts").toString()).doesNotContain("planProposal");
         assertThat(input.user()).doesNotContain("plannerVersion", "candidateDifficulties", "previousIntents");
-        assertThat(input.temperature()).isEqualTo(service.templateManifest().path("generation").path("reviewTemperature").asDouble());
-        assertThat(input.maxTokens()).isEqualTo(service.templateManifest().path("generation").path("agentReviewMaxTokens").asInt());
-        assertThat(service.openingInput("Java", context, reason.repairFeedback()).system().length()).isLessThanOrEqualTo(8000);
-        var finalInput = service.reviewInput("Java", context, List.of(new InterviewTurn("user", "private answer")), 6, true, null);
+        assertThat(input.temperature()).isEqualTo(prompts.templateManifest().path("generation").path("reviewTemperature").asDouble());
+        assertThat(input.maxTokens()).isEqualTo(prompts.templateManifest().path("generation").path("agentReviewMaxTokens").asInt());
+        assertThat(prompts.openingInput("Java", context, reason.repairFeedback()).system().length()).isLessThanOrEqualTo(8000);
+        var finalInput = prompts.reviewInput("Java", context, List.of(new InterviewTurn("user", "private answer")), 6, true, null);
         assertThat(finalInput.system()).doesNotContain("planProposal", "本场启用 intent-planner-v4.1");
         assertThat(finalInput.system()).contains(InterviewOutputContract.prompt(false, true, true));
         assertThat(input.system()).contains("required object when assessment is supplied");

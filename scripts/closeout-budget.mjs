@@ -29,7 +29,7 @@ export function reservationFor(body, price, now = Date.now()) {
   if (!Buffer.isBuffer(body) || body.length > 480000) fail('Request byte limit exceeded');
   const request = JSON.parse(body.toString('utf8'));
   if (request.model !== price.model || request.thinking?.type !== 'disabled' || request.stream !== false
-      || !integer(request.max_tokens) || request.max_tokens < 1 || request.max_tokens > 2000
+      || !integer(request.max_tokens) || request.max_tokens < 1 || request.max_tokens > 3000
       || !Array.isArray(request.messages) || request.messages.length === 0
       || request.messages.some(m => typeof m.content !== 'string' && m.content !== null && m.content !== undefined)
       || request.n !== undefined || request.max_completion_tokens !== undefined)

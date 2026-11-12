@@ -9,13 +9,16 @@ import tools.jackson.databind.ObjectMapper;
 public class GoalRunExecutor implements RunExecutor {
     private final LearningGoalService goals;
     private final ObjectMapper json;
-    public GoalRunExecutor(LearningGoalService goals,ObjectMapper json) { this.goals=goals;this.json=json; }
+    private final GoalPlanner planner;
+    public GoalRunExecutor(LearningGoalService goals,ObjectMapper json,GoalPlanner planner) { this.goals=goals;this.json=json;this.planner=planner; }
     public String subjectType() { return "GOAL"; }
     public void execute(ExecutionPort.Context context,String id,String operation,String input) {
         if(!operation.equals("GOAL_PLAN")) throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_OPERATION");
         long revision=json.readTree(input).path("expectedRevision").asLong();
         var node=json.readTree(input).path("observationRefs");
         var refs=node.isArray()?json.convertValue(node,new tools.jackson.core.type.TypeReference<java.util.List<cn.edu.whu.zhizhida.learning.api.PracticeMemoryAccess.Reference>>(){}):java.util.List.<cn.edu.whu.zhizhida.learning.api.PracticeMemoryAccess.Reference>of();
-        goals.commitProposal(context,id,revision,refs);
+        var inputState=goals.planningInput(context.owner(),id,revision,refs);
+        var draft=planner.plan(context,inputState,()->goals.requirePlanningScope(context.owner(),id,revision,refs));
+        goals.commitProposal(context,id,revision,refs,draft);
     }
 }

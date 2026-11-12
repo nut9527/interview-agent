@@ -10,20 +10,32 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-/** 按用户显式选择，在限定范围内提取目标证据；不改变自动个性化的行为。 */
+/** 为目标规划固定本人选取或授权目标会话内的有效观察。 */
 @Service
 public class GoalHistory {
     private final LearningMemoryStore store;
     private final PracticeEvidenceSource sources;
     public GoalHistory(LearningMemoryStore store,PracticeEvidenceSource sources) { this.store=store;this.sources=sources; }
     @Transactional(propagation=Propagation.MANDATORY)
+    public List<PracticeMemoryAccess.Reference> forSessions(long owner,String competency,Set<String> sessions) {
+        if(!store.personalizationEnabled(owner)) return List.of();
+        var rows=store.recent(owner).stream().filter(o->sessions.contains(o.sourceSessionId())
+                && o.competencyId().equals(competency) && o.status().equals("ACTIVE") && o.fact()!=null
+                && o.executionMode().equals("deepseek") && o.createdAt().isAfter(Instant.now().minus(180,ChronoUnit.DAYS)))
+                .toList();
+        var selected=PracticeMemoryRecall.select(rows,20);
+        var refs=selected.stream().map(o->new PracticeMemoryAccess.Reference(o.id(),o.revision(),o.sourceSessionId(),o.sourceVersion())).toList();
+        qualify(owner,refs);
+        return refs;
+    }
+    @Transactional(propagation=Propagation.MANDATORY)
     public List<PracticeMemoryAccess.Reference> freeze(long owner,String competency,List<String> ids) {
         if(ids.isEmpty()) return List.of();
         if(ids.size()>20||ids.stream().distinct().count()!=ids.size()) throw new UserInputException("最多选择 20 条不重复的观察");
+        if(!store.personalizationEnabled(owner)) throw new UserInputException("请先在学习观察中开启个性化，再显式选择来源");
         var refs=ids.stream().map(id->store.get(owner,id)).map(r->new PracticeMemoryAccess.Reference(r.id(),r.revision(),r.sourceSessionId(),r.sourceVersion())).toList();
         var rows=qualify(owner,refs);
         if(rows.stream().anyMatch(r->!r.competencyId().equals(competency))) throw new UserInputException("观察超出目标能力范围");
-        if(!store.preferences(owner).personalizationEnabled()) throw new UserInputException("请先在学习观察中开启个性化，再显式选择来源");
         return refs;
     }
     /** 使用固定引用重新锁定来源和观察；任一引用失效即拒绝整次使用，不静默替换证据。 */
@@ -34,7 +46,7 @@ public class GoalHistory {
         var versions=new TreeMap<String,String>();
         refs.stream().map(PracticeMemoryAccess.Reference::sourceSessionId).distinct().sorted().forEach(id->
                 versions.put(id,sources.lock(owner,id).map(s->s.source().version()).orElse(null)));
-        store.preferences(owner);
+        if(!store.preferences(owner).personalizationEnabled()) throw new MemoryRevokedException();
         var result=new ArrayList<LearningMemory.Observation>();
         for(var ref:refs) {
             var current=store.current(owner,ref.id());

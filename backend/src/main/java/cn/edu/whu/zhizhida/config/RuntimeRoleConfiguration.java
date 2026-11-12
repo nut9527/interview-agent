@@ -22,9 +22,16 @@ public class RuntimeRoleConfiguration {
     static void validate(Environment env) {
         String role=env.getProperty("app.runtime.role","all");
         require(Set.of("all","api","worker").contains(role), "Unsupported runtime role");
-        String loopPolicy=env.getProperty("interview.runs.loop-policy","B0");
-        require(Set.of("B0","S1","S3").contains(loopPolicy), "Unsupported interview loop policy");
-        if(!"B0".equals(loopPolicy))
+        String loopPolicy=env.getProperty("interview.runs.loop-policy","A1");
+        require(Set.of("A1","B0","S1","S3").contains(loopPolicy), "Unsupported interview loop policy");
+        String route=env.getProperty("interview.runs.route","TOOL");
+        require(Set.of("TOOL","FIXED","LEGACY").contains(route), "Unsupported interview route");
+        require("phased-v2".equals(env.getProperty("interview.runs.decision-protocol","phased-v2")),
+                "Only phased-v2 interview decision protocol is supported");
+        if(!"A1".equals(loopPolicy) || !"TOOL".equals(route))
+            require("all".equals(role) && env.matchesProfiles("test", "it", "agent-evaluation"),
+                    "Experimental interview routes and policies require test/it/agent-evaluation and cannot run in API/Worker roles");
+        if(Set.of("S1","S3").contains(loopPolicy))
             require("all".equals(role) && env.matchesProfiles("agent-evaluation"),
                     "S1/S3 require the agent-evaluation profile and cannot run in API/Worker roles");
         String knowledgeMode=env.getProperty("knowledge.dispatch.mode","local");

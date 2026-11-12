@@ -65,7 +65,7 @@ class InterviewRunAdmissionTest {
         when(row.requestHash())
                 .thenReturn(
                         InterviewRunStore.sha(
-                                InterviewRunService.canonical(
+                                cn.edu.whu.zhizhida.common.JsonFingerprint.canonical(
                                                 json.valueToTree(request.configuration()))
                                         .toString()));
         when(store.command(42, "START", "command")).thenReturn(Optional.of(row));

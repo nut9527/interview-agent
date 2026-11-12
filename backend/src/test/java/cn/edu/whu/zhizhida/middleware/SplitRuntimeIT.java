@@ -210,7 +210,7 @@ class SplitRuntimeIT {
         try (var upstream = new Upstream()) {
             var settings = Map.of("ai.provider", "deepseek", "ai.api-key", "synthetic-local-only",
                     "ai.deepseek.base-url", upstream.url(), "ai.deepseek.timeout-seconds", "25",
-                    "interview.runs.decision-protocol", "phased-v1",
+                    "interview.runs.decision-protocol", "phased-v2",
                     "ai.resilience.max-concurrent-calls", "6",
                     "app.outbox.publisher.batch-size", "8");
             try (var api = launch("api", settings)) {

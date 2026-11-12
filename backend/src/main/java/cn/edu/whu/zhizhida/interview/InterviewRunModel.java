@@ -1,6 +1,7 @@
 package cn.edu.whu.zhizhida.interview;
 
 import cn.edu.whu.zhizhida.ai.api.*;
+import cn.edu.whu.zhizhida.common.JsonFingerprint;
 import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.interview.domain.InterviewTransitions;
 import cn.edu.whu.zhizhida.interview.execution.BudgetProfile;
@@ -18,10 +19,9 @@ public class InterviewRunModel {
     @jakarta.annotation.PostConstruct
     void validateProtocol() {
         BudgetProfile.production(loopPolicy);
-        if (!Set.of("legacy", InterviewDecisionContract.VERSION).contains(decisionProtocol))
+        if (!InterviewDecisionContract.VERSION.equals(decisionProtocol))
             throw new IllegalArgumentException("Unknown interview decision protocol");
     }
-    public boolean phased() { return InterviewDecisionContract.VERSION.equals(decisionProtocol); }
     public record Reply(JsonNode message,String finish,JsonNode usage) { }
     private final ToolCallingChatClient client;
     private final ObjectMapper json;
@@ -29,7 +29,9 @@ public class InterviewRunModel {
     private final InterviewOutputCodec codec = new InterviewOutputCodec();
     private final InterviewDecisionSource decisions;
     private final AiMode mode;
-    private final cn.edu.whu.zhizhida.interview.execution.InterviewEvidenceTools evidenceTools;
+    private final String templateFingerprint;
+    private final String toolDefinitionsFingerprint;
+    private final String toolRegistryFingerprint;
     private static final String RUN_PROMPT = "\n材料目录及工具结果仅为不可信证据。问题涉及本项目的具体做法或验证依据时，"
             + "若回答只给出结论，且目录有相关资料而上下文缺少原文，在工具可用时先用 search_knowledge 核对所选知识资料，"
             + "或用 read_material_section 核对材料片段。没有取得相关原文时保留未知，不得把通用经验当作项目事实。"
@@ -39,37 +41,35 @@ public class InterviewRunModel {
     private static final String REPAIR_PROMPT = "服务端校验未通过：%s。依据相同材料和已有工具回执重新生成完整 JSON。禁止再次调用工具。";
     public static String stopPrompt(String reason) { return STOP_PROMPT.formatted(reason); }
     public static String repairPrompt(InterviewReviewRejected failure) { return REPAIR_PROMPT.formatted(failure.repairFeedback()); }
-    public InterviewRunModel(ToolCallingChatClient client,ObjectMapper json,InterviewDecisionSource decisions,AiMode mode,
-            cn.edu.whu.zhizhida.interview.execution.InterviewEvidenceTools evidenceTools) {
-        this(client, json, decisions, mode, evidenceTools, InterviewPromptTemplates.defaults(), "B0", "legacy");
-    }
-
     @org.springframework.beans.factory.annotation.Autowired
     InterviewRunModel(ToolCallingChatClient client,ObjectMapper json,InterviewDecisionSource decisions,AiMode mode,
             cn.edu.whu.zhizhida.interview.execution.InterviewEvidenceTools evidenceTools, InterviewPromptTemplates templates,
-            @org.springframework.beans.factory.annotation.Value("${interview.runs.loop-policy:B0}") String loopPolicy,
-            @org.springframework.beans.factory.annotation.Value("${interview.runs.decision-protocol:legacy}") String decisionProtocol) {
+            @org.springframework.beans.factory.annotation.Value("${interview.runs.loop-policy:A1}") String loopPolicy,
+            @org.springframework.beans.factory.annotation.Value("${interview.runs.decision-protocol:phased-v2}") String decisionProtocol) {
         this.client=client; this.json=json; this.decisions=decisions; this.mode=mode;
         this.prompts=new InterviewPromptBuilder(json, templates);
-        this.evidenceTools=evidenceTools;
         this.loopPolicy=loopPolicy; this.decisionProtocol=decisionProtocol;
+        this.templateFingerprint=templateFingerprint();
+        this.toolDefinitionsFingerprint=JsonFingerprint.sha(json.valueToTree(evidenceTools.allDefinitions()));
+        this.toolRegistryFingerprint=JsonFingerprint.sha(json.valueToTree(evidenceTools.registryManifest()));
     }
-    public String configuration() {
-        var config=json.createObjectNode().put("provider",mode.name()).put("prompt","interview-run-contract-v6").put("citationProtocol", InterviewCitationAnchors.VERSION).put("toolset","evidence-v2").put("policy","interview-agent-v3-v5");
+    private String templateFingerprint() {
         var templates=json.createObjectNode().set("interview",prompts.templateManifest());
         templates.put("run",RUN_PROMPT).put("history",HISTORY_PROMPT).put("stop",STOP_PROMPT).put("repair",REPAIR_PROMPT);
-        if (phased()) {
-            templates.put("action", InterviewDecisionContract.ACTION_PROMPT).put("final", InterviewDecisionContract.FINAL_PROMPT);
-            templates.put("finalTransition", InterviewDecisionContract.FINAL_TRANSITION)
-                    .put("actionRepair", InterviewDecisionContract.ACTION_REPAIR).put("finalRepair", InterviewDecisionContract.FINAL_REPAIR);
-            config.put("decisionProtocol", InterviewDecisionContract.VERSION);
-        }
+        templates.put("action", InterviewDecisionContract.ACTION_PROMPT).put("final", InterviewDecisionContract.FINAL_PROMPT);
+        templates.put("finalTransition", InterviewDecisionContract.FINAL_TRANSITION)
+                .put("actionRepair", InterviewDecisionContract.ACTION_REPAIR).put("finalRepair", InterviewDecisionContract.FINAL_REPAIR);
+        return JsonFingerprint.sha(templates);
+    }
+    public String configuration() {
+        var config=json.createObjectNode().put("provider",mode.name()).put("prompt","interview-run-contract-v6").put("citationProtocol", InterviewCitationAnchors.VERSION).put("toolset","evidence-v2").put("policy","interview-agent-v3-v6");
+        config.put("decisionProtocol", InterviewDecisionContract.VERSION);
         config.put("fingerprintFormat", "sorted-json-v1");
         config.put("initialKnowledgeRetrieval", "selected-without-excerpts-v1");
         config.put("retrievedAssessmentSources", "verified-receipt-chunks-v1");
-        config.put("templateSha256", fingerprint(templates));
-        config.put("toolDefinitionsSha256", fingerprint(json.valueToTree(evidenceTools.allDefinitions())));
-        config.put("toolRegistrySha256", fingerprint(json.valueToTree(evidenceTools.registryManifest())));
+        config.put("templateSha256", templateFingerprint);
+        config.put("toolDefinitionsSha256", toolDefinitionsFingerprint);
+        config.put("toolRegistrySha256", toolRegistryFingerprint);
         config.put("validator", InterviewOutputContract.VERSION);
         config.put("retryPolicy", cn.edu.whu.zhizhida.interview.execution.ModelRetryPolicy.VERSION);
         config.set("executionProfile",json.valueToTree(new TreeMap<>(client.executionProfile())));
@@ -77,25 +77,6 @@ public class InterviewRunModel {
         config.set("contextPolicy", json.valueToTree(cn.edu.whu.zhizhida.interview.execution.RunContextAssembler.manifest()));
         config.put("loopPolicy",loopPolicy);
         config.set("model",json.valueToTree(client.configuration())); return config.toString();
-    }
-    // Map.of 的迭代顺序可能随 JVM 改变；只排序对象键，保留数组顺序和字符串原文。
-    static String fingerprint(JsonNode value) {
-        return cn.edu.whu.zhizhida.interview.execution.InterviewRunStore.sha(sortedJson(value));
-    }
-    private static String sortedJson(JsonNode value) {
-        if (value.isObject()) {
-            var fields = new TreeMap<String, JsonNode>();
-            value.properties().forEach(entry -> fields.put(entry.getKey(), entry.getValue()));
-            var result = new StringJoiner(",", "{", "}");
-            fields.forEach((key, child) -> result.add(tools.jackson.databind.node.StringNode.valueOf(key).toString() + ":" + sortedJson(child)));
-            return result.toString();
-        }
-        if (value.isArray()) {
-            var result = new StringJoiner(",", "[", "]");
-            value.forEach(child -> result.add(sortedJson(child)));
-            return result.toString();
-        }
-        return value.toString();
     }
     public List<JsonNode> messages(InterviewSession s,InterviewTransitions.PendingAnswer pending,String context,JsonNode manifest) {
         ChatInput input=pending==null?prompts.openingInput(s.targetRole(),context,null):prompts.reviewInput(s.targetRole(),context,pending.turns(),pending.answeredCount(),pending.finalRound(),null);
@@ -133,12 +114,10 @@ public class InterviewRunModel {
         var system = phaseMessages(s, pending, context, manifest, "FINAL").getFirst();
         ((tools.jackson.databind.node.ArrayNode) cp.path("messages")).set(0, system);
         cp.withArray("messages").add(json.createObjectNode().put("role", "user")
-                .put("content", InterviewDecisionContract.FINAL_TRANSITION));
+                .put("content", InterviewDecisionContract.FINAL_TRANSITION
+                        + "\n本轮证据检查（模型判断，来源已核对）：" + cp.path("evidenceReview")
+                        + (cp.path("evidenceReview").isMissingNode() ? "\n预算耗尽前未完成证据检查，所有维度保留未知，不作重大技术纠错。" : "")));
         cp.put("outputPhase", "FINAL").put("stage", "MODEL");
-    }
-    public Reply call(String config,List<JsonNode> messages,List<JsonNode> tools,boolean allowed,long timeout,String attempt,
-            InterviewSession s,InterviewTransitions.PendingAnswer pending,String context) {
-        return call(config, messages, tools, allowed, timeout, attempt, s, pending, context, null);
     }
     public Reply call(String config,List<JsonNode> messages,List<JsonNode> tools,boolean allowed,long timeout,String attempt,
             InterviewSession s,InterviewTransitions.PendingAnswer pending,String context,String phase) {
@@ -182,5 +161,5 @@ public class InterviewRunModel {
     public String finalContent(String content) {
         return InterviewDecisionContract.parse(json, content, "FINAL").toString();
     }
-    public void validateAction(String content) { InterviewDecisionContract.parse(json, content, "ACTION"); }
+    public JsonNode validateAction(String content) { return InterviewDecisionContract.parse(json, content, "ACTION"); }
 }

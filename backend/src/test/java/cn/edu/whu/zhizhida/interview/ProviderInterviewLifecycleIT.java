@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @EnabledIfEnvironmentVariable(named="RUN_PROVIDER_LIFECYCLE",matches="true")
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={
         "ai.provider=deepseek", "interview.runs.worker-enabled=false", "interview.runs.route=TOOL",
-        "interview.runs.loop-policy=B0", "interview.runs.decision-protocol=phased-v1",
+        "interview.runs.loop-policy=B0", "interview.runs.decision-protocol=phased-v2",
         "app.run-dispatch.mode=database", "app.run-recovery.enabled=false", "app.outbox.publisher.enabled=false",
         "knowledge.dispatch.mode=local", "knowledge.import.worker-enabled=false", "agent.vector.enabled=false",
         "agent.mcp.reference.enabled=false", "learning.worker-enabled=false"})
@@ -64,7 +64,7 @@ class ProviderInterviewLifecycleIT extends IntegrationTestBase {
         }).when(runs).reserveModelAttempt(org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.any(cn.edu.whu.zhizhida.interview.execution.RunContextAssembler.Prepared.class));
         var config=objectMapper.readTree(model.configuration());
-        assertThat(config.path("decisionProtocol").asText()).isEqualTo("phased-v1");
+        assertThat(config.path("decisionProtocol").asText()).isEqualTo("phased-v2");
         assertThat(config.at("/budgetProfile/execution/maxModelAttempts").asInt()).isEqualTo(4);
         assertThat(config.at("/executionProfile/maxOutputTokens").asInt()).isEqualTo(2000);
         var report=objectMapper.createObjectNode().put("recordedAt",Instant.now().toString())

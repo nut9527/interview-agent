@@ -1,6 +1,6 @@
 package cn.edu.whu.zhizhida.interview;
 
-import cn.edu.whu.zhizhida.interview.api.InterviewAiService.InterviewAiReply;
+import cn.edu.whu.zhizhida.interview.api.InterviewAiReply;
 import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
 
 import cn.edu.whu.zhizhida.interview.api.*;
@@ -84,7 +84,24 @@ public final class InterviewOutputCodec {
                 decisionText(node, "practice", InterviewOutputContract.DECISION_TEXT_MAX),
                 probe,
                 decisionText(node, "intent", InterviewOutputContract.INTENT_MAX),
-                action == InterviewAgentState.Action.FINISH ? "" : target);
+                action == InterviewAgentState.Action.FINISH ? "" : target,
+                cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy.planning(context.checkpoint())
+                        ? parseFocus(node.path("focus")) : null);
+    }
+
+    private InterviewPlanning.Focus parseFocus(JsonNode node) {
+        if (!node.isObject()) throw StructuredOutput.invalid("agentDecision.focus", StructuredOutput.RejectionReason.TYPE_MISMATCH);
+        try {
+            return new InterviewPlanning.Focus(
+                    InterviewPlanning.Dimension.valueOf(StructuredOutput.text(node, "dimension", 40)),
+                    InterviewPlanning.Scenario.valueOf(StructuredOutput.text(node, "scenario", 40)),
+                    StructuredOutput.text(node, "claimToVerify", InterviewOutputContract.INTENT_MAX),
+                    StructuredOutput.text(node, "expectedEvidence", InterviewOutputContract.INTENT_MAX));
+        } catch (StructuredOutput.FieldValidationException ex) {
+            throw StructuredOutput.invalid("agentDecision.focus", ex.reason());
+        } catch (IllegalArgumentException ex) {
+            throw StructuredOutput.invalid("agentDecision.focus");
+        }
     }
 
     private String decisionText(JsonNode node, String field, int max) {

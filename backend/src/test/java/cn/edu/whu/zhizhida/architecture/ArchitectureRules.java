@@ -22,9 +22,9 @@ final class ArchitectureRules {
     static final Set<String> WORKFLOW_APIS = Set.of("AccountLifecycle", "DemoAccounts", "ResumeUserData",
             "JobUserData", "InterviewUserData");
     static final Set<String> MODEL_ADAPTER_NAMES = Set.of("resume.ResumeAiConfiguration", "resume.AiResumeImportRecognizer", "resume.ResumeDraftOptimizer",
-            "interview.InterviewRunModel", "interview.InterviewPromptBuilder", "interview.DefaultInterviewAiService", "interview.InterviewAiConfiguration", "knowledge.DefaultKnowledgeAnswerer", "knowledge.KnowledgeAiConfiguration",
+            "interview.InterviewRunModel", "interview.InterviewPromptBuilder", "interview.InterviewAiConfiguration", "knowledge.DefaultKnowledgeAnswerer", "knowledge.KnowledgeAiConfiguration",
             "knowledge.HybridKnowledgeSearch", "knowledge.KnowledgeIndexWorker", "interview.execution.McpReferenceToolProvider",
-            "questionbank.QuestionReferences");
+            "questionbank.QuestionReferences", "learning.GoalPlanner");
     private static final Set<String> INTERVIEW_DATA = Set.of("InterviewSession", "InterviewState", "InterviewTurn", "InterviewMode", "InterviewDifficulty", "InterviewExperience", "InterviewPreparation", "FollowUp", "InterviewAgentState", "InterviewPlanningContext", "InterviewPlanning", "InterviewTraining", "QuestionSnapshot");
     private static final Set<String> EFFECTS = Set.of("java.lang.System", "java.lang.Runtime", "java.lang.ProcessBuilder",
             "java.lang.Thread", "java.util.UUID", "java.util.Random", "java.util.SplittableRandom",
@@ -125,7 +125,9 @@ final class ArchitectureRules {
             "keep generic model clients in business adapters and wiring", (from, to) -> {
                 String owner = module(from), target = module(to);
                 if (MODULES.contains(owner) && !owner.equals("ai") && target.equals("ai")) {
-                    return MODEL_ADAPTER_NAMES.contains(from.getName().substring(ROOT.length() + 1));
+                    return from.getName().equals(ROOT + ".interview.InterviewStateMachine")
+                            && to.getName().equals(ROOT + ".ai.api.AiMode")
+                            || MODEL_ADAPTER_NAMES.contains(from.getName().substring(ROOT.length() + 1));
                 }
                 return !owner.equals("ai") || !MODULES.contains(target) || target.equals("ai");
             }));

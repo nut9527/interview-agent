@@ -6,7 +6,7 @@ import cn.edu.whu.zhizhida.evaluation.api.*;
 import cn.edu.whu.zhizhida.evaluation.api.AssessmentResult.*;
 import cn.edu.whu.zhizhida.interview.api.*;
 import cn.edu.whu.zhizhida.interview.api.InterviewAgentState.*;
-import cn.edu.whu.zhizhida.interview.api.InterviewAiService.InterviewAiReply;
+import cn.edu.whu.zhizhida.interview.api.InterviewAiReply;
 import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
 import cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy;
 import cn.edu.whu.zhizhida.interview.domain.InterviewTransitions;
@@ -37,10 +37,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class InterviewDecisionEvaluationIT {
+    private static List<Map<String, Object>> unresolvedTechnicalCheck() {
+        return List.of(Map.of("dimension", "TECHNICAL_CORRECTNESS", "claim", "技术结论仍待资料验证",
+                "status", "INSUFFICIENT", "evidence", List.of(), "nextAction", "保留未知并向用户澄清"));
+    }
 
     @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, properties={
             "interview.runs.worker-enabled=false", "interview.agent.adaptive-routing-enabled=true",
-            "interview.runs.decision-protocol=phased-v1", "ai.provider=deepseek"})
+            "interview.runs.decision-protocol=phased-v2", "interview.runs.loop-policy=A1", "ai.provider=deepseek"})
     @Nested
     class AdaptiveRouting extends InterviewRunScenario {
         @MockitoBean ToolCallingChatClient client;
@@ -57,8 +61,8 @@ class InterviewDecisionEvaluationIT {
         }
         ToolCallingChatClient.Response response(ToolCallingChatClient.Request request, Object finalResult) {
             boolean action = request.messages().getFirst().path("content").asText().startsWith(InterviewDecisionContract.ACTION_PROMPT);
-            return output(action ? Map.of("version", "phased-v1", "phase", "ACTION", "action", "COMPLETE", "reason", "已有资料足够")
-                    : Map.of("version", "phased-v1", "phase", "FINAL", "result", finalResult));
+            return output(action ? Map.of("version", "phased-v2", "phase", "ACTION", "action", "COMPLETE", "reason", "已有资料足够", "checks", unresolvedTechnicalCheck())
+                    : Map.of("version", "phased-v2", "phase", "FINAL", "result", finalResult));
         }
         String opened(String format) throws Exception {
             doAnswer(inv -> response(inv.getArgument(0),
@@ -72,7 +76,9 @@ class InterviewDecisionEvaluationIT {
         InterviewAiReply review(String target, String question) {
             return new InterviewAiReply("职责已说明，仍需补充验证。", question, "",
                     new Decision(Level.PARTIAL,"我负责接口设计","边界尚待核对",Action.ADVANCE,target,
-                            "本轮提到了协作边界，因此调整下一项考察", "补充实际依据",Probe.OPENING,"核对个人职责边界",target));
+                            "本轮提到了协作边界，因此调整下一项考察", "补充实际依据",Probe.OPENING,"核对个人职责边界",target,
+                            new InterviewPlanning.Focus(InterviewPlanning.Dimension.RESPONSIBILITY, InterviewPlanning.Scenario.CURRENT,
+                                    "核对" + target + "中的个人职责边界", "实际行动及交接记录")));
         }
 
         @Test void modelSelectedNonAdjacentTargetCommitsWithAnswerAndReplaysWithoutAnotherAttemptOrQuotaCharge() throws Exception {
@@ -90,6 +96,9 @@ class InterviewDecisionEvaluationIT {
             assertThat(first.agent().activeCompetencyId()).isEqualTo(chosen);
             assertThat(first.agent().plan()).isEqualTo(initial.agent().plan());
             assertThat(first.agent().evaluations().getFirst().competencyId()).isEqualTo("experience");
+            var revision = first.agent().planningRevisions().getFirst();
+            assertThat(revision.candidates().getFirst().intent().competencyId()).isEqualTo(chosen);
+            assertThat(revision.candidates().getFirst().gap().sourceId()).isEqualTo(session + ":answer:1");
             assertThat(store.get(owner,id).attempts()).isEqualTo(2);
             clearInvocations(client);
             assertThat(acceptAnswer(session,"adaptive-answer-1",1, answer)).isEqualTo(id);
@@ -134,7 +143,7 @@ class InterviewDecisionEvaluationIT {
             cp.putArray("sources"); cp.putArray("messages").addObject().put("role","system").put("content","fixture");
             store.checkpoint(claim,cp.toString(),"MODEL",null,null);
             String attempt = store.reserveModelAttempt(claim, prepared("saved-final")).id();
-            cp.set("response", output(Map.of("version","phased-v1","phase","FINAL","result",
+            cp.set("response", output(Map.of("version","phased-v2","phase","FINAL","result",
                     review(chosen,"请说明目标交付中你核对职责边界的实际依据？"))).message());
             cp.withArray("messages").add(cp.path("response")); cp.put("stage","VALIDATE");
             store.response(claim,attempt,"{}","{}",1,cp.toString(),"VALIDATE");
@@ -175,7 +184,9 @@ class InterviewDecisionEvaluationIT {
                 var d = new Decision(Level.PARTIAL,"我负责接口设计","待补充边界",action,target,
                         "根据当前观察选择下一项验证", "补充证据", action == Action.ADVANCE ? Probe.OPENING
                         : action == Action.FOLLOW_UP ? route.allowedProbes().getFirst() : Probe.NONE,
-                        "核对事实边界",action == Action.FINISH ? "" : target);
+                        "核对事实边界",action == Action.FINISH ? "" : target,
+                        new InterviewPlanning.Focus(InterviewPlanning.Dimension.RESPONSIBILITY, InterviewPlanning.Scenario.CURRENT,
+                                "核对第" + round + "项实际行动边界", "实际行动及验证记录"));
                 var payload = new InterviewAiReply("已说明行动，验证仍待补充。",action == Action.FINISH ? ""
                         : "针对能力"+target+"，请说明第"+round+"项实际行动有哪些可核对的边界？",
                         action == Action.FINISH ? "已覆盖计划范围，仍需逐项补充验证依据。" : "",d);
@@ -205,7 +216,6 @@ class InterviewDecisionEvaluationIT {
         @MockitoBean ToolCallingChatClient client;
         @Autowired InterviewSessionRepository sessions;
         @Autowired InterviewStateMachine machine;
-        @org.springframework.test.context.bean.override.mockito.MockitoSpyBean InterviewAiService ai;
         static final String ANSWER = "我负责订单接口和异常回滚。\r\n因为重试可能重复写入，我选择请求号唯一约束，并验证冲突返回原结果😀。";
 
         @BeforeEach void setup() throws Exception {
@@ -214,12 +224,35 @@ class InterviewDecisionEvaluationIT {
         tools.jackson.databind.JsonNode data(org.springframework.test.web.servlet.MvcResult result) throws Exception {
             return objectMapper.readTree(result.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).path("data");
         }
-        ToolCallingChatClient.Response response(Object payload) {
+        ToolCallingChatClient.Response response(ToolCallingChatClient.Request request, Object payload, int round) {
+            var result = objectMapper.valueToTree(payload);
+            var envelope = objectMapper.createObjectNode().put("version", "phased-v2");
+            if (request.messages().getFirst().path("content").asText().startsWith(InterviewDecisionContract.ACTION_PROMPT)) {
+                envelope.put("phase", "ACTION").put("action", "COMPLETE").put("reason", "合成证据检查完成");
+                var checks = envelope.putArray("checks");
+                var assessment = result.path("assessment");
+                for (var items : List.of(assessment.path("items"), assessment.path("detail").path("items"))) {
+                    for (var item : items) {
+                        boolean correction = item.path("majorCorrection").asBoolean();
+                        boolean grounded = item.path("citations").valueStream()
+                                .anyMatch(c -> c.path("relation").asText().equals("COUNTEREVIDENCE"));
+                        String status = correction ? grounded ? "CONTRADICTED" : "INSUFFICIENT" : item.path("claimStatus").asText();
+                        var check = checks.addObject().put("dimension", item.path("dimension").asText())
+                                .put("claim", item.path("claimText").asText()).put("status", status).put("nextAction", "");
+                        var evidence = check.putArray("evidence");
+                        for (var quote : item.path("quotes"))
+                            evidence.addObject().put("sourceId", "answer-" + round).put("quote", quote.path("quote").asText());
+                        for (var citation : item.path("citations"))
+                            evidence.addObject().put("sourceId", citation.path("sourceKey").asText().equals("answer")
+                                    ? "answer-" + round : citation.path("sourceKey").asText()).put("quote", citation.path("quote").asText());
+                    }
+                }
+            } else envelope.put("phase", "FINAL").set("result", result);
             return new ToolCallingChatClient.Response(objectMapper.createObjectNode().put("role", "assistant")
-                    .put("content", objectMapper.writeValueAsString(payload)), "stop", ModelUsage.unknown(ModelUsage.Status.MISSING));
+                    .put("content", envelope.toString()), "stop", ModelUsage.unknown(ModelUsage.Status.MISSING));
         }
         String opened(String format) throws Exception {
-            when(client.complete(any())).thenReturn(response(Map.of("question", "请说明你在相关经历中承担的个人职责？", "questionCompetencyId", "experience")));
+            doAnswer(inv -> response(inv.getArgument(0), Map.of("question", "请说明你在相关经历中承担的个人职责？", "questionCompetencyId", "experience"), 0)).when(client).complete(any());
             var accepted = performPost("/api/interviews/start-commands", Map.of("requestId", UUID.randomUUID().toString(),
                     "configuration", Map.of("targetRole", "Java 后端", "totalRounds", 3, "experienceMode", format)), token);
             assertThat(accepted.getResponse().getStatus()).isEqualTo(202);
@@ -241,9 +274,9 @@ class InterviewDecisionEvaluationIT {
         String answer(String sid, String key, int round, AssessmentDraft assessment) throws Exception {
             var s = sessions.findById(owner, sid).orElseThrow();
             var pending = (InterviewTransitions.PendingAnswer) new InterviewTransitions().answer(s, ANSWER, key, round);
-            var mock = new MockInterviewAiService(objectMapper, BusinessMetrics.disabled());
-            var reply = mock.reviewAnswer(s.targetRole(), machine.runContext(s, pending, List.of()), pending.turns(), round, pending.finalRound());
-            when(client.complete(any())).thenReturn(response(new InterviewAiReply(reply.feedback(), reply.nextQuestion(), reply.finalSummary(), reply.agentDecision(), assessment)));
+            var mock = new MockInterviewAiService(objectMapper);
+            var reply = new InterviewOutputCodec().parseReview(mock.generateReview(s.targetRole(), machine.runContext(s, pending, List.of()), pending.turns(), round, pending.finalRound()), machine.runContext(s, pending, List.of()), pending.finalRound(), pending.turns());
+            doAnswer(inv -> response(inv.getArgument(0), new InterviewAiReply(reply.feedback(), reply.nextQuestion(), reply.finalSummary(), reply.agentDecision(), assessment), round)).when(client).complete(any());
             var accepted = performPost("/api/interviews/sessions/" + sid + "/answer-commands",
                     Map.of("requestId", key, "expectedTurn", round, "answer", ANSWER), token);
             assertThat(accepted.getResponse().getStatus()).isEqualTo(202);
@@ -283,13 +316,13 @@ class InterviewDecisionEvaluationIT {
             String run = answer(sid, "wrong_offset_001", 1, false);
             assertThat(store.get(owner, run).status()).isEqualTo("FAILED");
             assertThat(sessions.findById(owner, sid).orElseThrow().turns()).noneMatch(t -> "user".equals(t.speaker()));
-            verify(client, times(3)).complete(any()); // 开场、候选结果生成，以及一次受限修复。
+            verify(client, times(5)).complete(any()); // 开场两阶段、回答检查、最终结果和一次修正。
         }
 
         String openedKnowledge(String format) throws Exception {
             var doc = data(performPost("/api/knowledge/documents", Map.of("title", "相互矛盾的合成资料",
                     "content", "唯一约束冲突一律返回下单成功。\n\n唯一约束冲突必须查询原请求结果，不能一律返回成功。"), token));
-            when(client.complete(any())).thenReturn(response(Map.of("question", "请说明数据库事务中的唯一约束如何处理重复请求及返回结果？", "questionCompetencyId", "storage")));
+            doAnswer(inv -> response(inv.getArgument(0), Map.of("question", "请说明数据库事务中的唯一约束如何处理重复请求及返回结果？", "questionCompetencyId", "storage"), 0)).when(client).complete(any());
             var accepted = performPost("/api/interviews/start-commands", Map.of("requestId", UUID.randomUUID().toString(),
                     "configuration", Map.of("targetRole", "Java 后端", "totalRounds", 3, "experienceMode", format,
                             "trainingTopic", "DATABASE", "knowledgeDocumentIds", List.of(doc.path("id").asText()))), token);
@@ -320,7 +353,7 @@ class InterviewDecisionEvaluationIT {
                 }
                 items.add(new cn.edu.whu.zhizhida.evaluation.api.DetailedAssessmentDraft.Item(d,
                         observed ? Observation.OBSERVED : Observation.NOT_OBSERVED, observed ? "回答陈述职责、重试风险与约束选择" : "本轮未覆盖此维度",
-                        observed ? ClaimStatus.SUPPORTED : ClaimStatus.INSUFFICIENT, "资料需复核，经历尚未验证", technical, citations));
+                        technical && grounded ? ClaimStatus.DISPUTED : observed ? ClaimStatus.SUPPORTED : ClaimStatus.INSUFFICIENT, "资料需复核，经历尚未验证", technical, citations));
             }
             return new AssessmentDraft(null, new cn.edu.whu.zhizhida.evaluation.api.DetailedAssessmentDraft("six-dimensions-v1", items));
         }
@@ -350,13 +383,13 @@ class InterviewDecisionEvaluationIT {
             String id = answer(sid, "ungrounded_technical_001", 1, sixDraft(sid, false));
             assertThat(store.get(owner, id).status()).isEqualTo("FAILED");
             assertThat(sessions.findById(owner, sid).orElseThrow().turns()).noneMatch(t -> "user".equals(t.speaker()));
-            verify(client, times(3)).complete(any());
+            verify(client, times(5)).complete(any());
         }
 
     }
 
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-            "interview.runs.worker-enabled=false", "ai.provider=deepseek", "interview.runs.decision-protocol=phased-v1" })
+            "interview.runs.worker-enabled=false", "ai.provider=deepseek", "interview.runs.decision-protocol=phased-v2", "interview.runs.loop-policy=B0" })
     @Nested
     class Decisions extends InterviewRunScenario {
         @MockitoBean ToolCallingChatClient client;
@@ -376,10 +409,11 @@ class InterviewDecisionEvaluationIT {
                     "stop", new ModelUsage(ModelUsage.Status.REPORTED, 10L, 5L, 15L));
         }
         ToolCallingChatClient.Response action() {
-            return text("{\"version\":\"phased-v1\",\"phase\":\"ACTION\",\"action\":\"COMPLETE\",\"reason\":\"已有资料足够\"}");
+            return text(objectMapper.writeValueAsString(Map.of("version", "phased-v2", "phase", "ACTION",
+                    "action", "COMPLETE", "reason", "已有资料足够", "checks", unresolvedTechnicalCheck())));
         }
         ToolCallingChatClient.Response finalOutput() {
-            return text("{\"version\":\"phased-v1\",\"phase\":\"FINAL\",\"result\":{\"question\":\"请说明你在相关经历中承担的个人职责？\",\"questionCompetencyId\":\"experience\"}}");
+            return text("{\"version\":\"phased-v2\",\"phase\":\"FINAL\",\"result\":{\"question\":\"请说明你在相关经历中承担的个人职责？\",\"questionCompetencyId\":\"experience\"}}");
         }
         ToolCallingChatClient.Response tool(String id) {
             var message = objectMapper.createObjectNode().put("role","assistant").putNull("content");
@@ -480,17 +514,12 @@ class InterviewDecisionEvaluationIT {
                     String.class,id)).containsExactly("UNKNOWN","STARTED");
         }
 
-        @Test void oldConfigurationWithoutSnapshotRetainsLegacyCountOnlyAdmission() throws Exception {
+        @Test void missingPhaseCheckpointCannotReserveAnUnclassifiedAttempt() throws Exception {
             String id = start();
-            var old = (tools.jackson.databind.node.ObjectNode)objectMapper.readTree(store.get(owner,id).config());
-            old.remove("budgetProfile");
-            jdbc.update("UPDATE interview_runs SET config_json=? WHERE id=?",old.toString(),id);
             var claim = store.claim(store.get(owner,id));
-            for (int i=0; i<4; i++) store.reserveModelAttempt(claim, prepared("legacy-"+i)).id();
-            assertThatThrownBy(() -> store.reserveModelAttempt(claim, prepared("legacy-fifth")).id()).hasMessage("RUN_BUDGET");
-            assertThat(jdbc.queryForList("SELECT budget_phase FROM interview_model_attempts WHERE run_id=?",
-                    String.class,id)).containsOnly("LEGACY");
-            assertThat(store.get(owner,id).config()).isEqualTo(old.toString());
+            assertThatThrownBy(() -> store.reserveModelAttempt(claim, prepared("missing-phase")).id())
+                    .hasMessage("RUN_CHECKPOINT_INVALID");
+            assertThat(count("interview_model_attempts",id)).isZero();
         }
 
         @Test void modelChoosesZeroToolsAndCompleteIsOnlyAPhaseTransition() throws Exception {
@@ -521,16 +550,17 @@ class InterviewDecisionEvaluationIT {
             when(client.complete(any())).thenAnswer(inv -> {
                 ToolCallingChatClient.Request request = inv.getArgument(0);
                 int n = calls.incrementAndGet();
-                if (n <= 2) return tool("read-"+n);
+                if (n == 1) return tool("read-1");
+                if (n == 2) return action();
                 assertThat(request.toolsAllowed()).isFalse();
-                assertThat(request.messages().toString()).contains("tool_call_id", "read-1", "read-2");
+                assertThat(request.messages().toString()).contains("tool_call_id", "read-1");
                 return n == 3 ? action() : finalOutput(); // FINAL 阶段误返 ACTION 时须先修复，不能直接提交。
             });
             String id = start(); run(id);
             assertThat(store.get(owner,id).status()).isEqualTo("SUCCEEDED");
             assertThat(store.get(owner,id).attempts()).isEqualTo(4);
             assertThat(store.get(owner,id).repairs()).isEqualTo(1);
-            assertThat(count("interview_tool_receipts",id)).isEqualTo(2);
+            assertThat(count("interview_tool_receipts",id)).isEqualTo(1);
             assertThat(jdbc.queryForObject("SELECT used_units FROM request_quotas WHERE scope_key=?",Integer.class,
                     InterviewRunStore.sha("ai-day:"+owner))).isEqualTo(3);
         }
@@ -561,7 +591,7 @@ class InterviewDecisionEvaluationIT {
         }
 
         @Test void repeatedInvalidFinalNeverExceedsFourAttempts() throws Exception {
-            when(client.complete(any())).thenReturn(tool("one"), tool("two"), text("{}"));
+            when(client.complete(any())).thenReturn(tool("one"), action(), text("{}"));
             String id = start(); run(id);
             assertThat(store.get(owner,id).error()).isEqualTo("MODEL_OUTPUT_INVALID");
             assertThat(store.get(owner,id).attempts()).isEqualTo(4);
@@ -641,9 +671,9 @@ class InterviewDecisionEvaluationIT {
             var pending = (cn.edu.whu.zhizhida.interview.domain.InterviewTransitions.PendingAnswer)
                     new cn.edu.whu.zhizhida.interview.domain.InterviewTransitions().answer(session,answer,key,1);
             String context = machine.runContext(session,pending,java.util.List.of());
-            var result = new MockInterviewAiService(objectMapper,cn.edu.whu.zhizhida.observability.BusinessMetrics.disabled())
+            var result = new MockInterviewAiService(objectMapper)
                     .generateReview(session.targetRole(),context,pending.turns(),pending.answeredCount(),pending.finalRound());
-            var envelope = objectMapper.createObjectNode().put("version","phased-v1").put("phase","FINAL").set("result",result);
+            var envelope = objectMapper.createObjectNode().put("version","phased-v2").put("phase","FINAL").set("result",result);
             when(client.complete(any())).thenReturn(action(), text(envelope.toString()));
             var accepted = performPost("/api/interviews/sessions/"+session.sessionId()+"/answer-commands",
                     Map.of("requestId",key,"expectedTurn",1,"answer",answer),token);
@@ -652,7 +682,7 @@ class InterviewDecisionEvaluationIT {
             var updated = sessions.findById(owner,session.sessionId()).orElseThrow();
             assertThat(updated.turnCount()).isEqualTo(2);
             assertThat(updated.agent().evaluations()).hasSize(1);
-            assertThat(objectMapper.writeValueAsString(updated)).doesNotContain("phased-v1", "\"phase\":\"ACTION\"");
+            assertThat(objectMapper.writeValueAsString(updated)).doesNotContain("phased-v2", "\"phase\":\"ACTION\"");
             assertThat(jdbc.queryForObject("SELECT used_units FROM request_quotas WHERE scope_key=?",Integer.class,
                     InterviewRunStore.sha("ai-day:"+owner))).isEqualTo(5);
         }
@@ -662,7 +692,7 @@ class InterviewDecisionEvaluationIT {
             String opening = start(); run(opening);
             String sessionId = store.get(owner,opening).sessionId();
             var before = sessions.findById(owner,sessionId).orElseThrow();
-            when(client.complete(any())).thenReturn(action(),text("{\"version\":\"phased-v1\",\"phase\":\"FINAL\",\"result\":{}}"));
+            when(client.complete(any())).thenReturn(action(),text("{\"version\":\"phased-v2\",\"phase\":\"FINAL\",\"result\":{}}"));
             var accepted = performPost("/api/interviews/sessions/"+sessionId+"/answer-commands",Map.of("requestId",UUID.randomUUID().toString(),
                     "expectedTurn",1,"answer","尚未核实异常处理。"),token);
             String id = (String)dataMap(accepted).get("runId"); run(id);
@@ -863,138 +893,4 @@ class InterviewDecisionEvaluationIT {
         }
     }
 
-    /** 只替换模型传输边界，真实受理、引用校验、有限修正和原子提交全部保留。 */
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-            "interview.runs.worker-enabled=false", "ai.provider=deepseek", "interview.runs.loop-policy=B0",
-            "interview.runs.decision-protocol=legacy",
-            "interview.agent.adaptive-routing-enabled=false",
-            "learning.practice-tools-enabled=false" })
-    @Nested
-    class RecordedReplay extends IntegrationTestBase {
-        // 冻结录制版和现行版的差异，其余系统指令、来源与工具定义仍逐项核对。
-        private static final String RECORDED_RETRIEVAL_RULE = "只在现有证据不足时调用工具；允许零工具完成。";
-        private static final String CURRENT_RETRIEVAL_RULE = "问题涉及本项目的具体做法或验证依据时，"
-                + "若回答只给出结论，且目录有相关资料而上下文缺少原文，在工具可用时先用 search_knowledge 核对所选知识资料，"
-                + "或用 read_material_section 核对材料片段。没有取得相关原文时保留未知，不得把通用经验当作项目事实。"
-                + "回答和已有原文足以判断时，允许零工具完成。";
-        @MockitoBean ToolCallingChatClient client;
-        @Autowired InterviewRunStore store;
-        @Autowired InterviewRunWorker worker;
-        @Autowired InterviewRunModel model;
-        @Autowired InterviewSessionRepository sessions;
-        @Autowired KnowledgeRepository knowledge;
-
-        @ParameterizedTest(name = "R3 recorded Run {0}")
-        @ValueSource(ints = { 0, 1 })
-        void originalResponsesReplayThroughWorkerWithUpdatedRetrievalRuleAndFixedSources(int sample) throws Exception {
-            var recorded = CloseoutRecordedFixtures.report().get(sample);
-            var exchanges = CloseoutRecordedFixtures.exchange(sample);
-            var firstRequest = objectMapper.readTree(exchanges.getFirst().path("body").asText());
-            var prompt = CloseoutRecordedFixtures.prompt(firstRequest);
-            var fixture = recorded.path("fixture");
-            var config = recorded.path("config");
-            when(client.configuration()).thenReturn(objectMapper.treeToValue(config.path("model"), ToolCallingChatClient.Config.class));
-            var execution = new java.util.TreeMap<String, String>();
-            config.path("executionProfile").properties().forEach(entry -> execution.put(entry.getKey(), entry.getValue().asText()));
-            when(client.executionProfile()).thenReturn(execution);
-            var frozen = objectMapper.readTree(model.configuration());
-            // 历史哈希受 Map.of 的跨 JVM 键序影响；原字节另验 SHA，以下逐条核对实际提示词与工具定义。
-            assertThat(config.has("fingerprintFormat")).isFalse();
-            assertThat(frozen.path("fingerprintFormat").asText()).isEqualTo("sorted-json-v1");
-            for (String field : List.of("prompt", "citationProtocol", "validator", "toolset"))
-                assertThat(frozen.path(field)).as(field).isEqualTo(config.path(field));
-
-            String token = registerUniqueUserToken("password123", "原始录制回放");
-            long owner = objectMapper.readTree(performGet("/api/users/me", token).getResponse().getContentAsString()).path("data").path("id").asLong();
-            try {
-                // 仅在一次性测试账号下重建原资料 ID 与版本；模型响应及其 anchor 不做转换。
-                String docId = prompt.path("untrustedEvidence").path("assessmentSources").get(0).path("sourceKey").asText().split("/")[1];
-                String content = fixture.path("material").asText(), title = fixture.path("title").asText();
-                var chunks = KnowledgeText.split(docId, 1, content);
-                knowledge.insert(owner, new KnowledgeDocument(docId, title, "合成录制", 1, content, Instant.EPOCH, chunks));
-                var snapshot = new KnowledgeSnapshot(docId, title, "合成录制", 1, InterviewRunStore.sha(content), content,
-                        chunks.stream().map(c -> new KnowledgeSnapshot.Excerpt(c.id(), c.heading(), c.startLine(), c.endLine(), c.content())).toList());
-                var planned = new InterviewAgentPolicy().plan(InterviewMode.GENERAL, 6,
-                        new InterviewPlanningContext("Java 后端", List.of(), List.of(), List.of(), "合成练习项目"), "deepseek", List.of());
-                var agent = new InterviewAgentState(planned.version(), planned.executionMode(), planned.plan(), planned.activeCompetencyId(),
-                        planned.evaluations(), planned.digest(), planned.practiceMemory(), new InterviewTraining(null, null, null, List.of(snapshot)));
-                String sid = UUID.randomUUID().toString();
-                var session = new InterviewSession(sid, "Java 后端", null, "合成练习项目：" + title, null, null, "Java 后端",
-                        InterviewMode.GENERAL, 6, null, InterviewState.WAITING_ANSWER, 1,
-                        List.of(new InterviewTurn("interviewer", fixture.path("question").asText())), null, agent, InterviewDifficulty.STANDARD);
-                sessions.save(owner, session);
-                var calls = new AtomicInteger();
-                when(client.complete(any())).thenAnswer(invocation -> {
-                    int ordinal = calls.getAndIncrement();
-                    assertThat(ordinal).isLessThan(exchanges.size() / 2);
-                    var expectedRequest = objectMapper.readTree(exchanges.get(ordinal * 2).path("body").asText());
-                    ToolCallingChatClient.Request request = invocation.getArgument(0);
-                    assertThat(request.toolsAllowed()).isEqualTo(ordinal == 0);
-                    assertThat(objectMapper.<JsonNode>valueToTree(request.tools())).isEqualTo(expectedRequest.path("tools"));
-                    assertThat(request.messages()).hasSize(expectedRequest.path("messages").size());
-                    for (int i = 0; i < request.messages().size(); i++) {
-                        var expected = expectedRequest.path("messages").get(i);
-                        assertThat(request.messages().get(i).path("role")).isEqualTo(expected.path("role"));
-                        if (i == 0) {
-                            String system = expected.path("content").asText();
-                            assertThat(system).containsOnlyOnce(RECORDED_RETRIEVAL_RULE);
-                            assertThat(request.messages().get(i).path("content").asText())
-                                    .isEqualTo(system.replace(RECORDED_RETRIEVAL_RULE, CURRENT_RETRIEVAL_RULE));
-                        } else if (i == 1) {
-                            // JSON 键序不影响语义；仅移除录制 V3 中恒空的退役 V4 字段，其余值完整比较。
-                            var actual = request.messages().get(i).path("content").asText().split("\n本场证据目录：", 2);
-                            var saved = expected.path("content").asText().split("\n本场证据目录：", 2);
-                            assertThat(actual).hasSize(2);
-                            var actualInput = objectMapper.readTree(actual[0]);
-                            var savedInput = objectMapper.readTree(saved[0]);
-                            assertThat(savedInput.path("agentCheckpoint").path("version").asText()).isEqualTo("interview-agent-v3");
-                            assertThat(savedInput.path("untrustedEvidence").path("previousIntents")).isEqualTo(objectMapper.createArrayNode());
-                            assertThat(actualInput.path("untrustedEvidence").has("previousIntents")).isFalse();
-                            ((tools.jackson.databind.node.ObjectNode) savedInput.path("untrustedEvidence")).remove("previousIntents");
-                            assertThat(actualInput).isEqualTo(savedInput);
-                            assertThat(objectMapper.readTree(actual[1])).isEqualTo(objectMapper.readTree(saved[1]));
-                        } else assertThat(request.messages().get(i)).isEqualTo(expected);
-                    }
-                    var response = objectMapper.readTree(exchanges.get(ordinal * 2 + 1).path("body").asText());
-                    var choice = response.path("choices").get(0);
-                    var usage = response.path("usage");
-                    return new ToolCallingChatClient.Response(choice.path("message"), choice.path("finish_reason").asText(),
-                            new ModelUsage(ModelUsage.Status.REPORTED, usage.path("prompt_tokens").asLong(),
-                                    usage.path("completion_tokens").asLong(), usage.path("total_tokens").asLong()));
-                });
-                String path = "/api/interviews/sessions/" + sid + "/answer-commands";
-                var body = Map.of("requestId", prompt.path("transcript").get(1).path("requestId").asText(),
-                        "expectedTurn", 1, "answer", fixture.path("answer").asText());
-                var accepted = performPost(path, body, token);
-                assertThat(accepted.getResponse().getStatus()).isEqualTo(202);
-                String runId = data(accepted).path("runId").asText();
-                worker.execute(store.claim(store.get(owner, runId)));
-                var done = store.get(owner, runId);
-                assertThat(done.status()).isEqualTo("SUCCEEDED");
-                assertThat(done.attempts()).isEqualTo(sample == 0 ? 1 : 2);
-                assertThat(done.repairs()).isEqualTo(sample);
-                assertThat(done.tools()).isZero(); // 保留第一批缺少必需工具的事实，回放成功不代表批次 PASS。
-                if (sample == 1) assertThat(done.checkpoint()).contains("SEMANTIC_MISMATCH");
-                var committed = sessions.findById(owner, sid).orElseThrow();
-                assertThat(committed.turnCount()).isEqualTo(2);
-                assertThat(committed.agent().evaluations()).hasSize(1);
-                var evaluation = objectMapper.valueToTree(committed.agent().evaluations().getFirst());
-                assertThat(evaluation.path("decision")).isEqualTo(recorded.path("evaluation").path("decision"));
-                var evidence = evaluation.path("assessment").path("detail").path("evidence");
-                var originalEvidence = recorded.path("evaluation").path("assessment").path("detail").path("evidence");
-                assertThat(evidence.size()).isEqualTo(originalEvidence.size());
-                for (int i = 0; i < evidence.size(); i++) for (String field : List.of("quote", "offsetStart", "offsetEnd", "sourceVersion", "sourceHash"))
-                    assertThat(evidence.get(i).path(field)).as(field).isEqualTo(originalEvidence.get(i).path(field));
-                assertThat(data(performPost(path, body, token)).path("runId").asText()).isEqualTo(runId);
-                assertThat(calls.get()).isEqualTo(sample == 0 ? 1 : 2);
-                assertThat(sessions.findById(owner, sid).orElseThrow().turnCount()).isEqualTo(2);
-            } finally {
-                performDeleteWithBody("/api/users/me", Map.of("currentPassword", "password123"), token);
-            }
-        }
-
-        private JsonNode data(org.springframework.test.web.servlet.MvcResult result) throws Exception {
-            return objectMapper.readTree(result.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).path("data");
-        }
-    }
 }

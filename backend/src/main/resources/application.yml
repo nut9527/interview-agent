@@ -211,10 +211,10 @@ interview:
       max-active: ${INTERVIEW_RUNS_MAX_ACTIVE:4}
       max-outstanding: ${INTERVIEW_RUNS_MAX_OUTSTANDING:20}
       queue-seconds: ${INTERVIEW_RUNS_QUEUE_SECONDS:10}
-    loop-policy: ${INTERVIEW_RUNS_LOOP_POLICY:B0}
-    decision-protocol: ${INTERVIEW_RUNS_DECISION_PROTOCOL:phased-v1}
+    loop-policy: ${INTERVIEW_RUNS_LOOP_POLICY:A1}
+    decision-protocol: ${INTERVIEW_RUNS_DECISION_PROTOCOL:phased-v2}
   agent:
-    adaptive-routing-enabled: ${INTERVIEW_ADAPTIVE_ROUTING_ENABLED:false}
+    adaptive-routing-enabled: ${INTERVIEW_ADAPTIVE_ROUTING_ENABLED:true}
 
 learning:
   # 新命令使用练习工具时，发布开关与用户偏好必须同时允许。

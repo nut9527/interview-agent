@@ -36,7 +36,14 @@ public class LearningMemoryStore implements ObservationJournal {
         return jdbc.query("SELECT id FROM learning_observation_events WHERE id=? AND status='PENDING' FOR UPDATE",
                 (r,n)->r.getLong(1),id).size()==1;
     }
-    void processed(long id) { jdbc.update("UPDATE learning_observation_events SET status='DONE',processed_at=CURRENT_TIMESTAMP(6) WHERE id=?",id); }
+    void processed(long id) {
+        jdbc.update("INSERT INTO learning_goal_updates(owner_id,goal_id,session_id,source_version) "
+                + "SELECT e.owner_id,s.goal_id,e.source_session_id,e.source_version FROM learning_observation_events e "
+                + "JOIN learning_goal_sessions s ON s.owner_id=e.owner_id AND s.session_id=e.source_session_id "
+                + "JOIN learning_goals g ON g.id=s.goal_id WHERE e.id=? AND g.auto_adjust=TRUE AND g.status='ACTIVE' "
+                + "ON DUPLICATE KEY UPDATE id=learning_goal_updates.id",id);
+        jdbc.update("UPDATE learning_observation_events SET status='DONE',processed_at=CURRENT_TIMESTAMP(6) WHERE id=?",id);
+    }
     void failed(long id) { jdbc.update("UPDATE learning_observation_events SET attempts=attempts+1,status=IF(attempts>=3,'FAILED','PENDING') WHERE id=? AND status='PENDING'",id); }
     Preferences preferences(long owner) {
         jdbc.update("INSERT INTO learning_preferences(owner_id) VALUES(?) ON DUPLICATE KEY UPDATE owner_id=owner_id",owner);

@@ -2,6 +2,7 @@ package cn.edu.whu.zhizhida.interview.execution;
 
 import cn.edu.whu.zhizhida.auth.api.CurrentUserProvider;
 import cn.edu.whu.zhizhida.common.BusinessException;
+import cn.edu.whu.zhizhida.common.JsonFingerprint;
 import cn.edu.whu.zhizhida.common.ErrorCode;
 import cn.edu.whu.zhizhida.common.ResourceNotFoundException;
 import cn.edu.whu.zhizhida.interview.InterviewRunModel;
@@ -20,14 +21,11 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 import java.util.Set;
-import java.util.TreeMap;
 
 /** 面向当前登录用户受理持久运行命令，固定输入与配置，并提供归属受限的查询和取消入口。 */
 @Service
@@ -74,21 +72,31 @@ public class InterviewRunService {
     }
 
     public void admitStart(InterviewRun.Start request) {
-        admit(users.requireUserId(), "START", request.requestId(), hash(request.configuration()));
+        admitStart(request, null);
+    }
+
+    public void admitStart(InterviewRun.Start request, String objective) {
+        admit(users.requireUserId(), "START", request.requestId(), startHash(request, objective));
     }
 
     /** 训练任务先在事务外调用 admitStart，再在绑定任务的事务内受理。 */
     public InterviewRun acceptStart(InterviewRun.Start request) {
+        return acceptStart(request, null);
+    }
+
+    public InterviewRun acceptStart(InterviewRun.Start request, String objective) {
         long owner = users.requireUserId();
         return store.accept(
                         owner,
                         "START",
                         request.requestId(),
-                        hash(request.configuration()),
+                        startHash(request, objective),
                         null,
                         0,
                         () -> {
                             var fixed = machine.prepareStart(request.configuration());
+                            if (objective != null) fixed = fixed.withAgent(fixed.agent().withTraining(
+                                    fixed.agent().training().withObjective(objective)));
                             var input = json.createObjectNode();
                             input.set("session", json.valueToTree(fixed));
                             var materials =
@@ -225,24 +233,12 @@ public class InterviewRunService {
         return owner;
     }
 
-    private String hash(Object value) {
-        return InterviewRunStore.sha(canonical(json.valueToTree(value)).toString());
+    private String startHash(InterviewRun.Start request, String objective) {
+        return hash(objective == null ? request.configuration() : List.of(request.configuration(), objective));
     }
 
-    /** 递归排序对象键以稳定请求摘要和工具缓存键；数组顺序具有业务含义，保持原样。 */
-    public static JsonNode canonical(JsonNode node) {
-        if (node.isObject()) {
-            var result = JsonNodeFactory.instance.objectNode();
-            var sorted = new TreeMap<String, JsonNode>();
-            node.properties().forEach(e -> sorted.put(e.getKey(), e.getValue()));
-            sorted.forEach((k, v) -> result.set(k, canonical(v)));
-            return result;
-        }
-        if (node.isArray()) {
-            var result = JsonNodeFactory.instance.arrayNode();
-            node.forEach(n -> result.add(canonical(n)));
-            return result;
-        }
-        return node;
+    private String hash(Object value) {
+        return JsonFingerprint.sha(json.valueToTree(value));
     }
+
 }

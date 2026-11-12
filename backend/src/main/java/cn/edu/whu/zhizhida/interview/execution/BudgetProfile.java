@@ -1,24 +1,22 @@
 package cn.edu.whu.zhizhida.interview.execution;
 
 import cn.edu.whu.zhizhida.common.execution.RunFailureException;
+import cn.edu.whu.zhizhida.common.execution.AgentExecution;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-/** 已启用的资源上限；快照保持兼容，避免改变已受理任务的配置。 */
-public record BudgetProfile(String version, AgentLoopPolicy execution, TokenLimits tokens,
+/** 受理任务时固定的资源上限和最终输出预留。 */
+public record BudgetProfile(String version, AgentLoopPolicy execution,
         int finalRequests, long finalCallMillis) {
     public static final String VERSION = "budget-v1";
 
-    // 保留旧快照中的 tokens 类型；所有受支持配置均序列化为 null。
-    public record TokenLimits(int inputPerRequest, int outputPerRequest, long inputPerRun,
-            long outputPerRun, int toolResult, int toolWindow) {
-    }
-
     public static BudgetProfile production(String name) {
         return switch (name) {
+            case "A1" -> new BudgetProfile(VERSION,
+                    new AgentLoopPolicy(name, 4, 6, 3, 4, 1, 120_000, 25_000), 2, 25_000);
             case "B0", "S1", "S3" -> new BudgetProfile(VERSION,
                     new AgentLoopPolicy(name, name.equals("S1") ? 1 : 3, 4, 2, 3, 1, 90_000, 25_000),
-                    null, 2, 25_000);
+                    2, 25_000);
             default -> throw new IllegalArgumentException("Agent budget profile is not enabled");
         };
     }
@@ -41,7 +39,6 @@ public record BudgetProfile(String version, AgentLoopPolicy execution, TokenLimi
         return switch (phase) {
             case "ACTION" -> finalRequests;
             case "FINAL" -> repaired ? 0 : finalRequests - 1;
-            case "LEGACY" -> 0;
             default -> throw new RunFailureException("RUN_CHECKPOINT_INVALID");
         };
     }
@@ -52,12 +49,9 @@ public record BudgetProfile(String version, AgentLoopPolicy execution, TokenLimi
 
     /** 此超时不包含后续最终请求和事务提交的预留时间。 */
     public long callTimeout(String phase, boolean repaired, long remainingMillis) {
-        long available = remainingMillis - AgentLoopPolicy.COMMIT_RESERVE_MILLIS
-                - reservedRequests(phase, repaired) * finalCallMillis;
         long call = phase.equals("FINAL") ? finalCallMillis : execution.callMillis();
-        if (available < 1_000)
-            throw new RunFailureException("RUN_BUDGET");
-        return Math.min(call, available);
+        return AgentExecution.modelTimeout(remainingMillis, AgentLoopPolicy.COMMIT_RESERVE_MILLIS
+                + reservedRequests(phase, repaired) * finalCallMillis, call);
     }
 
     /** 行动前须预留最低模型时间和两次最终调用；调用方另计提交时间。 */
@@ -72,7 +66,6 @@ public record BudgetProfile(String version, AgentLoopPolicy execution, TokenLimi
         // FIXED 检索可能先于首次 FINAL 调用，也必须预留两次最终调用。
         int reserved = switch (phase) {
             case "ACTION", "FINAL" -> finalRequests;
-            case "LEGACY" -> 0;
             default -> throw new RunFailureException("RUN_CHECKPOINT_INVALID");
         };
         long available = remainingMillis - AgentLoopPolicy.COMMIT_RESERVE_MILLIS

@@ -7,4 +7,6 @@ public interface RunSubject {
     void lock(long owner, String subjectId);
     /** 新命令受理前检查操作、修订号和主体状态；历史命令回放不重复执行此校验。 */
     void validate(long owner, String subjectId, long revision, String operation);
+    /** 清理终态运行的私有执行正文，保留业务结果与预算台账。 */
+    void clearPrivate(long owner, String subjectId, String runId);
 }

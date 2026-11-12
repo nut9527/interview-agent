@@ -3,7 +3,6 @@ package cn.edu.whu.zhizhida.ai;
 import cn.edu.whu.zhizhida.ai.api.*;
 import cn.edu.whu.zhizhida.resume.*;
 import cn.edu.whu.zhizhida.interview.*;
-import cn.edu.whu.zhizhida.interview.api.InterviewAiService;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -27,9 +26,9 @@ class AiCapabilityConfigurationTest {
     void wiresExactlyOneImplementationPerBusinessPort(String provider) {
         runner.withPropertyValues("ai.provider=" + provider).run(context -> {
             assertThat(context).hasNotFailed().hasBean("resumeImportRecognizer")
-                    .hasSingleBean(InterviewAiService.class);
-            boolean mock = provider.trim().equalsIgnoreCase("mock");
-            assertThat(context.getBean(InterviewAiService.class)).isInstanceOf(mock ? MockInterviewAiService.class : DefaultInterviewAiService.class);
+                    .hasBean("interviewDecisionSource")
+                    .doesNotHaveBean("interviewAiCapability");
+            assertThat(context.getBean(AiMode.class)).isEqualTo(provider.trim().equalsIgnoreCase("mock") ? AiMode.MOCK : AiMode.MODEL);
             verifyNoInteractions(context.getBean(JsonChatClient.class));
         });
     }

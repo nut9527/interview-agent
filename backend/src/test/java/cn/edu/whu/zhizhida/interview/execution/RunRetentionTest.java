@@ -35,6 +35,7 @@ class RunRetentionTest {
             new RunRetentionCoordinator.Lease("owner", "saved-cursor");
     private final JsonMapper json = new JsonMapper();
     private final AtomicBoolean inTransaction = new AtomicBoolean();
+    private final java.util.ArrayList<String> clearedSubjects=new java.util.ArrayList<>();
     private final RunRetention retention =
             new RunRetention(
                     jdbc,
@@ -43,6 +44,7 @@ class RunRetentionTest {
                     json,
                     memory,
                     row -> assertThat(inTransaction).isTrue(),
+                    row -> { assertThat(inTransaction).isTrue(); clearedSubjects.add(row.id()); },
                     coordinator);
 
     @BeforeEach
@@ -167,6 +169,7 @@ class RunRetentionTest {
         Row row = mock(Row.class);
         when(row.owner()).thenReturn(7L);
         when(row.id()).thenReturn(id);
+        when(row.subjectType()).thenReturn("INTERVIEW");
         when(row.terminal()).thenReturn(true);
         when(row.checkpoint())
                 .thenReturn(
@@ -174,5 +177,13 @@ class RunRetentionTest {
                                 java.util.Map.of(
                                         "practiceMemory", PracticeMemoryAccess.Selection.none())));
         return row;
+    }
+
+    @Test void retainedGoalClearsItsOwnModelAndEvidencePayloads() {
+        var goal=row("goal-run");when(goal.subjectType()).thenReturn("GOAL");
+        when(rows.memoryRetained("saved-cursor")).thenReturn(List.of());
+        when(rows.retained()).thenReturn(List.of(goal));when(rows.lock(7,goal.id())).thenReturn(goal);
+        retention.prune();
+        assertThat(clearedSubjects).containsExactly("goal-run");
     }
 }

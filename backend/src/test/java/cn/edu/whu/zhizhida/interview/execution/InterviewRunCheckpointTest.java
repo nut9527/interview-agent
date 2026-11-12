@@ -25,10 +25,10 @@ class InterviewRunCheckpointTest {
         var missing = new KnowledgeSnapshot("b", "B", "fixture", 1, "hash", "正文", List.of());
         var excerpt = new KnowledgeSnapshot.Excerpt("c:1", "", 1, 1, "原文");
         var present = new KnowledgeSnapshot("c", "C", "fixture", 1, "hash", "原文", List.of(excerpt));
-        assertThat(InterviewRunWorker.needsKnowledgePrefetch(List.of())).isFalse();
-        assertThat(InterviewRunWorker.needsKnowledgePrefetch(List.of(empty))).isFalse();
-        assertThat(InterviewRunWorker.needsKnowledgePrefetch(List.of(missing, present))).isFalse();
-        assertThat(InterviewRunWorker.needsKnowledgePrefetch(List.of(empty, missing))).isTrue();
+        assertThat(InterviewContextStage.needsKnowledgePrefetch(List.of())).isFalse();
+        assertThat(InterviewContextStage.needsKnowledgePrefetch(List.of(empty))).isFalse();
+        assertThat(InterviewContextStage.needsKnowledgePrefetch(List.of(missing, present))).isFalse();
+        assertThat(InterviewContextStage.needsKnowledgePrefetch(List.of(empty, missing))).isTrue();
     }
 
     @Test void reservedPrefetchCanResumeOnlyOnTheInitialToolRoute() {
@@ -40,7 +40,7 @@ class InterviewRunCheckpointTest {
         assertThatThrownBy(() -> InterviewRunCheckpoint.read(json, prefetch.toString(), "TOOL")).hasMessage("RUN_CHECKPOINT_INVALID");
     }
 
-    @Test void phasedCheckpointRejectsMissingOrCrossedPhaseWithoutChangingLegacyReads() {
+    @Test void checkpointRejectsMissingOrCrossedPhase() {
         var cp = base("ACTION_VALIDATE").put("outputPhase", "ACTION").put("actionRepaired", false);
         var response = json.createObjectNode().put("role", "assistant").put("content", "{}");
         cp.set("response", response);
@@ -53,6 +53,8 @@ class InterviewRunCheckpointTest {
         cp.remove("outputPhase");
         assertThatThrownBy(() -> InterviewRunCheckpoint.read(json, cp.toString(), "TOOL")).hasMessage("RUN_CHECKPOINT_INVALID");
         cp.put("stage", "VALIDATE");
+        assertThatThrownBy(() -> InterviewRunCheckpoint.read(json, cp.toString(), "TOOL")).hasMessage("RUN_CHECKPOINT_INVALID");
+        cp.put("outputPhase", "FINAL");
         assertThat(InterviewRunCheckpoint.read(json, cp.toString(), "TOOL")).isEqualTo(cp);
         cp.put("outputPhase", "ACTION");
         assertThatThrownBy(() -> InterviewRunCheckpoint.read(json, cp.toString(), "TOOL")).hasMessage("RUN_CHECKPOINT_INVALID");
@@ -142,7 +144,9 @@ class InterviewRunCheckpointTest {
     }
 
     private ObjectNode base(String stage) {
-        var cp = json.createObjectNode().put("stage", stage).put("repaired", false);
+        var cp = json.createObjectNode().put("stage", stage).put("repaired", false)
+                .put("outputPhase", stage.equals("VALIDATE") || stage.equals("FIXED") ? "FINAL" : "ACTION")
+                .put("actionRepaired", false);
         cp.putArray("sources");
         cp.putArray("messages").addObject().put("role", "user").put("content", "PRIVATE_INPUT");
         return cp;

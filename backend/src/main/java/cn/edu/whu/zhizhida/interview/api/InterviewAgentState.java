@@ -33,6 +33,11 @@ public record InterviewAgentState(
     /** 仅含标识的来源记录在私有回执清理后仍保留，但不代表来源当前仍然有效。 */
     public record MemoryReference(String observationId,long revision,String sourceSessionId,String sourceVersion,
             int sourceRound,String competencyId,String dimension,String rubricVersion,String executionMode,int usedAtRound) { }
+    public InterviewAgentState withTraining(InterviewTraining value) {
+        return new InterviewAgentState(version, executionMode, plan, activeCompetencyId, evaluations, digest,
+                practiceMemory, value, memoryReferences, planningRevisions);
+    }
+
     public InterviewAgentState withMemoryReferences(List<MemoryReference> added) {
         var merged=new java.util.LinkedHashMap<String,MemoryReference>();
         for(var r:memoryReferences) merged.put(r.usedAtRound()+"/"+r.observationId(),r);
@@ -60,7 +65,13 @@ public record InterviewAgentState(
     public enum Action { FOLLOW_UP, ADVANCE, FINISH }
     public enum Probe { OPENING, EVIDENCE, QUANTIFY, COUNTEREXAMPLE, TRANSFER, TRADEOFF, CLARIFY, NONE }
     public record Decision(Level level, String evidence, String gap, Action action,
-                           String nextCompetencyId, String reason, String practice, Probe probe, String intent, String questionCompetencyId) {
+                           String nextCompetencyId, String reason, String practice, Probe probe, String intent, String questionCompetencyId,
+                           @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+                           InterviewPlanning.Focus focus) {
+        public Decision(Level level, String evidence, String gap, Action action, String nextCompetencyId,
+                        String reason, String practice, Probe probe, String intent, String questionCompetencyId) {
+            this(level, evidence, gap, action, nextCompetencyId, reason, practice, probe, intent, questionCompetencyId, null);
+        }
         public Decision(Level level, String evidence, String gap, Action action, String nextCompetencyId,
                         String reason, String practice, Probe probe, String intent) {
             this(level, evidence, gap, action, nextCompetencyId, reason, practice, probe, intent, null);

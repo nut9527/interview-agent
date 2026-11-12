@@ -135,9 +135,9 @@ class KnowledgeQuizGeneratorTest {
         var row = new HashMap<>(question());
         row.put("citations", List.of(Map.of("chunkId", "doc:v3:1", "quote", "TTL 使用随机过期")));
         byte[] firstResponse = json.writeValueAsBytes(Map.of("choices", List.of(Map.of(
-                "finish_reason", finishReason, "message", Map.of("content", initialContent)))));
+                "finish_reason", finishReason, "message", Map.of("role", "assistant", "content", initialContent)))));
         byte[] response = json.writeValueAsBytes(Map.of("choices", List.of(Map.of(
-                "finish_reason", "stop", "message", Map.of("content",
+                "finish_reason", "stop", "message", Map.of("role", "assistant", "content",
                         json.writeValueAsString(Map.of("questions", List.of(row))))))));
         var requests = new CopyOnWriteArrayList<JsonNode>();
         var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);

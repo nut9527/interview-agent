@@ -44,8 +44,8 @@ class Upstream implements AutoCloseable {
                         .put("content", resume
                                 ? "{\"changes\":[{\"index\":0,\"text\":\"负责缓存项目。\"}]}"
                                 : finalPhase
-                                        ? "{\"version\":\"phased-v1\",\"phase\":\"FINAL\",\"result\":{\"question\":\"请说明个人职责？\",\"questionCompetencyId\":\"experience\"}}"
-                                        : "{\"version\":\"phased-v1\",\"phase\":\"ACTION\",\"action\":\"COMPLETE\",\"reason\":\"已有资料\"}");
+                                        ? "{\"version\":\"phased-v2\",\"phase\":\"FINAL\",\"result\":{\"question\":\"请说明个人职责？\",\"questionCompetencyId\":\"experience\"}}"
+                                        : "{\"version\":\"phased-v2\",\"phase\":\"ACTION\",\"action\":\"COMPLETE\",\"reason\":\"已有资料\"}");
                 exchange.getResponseBody().write(response.toString().getBytes(StandardCharsets.UTF_8));
             } catch (InterruptedException ex) { Thread.currentThread().interrupt(); }
             finally { active.decrementAndGet(); exchange.close(); }

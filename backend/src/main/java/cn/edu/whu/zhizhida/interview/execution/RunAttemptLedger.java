@@ -34,18 +34,14 @@ final class RunAttemptLedger {
     ModelAttempt reserve(Row row, RunContextAssembler.Prepared prepared, long remaining) {
         var config = policyJson.readTree(row.config());
         var budget = BudgetProfile.frozen(policyJson, config);
-        String phase = "LEGACY";
-        boolean repaired = false;
         // 最终调用预留以数据库检查点为准，不信任调用方提供的阶段。
-        if (config.has("budgetProfile") && config.path("decisionProtocol").asText().equals("phased-v1")) {
-            var cp = InterviewRunCheckpoint.read(policyJson, row.checkpoint(), row.route());
-            if (!cp.path("stage").asText().equals("MODEL") || !cp.has("outputPhase"))
-                throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_CHECKPOINT_INVALID");
-            phase = cp.path("outputPhase").asText();
-            repaired = cp.path("repaired").asBoolean();
-            if (repaired != (row.repairs() > 0) || phase.equals("ACTION") && repaired)
-                throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_CHECKPOINT_INVALID");
-        }
+        var cp = InterviewRunCheckpoint.read(policyJson, row.checkpoint(), row.route());
+        if (!cp.path("stage").asText().equals("MODEL"))
+            throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_CHECKPOINT_INVALID");
+        String phase = cp.path("outputPhase").asText();
+        boolean repaired = cp.path("repaired").asBoolean();
+        if (repaired != (row.repairs() > 0) || phase.equals("ACTION") && repaired)
+            throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_CHECKPOINT_INVALID");
         if (row.attempts() >= budget.attemptLimit(phase, repaired)
                 || remaining < AgentLoopPolicy.MIN_MODEL_BUDGET_MILLIS)
             throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_BUDGET");

@@ -13,7 +13,7 @@
 
 面试执行采用异步命令接口：开场使用 `POST /api/interviews/start-commands`，训练任务使用 `POST /api/interviews/training-tasks/{id}/start-commands`。命令受理与模型执行分离，页面通过任务查询和事件订阅跟踪结果；会话查询、历史和删除使用独立接口。
 
-`InterviewRunStore` 管理领取、提交和失败处理的事务边界与加锁顺序；`RunRepository` 负责查询及行映射，`RunRetention` 负责保留期清理，`RunTrainingTasks` 负责提交时关联训练任务。学习目标关联通过 `learning.api.GoalSessionLinks` 访问，由 learning 模块实现；关联写入加入已有事务。Java 类型依赖检查和 SQL 模块边界测试共同约束模块访问。
+`InterviewRunWorker` 调度上下文、模型、工具和校验四个阶段，分别由 `InterviewContextStage`、`InterviewModelStage`、`InterviewToolStage`、`InterviewValidateStage` 执行。`InterviewRunStore` 对外提供持久化运行接口；`RunAcceptance` 处理受理和幂等，`RunLease` 处理领取、续租与写入资格，`RunCommit` 在同一事务内保存业务结果和终态。`RunRepository` 负责查询及行映射，`RunRetention` 负责保留期清理，`RunTrainingTasks` 负责提交时关联训练任务。学习目标关联通过 `learning.api.GoalSessionLinks` 访问，由 learning 模块实现；关联写入加入已有事务。Java 类型依赖检查和 SQL 模块边界测试共同约束模块访问。
 
 | 要看什么 | 从哪里读起 |
 | --- | --- |
@@ -22,11 +22,17 @@
 | 任务如何受理、取消、订阅 | [InterviewRunController](../backend/src/main/java/cn/edu/whu/zhizhida/interview/InterviewRunController.java) |
 | Worker 如何领任务、保存检查点 | [interview/execution](../backend/src/main/java/cn/edu/whu/zhizhida/interview/execution) |
 | 如何验证回答引文 | [evaluation](../backend/src/main/java/cn/edu/whu/zhizhida/evaluation) |
-| 如何把能力目标转为训练任务 | [LearningGoalService](../backend/src/main/java/cn/edu/whu/zhizhida/learning/LearningGoalService.java) 负责生成训练草稿，在用户确认后创建任务 |
+| 如何把能力目标转为训练任务 | [GoalPlanner](../backend/src/main/java/cn/edu/whu/zhizhida/learning/GoalPlanner.java) 通过工具生成草稿；[LearningGoalService](../backend/src/main/java/cn/edu/whu/zhizhida/learning/LearningGoalService.java) 在用户确认后创建任务 |
 
 ## 模型输出契约
 
-默认执行策略为 `B0`，决策协议为 `phased-v1`：`ACTION` 阶段取证，结束后进入 `FINAL` 阶段，只生成结果。内置提示词版本为 `interview-prompts-v5`，字段契约为 `interview-output-v3`；提示词、字段契约和阶段协议分别版本化。[阶段协议](../backend/src/main/java/cn/edu/whu/zhizhida/interview/InterviewDecisionContract.java) · [字段契约](../backend/src/main/java/cn/edu/whu/zhizhida/interview/InterviewOutputContract.java)
+生产只允许 `TOOL + A1` 和 `phased-v2`。`FIXED/LEGACY` 路由与 `B0` 仅用于 `test/it/agent-evaluation`；`S1/S3` 另需 `agent-evaluation`，实验配置禁止 API/Worker 分角色部署。升级前须结束或取消在途 Run，旧协议检查点不再恢复。
+
+默认执行策略为 `A1`，最多6次模型请求、4次工具执行、120秒，保留最终生成与一次修正的预算。`phased-v2` 的 `ACTION` 阶段检查主张与证据，可提出一次 `REVISE` 调整取证，`COMPLETE` 后进入禁止工具调用的 `FINAL`。检查及修订历史随检查点保存；来源逐字核对，语义支持仍是模型判断。最终评价不能把检查中的未知项提升为确定结论，重大纠错须有已检查的资料反证。内置提示词为 `interview-prompts-v6`，字段契约为 `interview-output-v4`。[阶段协议](../backend/src/main/java/cn/edu/whu/zhizhida/interview/InterviewDecisionContract.java) · [字段契约](../backend/src/main/java/cn/edu/whu/zhizhida/interview/InterviewOutputContract.java)
+
+新建非 `FORMAL` 会话（含专项训练）默认启用 `interview-agent-v6`：模型调整追问并在未覆盖能力中选路，每轮用 `focus` 指定主张、场景与期望证据，保存带回答引文的计划修订。同一追问策略可检查不同主张；相同能力、场景和主张的重复验证被拒绝。正式模拟保留原覆盖流程，已有会话沿用原版本。
+
+学习目标使用独立 `GOAL_PLAN` 工具循环：检索已授权题目、提出或修订训练草稿，用户确认后建立任务。任务的验收要求冻结为 `InterviewTraining.objective`，进入训练上下文指导出题与追问。模型请求、用量和工具状态写入学习规划账本，跨次累计预算由目标控制。`autoAdjust` 默认关闭；用户开启后，每场完成更新观察，当前已确认批次练完才生成下一批待确认草稿，证据充分时等待本人确认目标完成。自动规划读取详细历史观察仍需开启学习观察个性化，未开启时只使用任务完成结果。暂停、取消和等待作答均不持续调用模型。计划 `focus` 保存未解决、已解决和冲突主张及观察来源，新证据可更新旧判断。[目标规划](../backend/src/main/java/cn/edu/whu/zhizhida/learning/GoalPlanner.java)
 
 服务端生成可以确定的路由字段：评价中的 `questionCompetencyId` 从动作及目标能力派生；最后一轮的 `action=FINISH`、目标能力和 `probe=NONE` 由当前状态决定。非最后一轮仍由模型在允许范围内提出追问或推进。生成契约只展示当前轮需要的字段，未结束时生成 `nextQuestion`，结束时生成 `finalSummary`；已有会话及 API 继续保存完整领域结构。
 
@@ -38,7 +44,7 @@
 
 - **材料快照**　开场时固定本场使用的岗位、简历、题目及知识内容。即使之后修改了材料，复盘也能对应到面试当时的原文。删除知识资料会撤销该来源的使用资格。
 - **资料检索**　资料问答、自测选材和专项训练共用 BM25 与向量融合检索。标准 Docker 内置 BGE 和 pgvector，在已授权的固定版本内融合两路排名，向量命中核对完整归档，不受 SQL `LIKE` 候选池限制。已启用的向量服务异常直接报错。未限定资料的全库推荐使用词项，自测支持明确片段选择与无重点全文采样。面试工具按全局排名和正文预算截取片段，再按文档整理引用。在工具调用模式下，若已选资料有正文但都没有初始摘录，Worker 会在模型调用前按本轮问题检索一次，保存回执并计入工具预算。[资料选择](../backend/src/main/java/cn/edu/whu/zhizhida/knowledge/TrainingKnowledgeCatalog.java) · [混合检索](../backend/src/main/java/cn/edu/whu/zhizhida/knowledge/HybridKnowledgeSearch.java)
-- **模型适配**　`ai` 模块封装 DeepSeek 请求、工具调用和用量处理。面试、简历优化和知识问答分别定义业务提示词和结构校验。Mock 模式在本机生成演示结果。
+- **模型适配**　`ai` 模块封装 DeepSeek 请求、工具调用和用量处理。面试、简历优化和知识问答分别定义业务提示词和结构校验。Mock 模式仅在本机演示流程，不代表真实模型的规划与评价效果。
 - **LangChain4j 集成**　SDK 负责模型协议接入，应用负责供应商字段适配、原始消息回放、工具约束和 usage 校验。模型调用统一接收完整 JSON 响应；工具执行、记忆和重试由应用运行时统一管理。
 - **跨场能力观察**　轮次、能力及维度持久化到 MySQL 的 `learning_observations`，会话 JSON 保存展示和复盘快照。`LEARNING_PRACTICE_TOOLS_ENABLED` 默认开启，用户的历史个性化偏好默认关闭。用户允许后，新命令从近 180 天、同执行模式和兼容评价标准的历史中冻结最多 20 条引用，按能力、维度和场次分配名额。工具读取与提交时重查来源版本；纠正、删除和来源撤销会使相关旧引用失效。历史汇总最多读取最近 1000 条，与练习工具的召回窗口分开。[记忆选择](../backend/src/main/java/cn/edu/whu/zhizhida/learning/LearningPracticeMemory.java) · [召回排序](../backend/src/main/java/cn/edu/whu/zhizhida/learning/PracticeMemoryRecall.java)
 - **检索片段如何进入面试评分**　Worker 从本轮已保存的知识检索回执中取出片段，核对所选文档的版本、哈希、片段编号、行范围和完整原文。通过核对的片段可在本轮来源目录的剩余预算内取得引文编号，模型生成和提交校验共用这份目录。被裁剪的片段可供阅读，评分时只接受目录内能逐字定位的引用。

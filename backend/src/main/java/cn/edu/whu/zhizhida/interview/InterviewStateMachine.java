@@ -10,8 +10,8 @@ import cn.edu.whu.zhizhida.common.UserInputException;
 import cn.edu.whu.zhizhida.evaluation.api.AssessmentEvaluator;
 import cn.edu.whu.zhizhida.evaluation.api.AssessmentReference;
 import cn.edu.whu.zhizhida.interview.api.InterviewAgentState;
-import cn.edu.whu.zhizhida.interview.api.InterviewAiService;
-import cn.edu.whu.zhizhida.interview.api.InterviewAiService.InterviewAiReply;
+import cn.edu.whu.zhizhida.ai.api.AiMode;
+import cn.edu.whu.zhizhida.interview.api.InterviewAiReply;
 import cn.edu.whu.zhizhida.interview.api.InterviewDifficulty;
 import cn.edu.whu.zhizhida.interview.api.InterviewExperience;
 import cn.edu.whu.zhizhida.interview.api.InterviewMode;
@@ -60,7 +60,7 @@ public class InterviewStateMachine {
     private final boolean adaptiveRoutingEnabled;
     private final ObservationJournal learningJournal;
     private final CurrentUserProvider currentUserProvider;
-    private final InterviewAiService interviewAiService;
+    private final AiMode aiMode;
     private final ResumeSnapshotReader resumeRepository;
     private final TargetJobSnapshotReader targetJobs;
     private final QuestionCatalog questionCatalog;
@@ -74,7 +74,7 @@ public class InterviewStateMachine {
     public InterviewStateMachine(
             InterviewSessionRepository sessions,
             CurrentUserProvider users,
-            InterviewAiService ai,
+            AiMode aiMode,
             ResumeSnapshotReader resumes,
             TargetJobSnapshotReader targetJobs,
             QuestionCatalog questionCatalog,
@@ -83,11 +83,11 @@ public class InterviewStateMachine {
             @Nullable ObservationJournal learningJournal,
             AssessmentEvaluator assessmentEvaluator,
             InterviewSourceGuard sourceGuard,
-            @Value("${interview.agent.adaptive-routing-enabled:false}")
+            @Value("${interview.agent.adaptive-routing-enabled:true}")
                     boolean adaptiveRoutingEnabled) {
         this.sessionRepository = sessions;
         this.currentUserProvider = users;
-        this.interviewAiService = ai;
+        this.aiMode = aiMode;
         this.resumeRepository = resumes;
         this.targetJobs = targetJobs;
         this.questionCatalog = questionCatalog;
@@ -144,8 +144,6 @@ public class InterviewStateMachine {
                 request.trainingTopic() != null
                         || request.retrySessionId() != null
                         || request.questionId() != null;
-        if (trainingRequested && !interviewAiService.supportsAgentDecisions())
-            throw new UserInputException("当前面试服务不支持专项训练和薄弱点复练。");
         if (trainingRequested
                 && (request.totalRounds() == null
                         || request.totalRounds() < 3
@@ -251,20 +249,18 @@ public class InterviewStateMachine {
         String sessionId = UUID.randomUUID().toString();
         var memory = List.<InterviewAgentState.PracticeMemory>of();
         var agent =
-                interviewAiService.supportsAgentDecisions()
-                        ? agentPolicy.plan(
-                                mode,
-                                totalRounds,
-                                planningContext(resume, preparation, jobSnapshot, resumeSnapshot),
-                                interviewAiService.executionMode(),
-                                memory)
-                        : null;
+                agentPolicy.plan(
+                        mode,
+                        totalRounds,
+                        planningContext(resume, preparation, jobSnapshot, resumeSnapshot),
+                        aiMode.name().toLowerCase(Locale.ROOT),
+                        memory);
         if (training != null)
             agent =
                     agentPolicy.trainingPlan(
                             training,
                             planningContext(resume, preparation, jobSnapshot, resumeSnapshot),
-                            interviewAiService.executionMode(),
+                            aiMode.name().toLowerCase(Locale.ROOT),
                             memory,
                             source == null
                                     ? null
@@ -272,9 +268,7 @@ public class InterviewStateMachine {
                                             .filter(c -> c.id().equals(retry.competencyId()))
                                             .findFirst()
                                             .orElseThrow());
-        if (agent != null
-                && training == null
-                && adaptiveRoutingEnabled
+        if (adaptiveRoutingEnabled
                 && request.experienceMode() != InterviewExperience.Format.FORMAL)
             agent = agentPolicy.adaptivePlan(agent);
         List<InterviewTurn> turns = new ArrayList<>();
@@ -402,7 +396,7 @@ public class InterviewStateMachine {
                             pending.answeredCount(),
                             session.totalRounds(),
                             answer,
-                            aiReply.agentDecision());
+                            aiReply.agentDecision(), session.sessionId(), cn.edu.whu.zhizhida.common.Sha256.hex(answer), session.difficulty(), aiReply.nextQuestion());
             var assessed =
                     assessAnswer(owner, session, pending, aiReply, answer, references, advanced);
             updated = updated.withAgent(assessed);
@@ -485,6 +479,7 @@ public class InterviewStateMachine {
         return s.agent() != null
                         && s.agent().training() != null
                         && s.agent().training().question() != null
+                        && s.agent().training().objective() == null
                 ? s.agent().training().question().question()
                 : null;
     }

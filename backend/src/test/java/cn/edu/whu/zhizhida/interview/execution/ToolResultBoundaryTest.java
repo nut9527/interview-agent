@@ -56,8 +56,8 @@ class ToolResultBoundaryTest {
         assertThatThrownBy(() -> budget.toolAvailableMillis("FINAL", 55_000)).hasMessage("RUN_TOOL_BUDGET");
         assertThatThrownBy(() -> budget.toolAvailableMillis("ACTION", Long.MIN_VALUE)).hasMessage("RUN_TOOL_BUDGET");
         assertThatThrownBy(() -> budget.toolAvailableMillis("invented", 90_000)).hasMessage("RUN_CHECKPOINT_INVALID");
-        assertThat(budget.toolAvailableMillis("LEGACY", 5_001)).isEqualTo(1);
-        assertThatThrownBy(() -> budget.toolAvailableMillis("LEGACY", 5_000)).hasMessage("RUN_TOOL_BUDGET");
+        assertThatThrownBy(() -> budget.toolAvailableMillis("LEGACY", 5_001)).hasMessage("RUN_CHECKPOINT_INVALID");
+        assertThatThrownBy(() -> budget.toolAvailableMillis("ACTION", 55_000)).hasMessage("RUN_TOOL_BUDGET");
     }
 
     @Test void runTimeBoundaryStopsToolWithDistinctReasonAndNoReturnedResult() {

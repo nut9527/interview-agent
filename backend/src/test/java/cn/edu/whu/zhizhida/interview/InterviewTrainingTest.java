@@ -4,7 +4,6 @@ import cn.edu.whu.zhizhida.interview.api.InterviewService.InterviewStartRequest;
 
 import cn.edu.whu.zhizhida.auth.api.CurrentUserProvider;
 import cn.edu.whu.zhizhida.interview.api.*;
-import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import cn.edu.whu.zhizhida.resume.api.ResumeSnapshotReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,13 +17,13 @@ class InterviewTrainingTest {
     final Map<String, InterviewSession> stored = new HashMap<>();
     final InterviewSessionRepository repository = mock(InterviewSessionRepository.class);
     final CurrentUserProvider user = mock(CurrentUserProvider.class);
-    final MockInterviewAiService ai = spy(new MockInterviewAiService(new tools.jackson.databind.json.JsonMapper(), BusinessMetrics.disabled()));
+    final MockInterviewAiService ai = spy(new MockInterviewAiService(new tools.jackson.databind.json.JsonMapper()));
     final InterviewStateMachine service;
 
     InterviewTrainingTest() {
         when(user.requireUserId()).thenReturn(7L);
         when(repository.findById(anyLong(), anyString())).thenAnswer(c -> Optional.ofNullable(c.getArgument(0).equals(7L) ? stored.get(c.getArgument(1)) : null));
-        service = InterviewMachineFixture.machine(repository, user, ai, mock(ResumeSnapshotReader.class));
+        service = InterviewMachineFixture.machine(repository, user, cn.edu.whu.zhizhida.ai.api.AiMode.MOCK, mock(ResumeSnapshotReader.class));
     }
 
     InterviewStartRequest request(InterviewTraining.Topic topic, int rounds, String source, Integer round) {
@@ -35,7 +34,7 @@ class InterviewTrainingTest {
     // Build model fixtures through the same preparation and validation rules used by the Worker.
     InterviewSession open(InterviewStartRequest request) {
         var prepared = service.prepareStart(request);
-        var session = service.opened(prepared, ai.openingQuestion(prepared.targetRole(), service.runContext(prepared, null, List.of())));
+        var session = service.opened(prepared, new InterviewOutputCodec().parseOpening(ai.generateOpening(prepared.targetRole(), service.runContext(prepared, null, List.of())), service.runContext(prepared, null, List.of())));
         stored.put(session.sessionId(), session);
         return session;
     }
@@ -43,8 +42,7 @@ class InterviewTrainingTest {
     InterviewSession advance(InterviewSession session, String requestId, int round) {
         var pending = (cn.edu.whu.zhizhida.interview.domain.InterviewTransitions.PendingAnswer)
                 new cn.edu.whu.zhizhida.interview.domain.InterviewTransitions().answer(session, "我负责测量与方案验证", requestId, round);
-        var updated = service.validateReview(session, pending, ai.reviewAnswer(session.targetRole(),
-                service.runContext(session, pending, List.of()), pending.turns(), pending.answeredCount(), pending.finalRound()));
+        var updated = service.validateReview(session, pending, new InterviewOutputCodec().parseReview(ai.generateReview(session.targetRole(), service.runContext(session, pending, List.of()), pending.turns(), pending.answeredCount(), pending.finalRound()), service.runContext(session, pending, List.of()), pending.finalRound(), pending.turns()));
         stored.put(updated.sessionId(), updated);
         return updated;
     }
@@ -93,6 +91,25 @@ class InterviewTrainingTest {
         assertThat(service.findSession(retry.sessionId()).agent().training().retry().answer()).isEqualTo("我负责测量与方案验证");
     }
 
+    @Test void confirmedTrainingObjectiveReachesTheOpeningAndPersistsInItsSnapshot() {
+        String objective = "说明两个并发请求竞争同一唯一键时，怎样验证只有一个业务结果。";
+        var prepared = service.prepareStart(request(InterviewTraining.Topic.CONCURRENCY, 3, null, null));
+        var question = new QuestionSnapshot("goal-question", 1, "并发幂等", "什么是唯一约束？", "JAVA", "concurrency",
+                InterviewDifficulty.ADVANCED, List.of(), List.of(), "参考", List.of(), List.of(), "ORIGINAL", null, null);
+        var training = new InterviewTraining(InterviewTraining.Topic.CONCURRENCY, null, question).withObjective(objective);
+        var fixed = prepared.withAgent(prepared.agent().withTraining(training));
+        assertThat(service.fixedOpening(fixed)).isNull();
+        var mapper = new tools.jackson.databind.json.JsonMapper();
+        var restored = mapper.treeToValue(mapper.valueToTree(fixed), InterviewSession.class);
+        String context = service.runContext(restored, null, List.of());
+        var input = mapper.readTree(new InterviewPromptBuilder(mapper).openingInput("后端", context, null).user());
+        assertThat(input.path("untrustedEvidence").path("trainingObjective").asText()).isEqualTo(objective);
+        assertThat(input.path("agentCheckpoint").toString()).doesNotContain(objective);
+        String opening = new InterviewOutputCodec().parseOpening(new MockInterviewAiService(mapper).generateOpening("后端", context), context);
+        assertThat(opening).contains(objective);
+        assertThat(restored.agent().training().objective()).isEqualTo(objective);
+    }
+
     @Test void rejectsInvalidRoundsSourcesAndMixedMaterialBeforeCallingModel() {
         for (int rounds : new int[]{0, 2, 7, 12}) assertThatThrownBy(() -> open(request(InterviewTraining.Topic.DATABASE, rounds, null, null)))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -103,22 +120,17 @@ class InterviewTrainingTest {
         assertThatThrownBy(() -> open(request(InterviewTraining.Topic.DATABASE, 3, source.sessionId(), 1))).hasMessageContaining("新材料或主题");
         when(user.requireUserId()).thenReturn(8L);
         assertThatThrownBy(() -> open(request(null, 3, source.sessionId(), 1))).isInstanceOf(cn.edu.whu.zhizhida.common.ResourceNotFoundException.class);
-        verify(ai, times(1)).openingQuestion(anyString(), anyString());
+        verify(ai, times(1)).generateOpening(anyString(), anyString());
     }
 
     @Test void retryMaterialReachesModelOnlyAsUntrustedEvidence() throws Exception {
         var source = finish(open(request(InterviewTraining.Topic.PERFORMANCE, 3, null, null)));
         var retry = open(request(null, 3, source.sessionId(), 1));
         var mapper = new tools.jackson.databind.json.JsonMapper();
-        var client = mock(cn.edu.whu.zhizhida.ai.api.JsonChatClient.class);
-        when(client.completeJson(anyString(), anyString(), anyDouble(), anyInt())).thenAnswer(call -> {
-            var input = mapper.readTree(call.getArgument(1, String.class));
-            assertThat(input.path("untrustedEvidence").path("retry").path("gap").asText()).isEqualTo(retry.agent().training().retry().gap());
-            assertThat(input.path("agentCheckpoint").has("retry")).isFalse();
-            return mapper.createObjectNode().put("question", "请说明性能瓶颈的测量依据？").put("questionCompetencyId", "performance");
-        });
-        new DefaultInterviewAiService(client, mapper, BusinessMetrics.disabled()).openingQuestion("后端",
-                InterviewAgentContext.encode("材料", retry.agent(), new cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy().routing(retry.agent(), 0, 3)));
+        var input = mapper.readTree(new InterviewPromptBuilder(mapper).openingInput("后端",
+                InterviewAgentContext.encode("材料", retry.agent(), new cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy().routing(retry.agent(), 0, 3)), null).user());
+        assertThat(input.path("untrustedEvidence").path("retry").path("gap").asText()).isEqualTo(retry.agent().training().retry().gap());
+        assertThat(input.path("agentCheckpoint").has("retry")).isFalse();
     }
 
     @Test void questionReferenceCannotBecomeAgentControlInstructions() throws Exception {
@@ -130,17 +142,13 @@ class InterviewTrainingTest {
         var agent = policy.trainingPlan(new InterviewTraining(null, null, question),
                 new InterviewPlanningContext("", List.of(), List.of(), List.of(), ""), "model", List.of(), null);
         var mapper = new tools.jackson.databind.json.JsonMapper();
-        var client = mock(cn.edu.whu.zhizhida.ai.api.JsonChatClient.class);
-        when(client.completeJson(anyString(), anyString(), anyDouble(), anyInt())).thenAnswer(call -> {
-            var input = mapper.readTree(call.getArgument(1, String.class));
-            assertThat(input.path("untrustedEvidence").path("questionReference").path("referenceAnswer").asText())
-                    .isEqualTo(quotedInstruction);
-            assertThat(input.path("agentCheckpoint").toString()).doesNotContain(quotedInstruction);
-            assertThat(input.path("agentRouting").toString()).doesNotContain(quotedInstruction);
-            assertThat(call.getArgument(0, String.class)).contains("合理的替代方案", "不可信分析素材");
-            return mapper.createObjectNode().put("question", "Java 中怎样验证共享数据的原子性？").put("questionCompetencyId", "foundation");
-        });
-        new DefaultInterviewAiService(client, mapper, BusinessMetrics.disabled()).openingQuestion("后端",
-                InterviewAgentContext.encode("", agent, policy.routing(agent, 0, 3)));
+        var prompt = new InterviewPromptBuilder(mapper).openingInput("后端",
+                InterviewAgentContext.encode("", agent, policy.routing(agent, 0, 3)), null);
+        var input = mapper.readTree(prompt.user());
+        assertThat(input.path("untrustedEvidence").path("questionReference").path("referenceAnswer").asText())
+                .isEqualTo(quotedInstruction);
+        assertThat(input.path("agentCheckpoint").toString()).doesNotContain(quotedInstruction);
+        assertThat(input.path("agentRouting").toString()).doesNotContain(quotedInstruction);
+        assertThat(prompt.system()).contains("合理的替代方案", "不可信分析素材");
     }
 }

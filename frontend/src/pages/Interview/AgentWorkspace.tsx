@@ -12,18 +12,19 @@ const probeLabels = { OPENING: '能力首问', EVIDENCE: '核对证据', QUANTIF
 const last = <T,>(items: T[]): T | undefined => items[items.length - 1];
 const difficultyLabels = { BEGINNER: '入门', STANDARD: '标准', ADVANCED: '挑战' };
 const dimensionLabels = { EVIDENCE_SUFFICIENCY: '证据充分程度', TECHNICAL_CORRECTNESS: '技术正确性', CAUSAL_EXPLANATION: '因果解释', TRADEOFFS: '方案权衡', RESPONSIBILITY: '职责边界', EXPRESSION: '表达清晰度' };
+const scenarioLabels = { CURRENT: '当前场景', FAILURE: '失败场景', ALTERNATIVE: '替代方案', NEW_CONTEXT: '场景迁移', MEASUREMENT: '测量验证' };
 
 function PlanningHistory({ agent, sessionId, answers }: { agent: InterviewAgentState; sessionId: string; answers: string[] }) {
   if (!agent.planningRevisions?.length) return null;
   return <details className={styles.anchors}><summary>追问依据与计划修订（{agent.planningRevisions.length} 轮）</summary>
-    <p className={styles.note}>围绕本轮回答选择待核对的问题，未观察到不代表不会。问题选择不改变本场能力覆盖与总轮次。</p>
+    <p className={styles.note}>记录每轮回答后的证据缺口和下一步验证目标。</p>
     {agent.planningRevisions.map(revision => {
       const selected = revision.candidates?.find(candidate => candidate.intentKey === revision.selectedIntentKey);
       const source = selected?.gap && answerEvidence({ ...selected.gap, sourceType: 'ANSWER_SELF_REPORT', validity: 'VALID' },
         `${sessionId}:answer:${revision.afterRound}`, answers[(revision.afterRound ?? 0) - 1]);
       return <article key={revision.revision}><h4>第 {revision.afterRound} 轮后 · {revision.fallback ? '固定策略追问' : selected ? '依据缺口选择追问' : '按覆盖计划推进'}</h4>
         <p>{revision.reason}</p>
-        {selected?.intent && <><strong>{selected.intent.dimension && dimensionLabels[selected.intent.dimension]} · {selected.intent.probe && probeLabels[selected.intent.probe]}</strong>
+        {selected?.intent && <><strong>{selected.intent.dimension && dimensionLabels[selected.intent.dimension]} · {selected.intent.scenario && scenarioLabels[selected.intent.scenario]} · {selected.intent.probe && probeLabels[selected.intent.probe]}</strong>
           <p>待核对：{selected.intent.claimToVerify}</p><p>期待补充：{selected.intent.expectedEvidence}</p>
           <small>本场难度：{revision.baseDifficulty && difficultyLabels[revision.baseDifficulty]} · 本题深度：{selected.intent.effectiveDifficulty && difficultyLabels[selected.intent.effectiveDifficulty]}</small>
           {selected.gap?.quote ? source ? <details className={styles.evidenceSource}><summary>核对追问来源 · 本场第 {revision.afterRound} 轮回答</summary>
@@ -40,11 +41,14 @@ export function AgentPlan({ agent, finished, sessionId, answers }: { agent: Inte
   const latest = last(agent.evaluations);
   return <section className={styles.plan} aria-label="面试 Agent 考察计划">
     <div className={styles.planHeading}><h3>本场考察计划</h3><Tag>
-      {agent.executionMode === 'mock' ? '规则演示' : '模型驱动'}</Tag></div>
-    <p className={styles.intro}>{agent.version === 'interview-agent-v5'
-      ? '依据回答选择下一项能力。已考察项按实际顺序展示，尚未考察项的顺序仍可调整。'
+      {agent.executionMode === 'mock' ? '流程演示' : '模型驱动'}</Tag></div>
+    <p className={styles.intro}>{['interview-agent-v5', 'interview-agent-v6'].includes(agent.version)
+      ? '依据回答调整追问与能力顺序。已考察项按实际顺序展示，尚未考察项的顺序仍可调整。'
       : '沿能力目标提问，依据回答调整下一步。'}</p>
-    {!finished && latest?.decision.probe && <div className={styles.objective}><div><span className={styles.nextProbe}>下一问 · {probeLabels[latest.decision.probe]}</span><p>{latest.decision.intent}</p></div></div>}
+    {!finished && latest?.decision.probe && <div className={styles.objective} aria-label="下一步验证目标">
+      <span className={styles.nextProbe}>下一问 · {probeLabels[latest.decision.probe]}{latest.decision.focus && ` · ${scenarioLabels[latest.decision.focus.scenario]}`}</span>
+      {latest.decision.focus ? <><p><strong>待核对：</strong>{latest.decision.focus.claimToVerify}</p><p><strong>需要的证据：</strong>{latest.decision.focus.expectedEvidence}</p></> : <p>{latest.decision.intent}</p>}
+    </div>}
     <ol className={styles.rail}>{orderedAgentPlan(agent).map((item, index) => {
       const evaluations = agent.evaluations.filter(e => e.competencyId === item.id);
       const current = !finished && item.id === agent.activeCompetencyId;
@@ -58,7 +62,7 @@ export function AgentPlan({ agent, finished, sessionId, answers }: { agent: Inte
         <small>以下是材料原文引用，仅用于取材，经历尚未独立验证。</small>
         {active.materialAnchors.map((anchor, index) => <blockquote key={`${anchor.source}-${index}`}><small>{anchor.kind === 'PROJECT' ? '简历项目' : anchor.kind === 'JOB' ? '岗位要求' : '简历材料'}</small><p>{anchor.quote}</p></blockquote>)}
       </details>}
-      {!['interview-agent-v3', 'interview-agent-v4', 'interview-agent-v5'].includes(agent.version) && <details className={styles.anchors}><summary>完整考察目标</summary><p>{active.objective}</p></details>}</>}
+    </>}
     <PlanningHistory agent={agent} sessionId={sessionId} answers={answers} />
     {!!agent.practiceMemory?.length && <small className={styles.note}>已参考最近同模式练习，优先核对曾经证据不足的能力。</small>}
     {!!agent.memoryReferences?.length && <details className={styles.anchors}><summary>本场读取过的历史观察（{agent.memoryReferences.length} 条）</summary>
@@ -93,7 +97,7 @@ export function AgentReport({ agent, onRetry, busy, onAddTask, sessionId, answer
   return <section id="interview-agent-report" className={styles.report} aria-label="面试能力复盘">
     <div className={styles.reportHeading}><div><span className={styles.kicker}>面试复盘</span><h2>回答证据与练习建议</h2></div>
       <div className={styles.coverage}><strong>{assessed.length}<span> / {rows.length}</span></strong><small>能力点已考察</small></div></div>
-    {agent.executionMode === 'mock' && <Alert type="info" showIcon message="当前为规则演示，评估用于体验流程，不代表真实模型判断。" />}
+    {agent.executionMode === 'mock' && <Alert type="info" showIcon message="当前为流程演示，评估不代表真实模型判断。" />}
     <div className={styles.reportGrid}>{rows.map(row => <article key={row.id} className={styles.evidenceCard}>
       <div><h3>{row.name}</h3><span className={styles.evidenceLevel}>{row.evaluation ? levelLabels[row.evaluation.decision.level] : '未覆盖'}</span></div>
       {row.evaluation ? <><small>第 {row.evaluation.round} 轮 · 回答原文</small>

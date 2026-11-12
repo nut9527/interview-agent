@@ -2,7 +2,6 @@ package cn.edu.whu.zhizhida.ai;
 
 import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
 import cn.edu.whu.zhizhida.ai.api.JsonChatResponse;
-import cn.edu.whu.zhizhida.ai.api.ModelUsage;
 import cn.edu.whu.zhizhida.common.InvalidModelOutputException;
 import cn.edu.whu.zhizhida.common.UpstreamServiceException;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
@@ -194,32 +193,9 @@ public class DeepSeekChatClient implements JsonChatClient {
     }
 
     private JsonChatResponse parsePayload(String responseBody) {
-        JsonNode response =
-                objectMapper
-                        .reader()
-                        .with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                        .readTree(responseBody);
-        if (response == null || !response.isObject()) {
-            throw UpstreamServiceException.coded("MODEL_PROTOCOL");
-        }
-        ModelUsage usage = DeepSeekUsage.parse(response.path("usage"));
-        // 即使后续生成状态或业务字段校验失败，也记录已获得的模型令牌用量。
-        metrics.modelUsage(usage);
-        JsonNode firstChoice = response.path("choices").path(0);
-        // 即使内容看似可解析，截断或异常结束的生成也不能当作完整业务结果返回。
-        if ("length".equals(firstChoice.path("finish_reason").asText())) {
-            throw new InvalidModelOutputException(
-                    InvalidModelOutputException.Reason.TRUNCATED, "DeepSeek API 输出被截断，请重试。");
-        }
-        if (!"stop".equals(firstChoice.path("finish_reason").asText())) {
-            throw UpstreamServiceException.coded("MODEL_PROTOCOL");
-        }
-        JsonNode contentNode = firstChoice.path("message").path("content");
-        String content = contentNode.isTextual() ? contentNode.textValue().trim() : "";
-        if (content.isBlank()) {
-            throw new InvalidModelOutputException(
-                    InvalidModelOutputException.Reason.EMPTY, "DeepSeek API 没有返回可用内容，请重试。");
-        }
+        var response = DeepSeekResponseReader.read(objectMapper, metrics, responseBody);
+        if (!"stop".equals(response.finishReason())) throw UpstreamServiceException.coded("MODEL_PROTOCOL");
+        String content = response.message().path("content").asText().trim();
         JsonNode payload;
         try {
             payload =
@@ -237,7 +213,7 @@ public class DeepSeekChatClient implements JsonChatClient {
                     InvalidModelOutputException.Reason.NON_OBJECT,
                     "DeepSeek API 必须返回 JSON 对象，请重试。");
         }
-        return new JsonChatResponse(payload, usage);
+        return new JsonChatResponse(payload, response.usage());
     }
 
     private String extractJson(String content) {

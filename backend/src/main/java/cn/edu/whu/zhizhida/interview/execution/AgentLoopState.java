@@ -25,7 +25,7 @@ public final class AgentLoopState {
         var keys = strings(state.path("evidence"));
         var actions = strings(state.path("actions"));
         String before = fingerprint(keys, actions);
-        String action = name + ":" + InterviewRunService.canonical(args);
+        String action = name + ":" + cn.edu.whu.zhizhida.common.JsonFingerprint.canonical(args);
         if (name.equals("search_knowledge")) action = name + ":" + args.path("query").asText().strip()
                 .replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
         String actionKey = InterviewRunStore.sha(action);

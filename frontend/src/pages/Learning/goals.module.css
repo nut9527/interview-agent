@@ -28,6 +28,14 @@
 .goalHeading h3 { display: inline; font-size: 20px; font-weight: 650; }
 .goalHeading > span { font-size: 12px; color: var(--ink-2); }
 .goal > form { margin-top: 16px; }
+.coach { margin: 16px 0; padding: 14px 16px; border-left: 3px solid var(--brand); background: var(--paper); border-radius: 0 8px 8px 0; }
+.coach p { margin: 4px 0; font-size: 13px; }
+.coach a { font-size: 13px; }
+.focus { margin: 18px 0; }
+.focus h5 { margin: 0 0 12px; font-size: 14px; }
+.focus article { padding: 12px 0; border-top: 1px solid var(--line); }
+.focus p { margin: 4px 0; font-size: 13px; }
+.focus small { color: var(--ink-2); }
 .ledger { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 18px 0; }
 .ledger > div { border-radius: 8px; background: var(--paper); padding: 12px 14px; }
 .ledger dt { color: var(--ink-2); font-size: 12px; }

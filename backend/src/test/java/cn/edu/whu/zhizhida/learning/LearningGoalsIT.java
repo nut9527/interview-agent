@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@org.springframework.test.context.TestPropertySource(properties={
+        "interview.runs.loop-policy=A1", "interview.runs.decision-protocol=phased-v2", "interview.agent.adaptive-routing-enabled=true"})
 class LearningGoalsIT extends IntegrationTestBase {
     @Autowired JdbcTemplate jdbc;
     @Autowired InterviewRunStore store;
@@ -23,6 +25,7 @@ class LearningGoalsIT extends IntegrationTestBase {
     @MockitoSpyBean cn.edu.whu.zhizhida.interview.InterviewPracticeEvidenceSource sources;
     @Autowired LearningMemoryStore observations;
     @Autowired LearningMemoryService memory;
+    @Autowired GoalUpdateWorker goalUpdates;
     @Autowired org.springframework.transaction.support.TransactionTemplate tx;
     String token; long owner; List<String> questions;
     @BeforeEach void setup() throws Exception {
@@ -70,7 +73,7 @@ class LearningGoalsIT extends IntegrationTestBase {
         worker.execute(first);assertThat(get(goal).path("plans")).isEmpty();
         worker.execute(second);assertThat(store.get(owner,run).status()).isEqualTo("SUCCEEDED");
         assertThat(get(goal).path("reservedRuns").asInt()).isEqualTo(1);
-        assertThat(get(goal).path("plans").get(0).path("limitation").asText()).contains("尚未诊断");
+        assertThat(get(goal).path("plans").get(0).path("limitation").asText()).contains("未进行模型语义规划");
         assertThat(store.events(owner,run,0)).extracting(e->e.type()).contains("subject.committed").doesNotContain("turn.committed");
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_sessions WHERE user_id=?",Integer.class,owner)).isZero();
     }
@@ -192,7 +195,7 @@ class LearningGoalsIT extends IntegrationTestBase {
         assertThat(review.path("validScenarios").asInt()).isZero();
         assertThat(review.path("outcome").asText()).isEqualTo("INSUFFICIENT_EVIDENCE");
         assertThat(get(goal).path("reservedRuns").asInt()).isEqualTo(5);
-        assertThat(get(goal).path("reservedModelAttempts").asInt()).isEqualTo(16);
+        assertThat(get(goal).path("reservedModelAttempts").asInt()).isEqualTo(3+4*store.executionBudget(owner,run).maxModelAttempts());
         assertThat(get(goal).path("status").asText()).isEqualTo("ACTIVE");
         data(performDelete("/api/interviews/sessions/"+session,token));
         assertThat(data(performPost("/api/learning/goals/"+goal+"/review",Map.of(),token)).path("results")).isEmpty();
@@ -288,7 +291,7 @@ class LearningGoalsIT extends IntegrationTestBase {
         data(performPut("/api/learning/preferences",Map.of("expectedRevision",prefs.path("revision").asLong(),"personalizationEnabled",true),token));
         String run=data(performPost("/api/learning/goals/"+goal+"/plan-commands",input,token)).path("id").asText();execute(run);
         var plan=get(goal).path("plans").get(0);assertThat(plan.path("observationRefs")).hasSize(1);
-        assertThat(plan.path("items").get(0).path("acceptance").asText()).contains("历史观察","尚缺充分支持");
+        assertThat(plan.path("items").get(0).path("acceptance").asText()).contains("演示练习");
         var second=new HashMap<String,Object>(input);second.put("requestId","history_inflight_001");
         String inflight=data(performPost("/api/learning/goals/"+goal+"/plan-commands",second,token)).path("id").asText();
         data(performPost("/api/learning/observations/"+observation+"/corrections",Map.of("expectedRevision",1,"text","原观察需要纠正"),token));
@@ -296,5 +299,73 @@ class LearningGoalsIT extends IntegrationTestBase {
         worker.execute(store.claim(store.get(owner,inflight)));assertThat(store.get(owner,inflight).status()).isEqualTo("FAILED");
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_training_tasks WHERE user_id=?",Integer.class,owner)).isZero();
         assertThat(get(goal).path("reservedRuns").asInt()).isEqualTo(2);
+    }
+
+    @Test void completedBatchAutomaticallyProposesOneDraftAndWaitsForConfirmation() throws Exception {
+        var create=new HashMap<String,Object>(input(20));create.put("autoAdjust",true);create.put("maxTraining",6);
+        String goal=data(performPost("/api/learning/goals",create,token)).path("id").asText();
+        var p=plan(goal);var applied=data(confirm(p,"auto_batch_confirm",1));
+        for(int i=0;i<applied.path("taskIds").size();i++) finishTask(applied.path("taskIds").get(i).asText(),"auto_batch_"+i);
+        for(var event:observations.pending()) if(event.owner()==owner) memory.consume(event);
+        var updates=jdbc.query("SELECT * FROM learning_goal_updates WHERE goal_id=? ORDER BY id",
+                (r,n)->new GoalUpdateWorker.Update(r.getLong("id"),owner,goal,r.getString("session_id"),r.getString("source_version")),goal);
+        assertThat(updates).hasSize(3);goalUpdates.process(updates.getFirst());
+        var planning=get(goal);
+        assertThat(planning.path("coachState").asText()).isEqualTo("PLANNING");
+        assertThat(planning.path("planning").path("trigger").asText()).isEqualTo("TRAINING_COMPLETED");
+        String run=planning.path("planning").path("runId").asText();execute(run);
+        var finished=get(goal);
+        assertThat(finished.path("coachState").asText()).isEqualTo("PENDING_CONFIRMATION");
+        assertThat(finished.path("plans")).hasSize(2);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_training_tasks WHERE goal_id=?",Integer.class,goal)).isEqualTo(3);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM learning_goal_model_attempts WHERE run_id=? AND status='SUCCEEDED'",Integer.class,run)).isEqualTo(3);
+        assertThat(jdbc.queryForObject("SELECT tools FROM learning_goal_planning WHERE run_id=?",Integer.class,run)).isEqualTo(2);
+        int runs=finished.path("reservedRuns").asInt();updates.stream().skip(1).forEach(goalUpdates::process);consumeUpdates();
+        assertThat(get(goal).path("reservedRuns").asInt()).isEqualTo(runs);
+        assertThat(reviewGoal(goal).path("validScenarios").asInt()).isZero();
+    }
+
+    @Test void oneCompletedTaskCanTriggerNextBatchAndChangedSourceDoesNotReplayOldEvidence() throws Exception {
+        var create=new HashMap<String,Object>(input(12));create.put("autoAdjust",true);create.put("maxTraining",4);
+        String goal=data(performPost("/api/learning/goals",create,token)).path("id").asText();
+        var p=plan(goal);
+        var edited=data(performPost("/api/learning/plans/"+p.path("id").asText()+"/revisions",Map.of("expectedRevision",1,"items",List.of(p.path("items").get(0))),token));
+        var applied=data(confirm(edited,"auto_single_confirm",2));
+        String session=finishTask(applied.path("taskIds").get(0).asText(),"auto_single");
+        consumeUpdates();String run=get(goal).path("planning").path("runId").asText();execute(run);
+        int reserved=get(goal).path("reservedRuns").asInt();
+        tx.executeWithoutResult(status->assertThat(goals.replan(owner,goal,session,"withdrawn-source-version")).isTrue());
+        assertThat(get(goal).path("reservedRuns").asInt()).isEqualTo(reserved);
+    }
+
+    @Test void unknownModelOutcomeCannotSpendAgainOnRecovery() throws Exception {
+        String goal=goal(10);String run=propose(goal,"unknown_goal_model",1);
+        var claim=store.claim(store.get(owner,run));
+        jdbc.update("INSERT INTO learning_goal_planning(run_id,owner_id,epoch,configuration_hash,checkpoint_json,attempts,pending,deadline) "
+                + "VALUES(?,?,?,?,'{}',1,TRUE,TIMESTAMPADD(SECOND,60,CURRENT_TIMESTAMP(6)))",run,owner,claim.epoch(),"0".repeat(64));
+        worker.execute(claim);
+        assertThat(store.get(owner,run).status()).isEqualTo("FAILED");
+        assertThat(store.get(owner,run).error()).isEqualTo("MODEL_OUTCOME_UNKNOWN");
+        assertThat(jdbc.queryForObject("SELECT attempts FROM learning_goal_planning WHERE run_id=?",Integer.class,run)).isEqualTo(1);
+        assertThat(get(goal).path("plans")).isEmpty();
+    }
+
+    String finishTask(String task,String key) throws Exception {
+        String run=data(performPost("/api/interviews/training-tasks/"+task+"/start-commands",Map.of("requestId",key+"_start"),token)).path("runId").asText();
+        execute(run);String session=store.get(owner,run).sessionId();
+        assertThat(jdbc.queryForObject("SELECT JSON_UNQUOTE(JSON_EXTRACT(agent_json,'$.training.objective')) FROM interview_sessions WHERE session_id=?",String.class,session))
+                .isEqualTo(jdbc.queryForObject("SELECT gap_text FROM interview_training_tasks WHERE id=?",String.class,task));
+        for(int turn=1;turn<=3;turn++) {
+            String answer=data(performPost("/api/interviews/sessions/"+session+"/answer-commands",Map.of("requestId",key+"_answer_"+turn,"expectedTurn",turn,
+                    "answer","我负责订单写入，在数据库事务中写请求号并创建唯一索引；冲突读取已有结果，提交失败则回滚并记录错误。"),token)).path("runId").asText();
+            execute(answer);assertThat(store.get(owner,answer).status()).as(store.get(owner,answer).error()).isEqualTo("SUCCEEDED");
+        }
+        return session;
+    }
+    void consumeUpdates() {
+        for(var event:observations.pending()) if(event.owner()==owner) memory.consume(event);
+        var updates=jdbc.query("SELECT * FROM learning_goal_updates WHERE owner_id=? ORDER BY id",
+                (r,n)->new GoalUpdateWorker.Update(r.getLong("id"),owner,r.getString("goal_id"),r.getString("session_id"),r.getString("source_version")),owner);
+        updates.forEach(goalUpdates::process);
     }
 }

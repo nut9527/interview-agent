@@ -15,6 +15,7 @@ concurrency:
 jobs:
   baseline:
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     outputs:
       ref: ${{ steps.base.outputs.ref }}
     steps:
@@ -35,6 +36,25 @@ jobs:
             fi
           fi
           echo "ref=$base" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+      - name: Validate all Compose deployment combinations
+        run: |
+          docker compose --env-file .env.example --profile '*' -f docker-compose.yml config --quiet
+          docker compose --env-file .env.example --profile '*' -f docker-compose.yml -f docker-compose.split.yml config --quiet
+          docker compose --env-file .env.example --profile '*' -f docker-compose.yml -f docker-compose.middleware.yml config --quiet
+          docker compose --env-file .env.example --profile '*' -f docker-compose.yml -f docker-compose.middleware.yml -f docker-compose.split.yml config --quiet
+      - name: Verify contract snapshot and compatibility rules
+        env:
+          CONTRACT_BASE_REF: ${{ steps.base.outputs.ref }}
+        run: node scripts/api-contract.mjs check
+      - name: Verify release registration and candidate integrity
+        run: node scripts/release-status.mjs check
 
   backend:
     needs: baseline
@@ -98,11 +118,6 @@ jobs:
       - name: Check the isolated LangChain4j protocol suite
         working-directory: backend
         run: mvn --batch-mode --no-transfer-progress -f compatibility/langchain4j/pom.xml test "-Dmaven.repo.local=$GITHUB_WORKSPACE/.m2/repository"
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-      - name: Test Java 21 container health probe
-        run: node --test --test-name-pattern="container Java health probe" scripts/dev-smoke.test.mjs
       - name: Build backend Java 21 image
         run: docker build --build-arg DOCKER_REGISTRY=docker.io/library --tag zhizhida-backend:verify backend
       - name: Smoke test Java 21 runtime image with MySQL and Redis
@@ -153,6 +168,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - uses: pnpm/action-setup@v4
         with:
           version: 9.15.9
@@ -161,13 +180,11 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
-      - name: Verify contract snapshot, compatibility rules and documentation
-        run: |
-          node scripts/api-contract.mjs check
-          node --test scripts/api-contract.test.mjs scripts/documentation.test.mjs services/mcp-reference/server.test.mjs
       - name: Install locked dependencies
         working-directory: frontend
         run: pnpm install --frozen-lockfile
+      - name: Test scripts, documentation, MCP reference service and startup smoke checks
+        run: node --test scripts/*.test.mjs frontend/scripts/*.test.mjs services/mcp-reference/*.test.mjs
       - name: Check formatting of changed frontend files
         working-directory: frontend
         shell: bash
@@ -177,20 +194,11 @@ jobs:
       - name: Check types, lint, tests and production build
         working-directory: frontend
         run: |
-          pnpm contract:check
           pnpm lint
           pnpm test
           pnpm build
       - name: Build frontend image
         run: docker build --build-arg DOCKER_REGISTRY=docker.io/library --tag zhizhida-frontend:verify frontend
-      - name: Test development and MySQL startup helpers
-        run: node --test scripts/dev.test.mjs scripts/mysql-startup.test.mjs scripts/live-stack.test.mjs scripts/provider-business-metrics.test.mjs scripts/agent-evaluation-metrics.test.mjs scripts/maven-test-report.test.mjs scripts/enable-rag.test.mjs scripts/rag-postgres.test.mjs scripts/verify-hybrid-live.test.mjs
-      - name: Verify release registration and candidate integrity guards
-        run: |
-          node scripts/release-fixtures.mjs check
-          node scripts/release-status.mjs check
-          node --test scripts/release-status.test.mjs frontend/scripts/browser-runtime.test.mjs scripts/browser-stack.test.mjs
-          node --test scripts/release-candidate.test.mjs scripts/closeout-budget.test.mjs scripts/closeout-review.test.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
@@ -198,6 +206,7 @@ jobs:
           retention-days: 7
 
   browser:
+    needs: baseline
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:

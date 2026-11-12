@@ -198,7 +198,7 @@ class DeepSeekChatClientTest {
         assertThatThrownBy(() -> client("test-key").completeJson("system", "user", 0.5, 600))
                 .isInstanceOfSatisfying(UpstreamServiceException.class,
                         ex -> assertThat(ex.errorCode()).isEqualTo(ErrorCode.AI_INVALID_RESPONSE))
-                .hasMessageContaining("被截断");
+                .hasMessage("MODEL_FINISH_LENGTH");
     }
 
     @Test
@@ -218,7 +218,7 @@ class DeepSeekChatClientTest {
 
         assertThatThrownBy(() -> client("test-key").completeJson("system", "user", 0.5, 600))
                 .isInstanceOf(UpstreamServiceException.class)
-                .hasMessageContaining("没有返回可用内容");
+                .hasMessage("MODEL_PROTOCOL");
     }
 
     @Test
@@ -332,7 +332,12 @@ class DeepSeekChatClientTest {
         var metrics = new BusinessMetrics(registry);
         stubEnvelope("{}", finish, "{\"prompt_tokens\":10,\"completion_tokens\":5,\"total_tokens\":15}");
         assertThatThrownBy(() -> measuredClient(metrics).complete("system", "user", 0.1, 100))
-                .isInstanceOf(UpstreamServiceException.class);
+                .isInstanceOf(UpstreamServiceException.class)
+                .hasMessage(switch (finish) {
+                    case "length" -> "MODEL_FINISH_LENGTH";
+                    case "content_filter" -> "MODEL_FINISH_CONTENT_FILTER";
+                    default -> "MODEL_PROTOCOL";
+                });
         assertThat(registry.get("zhizhida.business").tags("operation", "ai", "outcome", "failure").timer().count()).isEqualTo(1);
         assertThat(registry.get("zhizhida.ai.tokens").tag("kind", "total").counter().count()).isEqualTo(15);
     }

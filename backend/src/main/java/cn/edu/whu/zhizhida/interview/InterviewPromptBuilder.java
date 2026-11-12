@@ -57,7 +57,7 @@ public final class InterviewPromptBuilder {
                         + (input.path("untrustedEvidence").has("knowledgeReferences")
                                 ? templates.get("knowledgeOpening")
                                 : "")
-                        + InterviewOutputContract.prompt(true, agent, false)
+                        + InterviewOutputContract.prompt(true, agent, false, planning(input))
                         + (reason == null ? "" : templates.get("repair")),
                 agent ? boundedInput(input) : input.toString(),
                 0.55,
@@ -152,11 +152,15 @@ public final class InterviewPromptBuilder {
                                         input.path("agentRouting").path("allowedActions"),
                                         input.path("agentRouting").path("allowedProbes"))
                                 : "")
-                        + InterviewOutputContract.prompt(false, agent, finalRound)
+                        + InterviewOutputContract.prompt(false, agent, finalRound, planning(input))
                         + (reason == null ? "" : templates.get("repair")),
                 agent ? boundedInput(input) : input.toString(),
                 0.35,
                 agent ? 2000 : 1400);
+    }
+
+    private boolean planning(JsonNode input) {
+        return "interview-agent-v6".equals(input.path("agentCheckpoint").path("version").asText());
     }
 
     private void putRepairFeedback(ObjectNode input, String reason) {
@@ -201,12 +205,16 @@ public final class InterviewPromptBuilder {
             contracts.add(InterviewOutputContract.contract(false, agent, false));
             contracts.add(InterviewOutputContract.contract(false, agent, true));
         }
+        contracts.add(InterviewOutputContract.contract(false, true, false, true));
+        contracts.add(InterviewOutputContract.contract(false, true, true, true));
         var renderedContracts = manifest.putArray("renderedContracts");
         for (boolean agent : List.of(false, true)) {
             renderedContracts.add(InterviewOutputContract.prompt(true, agent, false));
             renderedContracts.add(InterviewOutputContract.prompt(false, agent, false));
             renderedContracts.add(InterviewOutputContract.prompt(false, agent, true));
         }
+        renderedContracts.add(InterviewOutputContract.prompt(false, true, false, true));
+        renderedContracts.add(InterviewOutputContract.prompt(false, true, true, true));
         manifest.putObject("generation")
                 .put("openingTemperature", 0.55)
                 .put("openingMaxTokens", 600)
@@ -302,6 +310,7 @@ public final class InterviewPromptBuilder {
             evidence.set("knowledgeReferences", objectMapper.valueToTree(references));
         }
         if (training != null) {
+            if (training.objective() != null) evidence.put("trainingObjective", training.objective());
             evidence.set("retry", objectMapper.valueToTree(training.retry()));
             evidence.set("questionReference", objectMapper.valueToTree(training.question()));
         }
@@ -347,6 +356,10 @@ public final class InterviewPromptBuilder {
                                 .toList()
                         : checkpoint.digest();
         evidence.set("digest", objectMapper.valueToTree(digest));
+        if (InterviewAgentPolicy.planning(checkpoint))
+            evidence.set("planningHistory", objectMapper.valueToTree(checkpoint.evaluations().stream()
+                    .map(e -> Map.of("round", e.round(), "target", e.decision().nextCompetencyId(),
+                            "probe", e.decision().probe(), "focus", e.decision().focus())).toList()));
         if (adaptive)
             evidence.set(
                     "routingDecisions",

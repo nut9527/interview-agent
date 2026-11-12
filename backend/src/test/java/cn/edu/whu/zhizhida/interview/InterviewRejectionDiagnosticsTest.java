@@ -6,12 +6,11 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import org.junit.jupiter.api.Test;
 
 import cn.edu.whu.zhizhida.common.StructuredOutput;
-import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import tools.jackson.databind.json.JsonMapper;
 
 class InterviewRejectionDiagnosticsTest {
     private final JsonMapper json = new JsonMapper();
-    private final DefaultInterviewAiService parser = new DefaultInterviewAiService(org.mockito.Mockito.mock(cn.edu.whu.zhizhida.ai.api.JsonChatClient.class), json, BusinessMetrics.disabled());
+    private final InterviewOutputCodec parser = new InterviewOutputCodec();
 
     @Test
     void missingWrongTypeAndBlankFieldsRemainDistinctAcrossBusinessAdapter() {

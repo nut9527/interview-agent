@@ -29,6 +29,33 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class InterviewModelToolsIT {
+    private static boolean actionPhase(ToolCallingChatClient.Request request) {
+        return request.messages().getFirst().path("content").asText().startsWith(InterviewDecisionContract.ACTION_PROMPT);
+    }
+
+    private static ToolCallingChatClient.Response phaseResult(tools.jackson.databind.ObjectMapper json,
+            ToolCallingChatClient.Request request, tools.jackson.databind.JsonNode result) {
+        var envelope = json.createObjectNode().put("version", "phased-v2");
+        if (actionPhase(request)) {
+            envelope.put("phase", "ACTION").put("action", "COMPLETE").put("reason", "合成协议检查完成");
+            var checks = envelope.putArray("checks");
+            for (var item : result.path("assessment").path("detail").path("items")) {
+                var check = checks.addObject().put("dimension", item.path("dimension").asText())
+                        .put("claim", item.path("claimText").asText()).put("status", item.path("claimStatus").asText())
+                        .put("nextAction", "");
+                var evidence = check.putArray("evidence");
+                if (!item.path("citations").isEmpty()) {
+                    var citation = item.path("citations").get(0);
+                    String quote = citation.path("quote").asText();
+                    evidence.addObject().put("sourceId", citation.path("sourceKey").asText().equals("answer")
+                            ? "answer-1" : citation.path("sourceKey").asText()).put("quote", quote.substring(0, Math.min(100, quote.length())));
+                }
+            }
+        } else envelope.put("phase", "FINAL").set("result", result);
+        return new ToolCallingChatClient.Response(json.createObjectNode().put("role", "assistant")
+                .put("content", envelope.toString()), "stop", new ModelUsage(ModelUsage.Status.REPORTED, 10L, 5L, 15L));
+    }
+
 
     abstract static class ToolScenario extends InterviewRunScenario {
         @MockitoBean
@@ -46,15 +73,19 @@ class InterviewModelToolsIT {
             return acceptStart(Map.of("targetRole", "Java 后端", "resumeSummary", "项目使用 Redis 保存幂等键；数据库异常处理未描述。", "totalRounds", 3));
         }
 
+        ToolCallingChatClient.Response finalOutput(ToolCallingChatClient.Request request) {
+            return phaseResult(objectMapper, request, objectMapper.readTree("{\"question\":\"请说明你在相关经历中承担的个人职责？\",\"questionCompetencyId\":\"experience\"}"));
+        }
+
         ToolCallingChatClient.Response finalOutput() {
             return new ToolCallingChatClient.Response(objectMapper.createObjectNode().put("role", "assistant")
-                    .put("content", "{\"question\":\"请说明你在相关经历中承担的个人职责？\",\"questionCompetencyId\":\"experience\"}"),
+                    .put("content", "{\"version\":\"phased-v2\",\"phase\":\"FINAL\",\"result\":{\"question\":\"请说明你在相关经历中承担的个人职责？\",\"questionCompetencyId\":\"experience\"}}"),
                     "stop", ModelUsage.unknown(ModelUsage.Status.MISSING));
         }
     }
 
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-            "interview.runs.worker-enabled=false", "ai.provider=deepseek" })
+            "interview.runs.worker-enabled=false", "ai.provider=deepseek", "interview.runs.loop-policy=A1" })
     @Nested
     class Tools extends ToolScenario {
         @MockitoSpyBean
@@ -116,8 +147,7 @@ class InterviewModelToolsIT {
                 if (useTool && calls.getAndIncrement() == 0) return toolOutput("r2-read", "{\"sectionId\":\"resume-0\",\"maxChars\":2000}");
                 if (useTool) assertThat(request.messages().stream().filter(m -> m.path("role").asText().equals("tool")))
                         .anySatisfy(m -> assertThat(m.path("tool_call_id").asText()).isEqualTo("r2-read"));
-                return new ToolCallingChatClient.Response(objectMapper.createObjectNode().put("role", "assistant").put("content", output.toString()),
-                        "stop", ModelUsage.unknown(ModelUsage.Status.MISSING));
+                return phaseResult(objectMapper, request, output);
             });
             String request = UUID.randomUUID().toString(), path = "/api/interviews/sessions/" + sid + "/answer-commands";
             var body = Map.of("requestId", request, "expectedTurn", 1, "answer", fixture.path("answer").asText());
@@ -170,8 +200,7 @@ class InterviewModelToolsIT {
                 assertThat(input.at("/untrustedEvidence/assessmentSources").valueStream())
                         .anyMatch(s -> s.path("sourceKey").asText().equals(key) && s.path("content").asText().contains(quote));
                 citation.put("sourceKey", key).put("anchorId", anchor.path("anchorId").asText());
-                return new ToolCallingChatClient.Response(objectMapper.createObjectNode().put("role", "assistant")
-                        .put("content", output.toString()), "stop", ModelUsage.unknown(ModelUsage.Status.MISSING));
+                return phaseResult(objectMapper, request, output);
             });
 
             var body = Map.of("requestId", UUID.randomUUID().toString(), "expectedTurn", 1, "answer", fixture.path("answer").asText());
@@ -203,7 +232,7 @@ class InterviewModelToolsIT {
                 assertThat(request.messages().stream().filter(m -> m.path("role").asText().equals("tool"))).isNotEmpty();
                 assertThat(request.messages().toString()).contains("Redis", "private fixture state");
                 return n.get() == 2 ? toolOutput("second", "{\"maxChars\":2000,\"sectionId\":\"resume-0\"}")
-                        : finalOutput();
+                        : finalOutput(request);
             });
             String id = start();
             run(id);
@@ -211,19 +240,19 @@ class InterviewModelToolsIT {
             verify(tools, times(1)).execute(any(), anyList(), eq("read_material_section"), any(), anyList(), any(), anyList(), anyLong());
             assertThat(jdbc.queryForList("SELECT tool_call_id FROM interview_tool_receipts WHERE run_id=? ORDER BY id",
                     String.class, id)).containsExactly("first", "second");
-            assertThat(store.get(owner, id).attempts()).isEqualTo(3);
+            assertThat(store.get(owner, id).attempts()).isEqualTo(4);
             assertThat(objectMapper.writeValueAsString(store.events(owner, id, 0))).doesNotContain("Redis",
                     "private fixture state");
         }
 
         @Test
         void adequateEvidenceUsesZeroTools() throws Exception {
-            when(client.complete(any())).thenReturn(finalOutput());
+            when(client.complete(any())).thenAnswer(inv -> finalOutput(inv.getArgument(0)));
             String id = start();
             run(id);
             assertThat(store.get(owner, id).status()).isEqualTo("SUCCEEDED");
             assertThat(store.get(owner, id).tools()).isZero();
-            verify(client).complete(any());
+            verify(client, times(2)).complete(any());
         }
 
         @Test
@@ -245,27 +274,32 @@ class InterviewModelToolsIT {
                 int call = n.incrementAndGet();
                 if (call == 1)
                     return toolOutput("read", "{\"sectionId\":\"resume-0\",\"maxChars\":2000}");
-                if (call == 2)
+                if (actionPhase(request)) return finalOutput(request);
+                if (call == 3)
                     return new ToolCallingChatClient.Response(
-                            objectMapper.createObjectNode().put("role", "assistant").put("content", "{}"), "stop",
+                            objectMapper.createObjectNode().put("role", "assistant").put("content", "{\"version\":\"phased-v2\",\"phase\":\"FINAL\",\"result\":{}}"), "stop",
                             ModelUsage.unknown(ModelUsage.Status.MISSING));
                 assertThat(request.toolsAllowed()).isFalse();
                 assertThat(request.messages().toString()).contains("tool_call_id", "read");
-                return finalOutput();
+                return finalOutput(request);
             });
             String id = start();
             run(id);
             assertThat(store.get(owner, id).status()).isEqualTo("SUCCEEDED");
             assertThat(store.get(owner, id).repairs()).isEqualTo(1);
-            assertThat(store.get(owner, id).attempts()).isEqualTo(3);
+            assertThat(store.get(owner, id).attempts()).isEqualTo(4);
         }
 
         @Test
         void savedResponseResumesValidationWithoutAnotherModelAttempt() throws Exception {
             String id = start();
             var claim = store.claim(store.get(owner, id));
+            var initial = objectMapper.createObjectNode().put("stage", "MODEL").put("outputPhase", "FINAL")
+                    .put("repaired", false).put("actionRepaired", false);
+            initial.putArray("sources"); initial.putArray("messages").addObject().put("role", "system").put("content", InterviewDecisionContract.ACTION_PROMPT);
+            store.checkpoint(claim, initial.toString(), "MODEL", null, null);
             String attempt = store.reserveModelAttempt(claim, prepared("fixture")).id();
-            var cp = objectMapper.createObjectNode().put("stage", "VALIDATE").put("repaired", false);
+            var cp = objectMapper.createObjectNode().put("stage", "VALIDATE").put("repaired", false).put("outputPhase", "FINAL").put("actionRepaired", false);
             cp.putArray("sources");
             cp.putArray("messages");
             cp.set("response", finalOutput().message());
@@ -298,11 +332,11 @@ class InterviewModelToolsIT {
             var calls = new AtomicInteger();
             when(client.complete(any())).thenAnswer(inv -> {
                 ToolCallingChatClient.Request request = inv.getArgument(0);
-                assertThat(request.toolsAllowed()).isTrue();
-                assertThat(request.messages().getLast().path("content").asText()).contains("应用固定检索", "FOUND", content);
+                assertThat(request.toolsAllowed()).isEqualTo(actionPhase(request));
+                assertThat(request.messages().toString()).contains("应用固定检索", "FOUND", content);
                 if (calls.incrementAndGet() == 1)
                     throw cn.edu.whu.zhizhida.common.UpstreamServiceException.coded("MODEL_HTTP_503");
-                return finalOutput();
+                return finalOutput(request);
             });
             run(id);
             assertThat(store.get(owner, id).phase()).isEqualTo("RETRY_WAIT");
@@ -327,7 +361,7 @@ class InterviewModelToolsIT {
                 assertThat(request.tools()).isEmpty();
                 assertThat(request.toolsAllowed()).isFalse();
                 assertThat(request.messages().toString()).contains("EMPTY");
-                return finalOutput();
+                return finalOutput(request);
             });
             run(run.id());
             assertThat(store.get(owner, run.id()).status()).isEqualTo("SUCCEEDED");
@@ -338,7 +372,7 @@ class InterviewModelToolsIT {
 
         @Test
         void transientProviderFailureKeepsAttemptChargeButAuthenticationDoesNotRetry() throws Exception {
-            when(client.complete(any())).thenThrow(cn.edu.whu.zhizhida.common.UpstreamServiceException.coded("MODEL_HTTP_503")).thenReturn(finalOutput());
+            when(client.complete(any())).thenThrow(cn.edu.whu.zhizhida.common.UpstreamServiceException.coded("MODEL_HTTP_503")).thenAnswer(inv -> finalOutput(inv.getArgument(0)));
             String id = start();
             run(id);
             assertThat(store.get(owner, id).status()).isEqualTo("ACCEPTED");
@@ -347,10 +381,10 @@ class InterviewModelToolsIT {
             jdbc.update("UPDATE interview_runs SET not_before=TIMESTAMPADD(SECOND,-1,CURRENT_TIMESTAMP(6)) WHERE id=?",id);
             run(id);
             assertThat(store.get(owner, id).status()).isEqualTo("SUCCEEDED");
-            assertThat(store.get(owner, id).attempts()).isEqualTo(2);
+            assertThat(store.get(owner, id).attempts()).isEqualTo(3);
             assertThat(jdbc.queryForObject("SELECT status FROM interview_model_attempts WHERE run_id=? AND ordinal=1",
                     String.class, id)).isEqualTo("FAILED");
-            when(client.complete(any())).thenThrow(cn.edu.whu.zhizhida.common.UpstreamServiceException.coded("MODEL_HTTP_401"));
+            doThrow(cn.edu.whu.zhizhida.common.UpstreamServiceException.coded("MODEL_HTTP_401")).when(client).complete(any());
             id = start();
             run(id);
             assertThat(store.get(owner, id).error()).isEqualTo("MODEL_HTTP_401");
@@ -359,13 +393,14 @@ class InterviewModelToolsIT {
 
         @Test
         void secondInvalidFinalOutputStopsAfterOneRepairAndOneUserAdmission() throws Exception {
-            when(client.complete(any())).thenReturn(new ToolCallingChatClient.Response(
+            when(client.complete(any())).thenAnswer(inv -> actionPhase(inv.getArgument(0))
+                    ? finalOutput(inv.getArgument(0)) : new ToolCallingChatClient.Response(
                     objectMapper.createObjectNode().put("role", "assistant").put("content", "{broken"), "stop",
                     ModelUsage.unknown(ModelUsage.Status.MISSING)));
             String id = start();
             run(id);
             assertThat(store.get(owner, id).error()).isEqualTo("MODEL_OUTPUT_INVALID");
-            assertThat(store.get(owner, id).attempts()).isEqualTo(2);
+            assertThat(store.get(owner, id).attempts()).isEqualTo(3);
             assertThat(store.get(owner, id).repairs()).isEqualTo(1);
             assertThat(jdbc.queryForObject("SELECT used_units FROM request_quotas WHERE scope_key=?", Integer.class,
                     InterviewRunStore.sha("ai-day:" + owner))).isEqualTo(3);
@@ -379,10 +414,8 @@ class InterviewModelToolsIT {
             logger.addAppender(captured);
             try {
                 String privateText = "PRIVATE_MODEL_CONTENT_DO_NOT_LOG";
-                when(client.complete(any())).thenReturn(new ToolCallingChatClient.Response(
-                        objectMapper.createObjectNode().put("role", "assistant")
-                                .put("content", "{\"private\":\"" + privateText + "\"}"), "stop",
-                        ModelUsage.unknown(ModelUsage.Status.MISSING)));
+                when(client.complete(any())).thenAnswer(inv -> phaseResult(objectMapper, inv.getArgument(0),
+                        objectMapper.createObjectNode().put("private", privateText)));
                 String id = start();
                 run(id);
                 assertThat(store.get(owner, id).error()).isEqualTo("MODEL_OUTPUT_INVALID");
@@ -402,11 +435,14 @@ class InterviewModelToolsIT {
 
         @Test
         void repairCannotReopenToolsEvenIfProviderAsksForThem() throws Exception {
-            when(client.complete(any()))
-                    .thenReturn(new ToolCallingChatClient.Response(
-                            objectMapper.createObjectNode().put("role", "assistant").put("content", "{}"), "stop",
-                            ModelUsage.unknown(ModelUsage.Status.MISSING)))
-                    .thenReturn(toolOutput("forbidden-repair", "{\"sectionId\":\"resume-0\",\"maxChars\":10}"));
+            var finals = new AtomicInteger();
+            when(client.complete(any())).thenAnswer(inv -> {
+                ToolCallingChatClient.Request request = inv.getArgument(0);
+                if (actionPhase(request)) return finalOutput(request);
+                return finals.getAndIncrement() == 0
+                        ? phaseResult(objectMapper, request, objectMapper.createObjectNode())
+                        : toolOutput("forbidden-repair", "{\"sectionId\":\"resume-0\",\"maxChars\":10}");
+            });
             String id = start();
             run(id);
             assertThat(store.get(owner, id).error()).isEqualTo("TOOL_DISABLED");
@@ -419,7 +455,7 @@ class InterviewModelToolsIT {
 
     /** 以脚本控制的聊天模型验证真实 MCP HTTP、LangChain4j、注册表到持久回执的完整链路。 */
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-            "interview.runs.worker-enabled=false", "ai.provider=deepseek", "agent.mcp.reference.enabled=true" })
+            "interview.runs.worker-enabled=false", "ai.provider=deepseek", "interview.runs.loop-policy=A1", "agent.mcp.reference.enabled=true" })
     @Nested
     class Mcp extends ToolScenario {
         static final McpReferenceFixture MCP = new McpReferenceFixture();
@@ -432,7 +468,7 @@ class InterviewModelToolsIT {
             when(client.complete(any())).thenAnswer(invocation -> {
                 ToolCallingChatClient.Request request = invocation.getArgument(0);
                 int n = count.incrementAndGet();
-                if (n == 3) return finalOutput();
+                if (n >= 3) return finalOutput(request);
                 if (n == 2) assertThat(request.messages().toString()).contains("合成缓存参考", "UNTRUSTED_REFERENCE");
                 var message = objectMapper.createObjectNode().put("role", "assistant");
                 message.putArray("tool_calls").addObject().put("id", "mcp-" + n).put("type", "function")
@@ -443,14 +479,14 @@ class InterviewModelToolsIT {
             assertThat(store.get(owner, id).status()).isEqualTo("SUCCEEDED");
             assertThat(MCP.calls).hasValue(1);
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_tool_receipts WHERE run_id=?", Integer.class, id)).isEqualTo(2);
-            assertThat(store.get(owner, id).attempts()).isEqualTo(3);
+            assertThat(store.get(owner, id).attempts()).isEqualTo(4);
         }
     }
 
     /** 真实 HTTP 适配器、Worker 与已提交的 MySQL 调用记录共用本地供应商替身。 */
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
             "interview.runs.worker-enabled=false", "ai.provider=deepseek", "ai.api-key=synthetic-only",
-            "ai.resilience.failure-threshold=100", "interview.runs.decision-protocol=phased-v1",
+            "ai.resilience.failure-threshold=100", "interview.runs.decision-protocol=phased-v2", "interview.runs.loop-policy=A1",
             "management.tracing.sampling.probability=1", "management.tracing.export.otlp.enabled=false" })
     @org.springframework.context.annotation.Import(InterviewStreamingTracingIT.Tracing.TraceConfig.class)
     @Nested
@@ -474,7 +510,7 @@ class InterviewModelToolsIT {
         @Autowired InterviewStreamingTracingIT.Tracing.Collector traces;
         @Autowired io.opentelemetry.sdk.trace.SdkTracerProvider tracer;
 
-        static final String FINAL = "{\"version\":\"phased-v1\",\"phase\":\"FINAL\",\"result\":{\"question\":\"请说明你在相关经历中承担的个人职责？\",\"questionCompetencyId\":\"experience\"}}";
+        static final String FINAL = "{\"version\":\"phased-v2\",\"phase\":\"FINAL\",\"result\":{\"question\":\"请说明你在相关经历中承担的个人职责？\",\"questionCompetencyId\":\"experience\"}}";
         static HttpServer server() {
             try {
                 var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
@@ -493,7 +529,7 @@ class InterviewModelToolsIT {
                         finish = "tool_calls";
                         message.putNull("content").putArray("tool_calls").addObject().put("id", "read-" + SENT.size()).put("type", "function")
                                 .putObject("function").put("name", "read_material_section").put("arguments", "{\"sectionId\":\"resume-0\",\"maxChars\":2000}");
-                    } else message.put("content", "{\"version\":\"phased-v1\",\"phase\":\"ACTION\",\"action\":\"COMPLETE\",\"reason\":\"资料充分\"}");
+                    } else message.put("content", "{\"version\":\"phased-v2\",\"phase\":\"ACTION\",\"action\":\"COMPLETE\",\"reason\":\"资料充分\"}");
                     var root = json.createObjectNode();
                     var choice = root.putArray("choices").addObject().put("index", 0).put("finish_reason", finish);
                     var usage = root.putObject("usage").put("completion_tokens", 5).put("total_tokens", 15);
@@ -555,7 +591,7 @@ class InterviewModelToolsIT {
             String id = start("使用 Redis 保存幂等键。".repeat(100));
             run(id);
             assertThat(store.get(owner,id).status()).isEqualTo("SUCCEEDED");
-            assertThat(SENT).hasSize(3); reconcile(id);
+            assertThat(SENT).hasSize(4); reconcile(id);
             var attempts = jdbc.queryForList("SELECT request_hash,context_version,input_chars,tool_chars,omitted_tool_results FROM interview_model_attempts WHERE run_id=? ORDER BY ordinal", id);
             for (int i=0; i<INPUTS.size(); i++) {
                 var input = INPUTS.get(i);
@@ -566,8 +602,8 @@ class InterviewModelToolsIT {
                 assertThat(attempts.get(i).get("context_version")).isEqualTo("context-window-v1");
                 assertThat(((Number) attempts.get(i).get("input_chars")).intValue()).isEqualTo(envelope.toString().length());
             }
-            assertThat(((Number) attempts.get(2).get("omitted_tool_results")).intValue()).isEqualTo(1);
-            var outbound = INPUTS.get(2).path("messages");
+            assertThat(((Number) attempts.get(3).get("omitted_tool_results")).intValue()).isEqualTo(1);
+            var outbound = INPUTS.get(3).path("messages");
             assertThat(outbound.toString()).contains("CONTEXT_OMITTED", "opaque-fixture");
             String checkpoint = store.get(owner,id).checkpoint();
             assertThat(checkpoint).doesNotContain("CONTEXT_OMITTED");
@@ -670,7 +706,7 @@ class InterviewModelToolsIT {
             assertThat(store.get(owner,id).status()).isEqualTo("SUCCEEDED");
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_tool_receipts WHERE run_id=?",Integer.class,id)).isEqualTo(1);
             assertThat(checkpoint).contains("read-1", "opaque-fixture");
-            assertThat(SENT).hasSize(3); reconcile(id);
+            assertThat(SENT).hasSize(4); reconcile(id);
         }
 
         @Test void cancellationDuringRetryNeverSendsAnotherRequest() throws Exception {
@@ -809,14 +845,14 @@ class InterviewModelToolsIT {
             var requests = new AtomicInteger();
             when(client.complete(any())).thenAnswer(inv -> {
                 ToolCallingChatClient.Request request = inv.getArgument(0);
-                assertThat(request.tools()).anyMatch(t -> t.path("function").path("name").asText().equals("fixture_reference"));
+                if (request.toolsAllowed()) assertThat(request.tools()).anyMatch(t -> t.path("function").path("name").asText().equals("fixture_reference"));
                 if(requests.getAndIncrement() == 0) return call("extension-1","fixture_reference","{}");
                 assertThat(request.messages().toString()).contains("fixture-v1", "extension-1", "EMPTY");
-                return output();
+                return output(request);
             });
             String id = start("B0", false); run(id);
             assertThat(store.get(owner,id).status()).isEqualTo("SUCCEEDED");
-            assertThat(store.get(owner,id).attempts()).isEqualTo(2);
+            assertThat(store.get(owner,id).attempts()).isEqualTo(3);
             assertThat(store.get(owner,id).batches()).isEqualTo(1);
             assertThat(store.get(owner,id).tools()).isEqualTo(1);
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_tool_receipts WHERE run_id=? AND tool_name=?",
@@ -898,7 +934,7 @@ class InterviewModelToolsIT {
                         objectMapper.createObjectNode().put("status", "EMPTY").put("content", "x".repeat(300)).toString(), runId.get());
                 return call("cache-" + n, "fixture_reference", "{}");
             });
-            String id = start("B0", false); runId.set(id); run(id);
+            String id = start("A1", false); runId.set(id); run(id);
             assertThat(store.get(owner, id).error()).isEqualTo("TOOL_RESULT_BUDGET");
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM interview_tool_receipts WHERE run_id=?", Integer.class, id)).isEqualTo(1);
             verify(tools, times(1)).execute(any(), anyList(), eq("fixture_reference"), any(), anyList(), any(), anyList(), anyLong());
@@ -918,10 +954,8 @@ class InterviewModelToolsIT {
                 org.springframework.test.util.ReflectionTestUtils.setField(model,"loopPolicy","B0");
             }
         }
-        ToolCallingChatClient.Response output() {
-            return new ToolCallingChatClient.Response(objectMapper.createObjectNode().put("role","assistant")
-                    .put("content","{\"question\":\"请说明你在相关经历中承担的个人职责？\",\"questionCompetencyId\":\"experience\"}"),"stop",
-                    new ModelUsage(ModelUsage.Status.REPORTED,10L,5L,15L));
+        ToolCallingChatClient.Response output(ToolCallingChatClient.Request request) {
+            return phaseResult(objectMapper, request, objectMapper.readTree("{\"question\":\"请说明你在相关经历中承担的个人职责？\",\"questionCompetencyId\":\"experience\"}"));
         }
         ToolCallingChatClient.Response call(String id,String name,String args) {
             var message=objectMapper.createObjectNode().put("role","assistant").putNull("content").put("reasoning_content","PRIVATE_STATE");
@@ -938,12 +972,12 @@ class InterviewModelToolsIT {
                 if(n.getAndIncrement()==0) { assertThat(request.toolsAllowed()).isTrue(); return read("first"); }
                 assertThat(request.toolsAllowed()).isFalse();
                 assertThat(request.messages().toString()).contains("STEP_LIMIT","tool_call_id");
-                return output();
+                return output(request);
             });
             String id=start("S1",false); run(id);
             var trace=store.trace(owner,id,false);
             assertThat(store.get(owner,id).status()).isEqualTo("SUCCEEDED");
-            assertThat(store.get(owner,id).attempts()).isEqualTo(2);
+            assertThat(store.get(owner,id).attempts()).isEqualTo(3);
             assertThat(trace.actionSteps()).isEqualTo(1);
             assertThat(trace.stopReason()).isEqualTo("STEP_LIMIT");
             assertThat(trace.steps()).extracting(s->s.decisionType()).containsExactly("RETRIEVE","PROPOSE","STOP");
@@ -952,8 +986,8 @@ class InterviewModelToolsIT {
         }
 
         @Test void repeatedEvidenceStopsAndCachesWithoutInventingProgress() throws Exception {
-            when(client.complete(any())).thenReturn(read("one"),read("two"),output());
-            String id=start("S3",false); run(id);
+            when(client.complete(any())).thenReturn(read("one"),read("two")).thenAnswer(inv -> output(inv.getArgument(0)));
+            String id=start("A1",false); run(id);
             var trace=store.trace(owner,id,false);
             assertThat(trace.stopReason()).isEqualTo("NO_PROGRESS");
             assertThat(trace.steps().get(1).newEvidence()).isZero();
@@ -971,8 +1005,8 @@ class InterviewModelToolsIT {
 
         @Test void twoMissesPermitOneChangedQueryThenStop() throws Exception {
             when(client.complete(any())).thenReturn(call("q1","search_knowledge","{\"query\":\"redis\",\"topK\":2}"),
-                    call("q2","search_knowledge","{\"query\":\"database\",\"topK\":2}"),output());
-            String id=start("S3",false); run(id);
+                    call("q2","search_knowledge","{\"query\":\"database\",\"topK\":2}")).thenAnswer(inv -> output(inv.getArgument(0)));
+            String id=start("A1",false); run(id);
             var trace=store.trace(owner,id,false);
             assertThat(trace.stopReason()).isEqualTo("NO_PROGRESS");
             assertThat(trace.steps()).extracting(s->s.decisionType()).containsExactly("RETRIEVE","REVISE","PROPOSE","STOP");
@@ -980,7 +1014,7 @@ class InterviewModelToolsIT {
         }
 
         @Test void zeroToolPathDoesNotFabricateActionSteps() throws Exception {
-            when(client.complete(any())).thenReturn(output());
+            when(client.complete(any())).thenAnswer(inv -> output(inv.getArgument(0)));
             String id=start("S3",false); run(id);
             assertThat(store.trace(owner,id,false).actionSteps()).isZero();
             assertThat(store.trace(owner,id,false).stopReason()).isEqualTo("COMPLETED");
@@ -998,7 +1032,7 @@ class InterviewModelToolsIT {
                     assertThat(next.toolsAllowed()).isFalse();
                     assertThat(next.messages().stream().filter(m->m.path("role").asText().equals("tool"))).hasSize(2);
                     assertThat(next.messages().toString()).contains("SKIPPED","one","two");
-                    return output();
+                    return output(next);
                 }
             });
             String id=start("S1",false); run(id);
@@ -1012,8 +1046,14 @@ class InterviewModelToolsIT {
         @Test void savedReceiptAndStepResumeAtomicallyWithNoReexecution() throws Exception {
             String id=start("S3",false);
             var claim=store.claim(store.get(owner,id));
-            var cp=objectMapper.createObjectNode().put("stage","TOOL").put("repaired",false).put("toolIndex",1).put("batchReserved",true);
-            cp.putArray("sources"); cp.putArray("messages").add(read("saved").message()).add(objectMapper.createObjectNode()
+            var initial = objectMapper.createObjectNode().put("stage", "MODEL").put("outputPhase", "ACTION")
+                    .put("repaired", false).put("actionRepaired", false);
+            initial.putArray("sources"); initial.putArray("messages").addObject().put("role", "system").put("content", InterviewDecisionContract.ACTION_PROMPT);
+            store.checkpoint(claim, initial.toString(), "MODEL", null, null);
+            var cp=objectMapper.createObjectNode().put("outputPhase","ACTION").put("actionRepaired",false).put("stage","TOOL").put("repaired",false).put("toolIndex",1).put("batchReserved",true);
+            cp.putArray("sources"); cp.putArray("messages")
+                    .add(objectMapper.createObjectNode().put("role", "system").put("content", InterviewDecisionContract.ACTION_PROMPT))
+                    .add(read("saved").message()).add(objectMapper.createObjectNode()
                     .put("role","tool").put("tool_call_id","saved").put("content","{\"status\":\"FOUND\"}"));
             cp.set("response",read("saved").message());
             String attempt=store.reserveModelAttempt(claim, prepared("fixture")).id();
@@ -1027,13 +1067,13 @@ class InterviewModelToolsIT {
             var next=store.claim(store.get(owner,id));
             assertThatThrownBy(() -> store.receipt(claim,"stale","stale","read_material_section","{}","s","{}",cp.toString(),false,observation))
                     .hasMessage("RUN_FENCED");
-            when(client.complete(any())).thenReturn(output());
+            when(client.complete(any())).thenAnswer(inv -> output(inv.getArgument(0)));
             worker.execute(next);
             assertThat(store.get(owner,id).status()).isEqualTo("SUCCEEDED");
             assertThat(store.trace(owner,id,false).actionSteps()).isEqualTo(1);
             assertThat(store.trace(owner,id,false).actualExecutions()).isEqualTo(1);
             verify(tools,never()).execute(any(),anyList(),anyString(),any(),anyList(),any(),anyList(),anyLong());
-            verify(client,times(1)).complete(any());
+            verify(client,times(2)).complete(any());
         }
 
         @Test void cancelledAndExpiredRunsExposeNoValidatedBusinessResult() throws Exception {
@@ -1052,7 +1092,7 @@ class InterviewModelToolsIT {
         @Test void damagedSavedToolProgressFailsWithoutNewCallsOrBudgetReservation() throws Exception {
             String id=start("S3",false);
             var claim=store.claim(store.get(owner,id));
-            var cp=objectMapper.createObjectNode().put("stage","TOOL").put("repaired",false)
+            var cp=objectMapper.createObjectNode().put("outputPhase","ACTION").put("actionRepaired",false).put("stage","TOOL").put("repaired",false)
                     .put("toolIndex",1).put("batchReserved",true);
             cp.putArray("sources");
             cp.putArray("messages").add(read("missing-receipt").message());
@@ -1075,7 +1115,7 @@ class InterviewModelToolsIT {
         @Test void changedConfigurationCannotExecuteToolsFromAnOlderCheckpoint() throws Exception {
             String id=start("S3",false);
             var claim=store.claim(store.get(owner,id));
-            var cp=objectMapper.createObjectNode().put("stage","TOOL").put("repaired",false)
+            var cp=objectMapper.createObjectNode().put("outputPhase","ACTION").put("actionRepaired",false).put("stage","TOOL").put("repaired",false)
                     .put("toolIndex",0).put("batchReserved",false);
             cp.putArray("sources");
             cp.putArray("messages").add(read("older-toolset").message());
@@ -1098,7 +1138,7 @@ class InterviewModelToolsIT {
         }
 
         @Test void formalTraceIsHiddenAndOtherOwnersCannotReadIt() throws Exception {
-            when(client.complete(any())).thenReturn(read("formal"),output());
+            when(client.complete(any())).thenReturn(read("formal")).thenAnswer(inv -> output(inv.getArgument(0)));
             String id=start("S1",true); run(id);
             var trace=dataMap(performGet("/api/interview-runs/"+id+"/steps",token));
             assertThat(trace.get("hidden")).isEqualTo(true);
@@ -1109,7 +1149,7 @@ class InterviewModelToolsIT {
         }
 
         @Test void pruningPrivateRecordsKeepsSafeStepsAndAccounting() throws Exception {
-            when(client.complete(any())).thenReturn(read("read"),output());
+            when(client.complete(any())).thenReturn(read("read")).thenAnswer(inv -> output(inv.getArgument(0)));
             String id=start("S1",false); run(id);
             jdbc.update("UPDATE interview_runs SET updated_at=TIMESTAMPADD(DAY,-8,CURRENT_TIMESTAMP(6)) WHERE id=?",id);
             store.prune();
@@ -1139,15 +1179,16 @@ class InterviewModelToolsIT {
                 if(n==0) return call("missing","read_material_section","{\"sectionId\":\"missing\",\"maxChars\":2000}");
                 assertThat(request.messages().toString()).contains("MISSING");
                 if(request.toolsAllowed() && n==1) return read("available");
-                if(n>1) assertThat(request.messages().toString()).contains("FOUND");
-                return output();
+                assertThat(request.toolsAllowed()).isFalse();
+                return output(request);
             });
             String id=start(policy,false);
             long started=System.nanoTime(); run(id);
             long elapsed=(System.nanoTime()-started)/1000000;
             var row=store.get(owner,id);
             assertThat(row.status()).isEqualTo("SUCCEEDED");
-            assertThat(row.attempts()).isEqualTo(policy.equals("S1")?2:3);
+            assertThat(row.attempts()).isEqualTo(3);
+            assertThat(row.tools()).isEqualTo(1);
             var report=objectMapper.createObjectNode().put("scope","SYNTHETIC_PROTOCOL_ONLY_NOT_SEMANTIC_BENEFIT")
                     .put("policy",policy).put("status",row.status()).put("modelAttempts",row.attempts())
                     .put("reservedToolRequests",row.tools()).put("elapsedMs",elapsed)
@@ -1173,7 +1214,7 @@ class InterviewModelToolsIT {
         @Test void receiptFailureRollsBackItsStepCheckpointAndAccounting() throws Exception {
             String id=start("S3",false);
             var claim=store.claim(store.get(owner,id));
-            var cp=objectMapper.createObjectNode().put("stage","TOOL");
+            var cp=objectMapper.createObjectNode().put("outputPhase","ACTION").put("actionRepaired",false).put("stage","TOOL");
             store.batch(claim,1,cp.toString());
             String before=store.get(owner,id).checkpoint();
             var args=objectMapper.readTree("{\"sectionId\":\"resume-0\",\"maxChars\":2000}");

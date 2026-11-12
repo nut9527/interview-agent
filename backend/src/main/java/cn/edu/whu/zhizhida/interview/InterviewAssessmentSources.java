@@ -7,13 +7,13 @@ import cn.edu.whu.zhizhida.interview.api.InterviewTraining;
 import java.util.*;
 
 /** 提示词与校验共用同一来源目录；只引用已归档题目和资料摘录，不读取实时文档。 */
-final class InterviewAssessmentSources {
+public final class InterviewAssessmentSources {
     private InterviewAssessmentSources() { }
     static List<AssessmentReference> references(long owner, InterviewTraining training) {
         return references(owner, training, List.of());
     }
 
-    static List<AssessmentReference> references(long owner, InterviewTraining training,
+    public static List<AssessmentReference> references(long owner, InterviewTraining training,
             List<cn.edu.whu.zhizhida.interview.api.KnowledgeSnapshot.Reference> verified) {
         if (training == null) return List.of();
         var result = new ArrayList<AssessmentReference>();

@@ -38,7 +38,7 @@ export async function prepare(candidateId) {
     registrationSha256: registration.configSha256, price,
     samples: batch.sampleOrder.map(id => config.samples.find(sample => sample.id === id)),
     required: batch.required, maximumMicroCny: batch.maximumMicroCny, maximumAttempts: batch.maximumAttempts,
-    wallClockMs: 300000, maximumRequestBytes: 480000, maximumOutputTokens: 2000,
+    wallClockMs: 300000, maximumRequestBytes: 480000, maximumOutputTokens: 3000,
     unknownUsage: 'RETAIN_RESERVATION', settlement: 'CONSERVATIVE_PEAK_CACHE_MISS',
     scope: '第一批两个固定短场景；后两批须完成 HTTP 流程接入和人工检查门禁后另行冻结',
     acceptance: '执行结束只可为 NOT_STARTED、FAIL 或 REVIEW_PENDING；需逐项人工检查才可判 PASS' };
@@ -52,7 +52,7 @@ export async function preflight(path) {
   const plan = JSON.parse(await readFile(await localPath(path), 'utf8'));
   if (plan.schemaVersion !== 'closeout-batch-v1' || plan.campaign !== 'v1-closeout' || plan.batchId !== 'closeout-1'
       || plan.authorization !== 'NOT_GRANTED' || plan.maximumMicroCny !== 6000000 || plan.maximumAttempts !== 8
-      || plan.wallClockMs !== 300000 || plan.maximumRequestBytes !== 480000 || plan.maximumOutputTokens !== 2000)
+      || plan.wallClockMs !== 300000 || plan.maximumRequestBytes !== 480000 || plan.maximumOutputTokens !== 3000)
     throw new Error('Only the frozen first batch is currently executable');
   if (!/^outputs\/release\/[a-z0-9][a-z0-9-]{0,79}$/.test(plan.candidatePath)) throw new Error('Invalid source candidate path');
   const directory = await localPath(plan.candidatePath);
@@ -74,7 +74,7 @@ export async function preflight(path) {
   }
   validatePrice(plan.price);
   const largest = reservationFor(Buffer.from(JSON.stringify({ model: plan.price.model, thinking: { type: 'disabled' },
-    stream: false, max_tokens: 2000, messages: [{ role: 'user', content: '预检' }] })), plan.price);
+    stream: false, max_tokens: 3000, messages: [{ role: 'user', content: '预检' }] })), plan.price);
   return { plan, sha256: planHash(plan), maximumReservationMicroCny: largest.microCny };
 }
 
@@ -84,8 +84,8 @@ export function evaluationEnv(base, url, token, report) {
     !/^(?:AI_|DEEPSEEK_|INTERVIEW_|AGENT_|LEARNING_|REDIS_|RABBITMQ_|APP_|RUN_EVAL_|RUN_REAL_|SPRING_|MAVEN_|JAVA_TOOL_OPTIONS$|JDK_JAVA_OPTIONS$|_JAVA_OPTIONS$)/i.test(key)));
   return { ...env, DEEPSEEK_API_KEY: token, AI_API_KEY: token, DEEPSEEK_BASE_URL: url,
     DEEPSEEK_MODEL: 'deepseek-flash', DEEPSEEK_THINKING: 'disabled', DEEPSEEK_TIMEOUT_SECONDS: '30',
-    INTERVIEW_RUNS_LOOP_POLICY: 'B0',
-    INTERVIEW_RUNS_DECISION_PROTOCOL: 'legacy', INTERVIEW_ADAPTIVE_ROUTING_ENABLED: 'false',
+    INTERVIEW_RUNS_LOOP_POLICY: 'B0', SPRING_PROFILES_ACTIVE: 'agent-evaluation',
+    INTERVIEW_RUNS_DECISION_PROTOCOL: 'phased-v2', INTERVIEW_ADAPTIVE_ROUTING_ENABLED: 'false',
     LEARNING_PRACTICE_TOOLS_ENABLED: 'false', AGENT_VECTOR_ENABLED: 'false',
     AGENT_TRACE_EXPORT_ENABLED: 'false', REDIS_HEALTH_ENABLED: 'false', RABBITMQ_HEALTH_ENABLED: 'false',
     REDIS_RATE_LIMIT_ENABLED: 'false', QUESTION_CACHE_ENABLED: 'false', RUN_DISPATCH_MODE: 'database',

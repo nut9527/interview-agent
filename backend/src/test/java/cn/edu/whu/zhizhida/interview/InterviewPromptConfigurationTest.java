@@ -1,9 +1,7 @@
 package cn.edu.whu.zhizhida.interview;
 
 import cn.edu.whu.zhizhida.ai.api.AiMode;
-import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
 import cn.edu.whu.zhizhida.ai.api.ToolCallingChatClient;
-import cn.edu.whu.zhizhida.interview.api.InterviewAiService;
 import cn.edu.whu.zhizhida.interview.api.InterviewSession;
 import cn.edu.whu.zhizhida.interview.execution.InterviewEvidenceTools;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
@@ -23,7 +21,6 @@ class InterviewPromptConfigurationTest {
     private final ApplicationContextRunner context = new ApplicationContextRunner()
             .withUserConfiguration(InterviewAiConfiguration.class, InterviewRunModel.class)
             .withBean(AiMode.class, () -> AiMode.MODEL)
-            .withBean(JsonChatClient.class, () -> mock(JsonChatClient.class))
             .withBean(ToolCallingChatClient.class, () -> mock(ToolCallingChatClient.class))
             .withBean(ObjectMapper.class, () -> json)
             .withBean(BusinessMetrics.class, BusinessMetrics::disabled)
@@ -33,16 +30,16 @@ class InterviewPromptConfigurationTest {
     void defaultConfigurationLoadsPackagedTemplates() {
         context.run(c -> {
             assertThat(c).hasNotFailed();
-            var service = (DefaultInterviewAiService) c.getBean(InterviewAiService.class);
+            var service = new InterviewPromptBuilder(json, c.getBean(InterviewPromptTemplates.class));
             assertThat(service.templateManifest().path("templateVersion").asText())
-                    .isEqualTo("interview-prompts-v5");
+                    .isEqualTo("interview-prompts-v6");
             assertThat(service.openingInput("Java", "材料", null).system())
                     .startsWith(InterviewPromptTemplates.defaults().get("opening"));
         });
     }
 
     @Test
-    void externalBundleFeedsBothAdaptersAndFencesChangedRuns(@TempDir Path directory) throws Exception {
+    void externalBundleFeedsRuntimeAndFencesChangedRuns(@TempDir Path directory) throws Exception {
         writeBundle(directory);
         Files.writeString(directory.resolve("version.txt"), "test-v2\n");
         Files.writeString(directory.resolve("opening.txt"), "外部模板首问\n");
@@ -50,7 +47,7 @@ class InterviewPromptConfigurationTest {
         var configured = context.withPropertyValues("interview.prompts.directory=" + directory);
         configured.run(c -> {
             assertThat(c).hasNotFailed();
-            var service = (DefaultInterviewAiService) c.getBean(InterviewAiService.class);
+            var service = new InterviewPromptBuilder(json, c.getBean(InterviewPromptTemplates.class));
             var model = c.getBean(InterviewRunModel.class);
             var session = mock(InterviewSession.class);
             when(session.targetRole()).thenReturn("Java");

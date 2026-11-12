@@ -249,6 +249,7 @@ class InterviewAcceptanceIT {
     @Nested
     class Capacity extends InterviewScenario {
         @Autowired InterviewRunStore store;
+        @Autowired InterviewRunModel model;
         @Autowired JdbcTemplate jdbc;
         @Autowired TransactionTemplate tx;
         @Autowired RunAdmission admission;
@@ -262,7 +263,7 @@ class InterviewAcceptanceIT {
         }
         InterviewRunStore.Row accept(int user, String key) {
             return store.accept(owners.get(user), "START", key, key, null, 0,
-                    () -> new InterviewRunStore.Fixed(UUID.randomUUID().toString(), "{}", "{}", "LEGACY"));
+                    () -> new InterviewRunStore.Fixed(UUID.randomUUID().toString(), "{}", model.configuration(), "TOOL"));
         }
         InterviewRunStore.Row fresh(InterviewRunStore.Row row) { return store.get(row.owner(), row.id()); }
 
@@ -354,8 +355,12 @@ class InterviewAcceptanceIT {
 
         @Test void backoffDoesNotRestartQueueDeadlineOrLetWaitingCommandOvertake() {
             var a = accept(0, "a"); var ca = store.claim(a); var waiting = accept(0, "waiting");
+            var cp = objectMapper.createObjectNode().put("stage", "MODEL").put("outputPhase", "ACTION")
+                    .put("repaired", false).put("actionRepaired", false);
+            cp.putArray("sources"); cp.putArray("messages").addObject().put("role", "system").put("content", "ACTION fixture");
+            store.checkpoint(ca, cp.toString(), "MODEL", null, null);
             var attempt = store.reserveModelAttempt(ca, prepared("hash")).id();
-            assertThat(store.deferModelFailure(ca, attempt, "MODEL_NETWORK", 1, "{}")).isTrue();
+            assertThat(store.deferModelFailure(ca, attempt, "MODEL_NETWORK", 1, cp.toString())).isTrue();
             jdbc.update("UPDATE interview_runs SET queue_deadline=TIMESTAMPADD(SECOND,-1,CURRENT_TIMESTAMP(6)),"
                     + "not_before=TIMESTAMPADD(SECOND,-1,CURRENT_TIMESTAMP(6)) WHERE id=?", a.id());
             store.expireWaiting();
@@ -383,7 +388,7 @@ class InterviewAcceptanceIT {
             var row = store.accept(owners.getFirst(), "START", "source_lock_order", "hash", null, 0, () -> {
                 independent.executeWithoutResult(s -> assertThat(jdbc.queryForObject(
                         "SELECT id FROM agent_run_admission WHERE id=1 FOR UPDATE NOWAIT", Integer.class)).isEqualTo(1));
-                return new InterviewRunStore.Fixed(UUID.randomUUID().toString(), "{}", "{}", "LEGACY");
+                return new InterviewRunStore.Fixed(UUID.randomUUID().toString(), "{}", model.configuration(), "TOOL");
             });
             assertThat(row.status()).isEqualTo("ACCEPTED");
         }

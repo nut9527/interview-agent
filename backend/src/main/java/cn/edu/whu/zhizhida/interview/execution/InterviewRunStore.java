@@ -1,7 +1,6 @@
 package cn.edu.whu.zhizhida.interview.execution;
 
 import cn.edu.whu.zhizhida.common.BusinessException;
-import cn.edu.whu.zhizhida.common.ResourceNotFoundException;
 import cn.edu.whu.zhizhida.common.Sha256;
 import cn.edu.whu.zhizhida.common.execution.ExecutionPort;
 import cn.edu.whu.zhizhida.common.execution.RunFailureException;
@@ -10,7 +9,6 @@ import cn.edu.whu.zhizhida.interview.InterviewSessionRepository;
 import cn.edu.whu.zhizhida.interview.api.InterviewRun;
 import cn.edu.whu.zhizhida.interview.api.InterviewRun.InterviewRunTrace;
 import cn.edu.whu.zhizhida.interview.api.InterviewSession;
-import cn.edu.whu.zhizhida.interview.api.InterviewState;
 import cn.edu.whu.zhizhida.interview.api.KnowledgeSnapshot;
 import cn.edu.whu.zhizhida.interview.api.QuestionCatalog;
 import cn.edu.whu.zhizhida.learning.api.GoalSessionLinks;
@@ -44,12 +42,10 @@ import java.util.function.Supplier;
 /**
  * 编排运行生命周期，并以短事务保存受理、领取和终态变更。
  *
- * <p>按需遵循业务主体、准入、运行记录、账本的加锁顺序；模型调用由 Worker 在事务外执行。
- * SQL 查询、训练关联、准入、日志与保留清理由各自组件负责。
+ * <p>按需遵循业务主体、准入、运行记录、账本的加锁顺序；模型调用由 Worker 在事务外执行。 SQL 查询、训练关联、准入、日志与保留清理由各自组件负责。
  */
 @Repository
 public class InterviewRunStore implements ExecutionPort {
-    private final QuestionCatalog questions;
     private static final Logger log = LoggerFactory.getLogger(InterviewRunStore.class);
 
     public record Row(
@@ -108,17 +104,14 @@ public class InterviewRunStore implements ExecutionPort {
     private final RunJournal journal;
     private final RunAttemptLedger attempts;
     private final RunToolReceipts receipts;
-    private final RunTrainingTasks trainingTasks;
-    private final GoalSessionLinks goalSessions;
     private final InterviewSessionRepository sessions;
-    private final AiRequestQuota quota;
     private final ObjectMapper policyJson;
-    private final BusinessMetrics metrics;
     private final RunAdmission admission;
     private final AgentTelemetry telemetry;
-    private final PracticeMemoryAccess memory;
     private final Map<String, RunSubject> subjects;
-    private final ObjectProvider<MissionBudget> missionBudget;
+    private final RunAcceptance acceptance;
+    private final RunLease lease;
+    private final RunCommit completion;
 
     public InterviewRunStore(
             JdbcTemplate jdbc,
@@ -135,24 +128,26 @@ public class InterviewRunStore implements ExecutionPort {
             QuestionCatalog questions,
             PracticeMemoryAccess memory,
             ObjectProvider<MissionBudget> missionBudget) {
-        this.questions = questions;
-        this.memory = memory;
-        this.missionBudget = missionBudget;
         this.jdbc = jdbc;
         this.rows = new RunRepository(jdbc);
         this.retention =
                 new RunRetention(
-                        jdbc, tx, rows, json, memory, this::lockSubject, retentionCoordinator);
-        this.goalSessions = goalSessions;
-        this.trainingTasks = new RunTrainingTasks(jdbc, goalSessions);
+                        jdbc,
+                        tx,
+                        rows,
+                        json,
+                        memory,
+                        this::lockSubject,
+                        row ->
+                                subject(row.subjectType())
+                                        .clearPrivate(row.owner(), row.subjectId(), row.id()),
+                        retentionCoordinator);
         this.journal = new RunJournal(jdbc, json);
         this.attempts = new RunAttemptLedger(jdbc, json, quota, journal);
         this.receipts = new RunToolReceipts(jdbc, json, journal);
         this.tx = tx;
         this.sessions = sessions;
-        this.quota = quota;
         this.policyJson = json;
-        this.metrics = metrics;
         this.admission = admission;
         this.telemetry = telemetry;
         var registered = new LinkedHashMap<String, RunSubject>();
@@ -163,6 +158,42 @@ public class InterviewRunStore implements ExecutionPort {
                 throw new IllegalStateException("RUN_SUBJECT_DUPLICATE");
         }
         this.subjects = Map.copyOf(registered);
+        this.completion =
+                new RunCommit(
+                        jdbc,
+                        sessions,
+                        questions,
+                        memory,
+                        json,
+                        new RunTrainingTasks(jdbc, goalSessions),
+                        journal,
+                        attempts,
+                        metrics,
+                        this::afterCommit);
+        this.lease =
+                new RunLease(
+                        jdbc,
+                        tx,
+                        rows,
+                        admission,
+                        attempts,
+                        completion,
+                        this::lockSubject,
+                        this::afterCommit);
+        this.acceptance =
+                new RunAcceptance(
+                        jdbc,
+                        tx,
+                        rows,
+                        sessions,
+                        quota,
+                        json,
+                        admission,
+                        goalSessions,
+                        missionBudget,
+                        this::subject,
+                        this::accepted,
+                        journal);
     }
 
     @Override
@@ -173,55 +204,7 @@ public class InterviewRunStore implements ExecutionPort {
 
     @Override
     public Run accept(Command command) {
-        return tx.execute(
-                s -> {
-                    var executor = subject(command.subjectType());
-                    executor.lock(command.owner(), command.subjectId());
-                    admission.lock();
-                    String hash =
-                            sha(
-                                    command.subjectType()
-                                            + "\n"
-                                            + command.subjectId()
-                                            + "\n"
-                                            + command.revision()
-                                            + "\n"
-                                            + command.input());
-                    var existing =
-                            commandLocked(
-                                    command.owner(), command.operation(), command.requestId());
-                    if (existing.isPresent()) {
-                        same(existing.get(), hash);
-                        return read(command.owner(), existing.get().id());
-                    }
-                    executor.validate(
-                            command.owner(),
-                            command.subjectId(),
-                            command.revision(),
-                            command.operation());
-                    admission.requireAcceptance(command.owner());
-                    String id = UUID.randomUUID().toString();
-                    jdbc.update(
-                            "INSERT INTO"
-                                + " interview_runs(id,owner_id,operation,request_id,request_hash,input_hash,session_id,expected_turn,route,config_json,input_json,deadline,subject_type,subject_id,subject_revision,actual_tool_executions,tool_cache_hits,skipped_tool_requests)"
-                                + " VALUES(?,?,?,?,?,?,NULL,NULL,'RULE','{\"policyVersion\":\"goal-plan-v1\"}',?,TIMESTAMPADD(SECOND,90,CURRENT_TIMESTAMP(6)),?,?,?,0,0,0)",
-                            id,
-                            command.owner(),
-                            command.operation(),
-                            command.requestId(),
-                            hash,
-                            sha(command.input()),
-                            command.input(),
-                            command.subjectType(),
-                            command.subjectId(),
-                            command.revision());
-                    missionBudget
-                            .getObject()
-                            .reserve(command.owner(), command.subjectId(), id, false, 0, 0);
-                    journal.event(id, "run.accepted", "CONTEXT", "目标规划已受理");
-                    accepted(id);
-                    return read(command.owner(), id);
-                });
+        return acceptance.accept(command);
     }
 
     private RunSubject subject(String type) {
@@ -242,13 +225,26 @@ public class InterviewRunStore implements ExecutionPort {
                 new Claim(context.id(), context.owner(), known.sessionId(), context.epoch()),
                 row -> {
                     mutation.run();
-                    finish(row, "SUCCEEDED", null, "subject.committed", "目标规划草稿已保存，等待本人确认");
+                    completion.finish(
+                            row, "SUCCEEDED", null, "subject.committed", "目标规划草稿已保存，等待本人确认");
                     return null;
                 });
     }
 
     public Row get(long owner, String id) {
         return rows.get(owner, id);
+    }
+
+    public AgentLoopPolicy executionBudget(long owner, String id) {
+        return loopPolicy(get(owner, id));
+    }
+
+    @Override
+    public void requireActive(Context context) {
+        var row = get(context.owner(), context.id());
+        fenced(
+                new Claim(context.id(), context.owner(), row.sessionId(), context.epoch()),
+                active -> null);
     }
 
     public List<Row> active(long owner) {
@@ -259,11 +255,6 @@ public class InterviewRunStore implements ExecutionPort {
         return rows.command(owner, op, key);
     }
 
-    private Optional<Row> commandLocked(long owner, String op, String key) {
-        return rows.commandLocked(owner, op, key);
-    }
-
-    /** 在同一事务内完成命令去重、输入固定与受理扣额；同键不同请求内容视为冲突。 */
     public Row accept(
             long owner,
             String op,
@@ -272,110 +263,7 @@ public class InterviewRunStore implements ExecutionPort {
             String sessionId,
             int turn,
             Supplier<Fixed> freeze) {
-        return tx.execute(
-                s -> {
-                    var existing = command(owner, op, key);
-                    if (existing.isPresent()) return same(existing.get(), hash);
-                    var goal =
-                            op.equals("ANSWER")
-                                    ? goalSessions.goalForSession(owner, sessionId)
-                                    : Optional.<String>empty();
-                    // 目标命令和训练启动已在准入前锁定目标。
-                    // 下方预占不得以反向锁序再次取得同一目标。
-                    goal.ifPresent(id -> missionBudget.getObject().lock(owner, id));
-                    InterviewSession lockedSession = null;
-                    if (sessionId != null) {
-                        lockedSession =
-                                sessions.findByIdForUpdate(owner, sessionId)
-                                        .orElseThrow(
-                                                () ->
-                                                        new ResourceNotFoundException(
-                                                                "interview session not found"));
-                    }
-                    // 快照准备可能锁定历史来源，须在共享准入互斥锁之前完成。
-                    // 避免持有共享准入锁等待来源，阻塞其他用户。
-                    Fixed fixed = freeze.get();
-                    var budget =
-                            BudgetProfile.frozen(policyJson, policyJson.readTree(fixed.config()));
-                    admission.lock();
-                    existing = commandLocked(owner, op, key);
-                    if (existing.isPresent()) return same(existing.get(), hash);
-                    if (lockedSession != null
-                            && (lockedSession.state() != InterviewState.WAITING_ANSWER
-                                    || lockedSession.turnCount() != turn)) throw conflict();
-                    if (lockedSession != null
-                            && jdbc.queryForObject(
-                                            "SELECT COUNT(*) FROM interview_sessions WHERE"
-                                                + " user_id=? AND session_id=? AND (active_run_id"
-                                                + " IS NOT NULL OR"
-                                                + " answer_lease_until>CURRENT_TIMESTAMP(6))",
-                                            Integer.class,
-                                            owner,
-                                            sessionId)
-                                    != 0) throw conflict();
-                    admission.requireAcceptance(owner);
-                    String id = UUID.randomUUID().toString();
-                    // 唯一约束与锁内重放检查共同保护并发启动，只有新命令扣减受理额度。
-                    jdbc.update(
-                            "INSERT INTO"
-                                + " interview_runs(id,owner_id,operation,request_id,request_hash,input_hash,session_id,expected_turn,route,config_json,input_json,deadline,actual_tool_executions,tool_cache_hits,skipped_tool_requests)"
-                                + " VALUES(?,?,?,?,?,'',?,?,'PENDING','{}','{}',TIMESTAMPADD(MICROSECOND,?,CURRENT_TIMESTAMP(6)),0,0,0)"
-                                + " ON DUPLICATE KEY UPDATE id=id",
-                            id,
-                            owner,
-                            op,
-                            key,
-                            hash,
-                            sessionId == null ? id : sessionId,
-                            turn,
-                            budget.execution().deadlineMillis() * 1_000);
-                    Row row = commandLocked(owner, op, key).orElseThrow();
-                    if (!row.id().equals(id)) return same(row, hash);
-                    if (sessionId != null
-                            && jdbc.update(
-                                            "UPDATE interview_sessions SET active_run_id=? WHERE"
-                                                + " session_id=? AND user_id=? AND active_run_id IS"
-                                                + " NULL AND (answer_lease_until IS NULL OR"
-                                                + " answer_lease_until<=CURRENT_TIMESTAMP(6))",
-                                            id,
-                                            sessionId,
-                                            owner)
-                                    != 1) throw conflict();
-                    quota.admitRun(
-                            Long.toString(owner),
-                            op.equals("START")
-                                    ? AiRequestQuota.INTERVIEW_START_UNITS
-                                    : AiRequestQuota.INTERVIEW_REVIEW_UNITS);
-                    jdbc.update(
-                            "UPDATE interview_runs SET"
-                                + " input_json=?,input_hash=?,config_json=?,route=?,session_id=?,subject_id=?"
-                                + " WHERE id=?",
-                            fixed.input(),
-                            sha(fixed.input() + "\n" + fixed.config() + "\n" + fixed.route()),
-                            fixed.config(),
-                            fixed.route(),
-                            fixed.sessionId(),
-                            fixed.sessionId(),
-                            id);
-                    if (goal.isPresent())
-                        missionBudget
-                                .getObject()
-                                .reserve(
-                                        owner,
-                                        goal.get(),
-                                        id,
-                                        false,
-                                        budget.execution().maxModelAttempts(),
-                                        budget.execution().maxToolExecutions());
-                    journal.event(id, "run.accepted", "CONTEXT", "请求已受理");
-                    accepted(id);
-                    return get(owner, id);
-                });
-    }
-
-    private Row same(Row row, String hash) {
-        if (!row.requestHash().equals(hash)) throw conflict();
-        return row;
+        return acceptance.accept(owner, op, key, hash, sessionId, turn, freeze);
     }
 
     public List<Row> candidates() {
@@ -428,70 +316,12 @@ public class InterviewRunStore implements ExecutionPort {
         return rows.forSession(owner, session);
     }
 
-    /** 接管待运行或租约过期的任务；递增代次使原执行者失去后续写入资格。 */
     public Claim claim(Row candidate) {
-        return tx.execute(
-                s -> {
-                    lockSubject(candidate);
-                    admission.lock();
-                    Row row = lock(candidate.owner(), candidate.id());
-                    if (row.terminal()) return null;
-                    if (expireLocked(row)) return null;
-                    if (!admission.canClaim(row)) return null;
-                    int changed =
-                            jdbc.update(
-                                    "UPDATE interview_runs SET"
-                                        + " status='RUNNING',not_before=NULL,first_started_at=COALESCE(first_started_at,CURRENT_TIMESTAMP(6)),lease_epoch=lease_epoch+1,lease_until=TIMESTAMPADD(SECOND,30,CURRENT_TIMESTAMP(6))"
-                                        + " WHERE id=? AND "
-                                            + RunRepository.CLAIMABLE
-                                            + " AND "
-                                            + RunRepository.READY,
-                                    row.id());
-                    if (changed != 1) return null;
-                    // 中断前发出的请求可能已被供应商处理，只能标记结果未知，不能当作未调用。
-                    attempts.markInterrupted(row.id());
-                    long epoch = row.epoch() + 1;
-                    afterCommit(
-                            () ->
-                                    log.info(
-                                            "runId={} epoch={} phase={} event=run.claimed",
-                                            row.id(),
-                                            epoch,
-                                            row.phase()));
-                    return new Claim(row.id(), row.owner(), row.sessionId(), epoch);
-                });
+        return lease.claim(candidate);
     }
 
-    /** 过期回收不要求执行许可，容量饱和不能阻止到期处理或互斥锁释放。 */
     public void expireWaiting() {
-        var expired = rows.expired();
-        for (var known : expired)
-            tx.executeWithoutResult(
-                    s -> {
-                        lockSubject(known);
-                        expireLocked(lock(known.owner(), known.id()));
-                    });
-    }
-
-    private boolean expireLocked(Row row) {
-        if (row.terminal()) return false;
-        var reason =
-                jdbc.queryForList(
-                        "SELECT IF(deadline<=CURRENT_TIMESTAMP(6),'RUN_BUDGET','RUN_QUEUE_TIMEOUT')"
-                            + " FROM interview_runs WHERE id=? AND "
-                                + RunRepository.CLAIMABLE
-                                + " AND "
-                                + RunRepository.EXPIRED,
-                        String.class,
-                        row.id());
-        if (reason.isEmpty()) return false;
-        finish(
-                row,
-                "EXPIRED",
-                reason.getFirst(),
-                "run.expired",
-                "RUN_QUEUE_TIMEOUT".equals(reason.getFirst()) ? "任务等待超时，请重新提交" : "运行已超时");
-        return true;
+        lease.expireWaiting();
     }
 
     private void lockSession(long owner, String id) {
@@ -511,43 +341,12 @@ public class InterviewRunStore implements ExecutionPort {
         return rows.lock(owner, id);
     }
 
-    /** 每次写入前校验租约代次、有效期、总截止时间与取消状态，并在同一事务内执行变更。 */
     public <T> T fenced(Claim c, Function<Row, T> action) {
-        return tx.execute(
-                s -> {
-                    lockSubject(get(c.owner(), c.id()));
-                    Row row = lock(c.owner(), c.id());
-                    Integer valid =
-                            jdbc.queryForObject(
-                                    "SELECT COUNT(*) FROM interview_runs WHERE id=? AND"
-                                        + " status='RUNNING' AND lease_epoch=? AND"
-                                        + " lease_until>CURRENT_TIMESTAMP(6) AND"
-                                        + " deadline>CURRENT_TIMESTAMP(6) AND"
-                                        + " cancel_requested=FALSE",
-                                    Integer.class,
-                                    c.id(),
-                                    c.epoch());
-                    if (valid == null || valid != 1) throw new RunFailureException("RUN_FENCED");
-                    return action.apply(row);
-                });
+        return lease.fenced(c, action);
     }
 
-    /**
-     * 续租仍有效的执行代次，过期租约或已取消任务不能通过心跳恢复执行权。
-     *
-     * <p>续租只延长执行租约，任务受理时确定的总截止时间保持不变。
-     */
     public boolean heartbeat(Claim c) {
-        return jdbc.update(
-                        "UPDATE interview_runs SET"
-                            + " lease_until=TIMESTAMPADD(SECOND,30,CURRENT_TIMESTAMP(6)) WHERE id=?"
-                            + " AND owner_id=? AND lease_epoch=? AND status='RUNNING' AND"
-                            + " cancel_requested=FALSE AND lease_until>CURRENT_TIMESTAMP(6) AND"
-                            + " deadline>CURRENT_TIMESTAMP(6)",
-                        c.id(),
-                        c.owner(),
-                        c.epoch())
-                == 1;
+        return lease.heartbeat(c);
     }
 
     public void checkpoint(Claim c, String json, String phase, String type, String message) {
@@ -594,15 +393,14 @@ public class InterviewRunStore implements ExecutionPort {
                 c,
                 row -> {
                     attempts.fail(c, attempt, code, elapsed);
-                    var policy = loopPolicy(row);
+                    var budget =
+                            BudgetProfile.frozen(policyJson, policyJson.readTree(row.config()));
+                    var cp = InterviewRunCheckpoint.read(policyJson, checkpoint, row.route());
                     long delay = ModelRetryPolicy.delayMillis(row.id(), row.attempts());
-                    // 分阶段协议恢复后仍须保留最终调用的修正预算。
                     long minimum =
-                            AgentLoopPolicy.MIN_MODEL_BUDGET_MILLIS
-                                    + (policyJson.readTree(checkpoint).has("outputPhase")
-                                            ? policy.callMillis()
-                                            : 0);
-                    if (row.attempts() >= policy.maxModelAttempts()
+                            budget.actionMinimumMillis() + AgentLoopPolicy.COMMIT_RESERVE_MILLIS;
+                    if (!cp.path("outputPhase").asText().equals("ACTION")
+                            || row.attempts() >= budget.attemptLimit("ACTION", false)
                             || remainingMillis(row.id()) <= delay + minimum) return false;
                     journal.checkpoint(row.id(), checkpoint, "RETRY_WAIT");
                     jdbc.update(
@@ -620,7 +418,7 @@ public class InterviewRunStore implements ExecutionPort {
                             () ->
                                     log.info(
                                             "run.retry_scheduled runId={} attemptId={} epoch={}"
-                                                + " delayMs={} code={}",
+                                                    + " delayMs={} code={}",
                                             row.id(),
                                             attempt,
                                             c.epoch(),
@@ -777,61 +575,11 @@ public class InterviewRunStore implements ExecutionPort {
                 });
     }
 
-    /** 会话写入、训练任务关联与运行成功状态共用事务，任何条件冲突都整体回滚。 */
     public void commit(Claim c, InterviewSession candidate, boolean opening) {
         fenced(
                 c,
                 row -> {
-                    if (opening
-                            && candidate.agent() != null
-                            && candidate.agent().training() != null
-                            && candidate.agent().training().question() != null) {
-                        var question = candidate.agent().training().question();
-                        Integer expectedVersion =
-                                candidate.agent().training().retry() == null
-                                        ? question.version()
-                                        : null;
-                        questions.lockPublishedForExecution(
-                                c.owner(), question.id(), expectedVersion);
-                    }
-                    var mapper = policyJson;
-                    var input = mapper.readTree(row.input());
-                    var selection =
-                            input.has("practiceMemory")
-                                    ? mapper.treeToValue(
-                                            input.path("practiceMemory"),
-                                            PracticeMemoryAccess.Selection.class)
-                                    : PracticeMemoryAccess.Selection.none();
-                    if (selection.available()) memory.lockForCommit(c.owner(), selection);
-                    if (!opening) {
-                        int bound =
-                                jdbc.update(
-                                        "UPDATE interview_sessions SET active_run_id=NULL WHERE"
-                                            + " user_id=? AND session_id=? AND active_run_id=? AND"
-                                            + " turn_count=? AND state='WAITING_ANSWER'",
-                                        c.owner(),
-                                        c.sessionId(),
-                                        c.id(),
-                                        row.expectedTurn());
-                        if (bound != 1) throw conflict();
-                    }
-                    sessions.save(c.owner(), candidate);
-                    if (opening) {
-                        var archive = input.path("materials");
-                        jdbc.update(
-                                "UPDATE interview_sessions SET material_manifest_json=? WHERE"
-                                    + " session_id=? AND user_id=?",
-                                archive.toString(),
-                                candidate.sessionId(),
-                                c.owner());
-                    }
-                    trainingTasks.committed(c.owner(), row.id(), candidate.sessionId());
-                    finish(row, "SUCCEEDED", null, "turn.committed", "本轮结果已保存");
-                    if (opening)
-                        jdbc.update(
-                                "UPDATE interview_runs SET input_json=? WHERE id=?",
-                                "{\"sessionId\":\"" + candidate.sessionId() + "\"}",
-                                row.id());
+                    completion.commit(c, row, candidate, opening);
                     return null;
                 });
     }
@@ -845,7 +593,7 @@ public class InterviewRunStore implements ExecutionPort {
                     if (!row.terminal()) {
                         jdbc.update(
                                 "UPDATE interview_runs SET cancel_requested=TRUE WHERE id=?", id);
-                        finish(row, "CANCELLED", null, "run.cancelled", "运行已取消");
+                        completion.finish(row, "CANCELLED", null, "run.cancelled", "运行已取消");
                     }
                     return get(owner, id);
                 });
@@ -866,95 +614,19 @@ public class InterviewRunStore implements ExecutionPort {
                             && Boolean.TRUE.equals(
                                     jdbc.queryForObject(
                                             "SELECT lease_until>CURRENT_TIMESTAMP(6) FROM"
-                                                + " interview_runs WHERE id=?",
+                                                    + " interview_runs WHERE id=?",
                                             Boolean.class,
                                             row.id()))) {
                         boolean expired = remainingMillis(row.id()) <= 0;
-                        finish(
+                        completion.finish(
                                 row,
                                 expired ? "EXPIRED" : "FAILED",
                                 code,
                                 expired ? "run.expired" : "run.failed",
                                 expired ? "运行已超时" : "运行未完成，请检查后重新提交");
                         if ("RUN_SOURCE_REVOKED".equals(code) || "RUN_MEMORY_REVOKED".equals(code))
-                            retention.clearPrivate(row.id());
+                            retention.clearPrivate(row);
                     }
-                });
-    }
-
-    /**
-     * 在调用方已加锁的事务中，统一写入终态、最终事件并解除会话占用。
-     *
-     * <p>递增租约代次使迟到结果失去写入资格；监控计数和日志在事务提交后记录。
-     */
-    private void finish(Row row, String status, String code, String type, String message) {
-        if (!status.equals("SUCCEEDED")) trainingTasks.failed(row.owner(), row.id());
-        int finished =
-                jdbc.update(
-                        "UPDATE interview_runs SET"
-                            + " status=?,error_code=?,phase=IF(?='SUCCEEDED','COMMIT',phase),lease_epoch=lease_epoch+1,lease_until=NULL,not_before=NULL,updated_at=CURRENT_TIMESTAMP(6)"
-                            + " WHERE id=? AND (?<>'SUCCEEDED' OR (status='RUNNING' AND"
-                            + " lease_epoch=? AND lease_until>CURRENT_TIMESTAMP(6) AND"
-                            + " deadline>CURRENT_TIMESTAMP(6) AND cancel_requested=FALSE))",
-                        status,
-                        code,
-                        status,
-                        row.id(),
-                        status,
-                        row.epoch());
-        if (finished != 1) throw new RunFailureException("RUN_FENCED");
-        if (status.equals("SUCCEEDED"))
-            journal.addStep(
-                    row,
-                    "PROPOSE",
-                    null,
-                    "VALIDATED",
-                    0,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    false,
-                    null);
-        String reason = code;
-        if (reason == null && row.checkpoint() != null)
-            reason =
-                    policyJson
-                            .readTree(row.checkpoint())
-                            .path("loop")
-                            .path("stopReason")
-                            .asText(null);
-        if (reason == null) reason = status.equals("SUCCEEDED") ? "COMPLETED" : status;
-        journal.addStep(row, "STOP", null, status, 0, null, null, null, null, null, false, reason);
-        attempts.markInterrupted(row.id());
-        jdbc.update(
-                "UPDATE interview_sessions SET active_run_id=NULL WHERE user_id=? AND session_id=?"
-                    + " AND active_run_id=?",
-                row.owner(),
-                row.sessionId(),
-                row.id());
-        journal.event(row.id(), type, status.equals("SUCCEEDED") ? "COMMIT" : row.phase(), message);
-        // 使用数据库时间包含排队及恢复耗时；只有事务真正提交后才计一次终态。
-        Long elapsed =
-                jdbc.queryForObject(
-                        "SELECT TIMESTAMPDIFF(MICROSECOND,created_at,CURRENT_TIMESTAMP(6)) DIV 1000"
-                            + " FROM interview_runs WHERE id=?",
-                        Long.class,
-                        row.id());
-        var outcome = BusinessMetrics.RunOutcome.valueOf(status);
-        afterCommit(
-                () -> {
-                    metrics.runFinished(outcome, elapsed == null ? 0 : elapsed);
-                    log.info(
-                            "runId={} epoch={} phase={} event=run.finished status={} code={}"
-                                + " elapsedMs={}",
-                            row.id(),
-                            row.epoch(),
-                            status.equals("SUCCEEDED") ? "COMMIT" : row.phase(),
-                            status,
-                            code,
-                            elapsed);
                 });
     }
 
@@ -965,7 +637,7 @@ public class InterviewRunStore implements ExecutionPort {
             if (parent != null)
                 jdbc.update(
                         "UPDATE interview_runs SET"
-                            + " trace_id=?,trace_parent_span_id=?,trace_sampled=? WHERE id=?",
+                                + " trace_id=?,trace_parent_span_id=?,trace_sampled=? WHERE id=?",
                         parent.traceId(),
                         parent.spanId(),
                         parent.sampled(),
@@ -1037,7 +709,7 @@ public class InterviewRunStore implements ExecutionPort {
         return Sha256.hex(input);
     }
 
-    private static BusinessException conflict() {
+    static BusinessException conflict() {
         return new BusinessException(HttpStatus.CONFLICT, "面试命令或回合已变更，请核对原运行结果。");
     }
 }

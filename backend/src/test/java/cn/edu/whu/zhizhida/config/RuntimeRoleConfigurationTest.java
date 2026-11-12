@@ -31,7 +31,7 @@ class RuntimeRoleConfigurationTest {
         RuntimeRoleConfiguration.validate(worker.withProperty("ai.resilience.max-concurrent-calls","1"));
     }
     @Test void experimentalPoliciesAreConfinedToEvaluation() throws Exception {
-        for (String policy : new String[]{"S1", "S3"}) {
+        for (String policy : new String[]{"B0", "S1", "S3"}) {
             var evaluation = new MockEnvironment().withProperty("interview.runs.loop-policy", policy);
             assertThatThrownBy(() -> RuntimeRoleConfiguration.validate(evaluation))
                     .hasMessageContaining("agent-evaluation");
@@ -48,6 +48,36 @@ class RuntimeRoleConfigurationTest {
         unsupported.setActiveProfiles("agent-evaluation");
         assertThatThrownBy(() -> RuntimeRoleConfiguration.validate(unsupported))
                 .hasMessageContaining("Unsupported interview loop policy");
+    }
+    @Test void comparisonRoutesRequireAnExplicitTestOrEvaluationProfile() throws Exception {
+        for (String route : new String[]{"FIXED", "LEGACY"}) {
+            var env = new MockEnvironment().withProperty("interview.runs.route", route);
+            assertThatThrownBy(() -> RuntimeRoleConfiguration.validate(env)).hasMessageContaining("agent-evaluation");
+            for (String profile : new String[]{"test", "it", "agent-evaluation"}) {
+                env.setActiveProfiles(profile);
+                RuntimeRoleConfiguration.validate(env);
+            }
+            var worker = role("worker").withProperty("interview.runs.route", route);
+            worker.setActiveProfiles("agent-evaluation");
+            assertThatThrownBy(() -> RuntimeRoleConfiguration.validate(worker)).hasMessageContaining("API/Worker");
+        }
+        assertThatThrownBy(() -> RuntimeRoleConfiguration.validate(new MockEnvironment()
+                .withProperty("interview.runs.route", "UNKNOWN"))).hasMessageContaining("Unsupported interview route");
+    }
+    @Test void retiredDecisionProtocolIsRejectedInEveryProfile() {
+        for (String profile : new String[]{"production", "test", "it", "agent-evaluation"}) {
+            var env = new MockEnvironment().withProperty("interview.runs.decision-protocol", "legacy");
+            env.setActiveProfiles(profile);
+            assertThatThrownBy(() -> RuntimeRoleConfiguration.validate(env)).hasMessageContaining("Only phased-v2");
+        }
+    }
+    @Test void adaptiveEvidenceBudgetCanRunInBothProductionRoles() throws Exception {
+        RuntimeRoleConfiguration.validate(new MockEnvironment().withProperty("interview.runs.loop-policy", "A1")
+                .withProperty("interview.runs.decision-protocol", "phased-v2"));
+        for (String name : new String[]{"api", "worker"}) {
+            RuntimeRoleConfiguration.validate(role(name).withProperty("interview.runs.loop-policy", "A1")
+                    .withProperty("interview.runs.decision-protocol", "phased-v2"));
+        }
     }
     @Test void workerExposesOnlyHealthAndTheExistingProtectedMetricsRoute() throws Exception {
         var filter=new RuntimeRoleConfiguration(role("worker")).workerHttpBoundary().getFilter();

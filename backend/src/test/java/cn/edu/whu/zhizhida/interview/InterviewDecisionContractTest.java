@@ -8,8 +8,8 @@ import static org.assertj.core.api.Assertions.*;
 
 class InterviewDecisionContractTest {
     private final JsonMapper json = new JsonMapper();
-    private final String action = "{\"version\":\"phased-v1\",\"phase\":\"ACTION\",\"action\":\"COMPLETE\",\"reason\":\"材料充分\"}";
-    private final String result = "{\"version\":\"phased-v1\",\"phase\":\"FINAL\",\"result\":{\"question\":\"问题\"}}";
+    private final String action = "{\"version\":\"phased-v2\",\"phase\":\"ACTION\",\"action\":\"COMPLETE\",\"reason\":\"材料充分\"}";
+    private final String result = "{\"version\":\"phased-v2\",\"phase\":\"FINAL\",\"result\":{\"question\":\"问题\"}}";
 
     @Test void phasesCannotBeInterchangedAndPublicPayloadKeepsItsOriginalShape() {
         assertThat(InterviewDecisionContract.parse(json, action, "ACTION").path("action").asText()).isEqualTo("COMPLETE");
@@ -20,8 +20,8 @@ class InterviewDecisionContractTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"{}", "null", "[]", "{broken", "{} {}",
-            "{\"version\":\"phased-v1\",\"phase\":\"FINAL\",\"result\":null}",
-            "{\"version\":\"phased-v1\",\"phase\":\"FINAL\",\"result\":{},\"action\":\"COMPLETE\"}",
+            "{\"version\":\"phased-v2\",\"phase\":\"FINAL\",\"result\":null}",
+            "{\"version\":\"phased-v2\",\"phase\":\"FINAL\",\"result\":{},\"action\":\"COMPLETE\"}",
             "{\"version\":\"future\",\"phase\":\"FINAL\",\"result\":{}}"})
     void malformedOrUnknownFinalEnvelopesAreRejected(String value) {
         assertThatThrownBy(() -> InterviewDecisionContract.parse(json, value, "FINAL")).isInstanceOf(InterviewReviewRejected.class);

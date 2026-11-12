@@ -54,10 +54,13 @@ test('real Vite serves page, proxies custom backend port, and refuses occupied p
 test('external-db preflight works from backend directory and does not need Docker', { timeout: 20000 }, async () => {
   const databaseFixture = createServer();
   const databasePort = await listen(databaseFixture);
+  const redisFixture = createServer();
+  const redisPort = await listen(redisFixture);
   try {
     const result = await capture(process.execPath, [join(PROJECT_ROOT, 'scripts', 'dev.mjs'), 'check', '--external-db', '--mock-ai'], {
       cwd: join(PROJECT_ROOT, 'backend'),
       env: { ...process.env, BACKEND_PORT: String(await freePort()), DEV_FRONTEND_PORT: String(await freePort()),
+        REDIS_RATE_HOST: '127.0.0.1', REDIS_RATE_PORT: String(redisPort), AGENT_MCP_REFERENCE_ENABLED: 'false',
         SPRING_DATASOURCE_URL: `jdbc:mysql://127.0.0.1:${databasePort}/tcp_fixture_only` },
     });
     assert.equal(result.code, 0, result.output);
@@ -66,6 +69,8 @@ test('external-db preflight works from backend directory and does not need Docke
   } finally {
     databaseFixture.closeAllConnections();
     await new Promise((done) => databaseFixture.close(done));
+    redisFixture.closeAllConnections();
+    await new Promise((done) => redisFixture.close(done));
   }
 });
 

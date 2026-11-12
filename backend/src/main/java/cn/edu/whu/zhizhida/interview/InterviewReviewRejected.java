@@ -8,7 +8,7 @@ public final class InterviewReviewRejected extends UpstreamServiceException {
     private final StructuredOutput.RejectionReason reason;
     private final String fieldPath;
 
-    InterviewReviewRejected(String reason) {
+    public InterviewReviewRejected(String reason) {
         this(reason, StructuredOutput.RejectionReason.SEMANTIC_MISMATCH, "$");
     }
 
@@ -45,7 +45,10 @@ public final class InterviewReviewRejected extends UpstreamServiceException {
                         "从本轮 citationAnchors 选择相同 sourceKey 的 anchorId 和片段内逐字唯一的 quote；重复时提供更长引文，禁止混用偏移或改写原文。";
                 case "对照来源不在本场固定范围", "技术判断缺少独立的对照资料，不能仅依据回答自述" ->
                         "仅引用本轮固定目录；技术维度 OBSERVED 需要回答与对照资料引文，否则保持 NOT_OBSERVED。";
-                default -> "完整输出必须满足本轮 allowedActions、allowedProbes、能力目标、证据引用和独立观察约束；无法核实的内容保持未知。";
+                case "最终评价不能将待核对维度改为确定结论", "重大纠错必须先完成反证检查",
+                        "重大纠错需要检索资料反证，回答自述不足以证明技术错误" ->
+                        "遵守本轮 evidenceReview 的支持状态；证据不足保留 INSUFFICIENT，不输出 majorCorrection。";
+                default -> "完整输出必须满足本轮 allowedActions、allowedProbes、能力目标、证据引用和独立观察约束；focus 给出未重复的验证主张与期望证据；无法核实的内容保持未知。";
             };
         }
         return switch (reason) {

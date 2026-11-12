@@ -75,7 +75,11 @@ logging:
     cn.edu.whu.zhizhida: INFO
 
 interview:
+  agent:
+    adaptive-routing-enabled: false
   runs:
+    loop-policy: B0
+    decision-protocol: phased-v2
     worker-enabled: false
 learning:
   worker-enabled: false

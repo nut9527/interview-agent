@@ -6,7 +6,6 @@ import cn.edu.whu.zhizhida.interview.api.InterviewPlanning.*;
 import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
 import cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy;
 import cn.edu.whu.zhizhida.interview.domain.InterviewTransitions;
-import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import cn.edu.whu.zhizhida.resume.api.ResumeSnapshotReader;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -47,11 +46,12 @@ class InterviewPlannerRetirementTest {
 
         var pending = (InterviewTransitions.PendingAnswer) new InterviewTransitions().answer(restored,
                 "我负责接口设计，并核对失败恢复结果。", "new-request", 2);
-        var ai = new MockInterviewAiService(json, BusinessMetrics.disabled());
-        var reply = ai.reviewAnswer("Java", InterviewAgentContext.encode("", restored.agent(),
-                policy.routing(restored.agent(), 2, 6)), pending.turns(), 2, false);
+        var ai = new MockInterviewAiService(json);
+        var reply = new InterviewOutputCodec().parseReview(ai.generateReview("Java", InterviewAgentContext.encode("", restored.agent(),
+                policy.routing(restored.agent(), 2, 6)), pending.turns(), 2, false), InterviewAgentContext.encode("", restored.agent(),
+                policy.routing(restored.agent(), 2, 6)), false, pending.turns());
         var machine = InterviewMachineFixture.machine(mock(InterviewSessionRepository.class), () -> 7L,
-                ai, mock(ResumeSnapshotReader.class));
+                cn.edu.whu.zhizhida.ai.api.AiMode.MOCK, mock(ResumeSnapshotReader.class));
         var continued = machine.validateReview(restored, pending, reply);
 
         assertThat(continued.turnCount()).isEqualTo(3);
@@ -70,7 +70,7 @@ class InterviewPlannerRetirementTest {
         var v4 = new InterviewAgentState("interview-agent-v4", "mock", v3.plan(), v3.activeCompetencyId(), List.of());
         var context = InterviewAgentContext.encode("", v4, policy.routing(v4, 1, 6));
         var turns = List.of(new InterviewTurn("user", "我负责接口设计"));
-        var ai = new MockInterviewAiService(json, BusinessMetrics.disabled());
+        var ai = new MockInterviewAiService(json);
         var generated = ai.generateReview("Java", context, turns, 1, false);
         var payload = (tools.jackson.databind.node.ObjectNode) generated.deepCopy();
         payload.put("planProposal", "obsolete malformed proposal");

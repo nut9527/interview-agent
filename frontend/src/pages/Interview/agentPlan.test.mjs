@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { orderedAgentPlan } from './agentPlan.ts';
 
 const plan = ['a', 'b', 'c', 'd'].map(id => ({ id }));
-test('adaptive order follows committed visits, preserves scope, and never mutates the original plan', () => {
-  const agent = { version: 'interview-agent-v5', plan, activeCompetencyId: 'b',
+for (const version of ['interview-agent-v5', 'interview-agent-v6']) test(`${version} follows committed visits, preserves scope, and never mutates the original plan`, () => {
+  const agent = { version, plan, activeCompetencyId: 'b',
     evaluations: [{ competencyId: 'a' }, { competencyId: 'a' }, { competencyId: 'd' }] };
   assert.deepEqual(orderedAgentPlan(agent).map(c => c.id), ['a', 'd', 'b', 'c']);
   assert.deepEqual(plan.map(c => c.id), ['a', 'b', 'c', 'd']);

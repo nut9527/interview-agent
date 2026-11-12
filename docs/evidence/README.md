@@ -2,7 +2,7 @@
 
 本目录保存面试回放、工具调用、知识检索和向量存储的验证数据。报告按场景和批次组织，包含测试条件、实际结果、模型用量及源码指纹，供回归测试与发布核对使用。
 
-面试回放测试读取已录制的模型请求、应答和运行结果，校验原始文件的 SHA-256 后复现引文、追问和协议检查。[回放用例](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/InterviewDecisionEvaluationIT.java) · [录制文件与校验值](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/CloseoutRecordedFixtures.java)
+面试回放测试读取已录制的模型请求、应答和运行结果，校验原始文件的 SHA-256 后复现历史输出、修正失败和原文引用检查；历史裸输出不会重新进入生产 Worker。[回放用例](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/CloseoutRecordedProtocolTest.java) · [录制文件与校验值](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/CloseoutRecordedFixtures.java)
 
 ## 运行专项结果
 

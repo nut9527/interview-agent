@@ -169,6 +169,7 @@ export type InterviewDifficulty = 'BEGINNER' | 'STANDARD' | 'ADVANCED';
 export type InterviewTrainingTopic = 'DATABASE' | 'CONCURRENCY' | 'PERFORMANCE' | 'PROJECT';
 
 export interface InterviewTraining {
+  objective?: string | null;
   knowledge?: KnowledgeSnapshot[] | null;
   question?: QuestionSnapshot | null;
   topic?: InterviewTrainingTopic | null;
@@ -244,6 +245,12 @@ export interface InterviewAgentState {
     probe?: InterviewProbe | null;
     intent?: string | null;
     questionCompetencyId?: string | null;
+    focus?: {
+      dimension: 'EVIDENCE_SUFFICIENCY' | 'TECHNICAL_CORRECTNESS' | 'CAUSAL_EXPLANATION' | 'TRADEOFFS' | 'RESPONSIBILITY' | 'EXPRESSION';
+      scenario: 'CURRENT' | 'FAILURE' | 'ALTERNATIVE' | 'NEW_CONTEXT' | 'MEASUREMENT';
+      claimToVerify: string;
+      expectedEvidence: string;
+    } | null;
   } }>;
   digest?: Array<{ round: number; competencyId: string; level: 'INSUFFICIENT' | 'PARTIAL' | 'STRONG'; evidence: string; gap: string; answeredProbe?: InterviewProbe | null }>;
   practiceMemory?: Array<{ competencyId: string; probe: InterviewProbe; attempts: number; insufficient: number; partial: number }>;
