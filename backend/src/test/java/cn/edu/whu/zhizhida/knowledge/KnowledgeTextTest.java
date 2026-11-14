@@ -11,6 +11,38 @@ import cn.edu.whu.zhizhida.knowledge.domain.KnowledgeText;
 
 class KnowledgeTextTest {
     @Test
+    void joinsExplanationsListsAndCodeWithoutChangingSourceLocations() {
+        String text = "## 配置\r\n\r\n使用下面的配置：\r\n\r\n```yaml\r\n# 这是代码注释\r\ninclude: '*'\r\n\r\nexclude: heapdump\r\n```\r\n\r\n- 保留健康检查\r\n\r\n## 下一章\r\n独立正文";
+        var evidence = KnowledgeText.split("doc", 2, text).stream().filter(KnowledgeText::isEvidence).toList();
+        assertThat(evidence).hasSize(2);
+        assertThat(evidence.getFirst().heading()).isEqualTo("配置");
+        assertThat(evidence.getFirst().content()).contains("使用下面的配置", "# 这是代码注释", "exclude: heapdump", "- 保留健康检查");
+        assertThat(evidence).allSatisfy(c -> {
+            assertThat(c.id()).contains(":v2:b2:");
+            assertThat(c.content()).isEqualTo(text.substring(c.startOffset(), c.endOffset()));
+            assertThat(c.startLine()).isEqualTo(1 + (int) text.substring(0, c.startOffset()).chars().filter(v -> v == '\n').count());
+        });
+    }
+
+    @Test
+    void imagesRemainInTheArchiveButCannotBeRetrievedAsEvidence() {
+        String text = "# 图示\n\n![MCP](https://example.test/mcp.png)\n\n<img src=\"a.png\" alt=\"MCP\">\n\nMCP 日志应写入 stderr。";
+        var chunks = KnowledgeText.split("doc", text);
+        assertThat(chunks).anyMatch(c -> c.content().contains("![MCP]"));
+        assertThat(chunks.stream().filter(KnowledgeText::isEvidence)).singleElement()
+                .satisfies(c -> assertThat(c.content()).isEqualTo("MCP 日志应写入 stderr。"));
+        assertThat(KnowledgeText.isEvidence(KnowledgeText.split("doc", "![图](file(1).png)").getFirst())).isFalse();
+        assertThat(KnowledgeText.isEvidence(KnowledgeText.split("doc", "![图](file.png) 日志写入 stderr（标准错误）(stderr)").getFirst())).isTrue();
+    }
+
+    @Test
+    void repeatedHeadingNamesStillStartSeparateSections() {
+        var chunks = KnowledgeText.split("doc", "## 配置\n第一段。\n\n## 配置\n第二段。");
+        assertThat(chunks).hasSize(2);
+        assertThat(chunks.getFirst().content()).doesNotContain("第二段");
+    }
+
+    @Test
     void preservesCrLfUnicodeOffsetsAndLongParagraphs() {
         String text = "# 标题\r\n\r\n" + "🙂文本".repeat(1000) + "\r\n\r\n## 子标题\r\n内容";
         var rows = KnowledgeText.split("doc", text);

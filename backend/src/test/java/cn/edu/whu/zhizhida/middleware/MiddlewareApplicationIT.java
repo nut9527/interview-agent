@@ -355,7 +355,8 @@ class MiddlewareApplicationIT extends IntegrationTestBase {
                 "app.cache.questions.enabled", "true", "app.redis.namespace", namespace));
         properties.putAll(overrides);
         return new org.springframework.boot.builder.SpringApplicationBuilder(cn.edu.whu.zhizhida.ZhizhidaApplication.class)
-                .profiles("it").initializers(new cn.edu.whu.zhizhida.TestDatabaseGuard()).properties(properties).run();
+                .profiles("it").initializers(new cn.edu.whu.zhizhida.TestDatabaseGuard())
+                .run(properties.entrySet().stream().map(entry -> "--" + entry.getKey() + "=" + entry.getValue()).toArray(String[]::new));
     }
 
     int postStart(int apiPort) throws Exception {

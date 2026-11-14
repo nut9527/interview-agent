@@ -5,6 +5,7 @@ type KnowledgeView<Name extends keyof Schemas> = ResponseView<Schemas[Name]>;
 export type KnowledgeSummary = KnowledgeView<'cn.edu.whu.zhizhida.knowledge.api.KnowledgeDocument$Summary'>;
 export type KnowledgeDocument = KnowledgeView<'cn.edu.whu.zhizhida.knowledge.api.KnowledgeDocument'>;
 export type KnowledgeImport = KnowledgeView<'cn.edu.whu.zhizhida.knowledge.api.KnowledgeImport'>;
+export type ReferenceSummary = KnowledgeView<'cn.edu.whu.zhizhida.knowledge.ReferenceLibrary$Summary'>;
 export type KnowledgeImportJob = Omit<KnowledgeView<'cn.edu.whu.zhizhida.knowledge.api.KnowledgeImportJob'>, 'documentId'> & {
   documentId?: string | null;
 };

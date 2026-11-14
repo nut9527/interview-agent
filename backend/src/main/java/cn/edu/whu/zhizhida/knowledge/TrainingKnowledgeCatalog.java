@@ -25,7 +25,7 @@ public class TrainingKnowledgeCatalog implements KnowledgeCatalog {
 
     @Override
     public String retrievalProfile() {
-        return hybrid == null ? "bm25-lexical-v2" : hybrid.fingerprint();
+        return hybrid == null ? "bm25-lexical-blocks-v3" : hybrid.fingerprint();
     }
 
     public TrainingKnowledgeCatalog(KnowledgeService documents) {
@@ -72,7 +72,7 @@ public class TrainingKnowledgeCatalog implements KnowledgeCatalog {
         var sources = new HashMap<String, KnowledgeSnapshot>();
         for (var source : snapshots) {
             sources.put(source.id(), source);
-            for (var chunk : KnowledgeText.split(source.id(), source.version(), source.content())) {
+            for (var chunk : chunks(source)) {
                 candidates.add(
                         new Hit(
                                 source.id(),
@@ -97,6 +97,13 @@ public class TrainingKnowledgeCatalog implements KnowledgeCatalog {
         // 保留整个有长度限制的片段，避免丢失尾部的有效信息。
         return new KnowledgeSnapshot.Excerpt(
                 c.id(), c.heading(), c.startLine(), c.endLine(), c.content());
+    }
+
+    private static List<cn.edu.whu.zhizhida.knowledge.api.KnowledgeDocument.Chunk> chunks(KnowledgeSnapshot source) {
+        boolean legacy = !source.excerpts().isEmpty()
+                && source.excerpts().stream().noneMatch(e -> e.chunkId().contains(":b2:"));
+        return legacy ? KnowledgeText.splitLegacy(source.id(), source.version(), source.content())
+                : KnowledgeText.split(source.id(), source.version(), source.content());
     }
 
     /**
@@ -127,8 +134,7 @@ public class TrainingKnowledgeCatalog implements KnowledgeCatalog {
                     chunks.computeIfAbsent(
                             source.id(),
                             ignored ->
-                                    KnowledgeText.split(
-                                                    source.id(), source.version(), source.content())
+                                    chunks(source)
                                             .stream()
                                             .map(TrainingKnowledgeCatalog::excerpt)
                                             .collect(java.util.stream.Collectors.toSet()));

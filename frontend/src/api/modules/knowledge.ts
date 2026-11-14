@@ -1,9 +1,12 @@
 import { get, post, put, del } from '@/api/request';
 import { knowledgeUploadData } from './knowledgeUpload';
 import type { PageResult } from '@/types/api';
-import type { KnowledgeDocument, KnowledgeImport, KnowledgeImportJob, KnowledgeSummary, KnowledgeHit, KnowledgeAnswer, KnowledgeAnswerSummary, KnowledgeAnswerRecord } from '@/types/knowledge';
+import type { KnowledgeDocument, KnowledgeImport, KnowledgeImportJob, KnowledgeSummary, KnowledgeHit, KnowledgeAnswer, KnowledgeAnswerSummary, KnowledgeAnswerRecord, ReferenceSummary } from '@/types/knowledge';
 import type { KnowledgeOrganization, SelfTestSelection, KnowledgeSelfTest, SelfTestQuestion, KnowledgeFeedback, FeedbackReason, GenerationOptions } from '@/types/knowledge';
 export const knowledgeService = {
+  references: (signal?: AbortSignal) => get<ReferenceSummary[]>('/api/knowledge/library', { signal }),
+  reference: (id: string, signal?: AbortSignal) => get<KnowledgeImport>('/api/knowledge/library/' + encodeURIComponent(id), { signal }),
+  importReference: (id: string, draft: KnowledgeImport) => post<KnowledgeDocument>('/api/knowledge/library/' + encodeURIComponent(id) + '/import', { title: draft.title, sourceName: draft.sourceName, content: draft.content, confirmed: true }),
   ask: (question: string, documentIds: string[], signal?: AbortSignal, parentAnswerId?: string) => post<KnowledgeAnswer>('/api/knowledge/answers', { question, documentIds, parentAnswerId }, { signal, timeout: 120000 }),
   organization: (signal?: AbortSignal) => get<KnowledgeOrganization[]>('/api/knowledge/organization', { signal }),
   organize: (documentIds: string[], category: string, tags: string[]) => put('/api/knowledge/organization', { documentIds, category, tags }),

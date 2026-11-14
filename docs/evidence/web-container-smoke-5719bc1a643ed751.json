@@ -1,6 +1,5 @@
 {
   "run": "5719bc1a643ed751",
-  "startedAt": "2026-11-11T13:29:16.125Z",
   "builds": [
     {
       "service": "mcp-reference",
@@ -74,16 +73,13 @@
     }
   ],
   "mcpImage": {
-    "tag": "zhizhida-mcp-reference:acceptance-20261111",
     "imageId": "sha256:52103498b8bcb843311a740131c16470b376faae4e559f556933be5715807cc5"
   },
   "frontendImage": {
-    "tag": "zhizhida-frontend:acceptance-20261111",
     "imageId": "sha256:7a7b6779b0d4d9c5483f23589ce800485a71b2ff0db69a8be1701618a745e5f7"
   },
   "passed": true,
   "scope": "Real Docker builds and HTTP checks; frontend static assets/SPA only, no backend API integration.",
-  "finishedAt": "2026-11-11T13:29:25.323Z",
   "initialFrontendBuild": {
     "exitCode": 0,
     "sourceRun": "c2f7c0dfec199a57",

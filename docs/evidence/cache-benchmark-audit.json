@@ -1,20 +1,16 @@
 {
   "schemaVersion": 1,
   "audit": "PASSED",
-  "auditedAt": "2026-11-10T15:55:46.681Z",
-  "measuredAt": "2026-11-04T05:26:09.716789800Z",
   "reranBenchmark": false,
   "evidence": {
-    "path": "docs/evidence/middleware-batch1-2026-11-04.json",
+    "path": "docs/evidence/middleware-batch1-baseline.json",
     "sha256": "667b7df9a9cf998d1174787dbaeb7ce7256687943713689e70228442b84b3836",
-    "restoredFrom": "outputs/release/closeout-batch1-evidence-20261105-01/payload/docs/evidence/middleware-batch1-2026-11-04.json",
     "provenance": "Byte-for-byte historical archive copy; hash also matched backend/target/middleware-benchmark.json during restoration."
   },
   "originalBenchmark": {
-    "archivedPath": "outputs/release/closeout-batch1-evidence-20261105-01/payload/backend/src/test/java/cn/edu/whu/zhizhida/middleware/MiddlewareBenchmarkIT.java",
     "archivedSha256": "163f95161d685d3b72eb0d002ea4c0213223c4ce6551358b70dd3d3c259ce05e",
     "currentLocation": "backend/src/test/java/cn/edu/whu/zhizhida/middleware/SplitRuntimeIT.java#Benchmark",
-    "note": "The benchmark was subsequently consolidated into SplitRuntimeIT.Benchmark; raw evidence retains its original date."
+    "note": "The benchmark was subsequently consolidated into SplitRuntimeIT.Benchmark."
   },
   "scope": "Historical local integration measurement: real MySQL/Redis, mock AI; 50 serial catalog calls per group, one question/version.",
   "percentileMethod": "nearest-rank: sorted[ceil(n * q) - 1]",

@@ -1,0 +1,1170 @@
+{
+  "rule": "Only scopes above five documents change. Keep every expected/evidence document; fill with original-scope distractors sharing an evidence document topic, then fill in original order. No-answer cases have no evidence topic and retain the first five original documents. Preserve original order within the final scope.",
+  "limit": 5,
+  "adjustments": [
+    {
+      "id": "JG-01",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-02",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-03",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-04",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-05",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-06",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ]
+    },
+    {
+      "id": "JG-07",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ]
+    },
+    {
+      "id": "JG-08",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ]
+    },
+    {
+      "id": "JG-09",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ]
+    },
+    {
+      "id": "JG-10",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-11",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-12",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-13",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-14",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-15",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-idempotency"
+      ]
+    },
+    {
+      "id": "JG-16",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-17",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-18",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-19",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-20",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-21",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ]
+    },
+    {
+      "id": "JG-22",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ]
+    },
+    {
+      "id": "JG-23",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ]
+    },
+    {
+      "id": "JG-24",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ]
+    },
+    {
+      "id": "JG-25",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-26",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-27",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-28",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-29",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-30",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-31",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ]
+    },
+    {
+      "id": "JG-32",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ]
+    },
+    {
+      "id": "JG-33",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-34",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-35",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-36",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-37",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-38",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ]
+    },
+    {
+      "id": "JG-39",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-40",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-idempotency"
+      ]
+    },
+    {
+      "id": "JG-41",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-42",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-43",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-44",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ]
+    },
+    {
+      "id": "JG-45",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ]
+    },
+    {
+      "id": "JG-46",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-47",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-48",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ]
+    },
+    {
+      "id": "JG-49",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-idempotency"
+      ]
+    },
+    {
+      "id": "JG-50",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-idempotency"
+      ]
+    },
+    {
+      "id": "JG-51",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-52",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    },
+    {
+      "id": "JG-53",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-54",
+      "split": "validation",
+      "oldScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "newScope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ]
+    },
+    {
+      "id": "JG-55",
+      "split": "development",
+      "oldScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp",
+        "jg-cache-basics",
+        "jg-cache-strategies",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "newScope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ]
+    }
+  ],
+  "sourceFiles": {
+    "backend/src/test/resources/rag-corpus/javaguide/cases.json": {
+      "beforeSha256": "f0cac97d63945d14e8f41226065b10965d3e6cfe40b727184cf58123605bb185",
+      "afterSha256": "fc2cf152685bd81e8700126dafe9018a1de4077a32e9ad03f58fc95e85287905"
+    },
+    "backend/src/test/resources/rag-corpus/xiaolin/cases.json": {
+      "beforeSha256": "2feea205db113feda0d31bf16753c22965c21c6bf3d8bc3f266f6317818993d9",
+      "afterSha256": "2feea205db113feda0d31bf16753c22965c21c6bf3d8bc3f266f6317818993d9"
+    },
+    "backend/src/test/resources/rag-corpus/books/cases.json": {
+      "beforeSha256": "833db22f784e16c34690a55344599247582b461ae4d412b53a6ac0a630430a45",
+      "afterSha256": "833db22f784e16c34690a55344599247582b461ae4d412b53a6ac0a630430a45"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "local-reference-rag-v1",
+  "language": "zh-CN",
+  "annotationStatus": "source-grounded-agent-labels",
+  "sourceRoot": "D:/学习/实习",
+  "license": "JavaGuide: Apache-2.0; PDF excerpts retain their original copyright.",
+  "groups": ["javaguide/cases.json", "xiaolin/cases.json", "books/cases.json"]
+}

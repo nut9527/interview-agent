@@ -233,7 +233,6 @@ class SplitRuntimeIT {
                 }
             }
         } finally { cleanupMiddleware(accounts); }
-        report.put("measuredAt", java.time.Instant.now().toString());
         report.put("scope", "independent-jvms-real-mysql-redis-rabbitmq-synthetic-json-upstream-durable-sse");
         report.put("capacity", Map.of("sharedModelLimit", 6, "processes", 3,
                 "workerPeakLimit", 4, "apiModelLoadIncluded", true, "syntheticFinalDelayMs", 600));
@@ -574,7 +573,6 @@ class SplitRuntimeIT {
                 snapshotKey = namespace + ":question:snapshot:s1:qb-java-001:v" + version;
                 for (int i = 0; i < 10; i++) catalog.requirePublishedForExecution(accounts.getFirst().owner(), "qb-java-001", version);
                 report.put("schemaVersion", 1);
-                report.put("measuredAt", Instant.now().toString());
                 report.put("environment", Map.of("java", System.getProperty("java.version"), "os", System.getProperty("os.name"),
                         "availableProcessors", Runtime.getRuntime().availableProcessors(), "model", "mock", "processes", 1,
                         "publisherIntervalMs", publisherInterval, "consumerConcurrency", 2, "prefetch", 1, "queueDeadlineSeconds", 10));

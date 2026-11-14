@@ -1,0 +1,99 @@
+{
+  "annotationStatus": "source-grounded-agent-review",
+  "corpusDocumentHashes": {
+    "jg-rag-basis": "4ba030df338825f277516167b07528d9a14efa15d176f9dc12df739dcb270248",
+    "jg-rag-optimization": "ccbd309531c947054466b85b702a55efda90cf97ea3caa460ee8563ae5ad49a3",
+    "jg-rag-evaluation": "90538707f7bc7e1836631e302f711378616dba1b87c75bb9d0f7df622338eb73",
+    "jg-agent": "3bb790cfb1c0ebd916345b1cde17e7a07ab160a85373d6b9e3c9689470b26953",
+    "jg-mcp": "15b9f1aae3854516aa61314cb0fe0757f30994ca1ef902bd839bfd18fdc5c76b",
+    "jg-cache-basics": "851e124371989dd8dc302646de7d7bbda4563e49816edba28ed0b7649e759994",
+    "jg-cache-strategies": "747034a0c2603c4ab501e19deb0a92e50e76445b29ce3b725840bb0b4e113e15",
+    "jg-thread-summary": "2bc7f87220a542e5f306d84330c481ebd807d5d4ccbf687c3c3806d137b7febf",
+    "jg-thread-practices": "8d61dabdfce775121977217f95e6b8e26e9108a77f3fdb35605f4c0382ef8006",
+    "jg-mysql-isolation": "758789abf6c749dcd1737851004e133a5e3634c199a35ed08f8d20d03843573e",
+    "jg-mysql-index": "7cb4102cb7c9c12bf22f700c3940a011c85a5fecfb202915851bf02c1319a41d",
+    "jg-mysql-explain": "40fa88382897384f21ca818e5ef0394d60cc059c951658f6095bda806530f77a",
+    "jg-spring-transaction": "09a9f15902104fcfa3a5a568a84b3cc73fc686adbe6051c3aa054b871a58e873",
+    "jg-rabbitmq": "9cd7c36c31446a6c1b4b84f7ff2cbcd2eb18d00cce0bb9eb914f0af8880a26b8",
+    "jg-idempotency": "9ea060ae4d79ed801256f21bf916ddb0a5b409dacffc9ad5bdee11074c19f379",
+    "xl-mysql-transactions": "00faff48c73527e0f19ee4c781e9393ae39efa3f11257c7c461477501a16d114",
+    "xl-mysql-logs": "b93dfda2625880b3a32b49336bb3cc03c46f5c13c1423b04caf616423fa94957",
+    "xl-redis-expiry": "1be74fb5b3ca75d26820f7bdb9937a25e6d97c991fe6847bb9811ad19415c1fe",
+    "xl-redis-eviction": "150bd72b6da79b894d2b9f160758c66407e3ee460fd1e96d8db839ba494c17a8",
+    "xl-network-http-cache": "1fa73c160577bc9e05e8522220c694843cb2eab89b0f91cdada2a5d771b874d9",
+    "xl-network-retransmission": "10d2a2e8997e77d4b24216eda86af3d673d663cb67af5f73a23724fc12543783",
+    "xl-system-process": "8dfc676855dbd3ba3c67155b2202a0ed4ab4a4d7a94bba727889dac0c0adc0d5",
+    "xl-system-ipc": "78f0d5c67f5e39face3e62f41317ac5362f7f5f34be7303089203773ea07ed96",
+    "book-spring5-jdbc": "f3e7203b306d18a7c7177fcbb2deaaf1f6d100a62c02b0eb65c241e75c456fbf",
+    "book-spring5-messaging": "d548ea5a02eda35b4aabb465b8a234bbdc0fe42146beaa5be202c2cb40c16dfb",
+    "book-spring5-rabbitmq": "5e6194d757fe72c5dc64f78fdc1b668ed500155f99e02cda60050fab44ecd18a",
+    "book-spring5-actuator": "35ca9b184656b5cc6c67ed4734629b831034992598603fb517335ce0f6b0fc57"
+  },
+  "cases": [
+    {
+      "id": "JG-51",
+      "answerable": false,
+      "reason": "通用资料未记录职智达向量库的实际文档数和片段数。"
+    },
+    {
+      "id": "JG-52",
+      "answerable": false,
+      "reason": "资料未记录职智达 MCP 服务的实际部署端口。"
+    },
+    {
+      "id": "JG-53",
+      "answerable": false,
+      "reason": "资料未提供职智达线上订单表在指定日期的实际行数。"
+    },
+    {
+      "id": "JG-54",
+      "answerable": false,
+      "reason": "资料未提供职智达 RabbitMQ 集群过去一天的故障记录。"
+    },
+    {
+      "id": "JG-55",
+      "answerable": false,
+      "reason": "资料未记录职智达报表进程的 CPU 配额；线程池文中的 8 核是假设示例。"
+    },
+    {
+      "id": "xl-08",
+      "answerable": false,
+      "reason": "资料未提供本项目生产数据库的 innodb_buffer_pool_size 实际配置。"
+    },
+    {
+      "id": "xl-16",
+      "answerable": false,
+      "reason": "资料只有 maxmemory 的机制、默认值与示例，没有本项目实例的实际配置。"
+    },
+    {
+      "id": "xl-23",
+      "answerable": false,
+      "reason": "资料未提供本项目前端首页的实际响应头或缓存配置。"
+    },
+    {
+      "id": "xl-24",
+      "answerable": false,
+      "reason": "资料未提供当前到服务器的 RTT 采样，无法计算其中位数。"
+    },
+    {
+      "id": "xl-31",
+      "answerable": false,
+      "reason": "资料未提供当前操作系统管道缓冲区的实际容量。"
+    },
+    {
+      "id": "xl-32",
+      "answerable": false,
+      "reason": "资料未提供这台机器进程上下文切换的实测耗时。"
+    },
+    {
+      "id": "BOOK-04",
+      "answerable": false,
+      "reason": "题目限定这批《Spring实战》第5版书摘，书摘未给出连接池最大连接数；JavaGuide 每实例 20 个连接的假设示例与此无关。"
+    },
+    {
+      "id": "BOOK-12",
+      "answerable": false,
+      "reason": "资料未提供 Taco Cloud 生产环境 RabbitMQ 集群的实际节点数。"
+    }
+  ]
+}

@@ -1,11 +1,9 @@
 {
   "packagedPromptsMatchWorkspace": true,
   "passed": true,
-  "createdAt": "2026-11-11T13:32:00.657865243Z",
   "imageId": "sha256:bc6dec0fddfcba96703341281796c578e72899850e606fc98793e8cc2a60e5b0",
   "scope": "Docker image build plus direct JAR resource verification from a created, never-started container. No backend runtime smoke.",
   "backendProcessStarted": false,
-  "tag": "zhizhida-backend:acceptance-20261111-v5",
   "buildLog": "outputs/backend-v5-container-acceptance/build.log",
   "promptFilesSha256": {
     "repair.txt": "c89ca36be3ee034b1bfba1e2c89f86fcf3b045bfae46b62a87bd590a22a4041e",

@@ -26,8 +26,8 @@ class QuizSourceSelectorTest {
     @Test void searchesTheFocusDeepInTheBookAndKeepsItsContext() {
         var doc=document("# 开头\n\n这是无关介绍。\n\n# 缓存\n\n缓存穿透采用空值缓存，存活5秒。\n\n需要设置较短有效期，避免数据更新后仍读到空值。\n\n# 索引\n\n索引维护增加写入成本。");
         var hits=QuizSourceSelector.select(List.of(doc),request(List.of(),"缓存穿透"));
-        assertThat(hits).hasSize(2);
-        assertThat(hits).anyMatch(h->h.chunk().content().contains("较短有效期"));
+        assertThat(hits).singleElement().satisfies(h ->
+                assertThat(h.chunk().content()).contains("缓存穿透", "较短有效期"));
         assertThat(hits).noneMatch(h->h.chunk().content().contains("索引维护"));
         assertThat(QuizSourceSelector.select(List.of(doc),request(List.of(),"木星轨道运动"))).isEmpty();
     }
@@ -43,7 +43,9 @@ class QuizSourceSelectorTest {
     }
 
     @Test void focusedSearchAcceptsSemanticSeedsAndKeepsArchivedNeighbors() {
-        var doc=document("# 请求合并\n\n同一键只允许一个加载者回源。\n\n其他调用等待共享结果。\n\n# 其他\n\n无关内容。");
+        String text = "# 请求合并\n\n同一键只允许一个加载者回源。\n\n其他调用等待共享结果。\n\n# 其他\n\n无关内容。";
+        var doc = new KnowledgeDocument("book", "技术资料", "book.md", 2, text, null,
+                KnowledgeText.splitLegacy("book", 2, text));
         var seed=doc.chunks().stream().filter(c->c.content().contains("一个加载者")).findFirst().orElseThrow();
         var hits=QuizSourceSelector.select(List.of(doc),request(List.of(),"防止并发击穿"), (snapshot, query, limit)-> {
             assertThat(snapshot).isSameAs(doc);

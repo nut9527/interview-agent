@@ -1,0 +1,218 @@
+[
+  {
+    "id": "jg-rag-basis",
+    "title": "RAG 基础概念：检索、生成与工程取舍",
+    "topic": "rag",
+    "sourceName": "JavaGuide · rag-basis.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/ai/rag/rag-basis.md"
+  },
+  {
+    "id": "jg-rag-optimization",
+    "title": "RAG 优化：从召回、重排到上下文工程",
+    "topic": "rag",
+    "sourceName": "JavaGuide · rag-optimization.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/ai/rag/rag-optimization.md"
+  },
+  {
+    "id": "jg-rag-evaluation",
+    "title": "RAG 评测：从离线数据集到线上可观测性",
+    "topic": "rag",
+    "sourceName": "JavaGuide · rag-evaluation.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/ai/rag/rag-evaluation.md"
+  },
+  {
+    "id": "jg-agent",
+    "title": "AI Agent 核心概念：Agent Loop、Plan-and-Execute、结构化任务契约、Agentic Workflows、Tools 注册",
+    "topic": "agent",
+    "sourceName": "JavaGuide · agent-basis.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/ai/agent/agent-basis.md"
+  },
+  {
+    "id": "jg-mcp",
+    "title": "什么是 Model Context Protocol (MCP)？和 Function Calling、Agent 什么关系？",
+    "topic": "agent",
+    "sourceName": "JavaGuide · mcp.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/ai/agent/mcp.md"
+  },
+  {
+    "id": "jg-cache-basics",
+    "title": "缓存基础常见面试题总结",
+    "topic": "cache",
+    "sourceName": "JavaGuide · cache-basics.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/database/redis/cache-basics.md"
+  },
+  {
+    "id": "jg-cache-strategies",
+    "title": "3种常用的缓存读写策略详解",
+    "topic": "cache",
+    "sourceName": "JavaGuide · 3-commonly-used-cache-read-and-write-strategies.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/database/redis/3-commonly-used-cache-read-and-write-strategies.md"
+  },
+  {
+    "id": "jg-thread-summary",
+    "title": "Java 线程池详解",
+    "topic": "threads",
+    "sourceName": "JavaGuide · java-thread-pool-summary.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/java/concurrent/java-thread-pool-summary.md"
+  },
+  {
+    "id": "jg-thread-practices",
+    "title": "Java 线程池最佳实践",
+    "topic": "threads",
+    "sourceName": "JavaGuide · java-thread-pool-best-practices.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/java/concurrent/java-thread-pool-best-practices.md"
+  },
+  {
+    "id": "jg-mysql-isolation",
+    "title": "MySQL事务隔离级别详解",
+    "topic": "mysql",
+    "sourceName": "JavaGuide · transaction-isolation-level.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/database/mysql/transaction-isolation-level.md"
+  },
+  {
+    "id": "jg-mysql-index",
+    "title": "MySQL索引详解",
+    "topic": "mysql",
+    "sourceName": "JavaGuide · mysql-index.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/database/mysql/mysql-index.md"
+  },
+  {
+    "id": "jg-mysql-explain",
+    "title": "MySQL执行计划分析",
+    "topic": "mysql",
+    "sourceName": "JavaGuide · mysql-query-execution-plan.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/database/mysql/mysql-query-execution-plan.md"
+  },
+  {
+    "id": "jg-spring-transaction",
+    "title": "Spring 事务详解",
+    "topic": "spring",
+    "sourceName": "JavaGuide · spring-transaction.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/system-design/framework/spring/spring-transaction.md"
+  },
+  {
+    "id": "jg-rabbitmq",
+    "title": "RabbitMQ 常见问题总结",
+    "topic": "messaging",
+    "sourceName": "JavaGuide · rabbitmq-questions.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/high-performance/message-queue/rabbitmq-questions.md"
+  },
+  {
+    "id": "jg-idempotency",
+    "title": "接口幂等性设计详解：幂等键、Token、唯一索引、去重表与支付回调",
+    "topic": "reliability",
+    "sourceName": "JavaGuide · idempotency.md",
+    "sourceLabel": "JavaGuide",
+    "resource": "javaguide/docs/high-availability/idempotency.md"
+  },
+  {
+    "id": "xl-mysql-transactions",
+    "title": "3.1 事务隔离级别是怎么实现的？",
+    "topic": "mysql",
+    "sourceName": "小林 coding · xl-mysql-transactions.md",
+    "sourceLabel": "图解MySQL-小林coding-浅黄版-v2.0.pdf · PDF 154–159 页",
+    "resource": "xiaolin/xl-mysql-transactions.md"
+  },
+  {
+    "id": "xl-mysql-logs",
+    "title": "5.1 MySQL 日志：undo log、redo log、binlog 有什么用？",
+    "topic": "mysql",
+    "sourceName": "小林 coding · xl-mysql-logs.md",
+    "sourceLabel": "图解MySQL-小林coding-浅黄版-v2.0.pdf · PDF 295–299 页",
+    "resource": "xiaolin/xl-mysql-logs.md"
+  },
+  {
+    "id": "xl-redis-expiry",
+    "title": "过期删除策略有哪些？",
+    "topic": "redis",
+    "sourceName": "小林 coding · xl-redis-expiry.md",
+    "sourceLabel": "图解Redis-小林coding-浅色版-v2.0.pdf · PDF 231–236 页",
+    "resource": "xiaolin/xl-redis-expiry.md"
+  },
+  {
+    "id": "xl-redis-eviction",
+    "title": "内存淘汰策略",
+    "topic": "redis",
+    "sourceName": "小林 coding · xl-redis-eviction.md",
+    "sourceLabel": "图解Redis-小林coding-浅色版-v2.0.pdf · PDF 237–242 页",
+    "resource": "xiaolin/xl-redis-eviction.md"
+  },
+  {
+    "id": "xl-network-http-cache",
+    "title": "HTTP 缓存有哪些实现方式？",
+    "topic": "network",
+    "sourceName": "小林 coding · xl-network-http-cache.md",
+    "sourceLabel": "图解网络-小林coding-亮白风格-v4.0.pdf · PDF 72–76 页",
+    "resource": "xiaolin/xl-network-http-cache.md"
+  },
+  {
+    "id": "xl-network-retransmission",
+    "title": "4.2 TCP 重传、滑动窗口、流量控制、拥塞控制",
+    "topic": "network",
+    "sourceName": "小林 coding · xl-network-retransmission.md",
+    "sourceLabel": "图解网络-小林coding-亮白风格-v4.0.pdf · PDF 302–308 页",
+    "resource": "xiaolin/xl-network-retransmission.md"
+  },
+  {
+    "id": "xl-system-process",
+    "title": "4.1 进程、线程基础知识",
+    "topic": "system",
+    "sourceName": "小林 coding · xl-system-process.md",
+    "sourceLabel": "图解系统-亮白风格-小林coding-v1.0.pdf · PDF 144–149 页",
+    "resource": "xiaolin/xl-system-process.md"
+  },
+  {
+    "id": "xl-system-ipc",
+    "title": "4.2 进程间通信",
+    "topic": "system",
+    "sourceName": "小林 coding · xl-system-ipc.md",
+    "sourceLabel": "图解系统-亮白风格-小林coding-v1.0.pdf · PDF 182–189 页",
+    "resource": "xiaolin/xl-system-ipc.md"
+  },
+  {
+    "id": "book-spring5-jdbc",
+    "title": "3.1 使用JDBC读取和写入数据",
+    "topic": "spring",
+    "sourceName": "Spring 实战 · spring5-jdbc.md",
+    "sourceLabel": "Spring实战（第5版） · PDF 130–132 页",
+    "resource": "books/spring5-jdbc.md"
+  },
+  {
+    "id": "book-spring5-messaging",
+    "title": "第8章 发送异步消息",
+    "topic": "spring",
+    "sourceName": "Spring 实战 · spring5-messaging.md",
+    "sourceLabel": "Spring实战（第5版） · PDF 311–313 页",
+    "resource": "books/spring5-messaging.md"
+  },
+  {
+    "id": "book-spring5-rabbitmq",
+    "title": "8.2 使用RabbitMQ和AMQP",
+    "topic": "spring",
+    "sourceName": "Spring 实战 · spring5-rabbitmq.md",
+    "sourceLabel": "Spring实战（第5版） · PDF 331–332 页",
+    "resource": "books/spring5-rabbitmq.md"
+  },
+  {
+    "id": "book-spring5-actuator",
+    "title": "16.1 Actuator概览",
+    "topic": "spring",
+    "sourceName": "Spring 实战 · spring5-actuator.md",
+    "sourceLabel": "Spring实战（第5版） · PDF 618–622 页",
+    "resource": "books/spring5-actuator.md"
+  }
+]

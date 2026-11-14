@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { auditCacheMeasurements, auditHistoricalCacheEvidence } from './audit-cache-benchmark.mjs';
 
-const original = JSON.parse(await readFile(new URL('../docs/evidence/middleware-batch1-2026-11-04.json', import.meta.url)));
+const original = JSON.parse(await readFile(new URL('../docs/evidence/middleware-batch1-baseline.json', import.meta.url)));
 
 test('audits the restored historical evidence and recomputes raw percentiles', async () => {
   const result = await auditHistoricalCacheEvidence();

@@ -20,7 +20,7 @@ public final class LangChain4jKnowledgeVectors implements KnowledgeVectors {
     private final String embeddingVersion;
     private final double minScore;
     // 预处理改变必须切换代际；RRF 参数只影响查询，不应触发重新嵌入。
-    public String fingerprint() { return "knowledge-heading-body-v3:" + embeddingVersion; }
+    public String fingerprint() { return "knowledge-heading-body-blocks-v4:" + embeddingVersion; }
     public String retrievalFingerprint() { return fingerprint() + ":min-score=" + minScore; }
     public LangChain4jKnowledgeVectors(EmbeddingModel model, EmbeddingStore<TextSegment> store, String embeddingVersion) {
         this(model, store, embeddingVersion, 0.55);

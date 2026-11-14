@@ -20,6 +20,8 @@ test('publishes a bounded, topic-sensitive read-only tool over MCP HTTP', async 
   const matches = async (query, topK) => JSON.parse((await call(query, topK)).result.content[0].text);
   assert.equal((await matches('对象作为 HashMap 的键', 1))[0].title, 'Java 21 · Map 的键契约');
   assert.equal((await matches('TTL 过期 索引', 1)).length, 1);
+  assert.equal((await matches('RAG 评测 MRR', 1))[0].url, 'https://javaguide.cn/ai/rag/rag-evaluation.html');
+  assert.equal((await matches('HTTP 协商缓存 ETag', 1))[0].url, 'https://xiaolincoding.com/network/2_http/http_interview.html');
   assert.deepEqual(await matches('找不到的科幻电影', 3), []);
   assert.equal((await call('索引', 99)).error.code, -32602);
   assert.equal((await rpc('tools/list', {}, { Origin: 'https://untrusted.example' })).status, 403);

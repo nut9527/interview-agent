@@ -1,0 +1,1701 @@
+{
+  "documents": [
+    {
+      "id": "jg-rag-basis",
+      "title": "RAG 基础概念：检索、生成与工程取舍",
+      "file": "docs/ai/rag/rag-basis.md",
+      "topic": "rag",
+      "family": "javaguide-rag",
+      "split": "development",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "4ba030df338825f277516167b07528d9a14efa15d176f9dc12df739dcb270248",
+      "sources": [
+        {
+          "title": "RAG 基础概念：检索、生成与工程取舍",
+          "path": "D:/学习/实习/JavaGuide/docs/ai/rag/rag-basis.md",
+          "sha256": "4ba030df338825f277516167b07528d9a14efa15d176f9dc12df739dcb270248",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/ai/rag/rag-basis.md"
+    },
+    {
+      "id": "jg-rag-optimization",
+      "title": "RAG 优化：从召回、重排到上下文工程",
+      "file": "docs/ai/rag/rag-optimization.md",
+      "topic": "rag",
+      "family": "javaguide-rag",
+      "split": "development",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "ccbd309531c947054466b85b702a55efda90cf97ea3caa460ee8563ae5ad49a3",
+      "sources": [
+        {
+          "title": "RAG 优化：从召回、重排到上下文工程",
+          "path": "D:/学习/实习/JavaGuide/docs/ai/rag/rag-optimization.md",
+          "sha256": "ccbd309531c947054466b85b702a55efda90cf97ea3caa460ee8563ae5ad49a3",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/ai/rag/rag-optimization.md"
+    },
+    {
+      "id": "jg-rag-evaluation",
+      "title": "RAG 评测：从离线数据集到线上可观测性",
+      "file": "docs/ai/rag/rag-evaluation.md",
+      "topic": "rag",
+      "family": "javaguide-rag",
+      "split": "development",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "90538707f7bc7e1836631e302f711378616dba1b87c75bb9d0f7df622338eb73",
+      "sources": [
+        {
+          "title": "RAG 评测：从离线数据集到线上可观测性",
+          "path": "D:/学习/实习/JavaGuide/docs/ai/rag/rag-evaluation.md",
+          "sha256": "90538707f7bc7e1836631e302f711378616dba1b87c75bb9d0f7df622338eb73",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/ai/rag/rag-evaluation.md"
+    },
+    {
+      "id": "jg-agent",
+      "title": "AI Agent 核心概念：Agent Loop、Plan-and-Execute、结构化任务契约、Agentic Workflows、Tools 注册",
+      "file": "docs/ai/agent/agent-basis.md",
+      "topic": "agent",
+      "family": "javaguide-agent",
+      "split": "development",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "3bb790cfb1c0ebd916345b1cde17e7a07ab160a85373d6b9e3c9689470b26953",
+      "sources": [
+        {
+          "title": "AI Agent 核心概念：Agent Loop、Plan-and-Execute、结构化任务契约、Agentic Workflows、Tools 注册",
+          "path": "D:/学习/实习/JavaGuide/docs/ai/agent/agent-basis.md",
+          "sha256": "3bb790cfb1c0ebd916345b1cde17e7a07ab160a85373d6b9e3c9689470b26953",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/ai/agent/agent-basis.md"
+    },
+    {
+      "id": "jg-mcp",
+      "title": "什么是 Model Context Protocol (MCP)？和 Function Calling、Agent 什么关系？",
+      "file": "docs/ai/agent/mcp.md",
+      "topic": "agent",
+      "family": "javaguide-agent",
+      "split": "development",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "15b9f1aae3854516aa61314cb0fe0757f30994ca1ef902bd839bfd18fdc5c76b",
+      "sources": [
+        {
+          "title": "什么是 Model Context Protocol (MCP)？和 Function Calling、Agent 什么关系？",
+          "path": "D:/学习/实习/JavaGuide/docs/ai/agent/mcp.md",
+          "sha256": "15b9f1aae3854516aa61314cb0fe0757f30994ca1ef902bd839bfd18fdc5c76b",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/ai/agent/mcp.md"
+    },
+    {
+      "id": "jg-cache-basics",
+      "title": "缓存基础常见面试题总结",
+      "file": "docs/database/redis/cache-basics.md",
+      "topic": "cache",
+      "family": "javaguide-cache",
+      "split": "development",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "851e124371989dd8dc302646de7d7bbda4563e49816edba28ed0b7649e759994",
+      "sources": [
+        {
+          "title": "缓存基础常见面试题总结",
+          "path": "D:/学习/实习/JavaGuide/docs/database/redis/cache-basics.md",
+          "sha256": "851e124371989dd8dc302646de7d7bbda4563e49816edba28ed0b7649e759994",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/database/redis/cache-basics.md"
+    },
+    {
+      "id": "jg-cache-strategies",
+      "title": "3种常用的缓存读写策略详解",
+      "file": "docs/database/redis/3-commonly-used-cache-read-and-write-strategies.md",
+      "topic": "cache",
+      "family": "javaguide-cache",
+      "split": "development",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "747034a0c2603c4ab501e19deb0a92e50e76445b29ce3b725840bb0b4e113e15",
+      "sources": [
+        {
+          "title": "3种常用的缓存读写策略详解",
+          "path": "D:/学习/实习/JavaGuide/docs/database/redis/3-commonly-used-cache-read-and-write-strategies.md",
+          "sha256": "747034a0c2603c4ab501e19deb0a92e50e76445b29ce3b725840bb0b4e113e15",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/database/redis/3-commonly-used-cache-read-and-write-strategies.md"
+    },
+    {
+      "id": "jg-thread-summary",
+      "title": "Java 线程池详解",
+      "file": "docs/java/concurrent/java-thread-pool-summary.md",
+      "topic": "threads",
+      "family": "javaguide-threads",
+      "split": "development",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "2bc7f87220a542e5f306d84330c481ebd807d5d4ccbf687c3c3806d137b7febf",
+      "sources": [
+        {
+          "title": "Java 线程池详解",
+          "path": "D:/学习/实习/JavaGuide/docs/java/concurrent/java-thread-pool-summary.md",
+          "sha256": "2bc7f87220a542e5f306d84330c481ebd807d5d4ccbf687c3c3806d137b7febf",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/java/concurrent/java-thread-pool-summary.md"
+    },
+    {
+      "id": "jg-thread-practices",
+      "title": "Java 线程池最佳实践",
+      "file": "docs/java/concurrent/java-thread-pool-best-practices.md",
+      "topic": "threads",
+      "family": "javaguide-threads",
+      "split": "development",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "8d61dabdfce775121977217f95e6b8e26e9108a77f3fdb35605f4c0382ef8006",
+      "sources": [
+        {
+          "title": "Java 线程池最佳实践",
+          "path": "D:/学习/实习/JavaGuide/docs/java/concurrent/java-thread-pool-best-practices.md",
+          "sha256": "8d61dabdfce775121977217f95e6b8e26e9108a77f3fdb35605f4c0382ef8006",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/java/concurrent/java-thread-pool-best-practices.md"
+    },
+    {
+      "id": "jg-mysql-isolation",
+      "title": "MySQL事务隔离级别详解",
+      "file": "docs/database/mysql/transaction-isolation-level.md",
+      "topic": "mysql",
+      "family": "javaguide-mysql",
+      "split": "validation",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "758789abf6c749dcd1737851004e133a5e3634c199a35ed08f8d20d03843573e",
+      "sources": [
+        {
+          "title": "MySQL事务隔离级别详解",
+          "path": "D:/学习/实习/JavaGuide/docs/database/mysql/transaction-isolation-level.md",
+          "sha256": "758789abf6c749dcd1737851004e133a5e3634c199a35ed08f8d20d03843573e",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/database/mysql/transaction-isolation-level.md"
+    },
+    {
+      "id": "jg-mysql-index",
+      "title": "MySQL索引详解",
+      "file": "docs/database/mysql/mysql-index.md",
+      "topic": "mysql",
+      "family": "javaguide-mysql",
+      "split": "validation",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "7cb4102cb7c9c12bf22f700c3940a011c85a5fecfb202915851bf02c1319a41d",
+      "sources": [
+        {
+          "title": "MySQL索引详解",
+          "path": "D:/学习/实习/JavaGuide/docs/database/mysql/mysql-index.md",
+          "sha256": "7cb4102cb7c9c12bf22f700c3940a011c85a5fecfb202915851bf02c1319a41d",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/database/mysql/mysql-index.md"
+    },
+    {
+      "id": "jg-mysql-explain",
+      "title": "MySQL执行计划分析",
+      "file": "docs/database/mysql/mysql-query-execution-plan.md",
+      "topic": "mysql",
+      "family": "javaguide-mysql",
+      "split": "validation",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "40fa88382897384f21ca818e5ef0394d60cc059c951658f6095bda806530f77a",
+      "sources": [
+        {
+          "title": "MySQL执行计划分析",
+          "path": "D:/学习/实习/JavaGuide/docs/database/mysql/mysql-query-execution-plan.md",
+          "sha256": "40fa88382897384f21ca818e5ef0394d60cc059c951658f6095bda806530f77a",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/database/mysql/mysql-query-execution-plan.md"
+    },
+    {
+      "id": "jg-spring-transaction",
+      "title": "Spring 事务详解",
+      "file": "docs/system-design/framework/spring/spring-transaction.md",
+      "topic": "spring",
+      "family": "javaguide-spring",
+      "split": "validation",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "09a9f15902104fcfa3a5a568a84b3cc73fc686adbe6051c3aa054b871a58e873",
+      "sources": [
+        {
+          "title": "Spring 事务详解",
+          "path": "D:/学习/实习/JavaGuide/docs/system-design/framework/spring/spring-transaction.md",
+          "sha256": "09a9f15902104fcfa3a5a568a84b3cc73fc686adbe6051c3aa054b871a58e873",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/system-design/framework/spring/spring-transaction.md"
+    },
+    {
+      "id": "jg-rabbitmq",
+      "title": "RabbitMQ 常见问题总结",
+      "file": "docs/high-performance/message-queue/rabbitmq-questions.md",
+      "topic": "messaging",
+      "family": "javaguide-messaging",
+      "split": "validation",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "9cd7c36c31446a6c1b4b84f7ff2cbcd2eb18d00cce0bb9eb914f0af8880a26b8",
+      "sources": [
+        {
+          "title": "RabbitMQ 常见问题总结",
+          "path": "D:/学习/实习/JavaGuide/docs/high-performance/message-queue/rabbitmq-questions.md",
+          "sha256": "9cd7c36c31446a6c1b4b84f7ff2cbcd2eb18d00cce0bb9eb914f0af8880a26b8",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/high-performance/message-queue/rabbitmq-questions.md"
+    },
+    {
+      "id": "jg-idempotency",
+      "title": "接口幂等性设计详解：幂等键、Token、唯一索引、去重表与支付回调",
+      "file": "docs/high-availability/idempotency.md",
+      "topic": "reliability",
+      "family": "javaguide-reliability",
+      "split": "validation",
+      "kind": "source-copy",
+      "version": "local-snapshot-2026-11-13",
+      "contentSha256": "9ea060ae4d79ed801256f21bf916ddb0a5b409dacffc9ad5bdee11074c19f379",
+      "sources": [
+        {
+          "title": "接口幂等性设计详解：幂等键、Token、唯一索引、去重表与支付回调",
+          "path": "D:/学习/实习/JavaGuide/docs/high-availability/idempotency.md",
+          "sha256": "9ea060ae4d79ed801256f21bf916ddb0a5b409dacffc9ad5bdee11074c19f379",
+          "license": "Apache-2.0"
+        }
+      ],
+      "resource": "/reference-library/javaguide/docs/high-availability/idempotency.md"
+    }
+  ],
+  "cases": [
+    {
+      "id": "JG-01",
+      "kind": "direct",
+      "split": "development",
+      "question": "JavaGuide 如何解释 Embedding 的作用？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-basis:Embedding 是什么？"
+      ],
+      "answer": "将文本映射为高维稠密向量，让语义相近文本在向量空间中更接近。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-basis",
+          "heading": "Embedding 是什么？",
+          "quote": "Embedding 是将文本映射到高维稠密向量空间的过程，目标是让语义相近的文本在向量空间中距离更近。"
+        }
+      ]
+    },
+    {
+      "id": "JG-02",
+      "kind": "direct",
+      "split": "development",
+      "question": "Chunk 切得过细和过大分别会带来什么问题？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-optimization:Chunk 大小没有万能值"
+      ],
+      "answer": "过细可能丢失前置条件，过大可能把无关说明带入上下文。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-optimization",
+          "heading": "Chunk 大小没有万能值",
+          "quote": "512、800、1000 Token 只能用来建立第一轮实验索引。对于“以上情况不适用七天无理由退货”这类带前置条件的句子，切得过细会只留下结论；切得过大时，一个相关句子又会把整段无关说明带进上下文。"
+        }
+      ]
+    },
+    {
+      "id": "JG-03",
+      "kind": "direct",
+      "split": "development",
+      "question": "开发集与终评集分别用于什么，相同问题的改写如何分配？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-evaluation:分开保管开发集和终评集"
+      ],
+      "answer": "开发集调参与诊断，终评集检查未参与调参的问题；近似题按题目家族放同一侧。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-evaluation",
+          "heading": "分开保管开发集和终评集",
+          "quote": "开发集用于调参和分析错误；终评集（holdout）用于检查没有参与调参的问题。相同问题的改写、相同模板生成的近似题，尽量按题目家族放在同一侧，避免数据泄漏。"
+        }
+      ]
+    },
+    {
+      "id": "JG-04",
+      "kind": "direct",
+      "split": "development",
+      "question": "Agent Loop 每轮执行哪些步骤，何时退出？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-agent:什么是 Agent Loop？"
+      ],
+      "answer": "模型根据上下文选择动作，执行工具并回写结果，任务完成或达到停止条件时退出。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-agent",
+          "heading": "什么是 Agent Loop？",
+          "quote": "Agent Loop 把这条反馈链路连续跑起来。每轮先由 LLM 根据上下文选择动作，再执行工具并写回结果；任务完成或命中停止条件时退出。"
+        }
+      ]
+    },
+    {
+      "id": "JG-05",
+      "kind": "direct",
+      "split": "development",
+      "question": "MCP Roots 会自动形成文件系统沙箱吗？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-mcp:Roots、Sampling 和 Elicitation"
+      ],
+      "answer": "不会；它提供工作范围提示，Server仍需路径规范化、越界检查和操作系统权限隔离。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mcp",
+          "heading": "Roots、Sampling 和 Elicitation",
+          "quote": "Roots 由 Host 通过 Client 告诉 Server：当前工作范围预期在哪些文件系统根目录内。例如，Host 可以只公布当前项目目录，不公布用户主目录。它是能力协商和范围提示，不会自动形成文件系统沙箱；Server 仍要做路径规范化、越界检查和操作系统级权限隔离。"
+        }
+      ]
+    },
+    {
+      "id": "JG-06",
+      "kind": "direct",
+      "split": "development",
+      "question": "同一服务部署在多台机器时，本地缓存为什么不能直接共享？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ],
+      "expected": [
+        "jg-cache-basics:本地缓存有什么痛点？"
+      ],
+      "answer": "本地缓存位于各自机器，服务实例之间的副本无法直接共享。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-cache-basics",
+          "heading": "本地缓存有什么痛点？",
+          "quote": "- **本地缓存应用耦合，对分布式架构支持不友好**，比如同一个相同的服务部署在多台机器上的时候，各个服务之间的缓存是无法共享的，因为本地缓存只在当前机器上有。"
+        }
+      ]
+    },
+    {
+      "id": "JG-07",
+      "kind": "direct",
+      "split": "development",
+      "question": "Cache Aside 所说的先更新数据库，是否只需执行 UPDATE 就能删除缓存？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ],
+      "expected": [
+        "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
+      ],
+      "answer": "还必须包含事务提交成功；事务提交前删除会让并发请求读旧值回填，提交后回调还需失败补偿。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-cache-strategies",
+          "heading": "Cache Aside Pattern（旁路缓存模式）",
+          "quote": "这里的“先更新 DB”必须包含**事务提交成功**。如果在事务方法内部执行 `UPDATE` 后就删缓存，而事务要等方法返回才提交，其他请求仍可能在提交前读到旧值并回填。提交后的回调可以保证操作顺序，但进程可能在提交后、执行回调前退出，仍需考虑失败补偿。"
+        }
+      ]
+    },
+    {
+      "id": "JG-08",
+      "kind": "direct",
+      "split": "development",
+      "question": "达到 corePoolSize 后，新任务通常先走哪个处理路径？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "expected": [
+        "jg-thread-summary:线程池参数分析"
+      ],
+      "answer": "默认按需创建线程，达到核心数量后新任务通常先进入队列。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-thread-summary",
+          "heading": "线程池参数分析",
+          "quote": "- `corePoolSize`：线程池优先维持的工作线程数量。默认情况下线程按需创建；工作线程数达到该值后，新任务通常先进入队列。"
+        }
+      ]
+    },
+    {
+      "id": "JG-09",
+      "kind": "direct",
+      "split": "development",
+      "question": "Future.get 设置超时是否会自动停止后台任务？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "expected": [
+        "jg-thread-practices:任务超时后会自动停止吗？"
+      ],
+      "answer": "只限制调用方等待时间；后台可能继续运行，cancel(true)也只是协作式中断尝试。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-thread-practices",
+          "heading": "任务超时后会自动停止吗？",
+          "quote": "`Future.get(timeout, unit)` 只限制调用线程等待结果的时间。抛出 `TimeoutException` 时，后台任务可能仍在运行。调用 `cancel(true)` 可以尝试中断执行线程，但中断是协作机制，任务不检查中断状态，或者底层调用不响应中断，任务仍可能继续执行。"
+        }
+      ]
+    },
+    {
+      "id": "JG-10",
+      "kind": "direct",
+      "split": "validation",
+      "question": "READ COMMITTED 可以阻止什么读异常，还可能出现哪些异常？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-mysql-isolation:事务隔离级别总结"
+      ],
+      "answer": "可以阻止脏读，仍可能出现幻读或不可重复读。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mysql-isolation",
+          "heading": "事务隔离级别总结",
+          "quote": "- **READ-COMMITTED(读取已提交)** ：允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读或不可重复读仍有可能发生。这是大多数数据库（如 Oracle, SQL Server）的默认隔离级别。"
+        }
+      ]
+    },
+    {
+      "id": "JG-11",
+      "kind": "direct",
+      "split": "validation",
+      "question": "什么情况下覆盖索引可以避免回表？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-mysql-index:覆盖索引"
+      ],
+      "answer": "查询需要的字段都在索引中，可直接通过索引获取数据。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mysql-index",
+          "heading": "覆盖索引",
+          "quote": "**覆盖索引即需要查询的字段正好是索引的字段，那么直接根据该索引，就可以查到数据了，而无需回表查询。**"
+        }
+      ]
+    },
+    {
+      "id": "JG-12",
+      "kind": "direct",
+      "split": "validation",
+      "question": "EXPLAIN 的 key 列表示什么，为 NULL 又表示什么？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-mysql-explain:key（重要）"
+      ],
+      "answer": "表示实际使用的索引；NULL表示未使用索引。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mysql-explain",
+          "heading": "key（重要）",
+          "quote": "key 列表示 MySQL 实际使用到的索引。如果为 NULL，则表示未用到索引。"
+        }
+      ]
+    },
+    {
+      "id": "JG-13",
+      "kind": "direct",
+      "split": "validation",
+      "question": "Spring 默认事务回滚规则怎样处理运行期异常、Error 和检查型异常？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-spring-transaction:事务回滚规则"
+      ],
+      "answer": "运行期异常和Error导致回滚，检查型异常默认不回滚。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-spring-transaction",
+          "heading": "事务回滚规则",
+          "quote": "这些规则定义了哪些异常会导致事务回滚而哪些不会。默认情况下，事务只有遇到运行期异常（`RuntimeException` 的子类）时才会回滚，`Error` 也会导致事务回滚，但是，在遇到检查型（Checked）异常时不会回滚。"
+        }
+      ]
+    },
+    {
+      "id": "JG-14",
+      "kind": "direct",
+      "split": "validation",
+      "question": "RabbitMQ 的 DLX 与死信队列是什么关系？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-rabbitmq:什么是死信队列？如何导致的？"
+      ],
+      "answer": "消息成为死信后可转发到死信交换器DLX，绑定该交换器的队列称为死信队列。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rabbitmq",
+          "heading": "什么是死信队列？如何导致的？",
+          "quote": "DLX，全称为 `Dead-Letter-Exchange`（死信交换器），当消息在一个队列中变成死信（`dead message`）之后，它能被重新发送到另一个交换器中，这个交换器就是 DLX，绑定 DLX 的队列就称之为死信队列。"
+        }
+      ]
+    },
+    {
+      "id": "JG-15",
+      "kind": "direct",
+      "split": "validation",
+      "question": "去重表插入和后续业务操作为什么需要放在同一事务中？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-idempotency"
+      ],
+      "expected": [
+        "jg-idempotency:去重表"
+      ],
+      "answer": "让去重记录存在与业务完成保持一致；业务失败时去重记录一起回滚，允许重入。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-idempotency",
+          "heading": "去重表",
+          "quote": "去重表的插入要和后续业务操作放在同一个数据库事务中。事务提交成功，才表示“去重记录存在 = 业务已经处理完成”；如果业务逻辑失败回滚，去重记录也要一起回滚，后续请求才能正常重入。否则可能出现“去重记录已写入，但业务实际没完成”的不一致状态。分库分表导致去重表和业务表不在同一物理库时，需要额外考虑 TCC / Saga 等分布式事务方案，或者改用其他能保证一致性的设计。"
+        }
+      ]
+    },
+    {
+      "id": "JG-16",
+      "kind": "synonym",
+      "split": "development",
+      "question": "模型缺少最新外部知识与输出格式不稳定，分别更对应哪类技术？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-basis:RAG 和微调怎么选？"
+      ],
+      "answer": "外部或最新知识用RAG，输出风格、格式或指令遵循问题对应微调。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-basis",
+          "heading": "RAG 和微调怎么选？",
+          "quote": "“为什么不直接微调模型？”是 RAG 面试中的高频问题。两者的职责边界很清晰：RAG 解决模型缺少外部或最新知识的问题，微调（Fine-tuning）解决模型输出风格、格式或特定任务指令遵循不稳定的问题。"
+        }
+      ]
+    },
+    {
+      "id": "JG-17",
+      "kind": "synonym",
+      "split": "development",
+      "question": "扩大召回数量是否只增加命中机会，还会增加哪些成本？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-optimization:Top-K 不是越大越好"
+      ],
+      "answer": "也会增加重排输入量、Prompt Token和噪声；候选、重排、最终上下文应分开设上限。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-optimization",
+          "heading": "Top-K 不是越大越好",
+          "quote": "扩大 Top-K 会增加正确证据进入候选池的机会，也会同时拉高 Rerank 的输入量、Prompt Token 和噪声比例。候选池、重排结果和最终上下文应使用不同的上限："
+        }
+      ]
+    },
+    {
+      "id": "JG-18",
+      "kind": "synonym",
+      "split": "development",
+      "question": "网络中断和合理拒绝回答，在评测统计中应该混在一起吗？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-evaluation:执行失败应该怎么算？"
+      ],
+      "answer": "应区分；正常拒答完成请求，执行失败没有完整答案，不能直接纳入答案质量分母。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-evaluation",
+          "heading": "执行失败应该怎么算？",
+          "quote": "网络断开、模型超时、用户取消和正常拒答要分开记录。正常拒答完成了请求，可以继续判断它是否合理；执行失败没有完整答案，不能直接计入答案正确性或忠实度的分母。"
+        }
+      ]
+    },
+    {
+      "id": "JG-19",
+      "kind": "synonym",
+      "split": "development",
+      "question": "ReAct 如何在思考和外部反馈之间推进任务？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-agent:ReAct"
+      ],
+      "answer": "模型推理一步，取得环境反馈，再继续推理，交替进行。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-agent",
+          "heading": "ReAct",
+          "quote": "它的思路很直观：模型先推理一步，拿到外部环境反馈，再推理下一步，交替进行。"
+        }
+      ]
+    },
+    {
+      "id": "JG-20",
+      "kind": "synonym",
+      "split": "development",
+      "question": "MCP 使用标准输入输出通信时，调试信息应该写在哪里？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
+      ],
+      "answer": "stdout专用于JSON-RPC消息，调试日志写stderr或文件。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mcp",
+          "heading": "stdio 和 Streamable HTTP 怎么选？",
+          "quote": "stdio 模式下，stdout 是 JSON-RPC 消息通道，不能用于打印调试日志。一行 `print()` 输出就可能破坏消息格式，导致 Host 解析失败或 Server 断连。调试日志应写入 stderr 或文件；排查“Server 启动失败”时，也要确认 stdout 中没有混入日志。"
+        }
+      ]
+    },
+    {
+      "id": "JG-21",
+      "kind": "synonym",
+      "split": "development",
+      "question": "只清理 Redis 中的数据，各实例的一级缓存会同步失效吗？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ],
+      "expected": [
+        "jg-cache-basics:多级缓存一致性如何保证？"
+      ],
+      "answer": "不一定；各JVM的本地副本可能继续被读取，短TTL也不能代替失效通知。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-cache-basics",
+          "heading": "多级缓存一致性如何保证？",
+          "quote": "多级缓存通常按最终一致性设计，需要分别处理 **DB → Redis** 和 **Redis → 各实例 L1** 的变化。只删除 Redis 中的 key，其他 JVM 中的本地副本仍可能被读取；给 L1 设置较短 TTL 能缩短陈旧读取时间，但不能代替失效通知。"
+        }
+      ]
+    },
+    {
+      "id": "JG-22",
+      "kind": "synonym",
+      "split": "development",
+      "question": "同步穿透写和异步回写两种缓存策略，在更新数据库时有什么差别？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ],
+      "expected": [
+        "jg-cache-strategies:Write Behind Pattern（异步缓存写入）"
+      ],
+      "answer": "Read/Write Through同步更新Cache和DB；Write Behind先更新缓存，再异步批量更新DB。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-cache-strategies",
+          "heading": "Write Behind Pattern（异步缓存写入）",
+          "quote": "但是，两个又有很大的不同：**Read/Write Through 是同步更新 Cache 和 DB，而 Write Behind 则是只更新缓存，不直接更新 DB，而是改为异步批量的方式来更新 DB。**"
+        }
+      ]
+    },
+    {
+      "id": "JG-23",
+      "kind": "synonym",
+      "split": "development",
+      "question": "shutdownNow 发出终止动作后，正在执行的工作一定立即结束吗？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "expected": [
+        "jg-thread-summary:`shutdown()`VS`shutdownNow()`"
+      ],
+      "answer": "不一定；它尝试中断，任务不响应中断时不能保证立即结束，并返回尚未开始的任务列表。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-thread-summary",
+          "heading": "`shutdown()`VS`shutdownNow()`",
+          "quote": "- **`shutdownNow()`**：关闭线程池，线程池的状态变为 `STOP`。线程池会尝试中断正在执行的任务，停止处理排队的任务并返回尚未开始执行的任务列表；任务不响应中断时，不能保证立即终止。"
+        }
+      ]
+    },
+    {
+      "id": "JG-24",
+      "kind": "synonym",
+      "split": "development",
+      "question": "提交者自行执行的拒绝策略，在执行器已经关闭后还会兜底执行吗？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "expected": [
+        "jg-thread-practices:CallerRunsPolicy 能形成背压吗？"
+      ],
+      "answer": "CallerRunsPolicy在关闭后直接丢弃；需要可靠任务处理时应另行记录失败或持久化。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-thread-practices",
+          "heading": "CallerRunsPolicy 能形成背压吗？",
+          "quote": "线程池关闭后，`CallerRunsPolicy` 不会再执行任务，而是直接丢弃。业务不能接受丢任务时，需要自定义拒绝处理：记录拒绝次数，返回明确失败，或者把任务写入可靠存储。不要只换一个拒绝策略，就把任务可靠性问题留给调用方。"
+        }
+      ]
+    },
+    {
+      "id": "JG-25",
+      "kind": "synonym",
+      "split": "validation",
+      "question": "执行计划中的预估扫描记录数，具体看哪个字段？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-mysql-explain:rows"
+      ],
+      "answer": "rows，根据统计信息与索引选用情况估算需要读取的行数。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mysql-explain",
+          "heading": "rows",
+          "quote": "rows 列表示根据表统计信息及索引选用情况，**估算**出找到所需记录需要读取的行数，数值越小越好。"
+        }
+      ]
+    },
+    {
+      "id": "JG-26",
+      "kind": "paraphrase",
+      "split": "development",
+      "question": "公司文档经常更新，但回答格式已经稳定，资料建议优先解决哪个环节？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-basis:RAG 和微调怎么选？"
+      ],
+      "answer": "用RAG注入外部或最新知识，而不是靠微调记住频繁变化的内容。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-basis",
+          "heading": "RAG 和微调怎么选？",
+          "quote": "“为什么不直接微调模型？”是 RAG 面试中的高频问题。两者的职责边界很清晰：RAG 解决模型缺少外部或最新知识的问题，微调（Fine-tuning）解决模型输出风格、格式或特定任务指令遵循不稳定的问题。"
+        }
+      ]
+    },
+    {
+      "id": "JG-27",
+      "kind": "paraphrase",
+      "split": "development",
+      "question": "把正确结论切出来却丢了前面的例外条件，这更像哪类切块问题？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-optimization:Chunk 大小没有万能值"
+      ],
+      "answer": "Chunk过细切断前置条件，应兼顾语义完整性。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-optimization",
+          "heading": "Chunk 大小没有万能值",
+          "quote": "512、800、1000 Token 只能用来建立第一轮实验索引。对于“以上情况不适用七天无理由退货”这类带前置条件的句子，切得过细会只留下结论；切得过大时，一个相关句子又会把整段无关说明带进上下文。"
+        }
+      ]
+    },
+    {
+      "id": "JG-28",
+      "kind": "paraphrase",
+      "split": "development",
+      "question": "同一道题换几个说法，一部分拿来调参一部分拿来最终验收，这样分配合适吗？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-evaluation:分开保管开发集和终评集"
+      ],
+      "answer": "近似题应按家族放在同一侧，减少数据泄漏。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-evaluation",
+          "heading": "分开保管开发集和终评集",
+          "quote": "开发集用于调参和分析错误；终评集（holdout）用于检查没有参与调参的问题。相同问题的改写、相同模板生成的近似题，尽量按题目家族放在同一侧，避免数据泄漏。"
+        }
+      ]
+    },
+    {
+      "id": "JG-29",
+      "kind": "paraphrase",
+      "split": "development",
+      "question": "工具执行完后，Agent 怎么让下一轮判断知道刚才发生了什么？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-agent:什么是 Agent Loop？"
+      ],
+      "answer": "将工具执行结果写回上下文，模型在后续轮次据此选择动作。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-agent",
+          "heading": "什么是 Agent Loop？",
+          "quote": "Agent Loop 把这条反馈链路连续跑起来。每轮先由 LLM 根据上下文选择动作，再执行工具并写回结果；任务完成或命中停止条件时退出。"
+        }
+      ]
+    },
+    {
+      "id": "JG-30",
+      "kind": "paraphrase",
+      "split": "development",
+      "question": "本地 MCP 服务往控制台打了一行普通日志，为什么宿主突然解析不了消息？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
+      ],
+      "answer": "stdout被用作JSON-RPC通道，混入日志会破坏格式；日志应走stderr或文件。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mcp",
+          "heading": "stdio 和 Streamable HTTP 怎么选？",
+          "quote": "stdio 模式下，stdout 是 JSON-RPC 消息通道，不能用于打印调试日志。一行 `print()` 输出就可能破坏消息格式，导致 Host 解析失败或 Server 断连。调试日志应写入 stderr 或文件；排查“Server 启动失败”时，也要确认 stdout 中没有混入日志。"
+        }
+      ]
+    },
+    {
+      "id": "JG-31",
+      "kind": "paraphrase",
+      "split": "development",
+      "question": "数据库那边只执行了更新语句，事务方法还没返回，此时清缓存可能出什么问题？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ],
+      "expected": [
+        "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
+      ],
+      "answer": "更新尚未提交时其他请求仍可能读取旧值并回填；应确保事务提交并考虑补偿。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-cache-strategies",
+          "heading": "Cache Aside Pattern（旁路缓存模式）",
+          "quote": "这里的“先更新 DB”必须包含**事务提交成功**。如果在事务方法内部执行 `UPDATE` 后就删缓存，而事务要等方法返回才提交，其他请求仍可能在提交前读到旧值并回填。提交后的回调可以保证操作顺序，但进程可能在提交后、执行回调前退出，仍需考虑失败补偿。"
+        }
+      ]
+    },
+    {
+      "id": "JG-32",
+      "kind": "paraphrase",
+      "split": "development",
+      "question": "等异步结果的人已经报超时，为什么数据库请求还在后台跑？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "expected": [
+        "jg-thread-practices:任务超时后会自动停止吗？"
+      ],
+      "answer": "Future.get超时只结束等待，底层任务不响应中断时仍可能执行。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-thread-practices",
+          "heading": "任务超时后会自动停止吗？",
+          "quote": "`Future.get(timeout, unit)` 只限制调用线程等待结果的时间。抛出 `TimeoutException` 时，后台任务可能仍在运行。调用 `cancel(true)` 可以尝试中断执行线程，但中断是协作机制，任务不检查中断状态，或者底层调用不响应中断，任务仍可能继续执行。"
+        }
+      ]
+    },
+    {
+      "id": "JG-33",
+      "kind": "paraphrase",
+      "split": "validation",
+      "question": "同一事务内多次读同一个字段，希望不被别人的已提交修改改变结果，资料介绍哪个隔离级别？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-mysql-isolation:事务隔离级别总结"
+      ],
+      "answer": "可重复读；资料也指出这是MySQL InnoDB的默认隔离级别。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mysql-isolation",
+          "heading": "事务隔离级别总结",
+          "quote": "- **REPEATABLE-READ(可重复读)** ：对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生。MySQL InnoDB 存储引擎的默认隔离级别正是 REPEATABLE READ。并且，InnoDB 在此级别下通过 MVCC（多版本并发控制） 和 Next-Key Locks（间隙锁+行锁） 机制，在很大程度上解决了幻读问题。"
+        }
+      ]
+    },
+    {
+      "id": "JG-34",
+      "kind": "paraphrase",
+      "split": "validation",
+      "question": "同一个服务对象内部直接调用带事务注解的方法，为什么代理没拦住？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-spring-transaction:Spring AOP 自调用问题"
+      ],
+      "answer": "类内部调用未经过Spring AOP代理，代理不能在调用前后应用事务逻辑。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-spring-transaction",
+          "heading": "Spring AOP 自调用问题",
+          "quote": "这是因为 Spring AOP 工作原理决定的。因为 Spring AOP 使用动态代理来实现事务的管理，它会在运行的时候为带有 `@Transactional` 注解的方法生成代理对象，并在方法调用的前后应用事物逻辑。如果该方法被其他类调用我们的代理对象就会拦截方法调用并处理事务。但是在一个类中的其他方法内部调用的时候，我们代理对象就无法拦截到这个内部调用，因此事务也就失效了。"
+        }
+      ]
+    },
+    {
+      "id": "JG-35",
+      "kind": "paraphrase",
+      "split": "validation",
+      "question": "生产者收到了成功确认，就能断定消息到了业务队列吗？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-rabbitmq:如何保证消息的可靠性？"
+      ],
+      "answer": "不能；路由失败也可能收到basic.ack，需处理mandatory return或Alternate Exchange。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rabbitmq",
+          "heading": "如何保证消息的可靠性？",
+          "quote": "只开 Confirm 不够。路由失败的消息也可能收到 `basic.ack`，因为 Broker 已经处理了这次发布；是否进入业务队列，要靠 mandatory return 或 Alternate Exchange 兜住。"
+        }
+      ]
+    },
+    {
+      "id": "JG-36",
+      "kind": "distractor",
+      "split": "validation",
+      "question": "EXPLAIN 的 rows 是本次执行精确读取的行数，还是优化器估算？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-mysql-explain:rows"
+      ],
+      "answer": "是估算值，不是精确执行计数。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mysql-explain",
+          "heading": "rows",
+          "quote": "rows 列表示根据表统计信息及索引选用情况，**估算**出找到所需记录需要读取的行数，数值越小越好。"
+        }
+      ]
+    },
+    {
+      "id": "JG-37",
+      "kind": "distractor",
+      "split": "development",
+      "question": "MCP 把目录通过 Roots 告知 Server 后，是否可以省略实际越界检查？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-mcp:Roots、Sampling 和 Elicitation"
+      ],
+      "answer": "不可以；Roots仅提供范围提示，Server仍需规范化路径和权限隔离。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mcp",
+          "heading": "Roots、Sampling 和 Elicitation",
+          "quote": "Roots 由 Host 通过 Client 告诉 Server：当前工作范围预期在哪些文件系统根目录内。例如，Host 可以只公布当前项目目录，不公布用户主目录。它是能力协商和范围提示，不会自动形成文件系统沙箱；Server 仍要做路径规范化、越界检查和操作系统级权限隔离。"
+        }
+      ]
+    },
+    {
+      "id": "JG-38",
+      "kind": "distractor",
+      "split": "development",
+      "question": "缓存只删除远端 Redis，再给 L1 较短 TTL，能否把 TTL 当作失效通知的替代？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ],
+      "expected": [
+        "jg-cache-basics:多级缓存一致性如何保证？"
+      ],
+      "answer": "不能；其他实例可能继续读本地副本，短TTL只能缩短陈旧时间。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-cache-basics",
+          "heading": "多级缓存一致性如何保证？",
+          "quote": "多级缓存通常按最终一致性设计，需要分别处理 **DB → Redis** 和 **Redis → 各实例 L1** 的变化。只删除 Redis 中的 key，其他 JVM 中的本地副本仍可能被读取；给 L1 设置较短 TTL 能缩短陈旧读取时间，但不能代替失效通知。"
+        }
+      ]
+    },
+    {
+      "id": "JG-39",
+      "kind": "distractor",
+      "split": "validation",
+      "question": "看到 confirm 的 basic.ack 与看到消息进入目标队列，是否是一回事？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-rabbitmq:如何保证消息的可靠性？"
+      ],
+      "answer": "不是；确认与成功路由需分别处理。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rabbitmq",
+          "heading": "如何保证消息的可靠性？",
+          "quote": "只开 Confirm 不够。路由失败的消息也可能收到 `basic.ack`，因为 Broker 已经处理了这次发布；是否进入业务队列，要靠 mandatory return 或 Alternate Exchange 兜住。"
+        }
+      ]
+    },
+    {
+      "id": "JG-40",
+      "kind": "distractor",
+      "split": "validation",
+      "question": "接口已有唯一索引，是不是全部幂等逻辑都可以省略？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-idempotency"
+      ],
+      "expected": [
+        "jg-idempotency:唯一索引"
+      ],
+      "answer": "不是；唯一索引是插入类场景的数据库兜底，不覆盖全部幂等逻辑。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-idempotency",
+          "heading": "唯一索引",
+          "quote": "不要只依靠唯一索引完成全部幂等逻辑，但插入类场景建议把唯一索引作为数据库层兜底，避免并发下产生重复数据。"
+        }
+      ]
+    },
+    {
+      "id": "JG-41",
+      "kind": "multi",
+      "split": "development",
+      "question": "Embedding 能召回相近语义，为什么仍不能无限增加 Top-K？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-basis:Embedding 是什么？",
+        "jg-rag-optimization:Top-K 不是越大越好"
+      ],
+      "answer": "Embedding将相近语义映射到邻近向量；Top-K增大会同时增加重排成本、Token和噪声。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-basis",
+          "heading": "Embedding 是什么？",
+          "quote": "Embedding 是将文本映射到高维稠密向量空间的过程，目标是让语义相近的文本在向量空间中距离更近。"
+        },
+        {
+          "documentId": "jg-rag-optimization",
+          "heading": "Top-K 不是越大越好",
+          "quote": "扩大 Top-K 会增加正确证据进入候选池的机会，也会同时拉高 Rerank 的输入量、Prompt Token 和噪声比例。候选池、重排结果和最终上下文应使用不同的上限："
+        }
+      ]
+    },
+    {
+      "id": "JG-42",
+      "kind": "multi",
+      "split": "development",
+      "question": "比较不同 Chunk 大小时，为什么既要关注前置条件，也要把调参题和终评题分开？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-rag-optimization:Chunk 大小没有万能值",
+        "jg-rag-evaluation:分开保管开发集和终评集"
+      ],
+      "answer": "切块需保留条件、控制噪声；开发集调参，近似题按家族与终评分开，减少泄漏。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rag-optimization",
+          "heading": "Chunk 大小没有万能值",
+          "quote": "512、800、1000 Token 只能用来建立第一轮实验索引。对于“以上情况不适用七天无理由退货”这类带前置条件的句子，切得过细会只留下结论；切得过大时，一个相关句子又会把整段无关说明带进上下文。"
+        },
+        {
+          "documentId": "jg-rag-evaluation",
+          "heading": "分开保管开发集和终评集",
+          "quote": "开发集用于调参和分析错误；终评集（holdout）用于检查没有参与调参的问题。相同问题的改写、相同模板生成的近似题，尽量按题目家族放在同一侧，避免数据泄漏。"
+        }
+      ]
+    },
+    {
+      "id": "JG-43",
+      "kind": "multi",
+      "split": "development",
+      "question": "Agent Loop 与 MCP 分别承担什么职责？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [
+        "jg-agent:什么是 Agent Loop？",
+        "jg-mcp:MCP 的意义只是让模型会调接口吗？"
+      ],
+      "answer": "Loop负责选择动作、执行工具与反馈循环；MCP解决工具向多个Host交付时的重复集成。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-agent",
+          "heading": "什么是 Agent Loop？",
+          "quote": "Agent Loop 把这条反馈链路连续跑起来。每轮先由 LLM 根据上下文选择动作，再执行工具并写回结果；任务完成或命中停止条件时退出。"
+        },
+        {
+          "documentId": "jg-mcp",
+          "heading": "MCP 的意义只是让模型会调接口吗？",
+          "quote": "Function Calling 已经可以让模型表达“调用哪个接口”。MCP 解决的是同一个工具交付给多个 Host 时的重复集成。"
+        }
+      ]
+    },
+    {
+      "id": "JG-44",
+      "kind": "multi",
+      "split": "development",
+      "question": "数据库提交后再删除缓存，为什么在有 L1 和 Redis 的系统中还需处理本地副本？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-cache-basics",
+        "jg-cache-strategies"
+      ],
+      "expected": [
+        "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）",
+        "jg-cache-basics:多级缓存一致性如何保证？"
+      ],
+      "answer": "Cache Aside要求数据库提交后再处理缓存；仅删除Redis不会自动使各JVM的L1失效。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-cache-strategies",
+          "heading": "Cache Aside Pattern（旁路缓存模式）",
+          "quote": "这里的“先更新 DB”必须包含**事务提交成功**。如果在事务方法内部执行 `UPDATE` 后就删缓存，而事务要等方法返回才提交，其他请求仍可能在提交前读到旧值并回填。提交后的回调可以保证操作顺序，但进程可能在提交后、执行回调前退出，仍需考虑失败补偿。"
+        },
+        {
+          "documentId": "jg-cache-basics",
+          "heading": "多级缓存一致性如何保证？",
+          "quote": "多级缓存通常按最终一致性设计，需要分别处理 **DB → Redis** 和 **Redis → 各实例 L1** 的变化。只删除 Redis 中的 key，其他 JVM 中的本地副本仍可能被读取；给 L1 设置较短 TTL 能缩短陈旧读取时间，但不能代替失效通知。"
+        }
+      ]
+    },
+    {
+      "id": "JG-45",
+      "kind": "multi",
+      "split": "development",
+      "question": "Future.get 超时与 shutdownNow 有什么共同的停止边界？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-thread-summary",
+        "jg-thread-practices"
+      ],
+      "expected": [
+        "jg-thread-practices:任务超时后会自动停止吗？",
+        "jg-thread-summary:`shutdown()`VS`shutdownNow()`"
+      ],
+      "answer": "前者只限制等待时间，后者尝试中断；两者均不能保证不响应中断的任务立即停止。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-thread-practices",
+          "heading": "任务超时后会自动停止吗？",
+          "quote": "`Future.get(timeout, unit)` 只限制调用线程等待结果的时间。抛出 `TimeoutException` 时，后台任务可能仍在运行。调用 `cancel(true)` 可以尝试中断执行线程，但中断是协作机制，任务不检查中断状态，或者底层调用不响应中断，任务仍可能继续执行。"
+        },
+        {
+          "documentId": "jg-thread-summary",
+          "heading": "`shutdown()`VS`shutdownNow()`",
+          "quote": "- **`shutdownNow()`**：关闭线程池，线程池的状态变为 `STOP`。线程池会尝试中断正在执行的任务，停止处理排队的任务并返回尚未开始执行的任务列表；任务不响应中断时，不能保证立即终止。"
+        }
+      ]
+    },
+    {
+      "id": "JG-46",
+      "kind": "multi",
+      "split": "validation",
+      "question": "如何结合索引文档和 EXPLAIN 判断覆盖索引思路与实际选用索引？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-mysql-index:覆盖索引",
+        "jg-mysql-explain:key（重要）"
+      ],
+      "answer": "覆盖索引可直接提供查询字段而避免回表；EXPLAIN的key显示实际选用的索引。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mysql-index",
+          "heading": "覆盖索引",
+          "quote": "**覆盖索引即需要查询的字段正好是索引的字段，那么直接根据该索引，就可以查到数据了，而无需回表查询。**"
+        },
+        {
+          "documentId": "jg-mysql-explain",
+          "heading": "key（重要）",
+          "quote": "key 列表示 MySQL 实际使用到的索引。如果为 NULL，则表示未用到索引。"
+        }
+      ]
+    },
+    {
+      "id": "JG-47",
+      "kind": "multi",
+      "split": "validation",
+      "question": "READ COMMITTED 的读隔离与 Spring 默认异常回滚分别解决什么问题？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [
+        "jg-mysql-isolation:事务隔离级别总结",
+        "jg-spring-transaction:事务回滚规则"
+      ],
+      "answer": "READ COMMITTED阻止脏读但仍可能不可重复读或幻读；Spring默认遇运行期异常和Error回滚，检查型异常默认不回滚。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-mysql-isolation",
+          "heading": "事务隔离级别总结",
+          "quote": "- **READ-COMMITTED(读取已提交)** ：允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读或不可重复读仍有可能发生。这是大多数数据库（如 Oracle, SQL Server）的默认隔离级别。"
+        },
+        {
+          "documentId": "jg-spring-transaction",
+          "heading": "事务回滚规则",
+          "quote": "这些规则定义了哪些异常会导致事务回滚而哪些不会。默认情况下，事务只有遇到运行期异常（`RuntimeException` 的子类）时才会回滚，`Error` 也会导致事务回滚，但是，在遇到检查型（Checked）异常时不会回滚。"
+        }
+      ]
+    },
+    {
+      "id": "JG-48",
+      "kind": "multi",
+      "split": "validation",
+      "question": "消息消费的确认时机与数据库去重记录，应怎样配合？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-rabbitmq",
+        "jg-idempotency"
+      ],
+      "expected": [
+        "jg-rabbitmq:如何保证消息的可靠性？",
+        "jg-idempotency:去重表"
+      ],
+      "answer": "消费成功后手动Ack；去重记录与业务修改放同一数据库事务，成功提交才代表处理完成。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-rabbitmq",
+          "heading": "如何保证消息的可靠性？",
+          "quote": "- **手动 Ack**：`basicAck(deliveryTag, multiple)`，确保消费成功后再确认"
+        },
+        {
+          "documentId": "jg-idempotency",
+          "heading": "去重表",
+          "quote": "去重表的插入要和后续业务操作放在同一个数据库事务中。事务提交成功，才表示“去重记录存在 = 业务已经处理完成”；如果业务逻辑失败回滚，去重记录也要一起回滚，后续请求才能正常重入。否则可能出现“去重记录已写入，但业务实际没完成”的不一致状态。分库分表导致去重表和业务表不在同一物理库时，需要额外考虑 TCC / Saga 等分布式事务方案，或者改用其他能保证一致性的设计。"
+        }
+      ]
+    },
+    {
+      "id": "JG-49",
+      "kind": "multi",
+      "split": "validation",
+      "question": "唯一索引用于幂等兜底与覆盖索引用于查询优化，这两种作用有什么区别？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-idempotency"
+      ],
+      "expected": [
+        "jg-idempotency:唯一索引",
+        "jg-mysql-index:覆盖索引"
+      ],
+      "answer": "唯一索引防并发重复插入但不代替全部幂等逻辑；覆盖索引包含所需查询字段，可避免回表。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-idempotency",
+          "heading": "唯一索引",
+          "quote": "不要只依靠唯一索引完成全部幂等逻辑，但插入类场景建议把唯一索引作为数据库层兜底，避免并发下产生重复数据。"
+        },
+        {
+          "documentId": "jg-mysql-index",
+          "heading": "覆盖索引",
+          "quote": "**覆盖索引即需要查询的字段正好是索引的字段，那么直接根据该索引，就可以查到数据了，而无需回表查询。**"
+        }
+      ]
+    },
+    {
+      "id": "JG-50",
+      "kind": "multi",
+      "split": "validation",
+      "question": "消费业务失败时，怎样结合去重事务和 Spring 回滚规则检查是否可以安全重试？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-idempotency"
+      ],
+      "expected": [
+        "jg-idempotency:去重表",
+        "jg-spring-transaction:事务回滚规则"
+      ],
+      "answer": "去重记录应与业务一起回滚；需检查异常类型，Spring默认运行期异常与Error回滚而检查型异常默认不回滚。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "jg-idempotency",
+          "heading": "去重表",
+          "quote": "去重表的插入要和后续业务操作放在同一个数据库事务中。事务提交成功，才表示“去重记录存在 = 业务已经处理完成”；如果业务逻辑失败回滚，去重记录也要一起回滚，后续请求才能正常重入。否则可能出现“去重记录已写入，但业务实际没完成”的不一致状态。分库分表导致去重表和业务表不在同一物理库时，需要额外考虑 TCC / Saga 等分布式事务方案，或者改用其他能保证一致性的设计。"
+        },
+        {
+          "documentId": "jg-spring-transaction",
+          "heading": "事务回滚规则",
+          "quote": "这些规则定义了哪些异常会导致事务回滚而哪些不会。默认情况下，事务只有遇到运行期异常（`RuntimeException` 的子类）时才会回滚，`Error` 也会导致事务回滚，但是，在遇到检查型（Checked）异常时不会回滚。"
+        }
+      ]
+    },
+    {
+      "id": "JG-51",
+      "kind": "insufficient",
+      "split": "development",
+      "question": "这些资料给出了职智达当前向量库实际收录的文档数和片段数吗？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [],
+      "answer": "没有职智达运行环境的索引统计。",
+      "shouldAbstain": true,
+      "evidence": []
+    },
+    {
+      "id": "JG-52",
+      "kind": "insufficient",
+      "split": "development",
+      "question": "职智达部署的 MCP 服务实际监听哪个端口？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [],
+      "answer": "这些通用资料未记录职智达部署配置，示例端口不能当作实际端口。",
+      "shouldAbstain": true,
+      "evidence": []
+    },
+    {
+      "id": "JG-53",
+      "kind": "insufficient",
+      "split": "validation",
+      "question": "职智达线上订单表在 2026 年 11 月 13 日实际有多少行？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [],
+      "answer": "没有该业务表在指定日期的实际统计。",
+      "shouldAbstain": true,
+      "evidence": []
+    },
+    {
+      "id": "JG-54",
+      "kind": "insufficient",
+      "split": "validation",
+      "question": "职智达 RabbitMQ 集群过去一天发生了多少次故障？",
+      "scope": [
+        "jg-mysql-isolation",
+        "jg-mysql-index",
+        "jg-mysql-explain",
+        "jg-spring-transaction",
+        "jg-rabbitmq"
+      ],
+      "expected": [],
+      "answer": "资料没有该集群的运行日志或故障统计。",
+      "shouldAbstain": true,
+      "evidence": []
+    },
+    {
+      "id": "JG-55",
+      "kind": "insufficient",
+      "split": "development",
+      "question": "职智达报表工作进程实际分配了多少 CPU 核？",
+      "scope": [
+        "jg-rag-basis",
+        "jg-rag-optimization",
+        "jg-rag-evaluation",
+        "jg-agent",
+        "jg-mcp"
+      ],
+      "expected": [],
+      "answer": "线程池通用文档没有该部署的CPU资源配置。",
+      "shouldAbstain": true,
+      "evidence": []
+    }
+  ]
+}

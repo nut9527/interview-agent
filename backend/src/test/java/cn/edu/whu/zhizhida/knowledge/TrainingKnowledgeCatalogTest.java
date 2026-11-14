@@ -13,6 +13,20 @@ import cn.edu.whu.zhizhida.knowledge.domain.KnowledgeText;
 
 class TrainingKnowledgeCatalogTest {
     @Test
+    void archivedExcerptsKeepTheirOriginalChunkIdsAndBoundaries() {
+        String text = "# 日志\n\n使用 stderr。\n\nstdout 保留给协议。";
+        var old = KnowledgeText.splitLegacy("saved", 1, text).stream().filter(KnowledgeText::isEvidence)
+                .map(c -> new KnowledgeSnapshot.Excerpt(c.id(), c.heading(), c.startLine(), c.endLine(), c.content())).toList();
+        var snapshot = new KnowledgeSnapshot("saved", "日志", "notes.md", 1,
+                cn.edu.whu.zhizhida.common.Sha256.hex(text), text, old);
+        var catalog = new TrainingKnowledgeCatalog(mock(KnowledgeService.class));
+        var retrieved = catalog.select(List.of(snapshot), "stderr stdout");
+        assertThat(retrieved.getFirst().excerpts()).containsExactlyInAnyOrderElementsOf(old);
+        assertThat(catalog.verifiedExcerpts(List.of(snapshot), retrieved)).isEqualTo(retrieved);
+        assertThat(KnowledgeText.split("saved", text)).noneMatch(c -> old.stream().anyMatch(e -> e.chunkId().equals(c.id())));
+    }
+
+    @Test
     void initialExcerptsUsePinnedVersionAndSkipHeadingOnlyFallbacks() {
         var documents = mock(KnowledgeService.class);
         String text = "# 章节\n\n实际正文与边界。";

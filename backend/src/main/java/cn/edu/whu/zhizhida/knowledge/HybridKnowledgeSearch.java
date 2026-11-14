@@ -36,6 +36,9 @@ public final class HybridKnowledgeSearch {
      */
     public List<Hit> search(List<KnowledgeSnapshot> snapshots, List<Hit> candidates, String query, int limit) {
         if (limit <= 0 || snapshots.isEmpty()) return List.of();
+        return diversify(rank(snapshots, candidates, query), limit);
+    }
+    List<Hit> rank(List<KnowledgeSnapshot> snapshots, List<Hit> candidates, String query) {
         var scopes = snapshots.stream().map(d -> new KnowledgeVectors.Scope(d.id(), d.version(), d.sha256())).toList();
         var allowed = snapshots.stream().map(d -> d.id() + ":" + d.version()).collect(java.util.stream.Collectors.toSet());
         // 两条召回链路共用证据口径；旧代际残留的纯标题向量也不能成为引用。
@@ -65,9 +68,8 @@ public final class HybridKnowledgeSearch {
             scores.merge(key, 1.0 / (settings.rrfK() + 1 + rank++), Double::sum);
         }
         metrics.summary("knowledge.retrieval.candidates", "path", "vector").record(rank);
-        var ordered = scores.entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
+        return scores.entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
                 .map(e -> qualified.get(e.getKey())).toList();
-        return diversify(ordered, limit);
     }
     /**
      * 优先保留不同章节的高排名片段，再用延后候选补足结果数量。

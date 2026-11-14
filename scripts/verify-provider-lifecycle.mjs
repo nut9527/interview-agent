@@ -49,7 +49,7 @@ const mavenArgs = ['-ntp', `-Dmaven.repo.local=${join(PROJECT_ROOT, '.m2/reposit
   '-Dtest=InterviewPromptTemplatesTest,InterviewPromptConfigurationTest,InterviewOutputContractTest,InterviewAgentGuardrailsTest',
   '-Dit.test=ProviderInterviewLifecycleIT', '-Djacoco.skip=true', '-DargLine=-Xmx512m',
   ...(process.platform === 'win32' ? ['-Djavax.net.ssl.trustStoreType=Windows-ROOT', '-Djavax.net.ssl.trustStore=NONE'] : [])];
-const execution = { scope: 'real-production-worker-synthetic-lifecycle', stage, startedAt: new Date().toISOString(),
+const execution = { scope: 'real-production-worker-synthetic-lifecycle', stage,
   result: 'INCOMPLETE', endpoint, model, maxRequests, maxOutputTokens, mysqlPort: 13327,
   reproduction: { command: `node scripts/verify-provider-lifecycle.mjs ${args.join(' ')}`,
     mavenGoals: ['verify'], mavenArgs: ['-o', '-B', ...mavenArgs], environmentVariableNames: [],
@@ -111,7 +111,6 @@ try {
   }
   await rm(join(build, 'verification.log'), { force: true });
   execution.cleanup.verificationLogRemoved = true;
-  execution.completedAt = new Date().toISOString();
   await writeFile(join(directory, 'execution.json'), JSON.stringify(execution, null, 2) + '\n');
   console.log(JSON.stringify({ result: execution.result, stage, usage: execution.usage, cleanup: execution.cleanup,
     evidence: `backend/target/provider-simplified/${stage}` }));

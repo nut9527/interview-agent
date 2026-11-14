@@ -19,23 +19,56 @@ import cn.edu.whu.zhizhida.knowledge.api.KnowledgeDocument.Hit;
  * 偏移量以存储原文的 UTF-16 索引计数，与浏览器的字符串切片规则一致。
  */
 public final class KnowledgeText {
+    private static final Pattern FENCE = Pattern.compile("^ {0,3}(`{3,}|~{3,})(.*)$");
+    private static final Pattern IMAGE_LINE = Pattern.compile(
+            "(?i)(?:(?:!\\[[^\\]]*]\\((?:[^()\\r\\n]|\\([^()\\r\\n]*\\))*\\)|<img\\b[^>]*>)\\s*)+");
     private KnowledgeText() {
     }
 
     public static List<Chunk> split(String id, int version, String text) {
-        // 保留旧版 v1 的引用标识；后续版本各自使用不可变的引用标识。
+        // 文档版本与分块规则分别编码，已有归档编号不变。
         return split(version == 1 ? id : id + ":v" + version, text);
     }
 
     public static List<Chunk> split(String id, String text) {
+        var paragraphs = paragraphs(id, text, true);
+        var result = new ArrayList<Chunk>();
+        for (var chunk : paragraphs) {
+            if (!result.isEmpty()) {
+                var previous = result.getLast();
+                if (isEvidence(previous) && isEvidence(chunk)
+                        && previous.heading().equals(chunk.heading())
+                        && !chunk.content().matches("(?s)^#{1,6}\\s+.*")
+                        && chunk.endOffset() - previous.startOffset() <= 1000) {
+                    result.set(result.size() - 1, new Chunk(previous.id(), previous.ordinal(), previous.heading(),
+                            previous.startOffset(), chunk.endOffset(), previous.startLine(), chunk.endLine(),
+                            text.substring(previous.startOffset(), chunk.endOffset())));
+                    continue;
+                }
+            }
+            int ordinal = result.size() + 1;
+            result.add(new Chunk(id + ":b2:" + ordinal, ordinal, chunk.heading(), chunk.startOffset(),
+                    chunk.endOffset(), chunk.startLine(), chunk.endLine(), chunk.content()));
+        }
+        return List.copyOf(result);
+    }
+
+    /** 已归档的面试摘录使用原分块编号和原边界。 */
+    public static List<Chunk> splitLegacy(String id, int version, String text) {
+        return paragraphs(version == 1 ? id : id + ":v" + version, text, false);
+    }
+
+    private static List<Chunk> paragraphs(String id, String text, boolean respectFences) {
         List<Chunk> result = new ArrayList<>();
         String heading = "";
+        String fence = "";
         int start = 0, line = 1, startLine = 1;
         var matcher = Pattern.compile("[^\\n]*(?:\\n|$)").matcher(text);
         while (matcher.find() && matcher.start() < text.length()) {
             String value = matcher.group();
-            boolean title = value.matches("(?s)#{1,6}\\s+.*");
-            if (title || value.isBlank() || matcher.end() - start > 1000) {
+            boolean title = fence.isEmpty() && value.matches("(?s)#{1,6}\\s+.*");
+            boolean blank = fence.isEmpty() && value.isBlank();
+            if (title || blank || matcher.end() - start > 1000) {
                 add(result, id, heading, text, start, matcher.start(), startLine, line - 1);
                 start = matcher.start();
                 startLine = line;
@@ -43,9 +76,17 @@ public final class KnowledgeText {
             if (title)
                 heading = value.replaceFirst("^#{1,6}\\s+", "").strip().substring(0,
                         Math.min(500, value.replaceFirst("^#{1,6}\\s+", "").strip().length()));
-            if (value.isBlank()) {
+            if (blank) {
                 start = matcher.end();
                 startLine = line + 1;
+            }
+            if (respectFences) {
+                var marker = FENCE.matcher(value.stripTrailing());
+                if (marker.matches()) {
+                    if (fence.isEmpty()) fence = marker.group(1);
+                    else if (marker.group(1).charAt(0) == fence.charAt(0)
+                            && marker.group(1).length() >= fence.length() && marker.group(2).isBlank()) fence = "";
+                }
             }
             // 拆分超长行时保留原文位置，保证引用仍能准确定位。
             while (matcher.end() - start > 1000) {
@@ -145,7 +186,8 @@ public final class KnowledgeText {
     /** 标题只提供上下文，不单独作为可引用的事实证据。保留原始分块与偏移供历史引用使用。 */
     public static boolean isEvidence(Chunk chunk) {
         return chunk.content().lines().map(String::strip)
-                .anyMatch(line -> !line.isBlank() && !line.matches("#{1,6}\\s+.*"));
+                .anyMatch(line -> !line.isBlank() && !line.matches("#{1,6}\\s+.*")
+                        && !IMAGE_LINE.matcher(line).matches());
     }
 
     /** 仅用于派生向量，引用仍取 chunk.content() 的原文。 */

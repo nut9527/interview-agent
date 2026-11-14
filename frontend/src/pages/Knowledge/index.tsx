@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Checkbox, Empty, Input, Modal, Pagination, Select, Space, Spin, Tag } from 'antd';
 import AddSourceTask from '@/pages/Interview/AddSourceTask';
-import { FileTextOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { BookOutlined, FileTextOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import { knowledgeService } from '@/api/modules/knowledge';
 import { captureAccountScope } from '@/api/accountScope';
@@ -13,6 +13,7 @@ import DocumentEditor from './DocumentEditor';
 import VersionHistory from './VersionHistory';
 import ImportQueue from './ImportQueue';
 import ImportReview from './ImportReview';
+import ReferenceLibrary from './ReferenceLibrary';
 import GenerateSelfTests from './GenerateSelfTests';
 import OrganizationEditor from './OrganizationEditor';
 import DocumentReader from './DocumentReader';
@@ -38,7 +39,8 @@ export default function KnowledgePage() {
   const [dialog, setDialog] = useState<'paste' | 'rename' | 'delete' | null>(null);
   const [title, setTitle] = useState(''), [content, setContent] = useState('');
   const [draft, setDraft] = useState<KnowledgeImport>();
-  const [newJob, setNewJob] = useState<string>(), [reviewJob, setReviewJob] = useState<string>();
+  const [newJob, setNewJob] = useState<string>(), [referenceOpen, setReferenceOpen] = useState(false);
+  const [reviewSource, setReviewSource] = useState<{ kind: 'upload' | 'reference'; id: string }>();
   const parsing = useRef<AbortController>();
   const file = useRef<HTMLInputElement>(null), action = useRef(false);
   useEffect(() => () => parsing.current?.abort(), []);
@@ -101,13 +103,13 @@ export default function KnowledgePage() {
   });
   return <main className={styles.page}>
     <header className={styles.heading}><div><h1>从资料生成面试练习题</h1><p>上传并核对原文，生成候选题，确认后保存到「我的题目」。</p></div>
-      <Space wrap><Button type="primary" icon={<UploadOutlined aria-hidden="true" />} loading={busy && !!parsing.current} disabled={busy} onClick={() => file.current?.click()}>上传资料</Button><Button icon={<PlusOutlined aria-hidden="true" />} disabled={busy} onClick={() => { setDialog('paste'); setTitle(''); setContent(''); }}>粘贴笔记</Button></Space>
+      <Space wrap><Button type="primary" icon={<UploadOutlined aria-hidden="true" />} loading={busy && !!parsing.current} disabled={busy} onClick={() => file.current?.click()}>上传资料</Button><Button icon={<BookOutlined aria-hidden="true" />} disabled={busy} onClick={() => setReferenceOpen(true)}>参考资料</Button><Button icon={<PlusOutlined aria-hidden="true" />} disabled={busy} onClick={() => { setDialog('paste'); setTitle(''); setContent(''); }}>粘贴笔记</Button></Space>
       <input ref={file} type="file" hidden accept=".pdf,.docx,.txt,.md,.markdown" aria-label="上传资料文件" onChange={event => {
         const selected = event.target.files?.[0]; event.target.value = ''; if (!selected) return;
         void preview(selected);
       }} />
     </header>
-    <ImportQueue key={reload} newest={newJob} onReview={(jobId, value) => { setReviewJob(jobId); setDraft(value); }} />
+    <ImportQueue key={reload} newest={newJob} onReview={(jobId, value) => { setReviewSource({ kind: 'upload', id: jobId }); setDraft(value); }} />
     {error && <Alert type="error" showIcon message={error} action={<Button onClick={() => { setError(''); setReload(n => n + 1); }}>重试</Button>} />}
     <div className={styles.searchBar}>
       <Input.Search aria-label="搜索资料" placeholder="输入关键词，查找笔记中的内容" maxLength={300} value={query} onChange={e => setQuery(e.target.value)} enterButton="搜索" loading={searching} onSearch={value => { setSearch(value.trim()); setParams({ ...(id ? { document: id } : {}), ...(version ? { version } : {}), ...(value.trim() ? { q: value.trim() } : {}) }); }} allowClear />
@@ -150,7 +152,8 @@ export default function KnowledgePage() {
     {editing && <DocumentEditor document={editing} onClose={() => setEditing(undefined)} onSaved={saved} />}
     {generating && <GenerateSelfTests sources={generating} onClose={() => setGenerating(undefined)} />}
     {organizing && <OrganizationEditor ids={organizing} initial={organizing.length === 1 ? organization.find(o => o.documentId === organizing[0]) : undefined} onClose={() => setOrganizing(undefined)} onSaved={() => { setOrganizing(undefined); setReload(n => n + 1); }} />}
-    {draft && reviewJob && <ImportReview draft={draft} jobId={reviewJob} onClose={() => { setDraft(undefined); setReviewJob(undefined); setNewJob(undefined); setReload(n => n + 1); }} onSaved={value => { setDraft(undefined); setPage(1); saved(value); }} />}
+    {referenceOpen && <ReferenceLibrary onClose={() => setReferenceOpen(false)} onSelect={(id, value) => { setReferenceOpen(false); setReviewSource({ kind: 'reference', id }); setDraft(value); }} />}
+    {draft && reviewSource && <ImportReview draft={draft} source={reviewSource} onClose={() => { setDraft(undefined); setReviewSource(undefined); setNewJob(undefined); setReload(n => n + 1); }} onSaved={value => { setDraft(undefined); setReviewSource(undefined); setPage(1); saved(value); }} />}
     {history && id && <VersionHistory key={id} id={id} onClose={() => setHistory(false)} onRestored={saved} />}
     <Modal title={dialog === 'paste' ? '粘贴学习笔记' : dialog === 'rename' ? '重命名资料' : '删除这份资料？'} open={!!dialog} onCancel={() => { if (!busy) setDialog(null); }} onOk={() => void save()} confirmLoading={busy} okText={dialog === 'delete' ? '确认删除' : '保存'} cancelText="取消" okButtonProps={{ danger: dialog === 'delete', disabled: dialog !== 'delete' && (!title.trim() || (dialog === 'paste' && !content.trim())) }}>
       {dialog === 'delete' ? <><p>将删除“{doc?.title}”及其全部版本与检索片段。</p><p>相关面试将撤销资料使用资格，停止后续生成与提交；历史记录隐藏该资料原文，相关评价不再用于新训练。本人回答保留，可更换材料新建训练。问答历史及引用摘录仍保留，来源显示不可用；如需清除摘录，请删除对应问答记录。训练归档的物理副本随训练记录保留，删除训练记录可清除。</p></> : <><label>资料标题<Input aria-label="资料标题" maxLength={160} value={title} onChange={e => setTitle(e.target.value)} /></label>{dialog === 'paste' && <label>笔记正文<Input.TextArea aria-label="笔记正文" rows={12} maxLength={2000000} value={content} onChange={e => setContent(e.target.value)} placeholder="支持纯文本与 Markdown；标题和段落位置会保留。" /></label>}</>}

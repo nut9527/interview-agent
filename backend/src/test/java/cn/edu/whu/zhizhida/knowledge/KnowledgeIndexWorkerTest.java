@@ -19,7 +19,7 @@ class KnowledgeIndexWorkerTest {
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<KnowledgeVectors.Fragment>> fragments = ArgumentCaptor.forClass(List.class);
         verify(vectors).index(eq(new KnowledgeVectors.Scope("doc", 1, "hash")), fragments.capture());
-        assertThat(fragments.getValue()).containsExactly(new KnowledgeVectors.Fragment("doc:3", "空值缓存\n保存 12 秒。\n"));
+        assertThat(fragments.getValue()).containsExactly(new KnowledgeVectors.Fragment("doc:b2:3", "空值缓存\n保存 12 秒。\n"));
         verify(vectors, never()).remove(any(), anyString());
     }
 

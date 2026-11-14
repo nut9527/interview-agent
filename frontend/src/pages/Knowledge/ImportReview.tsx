@@ -7,8 +7,8 @@ import type { KnowledgeDocument, KnowledgeImport } from '@/types/knowledge';
 import styles from './index.module.css';
 import PagedTextEditor from './PagedTextEditor';
 
-export default function ImportReview({ draft, jobId, onClose, onSaved }: {
-  draft: KnowledgeImport; jobId: string; onClose: () => void; onSaved: (document: KnowledgeDocument) => void;
+export default function ImportReview({ draft, source, onClose, onSaved }: {
+  draft: KnowledgeImport; source: { kind: 'upload' | 'reference'; id: string }; onClose: () => void; onSaved: (document: KnowledgeDocument) => void;
 }) {
   const [title, setTitle] = useState(draft.title), [content, setContent] = useState(draft.content);
   const [checked, setChecked] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState('');
@@ -24,7 +24,9 @@ export default function ImportReview({ draft, jobId, onClose, onSaved }: {
     if (lock.current || !checked || !valid) return;
     lock.current = true; setBusy(true); setError(''); const scope = captureAccountScope();
     try {
-      const result = await knowledgeService.confirmJob(jobId, { ...draft, title, content });
+      const result = source.kind === 'reference'
+        ? await knowledgeService.importReference(source.id, { ...draft, title, content })
+        : await knowledgeService.confirmJob(source.id, { ...draft, title, content });
       if (scope.isCurrent() && mounted.current) onSaved(result);
     } catch (cause) {
       if (scope.isCurrent() && mounted.current && !isRequestCanceled(cause)) setError(cause instanceof Error ? cause.message : '入库失败，请重试；核对内容已保留。');
@@ -32,7 +34,7 @@ export default function ImportReview({ draft, jobId, onClose, onSaved }: {
   };
   const discard = async () => {
     const scope = captureAccountScope(); setBusy(true);
-    try { await knowledgeService.cancelImport(jobId); if (scope.isCurrent() && mounted.current) onClose(); }
+    try { if (source.kind === 'upload') await knowledgeService.cancelImport(source.id); if (scope.isCurrent() && mounted.current) onClose(); }
     catch (cause) { if (scope.isCurrent() && mounted.current) setError(cause instanceof Error ? cause.message : '取消导入失败，请重试'); }
     finally { if (scope.isCurrent() && mounted.current) setBusy(false); }
   };

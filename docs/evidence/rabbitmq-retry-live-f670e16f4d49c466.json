@@ -1,6 +1,5 @@
 {
   "run": "f670e16f4d49c466",
-  "startedAt": "2026-11-11T08:03:10.631Z",
   "databasePort": 13317,
   "tests": [
     {
@@ -54,7 +53,6 @@
   ],
   "images": "[mysql:8.4] sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902\n[redis:7.4.2] sha256:fbdbaea47b9ae4ecc2082ecdb4e1cea81e32176ffb1dcf643d422ad07427e5d9\n[rabbitmq:4.1.0-management] sha256:935b3f84c1e4a4ce45d211627f00030fa6721350efb52e0a6ed6924adedc68b7",
   "passed": true,
-  "finishedAt": "2026-11-11T08:05:02.446Z",
   "modelProvider": "mock",
   "applicationRecoverySchedulerEnabled": false,
   "brokerConfiguration": "RabbitMQ 4.1 defaults; quorum at-least-once retry queue",

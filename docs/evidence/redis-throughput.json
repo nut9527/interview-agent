@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 1,
+  "runId": "redis-throughput-01",
+  "environment": {
+    "hostOs": "Windows 11 Home China",
+    "cpu": "Intel(R) Core(TM) i7-14650HX",
+    "logicalProcessors": 24,
+    "hostMemoryBytes": 34053414912,
+    "dockerResources": "24 16613679104",
+    "image": "redis:7.4.2",
+    "imageId": "sha256:fbdbaea47b9ae4ecc2082ecdb4e1cea81e32176ffb1dcf643d422ad07427e5d9",
+    "redisVersion": "7.4.2",
+    "redisOs": "Linux 6.6.114.1-microsoft-standard-WSL2 x86_64",
+    "node": "v24.18.1"
+  },
+  "conditions": {
+    "network": "redis-benchmark and redis-server in the same isolated container; TCP 127.0.0.1:6379; no host port mapping",
+    "operations": [
+      "SET",
+      "GET"
+    ],
+    "keyDistribution": "redis-benchmark default single hot key; SET before GET",
+    "payloadBytes": 256,
+    "requestsPerOperationPerRepetition": 100000,
+    "clients": [
+      1,
+      32
+    ],
+    "repetitions": 3,
+    "pipelineDepth": 1,
+    "persistence": {
+      "rdbSave": "",
+      "appendonly": false
+    },
+    "maxmemoryBytes": 134217728,
+    "evictionPolicy": "noeviction",
+    "warmup": {
+      "clients": 32,
+      "requestsPerOperation": 10000
+    },
+    "configRaw": "appendonly\nno\nmaxmemory-policy\nnoeviction\nmaxmemory\n134217728\nsave"
+  },
+  "benchmarks": [
+    {
+      "clients": 1,
+      "repetition": 1,
+      "rawCsv": "\"test\",\"rps\",\"avg_latency_ms\",\"min_latency_ms\",\"p50_latency_ms\",\"p95_latency_ms\",\"p99_latency_ms\",\"max_latency_ms\"\n\"SET\",\"22055.58\",\"0.042\",\"0.016\",\"0.039\",\"0.071\",\"0.159\",\"5.063\"\n\"GET\",\"22841.48\",\"0.040\",\"0.000\",\"0.031\",\"0.079\",\"0.143\",\"5.439\"",
+      "getHits": 100000,
+      "getMisses": 0,
+      "redisErrorReplies": 0,
+      "results": [
+        {
+          "operation": "SET",
+          "requests": 100000,
+          "requestsPerSecond": 22055.58,
+          "latencyMs": {
+            "mean": 0.042,
+            "min": 0.016,
+            "p50": 0.039,
+            "p95": 0.071,
+            "p99": 0.159,
+            "max": 5.063
+          }
+        },
+        {
+          "operation": "GET",
+          "requests": 100000,
+          "requestsPerSecond": 22841.48,
+          "latencyMs": {
+            "mean": 0.04,
+            "min": 0,
+            "p50": 0.031,
+            "p95": 0.079,
+            "p99": 0.143,
+            "max": 5.439
+          }
+        }
+      ]
+    },
+    {
+      "clients": 1,
+      "repetition": 2,
+      "rawCsv": "\"test\",\"rps\",\"avg_latency_ms\",\"min_latency_ms\",\"p50_latency_ms\",\"p95_latency_ms\",\"p99_latency_ms\",\"max_latency_ms\"\n\"SET\",\"24703.56\",\"0.038\",\"0.016\",\"0.039\",\"0.071\",\"0.111\",\"2.343\"\n\"GET\",\"24479.80\",\"0.038\",\"0.016\",\"0.031\",\"0.063\",\"0.135\",\"5.351\"",
+      "getHits": 100000,
+      "getMisses": 0,
+      "redisErrorReplies": 0,
+      "results": [
+        {
+          "operation": "SET",
+          "requests": 100000,
+          "requestsPerSecond": 24703.56,
+          "latencyMs": {
+            "mean": 0.038,
+            "min": 0.016,
+            "p50": 0.039,
+            "p95": 0.071,
+            "p99": 0.111,
+            "max": 2.343
+          }
+        },
+        {
+          "operation": "GET",
+          "requests": 100000,
+          "requestsPerSecond": 24479.8,
+          "latencyMs": {
+            "mean": 0.038,
+            "min": 0.016,
+            "p50": 0.031,
+            "p95": 0.063,
+            "p99": 0.135,
+            "max": 5.351
+          }
+        }
+      ]
+    },
+    {
+      "clients": 1,
+      "repetition": 3,
+      "rawCsv": "\"test\",\"rps\",\"avg_latency_ms\",\"min_latency_ms\",\"p50_latency_ms\",\"p95_latency_ms\",\"p99_latency_ms\",\"max_latency_ms\"\n\"SET\",\"23815.20\",\"0.039\",\"0.008\",\"0.031\",\"0.071\",\"0.135\",\"4.271\"\n\"GET\",\"23518.35\",\"0.039\",\"0.016\",\"0.031\",\"0.063\",\"0.135\",\"6.471\"",
+      "getHits": 100000,
+      "getMisses": 0,
+      "redisErrorReplies": 0,
+      "results": [
+        {
+          "operation": "SET",
+          "requests": 100000,
+          "requestsPerSecond": 23815.2,
+          "latencyMs": {
+            "mean": 0.039,
+            "min": 0.008,
+            "p50": 0.031,
+            "p95": 0.071,
+            "p99": 0.135,
+            "max": 4.271
+          }
+        },
+        {
+          "operation": "GET",
+          "requests": 100000,
+          "requestsPerSecond": 23518.35,
+          "latencyMs": {
+            "mean": 0.039,
+            "min": 0.016,
+            "p50": 0.031,
+            "p95": 0.063,
+            "p99": 0.135,
+            "max": 6.471
+          }
+        }
+      ]
+    },
+    {
+      "clients": 32,
+      "repetition": 1,
+      "rawCsv": "\"test\",\"rps\",\"avg_latency_ms\",\"min_latency_ms\",\"p50_latency_ms\",\"p95_latency_ms\",\"p99_latency_ms\",\"max_latency_ms\"\n\"SET\",\"202839.75\",\"0.089\",\"0.024\",\"0.079\",\"0.143\",\"0.383\",\"2.031\"\n\"GET\",\"194174.77\",\"0.098\",\"0.024\",\"0.079\",\"0.175\",\"0.439\",\"3.727\"",
+      "getHits": 100000,
+      "getMisses": 0,
+      "redisErrorReplies": 0,
+      "results": [
+        {
+          "operation": "SET",
+          "requests": 100000,
+          "requestsPerSecond": 202839.75,
+          "latencyMs": {
+            "mean": 0.089,
+            "min": 0.024,
+            "p50": 0.079,
+            "p95": 0.143,
+            "p99": 0.383,
+            "max": 2.031
+          }
+        },
+        {
+          "operation": "GET",
+          "requests": 100000,
+          "requestsPerSecond": 194174.77,
+          "latencyMs": {
+            "mean": 0.098,
+            "min": 0.024,
+            "p50": 0.079,
+            "p95": 0.175,
+            "p99": 0.439,
+            "max": 3.727
+          }
+        }
+      ]
+    },
+    {
+      "clients": 32,
+      "repetition": 2,
+      "rawCsv": "\"test\",\"rps\",\"avg_latency_ms\",\"min_latency_ms\",\"p50_latency_ms\",\"p95_latency_ms\",\"p99_latency_ms\",\"max_latency_ms\"\n\"SET\",\"153609.83\",\"0.134\",\"0.024\",\"0.095\",\"0.335\",\"0.767\",\"2.695\"\n\"GET\",\"190839.70\",\"0.098\",\"0.024\",\"0.079\",\"0.191\",\"0.471\",\"2.543\"",
+      "getHits": 100000,
+      "getMisses": 0,
+      "redisErrorReplies": 0,
+      "results": [
+        {
+          "operation": "SET",
+          "requests": 100000,
+          "requestsPerSecond": 153609.83,
+          "latencyMs": {
+            "mean": 0.134,
+            "min": 0.024,
+            "p50": 0.095,
+            "p95": 0.335,
+            "p99": 0.767,
+            "max": 2.695
+          }
+        },
+        {
+          "operation": "GET",
+          "requests": 100000,
+          "requestsPerSecond": 190839.7,
+          "latencyMs": {
+            "mean": 0.098,
+            "min": 0.024,
+            "p50": 0.079,
+            "p95": 0.191,
+            "p99": 0.471,
+            "max": 2.543
+          }
+        }
+      ]
+    },
+    {
+      "clients": 32,
+      "repetition": 3,
+      "rawCsv": "\"test\",\"rps\",\"avg_latency_ms\",\"min_latency_ms\",\"p50_latency_ms\",\"p95_latency_ms\",\"p99_latency_ms\",\"max_latency_ms\"\n\"SET\",\"187265.92\",\"0.100\",\"0.024\",\"0.087\",\"0.167\",\"0.423\",\"3.823\"\n\"GET\",\"173010.38\",\"0.106\",\"0.024\",\"0.087\",\"0.207\",\"0.471\",\"5.511\"",
+      "getHits": 100000,
+      "getMisses": 0,
+      "redisErrorReplies": 0,
+      "results": [
+        {
+          "operation": "SET",
+          "requests": 100000,
+          "requestsPerSecond": 187265.92,
+          "latencyMs": {
+            "mean": 0.1,
+            "min": 0.024,
+            "p50": 0.087,
+            "p95": 0.167,
+            "p99": 0.423,
+            "max": 3.823
+          }
+        },
+        {
+          "operation": "GET",
+          "requests": 100000,
+          "requestsPerSecond": 173010.38,
+          "latencyMs": {
+            "mean": 0.106,
+            "min": 0.024,
+            "p50": 0.087,
+            "p95": 0.207,
+            "p99": 0.471,
+            "max": 5.511
+          }
+        }
+      ]
+    }
+  ],
+  "commandStats": "# Commandstats\r\ncmdstat_info:calls=13,usec=293,usec_per_call=22.54,rejected_calls=0,failed_calls=0\r\ncmdstat_config|get:calls=15,usec=100,usec_per_call=6.67,rejected_calls=0,failed_calls=0\r\ncmdstat_ping:calls=1,usec=2,usec_per_call=2.00,rejected_calls=0,failed_calls=0\r\ncmdstat_set:calls=610000,usec=259354,usec_per_call=0.43,rejected_calls=0,failed_calls=0\r\ncmdstat_get:calls=610000,usec=181163,usec_per_call=0.30,rejected_calls=0,failed_calls=0",
+  "limitations": [
+    "Redis command microbenchmark, not application HTTP latency or production capacity.",
+    "Latency percentiles are redis-benchmark measurements; raw CSV for each repetition is retained.",
+    "Client runs inside the server container, excluding Windows-to-Docker network overhead.",
+    "Fixed hot-key workload and disabled persistence; not a varied-key cache workload or durability benchmark."
+  ]
+}

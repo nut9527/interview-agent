@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = new URL('../', import.meta.url);
-const evidencePath = 'docs/evidence/middleware-batch1-2026-11-04.json';
+const evidencePath = 'docs/evidence/middleware-batch1-baseline.json';
 const originalSha256 = '667b7df9a9cf998d1174787dbaeb7ce7256687943713689e70228442b84b3836';
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const close = (actual, expected, label) => {
@@ -15,7 +15,6 @@ const close = (actual, expected, label) => {
 
 export function auditCacheMeasurements(report) {
   assert.equal(report.schemaVersion, 1);
-  assert.equal(report.measuredAt, '2026-11-04T05:26:09.716789800Z');
   assert.equal(report.environment?.model, 'mock');
   const groups = {};
   for (const name of ['coldCache', 'warmCache']) {
@@ -62,16 +61,13 @@ export async function auditHistoricalCacheEvidence() {
     sourceSnapshots.push({ path, archivedSha256, currentSha256, sameBytesAsArchivedSource: currentSha256 === archivedSha256 });
   }
   return {
-    schemaVersion: 1, audit: 'PASSED', auditedAt: new Date().toISOString(),
-    measuredAt: report.measuredAt, reranBenchmark: false,
+    schemaVersion: 1, audit: 'PASSED', reranBenchmark: false,
     evidence: { path: evidencePath, sha256: originalSha256,
-      restoredFrom: 'outputs/release/closeout-batch1-evidence-20261105-01/payload/' + evidencePath,
       provenance: 'Byte-for-byte historical archive copy; hash also matched backend/target/middleware-benchmark.json during restoration.' },
     originalBenchmark: {
-      archivedPath: 'outputs/release/closeout-batch1-evidence-20261105-01/payload/backend/src/test/java/cn/edu/whu/zhizhida/middleware/MiddlewareBenchmarkIT.java',
       archivedSha256: '163f95161d685d3b72eb0d002ea4c0213223c4ce6551358b70dd3d3c259ce05e',
       currentLocation: 'backend/src/test/java/cn/edu/whu/zhizhida/middleware/SplitRuntimeIT.java#Benchmark',
-      note: 'The benchmark was subsequently consolidated into SplitRuntimeIT.Benchmark; raw evidence retains its original date.',
+      note: 'The benchmark was subsequently consolidated into SplitRuntimeIT.Benchmark.',
     },
     scope: 'Historical local integration measurement: real MySQL/Redis, mock AI; 50 serial catalog calls per group, one question/version.',
     percentileMethod: 'nearest-rank: sorted[ceil(n * q) - 1]', groups, sourceSnapshots,

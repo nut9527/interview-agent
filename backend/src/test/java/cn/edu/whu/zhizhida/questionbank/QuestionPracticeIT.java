@@ -101,10 +101,10 @@ class QuestionPracticeIT extends IntegrationTestBase {
         jdbc.update("UPDATE interview_sessions SET agent_json=JSON_SET(agent_json,'$.evaluations[2].decision.level','STRONG') WHERE session_id=?",
                 strong.path("sessionId").asText());
         var draw=data(performGet("/api/questions/draw?topic=JAVA&count=10&roundsPerQuestion=4",token));
-        assertThat(draw.path("items").size()).isEqualTo(6);
+        assertThat(draw.path("items").size()).isEqualTo(10);
         assertThat(draw.path("roundsPerQuestion").asInt()).isEqualTo(4);
         assertThat(draw.path("items").get(0).path("id").asText()).isEqualTo("qb-java-001");
-        assertThat(draw.path("items").get(5).path("id").asText()).isEqualTo("qb-java-002");
+        assertThat(draw.path("items").get(9).path("id").asText()).isEqualTo("qb-java-002");
         Set<String> ids=new HashSet<>();
         draw.path("items").forEach(row -> { assertThat(ids.add(row.path("id").asText())).isTrue(); assertThat(row.path("topic").asText()).isEqualTo("JAVA"); });
         var filtered=data(performGet("/api/questions/draw?topic=JAVA&difficulty=ADVANCED&count=5",token));
@@ -132,12 +132,12 @@ class QuestionPracticeIT extends IntegrationTestBase {
     }
     @Test void everyCurrentAndArchivedVersionPassesContentChecks() {
         var versions=jdbc.queryForList("SELECT content_json FROM question_bank_versions",String.class);
-        assertThat(versions).hasSize(42);
+        assertThat(versions).hasSize(70);
         for(String value:versions) QuestionContentRules.validate(objectMapper.readValue(value,QuestionSnapshot.class));
         var archived=objectMapper.readTree(jdbc.queryForObject("SELECT content_json FROM question_bank_versions WHERE question_id='qb-java-001' AND version=1",String.class));
         var current=objectMapper.readTree(jdbc.queryForObject("SELECT content_json FROM question_bank_versions WHERE question_id='qb-java-001' AND version=2",String.class));
         assertThat(current.path("referenceAnswer").asText()).startsWith(archived.path("referenceAnswer").asText()).isNotEqualTo(archived.path("referenceAnswer").asText());
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM question_bank q JOIN question_bank_versions v ON v.question_id=q.id AND v.version=q.version WHERE JSON_UNQUOTE(JSON_EXTRACT(v.content_json,'$.referenceAnswer'))=q.reference_answer",Integer.class)).isEqualTo(36);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM question_bank q JOIN question_bank_versions v ON v.question_id=q.id AND v.version=q.version WHERE JSON_UNQUOTE(JSON_EXTRACT(v.content_json,'$.referenceAnswer'))=q.reference_answer",Integer.class)).isEqualTo(64);
     }
     @Test void allSixExpandedTopicsCanFinishWithoutLosingTheirQuestionScope() throws Exception {
         String token=user();

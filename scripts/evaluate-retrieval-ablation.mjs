@@ -86,7 +86,6 @@ try {
     'backend/src/main/java/cn/edu/whu/zhizhida/knowledge/KnowledgeRetrievalSettings.java',
     'backend/src/main/java/cn/edu/whu/zhizhida/ai/LangChain4jKnowledgeVectors.java',
     'services/embedding/src/main/java/cn/edu/whu/zhizhida/embedding/EmbeddingServer.java'];
-  report.generatedAt = new Date().toISOString();
   report.command = 'node scripts/evaluate-retrieval-ablation.mjs';
   report.sourceSha256 = Object.fromEntries(await Promise.all(sourcePaths.map(async path => [path, hash(await readFile(join(root, path)))])));
   const modelJar = classpath.split(delimiter).find(path => /langchain4j-embeddings-bge-small-zh-v15-q-[^/\\]+\.jar$/.test(path));

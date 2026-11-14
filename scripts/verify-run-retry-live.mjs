@@ -22,7 +22,7 @@ const env = { ...process.env, RUN_MIDDLEWARE_TESTS: 'true', RUN_BROKER_FAULT_TES
   REDIS_RATE_HOST: '127.0.0.1', REDIS_RATE_PASSWORD: '', REDIS_CACHE_HOST: '127.0.0.1', REDIS_CACHE_PASSWORD: '',
   AI_PROVIDER: 'mock', AI_API_KEY: '', DEEPSEEK_API_KEY: '', TEMP: build, TMP: build };
 for (const key of Object.keys(env)) if (/^SPRING_(DATASOURCE|FLYWAY|CONFIG|PROFILES)_/.test(key)) delete env[key];
-const report = { run, startedAt: new Date().toISOString(), databasePort: 13317,
+const report = { run, databasePort: 13317,
   modelProvider: 'mock', applicationRecoverySchedulerEnabled: false,
   brokerConfiguration: 'RabbitMQ 4.1 defaults; quorum at-least-once retry queue',
   noRouteRecoveryWaitSeconds: 210, tests: [], cleanup: [] };
@@ -137,7 +137,6 @@ try {
     if (!actual.startsWith(allowed + sep) || !actual.startsWith(root + sep)) throw new Error('Cleanup escaped project');
     await rm(actual, { recursive: true });
   }
-  report.finishedAt = new Date().toISOString();
   await writeFile(reportPath, JSON.stringify(report, null, 2) + '\n');
   console.log(`[mq-acceptance] Report: ${reportPath}`);
 }

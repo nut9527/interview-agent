@@ -11,7 +11,7 @@ const reportPath = join(root, 'docs', 'evidence', `web-container-smoke-${run}.js
 const docker = findExecutable('docker');
 const label = 'zhizhida.web.acceptance';
 const owned = [];
-const report = { run, startedAt: new Date().toISOString(), builds: [], checks: [], cleanup: [] };
+const report = { run, builds: [], checks: [], cleanup: [] };
 
 async function command(args, timeout = 30000) {
   const result = await capture(docker, args, { timeout });
@@ -19,7 +19,7 @@ async function command(args, timeout = 30000) {
   return result.output.trim();
 }
 async function build(service, context) {
-  const tag = `zhizhida-${service}:acceptance-20261111`;
+  const tag = `zhizhida-${service}:acceptance-${run}`;
   for (let attempt = 1; attempt <= 2; attempt++) {
     let log = '';
     const started = Date.now();
@@ -113,7 +113,6 @@ try {
       report.cleanup.push({ name, removed: true });
     } catch (error) { report.cleanup.push({ name, error: error.message }); process.exitCode = 1; }
   }
-  report.finishedAt = new Date().toISOString();
   await writeFile(reportPath, JSON.stringify(report, null, 2) + '\n');
   console.log(`[web-acceptance] Report: ${reportPath}`);
 }

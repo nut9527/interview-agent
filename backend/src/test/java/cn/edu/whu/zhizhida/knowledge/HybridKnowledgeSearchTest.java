@@ -59,7 +59,7 @@ class HybridKnowledgeSearchTest {
         var vector = mock(KnowledgeVectors.class);
         String text = "## 缓存\n\n第一条。\n\n第二条。\n\n第三条。\n\n## 数据库\n\n事务隔离。";
         var doc = new KnowledgeSnapshot("doc", "资料", "fixture", 1, "hash", text, List.of());
-        var candidates = KnowledgeText.split("doc", text).stream().filter(KnowledgeText::isEvidence)
+        var candidates = KnowledgeText.splitLegacy("doc", 1, text).stream().filter(KnowledgeText::isEvidence)
                 .map(c -> new Hit("doc", "资料", "fixture", 1, c, 0)).toList();
         var scope = new KnowledgeVectors.Scope("doc", 1, "hash");
         when(vector.search(anyList(), anyString(), anyInt())).thenReturn(candidates.stream()

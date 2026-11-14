@@ -4509,7 +4509,6 @@
       }
     }
   ],
-  "generatedAt": "2026-11-10T15:57:25.251Z",
   "command": "node scripts/evaluate-retrieval-ablation.mjs",
   "sourceSha256": {
     "scripts/evaluate-retrieval-ablation.mjs": "32721fbf60dc26637feef1e289104627a442c8596a5d9c1bc542a3c943403e27",

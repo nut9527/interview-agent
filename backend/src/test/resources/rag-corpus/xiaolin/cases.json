@@ -1,0 +1,1042 @@
+{
+  "documents": [
+    {
+      "id": "xl-mysql-transactions",
+      "title": "3.1 事务隔离级别是怎么实现的？",
+      "file": "xl-mysql-transactions.md",
+      "topic": "mysql",
+      "family": "xiaolin-mysql",
+      "split": "development",
+      "kind": "source-excerpt",
+      "version": "v2.0",
+      "contentSha256": "00faff48c73527e0f19ee4c781e9393ae39efa3f11257c7c461477501a16d114",
+      "sources": [
+        {
+          "title": "图解MySQL-小林coding-浅黄版-v2.0.pdf",
+          "path": "D:/学习/实习/小林coding/图解MySQL-小林coding-浅黄版-v2.0.pdf",
+          "sha256": "bd52e019021f6b3f2679838a36f327a52e9262257b9db6176e0c492f553d3b08",
+          "pages": [
+            154,
+            159
+          ],
+          "license": "原作品版权"
+        }
+      ],
+      "extraction": {
+        "tool": "pdftotext -enc UTF-8 -layout",
+        "transformations": [
+          "Unicode NFKC 排版字符归一",
+          "CRLF 转 LF",
+          "去除各页首尾空白",
+          "添加原标题和 PDF 物理页码标题"
+        ],
+        "unicode": "NFKC",
+        "images": "未提取图像；原始图示请查看源 PDF"
+      },
+      "resource": "/reference-library/xiaolin/xl-mysql-transactions.md"
+    },
+    {
+      "id": "xl-mysql-logs",
+      "title": "5.1 MySQL 日志：undo log、redo log、binlog 有什么用？",
+      "file": "xl-mysql-logs.md",
+      "topic": "mysql",
+      "family": "xiaolin-mysql",
+      "split": "development",
+      "kind": "source-excerpt",
+      "version": "v2.0",
+      "contentSha256": "b93dfda2625880b3a32b49336bb3cc03c46f5c13c1423b04caf616423fa94957",
+      "sources": [
+        {
+          "title": "图解MySQL-小林coding-浅黄版-v2.0.pdf",
+          "path": "D:/学习/实习/小林coding/图解MySQL-小林coding-浅黄版-v2.0.pdf",
+          "sha256": "bd52e019021f6b3f2679838a36f327a52e9262257b9db6176e0c492f553d3b08",
+          "pages": [
+            295,
+            299
+          ],
+          "license": "原作品版权"
+        }
+      ],
+      "extraction": {
+        "tool": "pdftotext -enc UTF-8 -layout",
+        "transformations": [
+          "Unicode NFKC 排版字符归一",
+          "CRLF 转 LF",
+          "去除各页首尾空白",
+          "添加原标题和 PDF 物理页码标题"
+        ],
+        "unicode": "NFKC",
+        "images": "未提取图像；原始图示请查看源 PDF"
+      },
+      "resource": "/reference-library/xiaolin/xl-mysql-logs.md"
+    },
+    {
+      "id": "xl-redis-expiry",
+      "title": "过期删除策略有哪些？",
+      "file": "xl-redis-expiry.md",
+      "topic": "redis",
+      "family": "xiaolin-redis",
+      "split": "development",
+      "kind": "source-excerpt",
+      "version": "v2.0",
+      "contentSha256": "1be74fb5b3ca75d26820f7bdb9937a25e6d97c991fe6847bb9811ad19415c1fe",
+      "sources": [
+        {
+          "title": "图解Redis-小林coding-浅色版-v2.0.pdf",
+          "path": "D:/学习/实习/小林coding/图解Redis-小林coding-浅色版-v2.0.pdf",
+          "sha256": "747fb1159d8d4f755a0896f7c437a3671cd2bf936cdf169e8a25e2f2e23bdf63",
+          "pages": [
+            231,
+            236
+          ],
+          "license": "原作品版权"
+        }
+      ],
+      "extraction": {
+        "tool": "pdftotext -enc UTF-8 -layout",
+        "transformations": [
+          "Unicode NFKC 排版字符归一",
+          "CRLF 转 LF",
+          "去除各页首尾空白",
+          "添加原标题和 PDF 物理页码标题"
+        ],
+        "unicode": "NFKC",
+        "images": "未提取图像；原始图示请查看源 PDF"
+      },
+      "resource": "/reference-library/xiaolin/xl-redis-expiry.md"
+    },
+    {
+      "id": "xl-redis-eviction",
+      "title": "内存淘汰策略",
+      "file": "xl-redis-eviction.md",
+      "topic": "redis",
+      "family": "xiaolin-redis",
+      "split": "development",
+      "kind": "source-excerpt",
+      "version": "v2.0",
+      "contentSha256": "150bd72b6da79b894d2b9f160758c66407e3ee460fd1e96d8db839ba494c17a8",
+      "sources": [
+        {
+          "title": "图解Redis-小林coding-浅色版-v2.0.pdf",
+          "path": "D:/学习/实习/小林coding/图解Redis-小林coding-浅色版-v2.0.pdf",
+          "sha256": "747fb1159d8d4f755a0896f7c437a3671cd2bf936cdf169e8a25e2f2e23bdf63",
+          "pages": [
+            237,
+            242
+          ],
+          "license": "原作品版权"
+        }
+      ],
+      "extraction": {
+        "tool": "pdftotext -enc UTF-8 -layout",
+        "transformations": [
+          "Unicode NFKC 排版字符归一",
+          "CRLF 转 LF",
+          "去除各页首尾空白",
+          "添加原标题和 PDF 物理页码标题"
+        ],
+        "unicode": "NFKC",
+        "images": "未提取图像；原始图示请查看源 PDF"
+      },
+      "resource": "/reference-library/xiaolin/xl-redis-eviction.md"
+    },
+    {
+      "id": "xl-network-http-cache",
+      "title": "HTTP 缓存有哪些实现方式？",
+      "file": "xl-network-http-cache.md",
+      "topic": "network",
+      "family": "xiaolin-network",
+      "split": "validation",
+      "kind": "source-excerpt",
+      "version": "v4.0",
+      "contentSha256": "1fa73c160577bc9e05e8522220c694843cb2eab89b0f91cdada2a5d771b874d9",
+      "sources": [
+        {
+          "title": "图解网络-小林coding-亮白风格-v4.0.pdf",
+          "path": "D:/学习/实习/小林coding/图解网络-小林coding-亮白风格-v4.0.pdf",
+          "sha256": "98b24806f84abea0b5946f1f7f0c28ed5db9e89825f69f93b8a6d96c605f7071",
+          "pages": [
+            72,
+            76
+          ],
+          "license": "原作品版权"
+        }
+      ],
+      "extraction": {
+        "tool": "pdftotext -enc UTF-8 -layout",
+        "transformations": [
+          "Unicode NFKC 排版字符归一",
+          "CRLF 转 LF",
+          "去除各页首尾空白",
+          "添加原标题和 PDF 物理页码标题"
+        ],
+        "unicode": "NFKC",
+        "images": "未提取图像；原始图示请查看源 PDF"
+      },
+      "resource": "/reference-library/xiaolin/xl-network-http-cache.md"
+    },
+    {
+      "id": "xl-network-retransmission",
+      "title": "4.2 TCP 重传、滑动窗口、流量控制、拥塞控制",
+      "file": "xl-network-retransmission.md",
+      "topic": "network",
+      "family": "xiaolin-network",
+      "split": "validation",
+      "kind": "source-excerpt",
+      "version": "v4.0",
+      "contentSha256": "10d2a2e8997e77d4b24216eda86af3d673d663cb67af5f73a23724fc12543783",
+      "sources": [
+        {
+          "title": "图解网络-小林coding-亮白风格-v4.0.pdf",
+          "path": "D:/学习/实习/小林coding/图解网络-小林coding-亮白风格-v4.0.pdf",
+          "sha256": "98b24806f84abea0b5946f1f7f0c28ed5db9e89825f69f93b8a6d96c605f7071",
+          "pages": [
+            302,
+            308
+          ],
+          "license": "原作品版权"
+        }
+      ],
+      "extraction": {
+        "tool": "pdftotext -enc UTF-8 -layout",
+        "transformations": [
+          "Unicode NFKC 排版字符归一",
+          "CRLF 转 LF",
+          "去除各页首尾空白",
+          "添加原标题和 PDF 物理页码标题"
+        ],
+        "unicode": "NFKC",
+        "images": "未提取图像；原始图示请查看源 PDF"
+      },
+      "resource": "/reference-library/xiaolin/xl-network-retransmission.md"
+    },
+    {
+      "id": "xl-system-process",
+      "title": "4.1 进程、线程基础知识",
+      "file": "xl-system-process.md",
+      "topic": "system",
+      "family": "xiaolin-system",
+      "split": "validation",
+      "kind": "source-excerpt",
+      "version": "v1.0",
+      "contentSha256": "8dfc676855dbd3ba3c67155b2202a0ed4ab4a4d7a94bba727889dac0c0adc0d5",
+      "sources": [
+        {
+          "title": "图解系统-亮白风格-小林coding-v1.0.pdf",
+          "path": "D:/学习/实习/小林coding/图解系统-亮白风格-小林coding-v1.0.pdf",
+          "sha256": "1bc93ee351db322fef4941b2b8deea3f3888e12ac875a07fd44362099d288b60",
+          "pages": [
+            144,
+            149
+          ],
+          "license": "原作品版权"
+        }
+      ],
+      "extraction": {
+        "tool": "pdftotext -enc UTF-8 -layout",
+        "transformations": [
+          "Unicode NFKC 排版字符归一",
+          "CRLF 转 LF",
+          "去除各页首尾空白",
+          "添加原标题和 PDF 物理页码标题"
+        ],
+        "unicode": "NFKC",
+        "images": "未提取图像；原始图示请查看源 PDF"
+      },
+      "resource": "/reference-library/xiaolin/xl-system-process.md"
+    },
+    {
+      "id": "xl-system-ipc",
+      "title": "4.2 进程间通信",
+      "file": "xl-system-ipc.md",
+      "topic": "system",
+      "family": "xiaolin-system",
+      "split": "validation",
+      "kind": "source-excerpt",
+      "version": "v1.0",
+      "contentSha256": "78f0d5c67f5e39face3e62f41317ac5362f7f5f34be7303089203773ea07ed96",
+      "sources": [
+        {
+          "title": "图解系统-亮白风格-小林coding-v1.0.pdf",
+          "path": "D:/学习/实习/小林coding/图解系统-亮白风格-小林coding-v1.0.pdf",
+          "sha256": "1bc93ee351db322fef4941b2b8deea3f3888e12ac875a07fd44362099d288b60",
+          "pages": [
+            182,
+            189
+          ],
+          "license": "原作品版权"
+        }
+      ],
+      "extraction": {
+        "tool": "pdftotext -enc UTF-8 -layout",
+        "transformations": [
+          "Unicode NFKC 排版字符归一",
+          "CRLF 转 LF",
+          "去除各页首尾空白",
+          "添加原标题和 PDF 物理页码标题"
+        ],
+        "unicode": "NFKC",
+        "images": "未提取图像；原始图示请查看源 PDF"
+      },
+      "resource": "/reference-library/xiaolin/xl-system-ipc.md"
+    }
+  ],
+  "cases": [
+    {
+      "id": "xl-01",
+      "kind": "direct",
+      "split": "development",
+      "question": "《图解MySQL》事务篇中，InnoDB 的原子性由哪种日志保证？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-mysql-transactions:PDF第155页"
+      ],
+      "answer": "由 undo log（回滚日志）保证。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-mysql-transactions",
+          "heading": "PDF第155页",
+          "quote": "     持久性是通过 redo log (重做日志)来保证的;\n     原子性是通过 undo log(回滚日志) 来保证的;\n     隔离性是通过 MVCC(多版本并发控制) 或锁机制来保证的;\n     一致性则是通过持久性+原子性+隔离性来保证;"
+        }
+      ]
+    },
+    {
+      "id": "xl-02",
+      "kind": "direct",
+      "split": "development",
+      "question": "《图解MySQL》日志篇中，binlog 属于哪一层，主要用于什么？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-mysql-logs:PDF第295页"
+      ],
+      "answer": "binlog 由 Server 层生成，主要用于数据备份和主从复制。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-mysql-logs",
+          "heading": "PDF第295页",
+          "quote": "undo log(回滚日志):是 Innodb 存储引擎层生成的日志,实现了事务中的原子\n    性,主要用于事务回滚和 MVCC。\n    redo log(重做日志):是 Innodb 存储引擎层生成的日志,实现了事务中的持久\n    性,主要用于掉电等故障恢复;\n    binlog (归档日志):是 Server 层生成的日志,主要用于数据备份和主从复制;"
+        }
+      ]
+    },
+    {
+      "id": "xl-03",
+      "kind": "synonym",
+      "split": "development",
+      "question": "事务读到了另一个事务还没有提交的修改，这种 dirty read 在摘录中叫什么？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-mysql-transactions:PDF第156页"
+      ],
+      "answer": "称为脏读。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-mysql-transactions",
+          "heading": "PDF第156页",
+          "quote": "如果一个事务「读到」了另一个「未提交事务修改过的数据」,就意味着发生了「脏读」现\n象。"
+        }
+      ]
+    },
+    {
+      "id": "xl-04",
+      "kind": "paraphrase",
+      "split": "development",
+      "question": "删除一条记录后要撤销删除，日志篇说应该先保存哪些信息，再怎么恢复？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-mysql-logs:PDF第297页"
+      ],
+      "answer": "在 undo log 记下被删记录的内容，回滚时读取这些内容并插回记录。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-mysql-logs",
+          "heading": "PDF第297页",
+          "quote": "在发生回滚时,就读取 undo log 里的数据,然后做原先相反操作。比如当 delete 一条记录\n时,undo log 中会把记录中的内容都记下来,然后执行回滚操作的时候,就读取 undo log\n里的数据,然后进行 insert 操作。"
+        }
+      ]
+    },
+    {
+      "id": "xl-05",
+      "kind": "multi",
+      "split": "development",
+      "question": "结合事务篇和日志篇，保证原子性的日志是什么，它的主要用途有哪些？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-mysql-transactions:PDF第155页",
+        "xl-mysql-logs:PDF第295页"
+      ],
+      "answer": "事务篇将原子性对应到 undo log；日志篇说明它主要用于事务回滚和 MVCC。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-mysql-transactions",
+          "heading": "PDF第155页",
+          "quote": "     持久性是通过 redo log (重做日志)来保证的;\n     原子性是通过 undo log(回滚日志) 来保证的;\n     隔离性是通过 MVCC(多版本并发控制) 或锁机制来保证的;\n     一致性则是通过持久性+原子性+隔离性来保证;"
+        },
+        {
+          "documentId": "xl-mysql-logs",
+          "heading": "PDF第295页",
+          "quote": "undo log(回滚日志):是 Innodb 存储引擎层生成的日志,实现了事务中的原子\n    性,主要用于事务回滚和 MVCC。\n    redo log(重做日志):是 Innodb 存储引擎层生成的日志,实现了事务中的持久\n    性,主要用于掉电等故障恢复;\n    binlog (归档日志):是 Server 层生成的日志,主要用于数据备份和主从复制;"
+        }
+      ]
+    },
+    {
+      "id": "xl-06",
+      "kind": "multi",
+      "split": "development",
+      "question": "事务篇列出哪些隔离性实现机制？日志篇又把 MVCC 与哪些组成联系起来？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-mysql-transactions:PDF第155页",
+        "xl-mysql-logs:PDF第298页"
+      ],
+      "answer": "事务篇列出 MVCC 或锁机制；日志篇说明 ReadView 与 undo log 共同实现 MVCC。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-mysql-transactions",
+          "heading": "PDF第155页",
+          "quote": "     持久性是通过 redo log (重做日志)来保证的;\n     原子性是通过 undo log(回滚日志) 来保证的;\n     隔离性是通过 MVCC(多版本并发控制) 或锁机制来保证的;\n     一致性则是通过持久性+原子性+隔离性来保证;"
+        },
+        {
+          "documentId": "xl-mysql-logs",
+          "heading": "PDF第298页",
+          "quote": "另外,undo log 还有一个作用,通过 ReadView + undo log 实现 MVCC(多版本并发控\n制)。"
+        }
+      ]
+    },
+    {
+      "id": "xl-07",
+      "kind": "distractor",
+      "split": "development",
+      "question": "undo log、redo log、binlog 中，掉电故障恢复主要对应哪一个，而不是事务回滚或主从复制？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-mysql-logs:PDF第295页"
+      ],
+      "answer": "对应 redo log；undo log 主要用于回滚与 MVCC，binlog 主要用于备份与复制。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-mysql-logs",
+          "heading": "PDF第295页",
+          "quote": "undo log(回滚日志):是 Innodb 存储引擎层生成的日志,实现了事务中的原子\n    性,主要用于事务回滚和 MVCC。\n    redo log(重做日志):是 Innodb 存储引擎层生成的日志,实现了事务中的持久\n    性,主要用于掉电等故障恢复;\n    binlog (归档日志):是 Server 层生成的日志,主要用于数据备份和主从复制;"
+        }
+      ]
+    },
+    {
+      "id": "xl-08",
+      "kind": "insufficient",
+      "split": "development",
+      "question": "这些摘录能给出本项目生产数据库实际配置的 innodb_buffer_pool_size 字节数吗？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [],
+      "answer": "不能，摘录没有本项目生产实例的配置记录。",
+      "shouldAbstain": true,
+      "evidence": []
+    },
+    {
+      "id": "xl-09",
+      "kind": "direct",
+      "split": "development",
+      "question": "《图解Redis》过期删除节说明 Redis 组合使用哪两种删除策略？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-redis-expiry:PDF第232页"
+      ],
+      "answer": "惰性删除和定期删除。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-redis-expiry",
+          "heading": "PDF第232页",
+          "quote": "所以, Redis 选择「惰性删除+定期删除」这两种策略配和使用,以求在合理使用 CPU 时\n间和避免内存浪费之间取得平衡。"
+        }
+      ]
+    },
+    {
+      "id": "xl-10",
+      "kind": "direct",
+      "split": "development",
+      "question": "按《图解Redis》的内存淘汰节，查看当前淘汰策略使用什么命令？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-redis-eviction:PDF第239页"
+      ],
+      "answer": "使用 config get maxmemory-policy。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-redis-eviction",
+          "heading": "PDF第239页",
+          "quote": "可以使用 config get maxmemory-policy 命令,来查看当前 Redis 的内存淘汰策略,命令\n如下:"
+        }
+      ]
+    },
+    {
+      "id": "xl-11",
+      "kind": "synonym",
+      "split": "development",
+      "question": "资料中的 Least Frequently Used 缩写为什么，按哪类访问特征选择淘汰数据？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-redis-eviction:PDF第241页"
+      ],
+      "answer": "缩写为 LFU；该段用数据访问次数解释其淘汰思想。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-redis-eviction",
+          "heading": "PDF第241页",
+          "quote": "LFU 全称是 Least Frequently Used 翻译为最近最不常用,LFU 算法是根据数据访问次数来\n淘汰数据的,它的核心思想是“如果数据过去被访问多次,那么将来被访问的频率也更高”。"
+        }
+      ]
+    },
+    {
+      "id": "xl-12",
+      "kind": "paraphrase",
+      "split": "development",
+      "question": "只在读取时检查过期，会不会让已经过期却一直没人再访问的键继续占着内存？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-redis-expiry:PDF第232页"
+      ],
+      "answer": "会，惰性删除下没有被访问的过期键仍占用内存。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-redis-expiry",
+          "heading": "PDF第232页",
+          "quote": "     如果一个 key 已经过期,而这个 key 又仍然保留在数据库中,那么只要这个过期\n     key 一直没有被访问,它所占用的内存就不会释放,造成了一定的内存空间浪费。\n     所以,惰性删除策略对内存不友好。"
+        }
+      ]
+    },
+    {
+      "id": "xl-13",
+      "kind": "multi",
+      "split": "development",
+      "question": "结合过期删除和内存淘汰两节，定期删除检查的对象与内存淘汰的触发条件有何区别？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-redis-expiry:PDF第232页",
+        "xl-redis-eviction:PDF第238页"
+      ],
+      "answer": "定期删除随机检查键并删除过期键；运行内存超过所设最大内存时，内存淘汰按策略删除符合条件的键。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-redis-expiry",
+          "heading": "PDF第232页",
+          "quote": "定期删除策略的做法是,每隔一段时间「随机」从数据库中取出一定数量的 key 进行检\n查,并删除其中的过期key。"
+        },
+        {
+          "documentId": "xl-redis-eviction",
+          "heading": "PDF第238页",
+          "quote": "前面说的过期删除策略,是删除已过期的 key,而当 Redis 的运行内存已经超过 Redis 设置\n的最大内存之后,则会使用内存淘汰策略删除符合条件的 key,以此来保障 Redis 高效的运\n行。"
+        }
+      ]
+    },
+    {
+      "id": "xl-14",
+      "kind": "multi",
+      "split": "development",
+      "question": "仅按这份 Redis PDF 的两节描述，定期删除每轮抽查多少个键，近似 LRU 的采样示例又取多少个值？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-redis-expiry:PDF第235页",
+        "xl-redis-eviction:PDF第240页"
+      ],
+      "answer": "定期删除每轮随机检查 20 个键；近似 LRU 示例随机取 5 个值，该值可配置。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-redis-expiry",
+          "heading": "PDF第235页",
+          "quote": "也就是说,数据库每轮抽查时,会随机选择 20 个 key 判断是否过期。"
+        },
+        {
+          "documentId": "xl-redis-eviction",
+          "heading": "PDF第240页",
+          "quote": "当 Redis 进行内存淘汰时,会使用随机采样的方式来淘汰数据,它是随机取 5 个值(此值可\n配置),然后淘汰最久没有使用的那个。"
+        }
+      ]
+    },
+    {
+      "id": "xl-15",
+      "kind": "distractor",
+      "split": "development",
+      "question": "volatile-lru 会从没有过期时间的键里挑选吗，还是只处理设置了过期时间的键？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [
+        "xl-redis-eviction:PDF第239页"
+      ],
+      "answer": "资料将 volatile-lru 限定为设置了过期时间的键，淘汰其中最久未使用者。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-redis-eviction",
+          "heading": "PDF第239页",
+          "quote": "volatile-random:随机淘汰设置了过期时间的任意键值;\n      volatile-ttl:优先淘汰更早过期的键值。\n      volatile-lru(Redis3.0 之前,默认的内存淘汰策略):淘汰所有设置了过期时间\n      的键值中,最久未使用的键值;\n      volatile-lfu(Redis 4.0 后新增的内存淘汰策略):淘汰所有设置了过期时间的键\n      值中,最少使用的键值;"
+        }
+      ]
+    },
+    {
+      "id": "xl-16",
+      "kind": "insufficient",
+      "split": "development",
+      "question": "本项目部署的 Redis 实例现在把 maxmemory 实际设置为多少字节？",
+      "scope": [
+        "xl-mysql-transactions",
+        "xl-mysql-logs",
+        "xl-redis-expiry",
+        "xl-redis-eviction"
+      ],
+      "expected": [],
+      "answer": "摘录包含机制、默认值和示例，没有本项目实例的实际配置。",
+      "shouldAbstain": true,
+      "evidence": []
+    },
+    {
+      "id": "xl-17",
+      "kind": "direct",
+      "split": "validation",
+      "question": "《图解网络》中列出的 HTTP 缓存两种实现方式是什么？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-network-http-cache:PDF第72页"
+      ],
+      "answer": "强制缓存和协商缓存。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-network-http-cache",
+          "heading": "PDF第72页",
+          "quote": "HTTP 缓存有两种实现方式,分别是强制缓存和协商缓存。"
+        }
+      ]
+    },
+    {
+      "id": "xl-18",
+      "kind": "direct",
+      "split": "validation",
+      "question": "网络摘录中，RTT 是哪两个时刻之间的差值？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-network-retransmission:PDF第305页"
+      ],
+      "answer": "数据发送时刻与接收到确认时刻之差，即往返时间。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-network-retransmission",
+          "heading": "PDF第305页",
+          "quote": "RTT 指的是数据发送时刻到接收到确认的时刻的差值,也就是包的往返时间。"
+        }
+      ]
+    },
+    {
+      "id": "xl-19",
+      "kind": "synonym",
+      "split": "validation",
+      "question": "服务器用 304 告知浏览器复用本地资源，这种验证缓存有效性的方式叫什么？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-network-http-cache:PDF第73页"
+      ],
+      "answer": "协商缓存。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-network-http-cache",
+          "heading": "PDF第73页",
+          "quote": "当我们在浏览器使用开发者工具的时候,你可能会看到过某些请求的响应码是 304 ,这个是告诉浏览器\n可以使用本地缓存的资源,通常这种通过服务端告知客户端是否可以使用缓存的方式被称为协商缓存。"
+        }
+      ]
+    },
+    {
+      "id": "xl-20",
+      "kind": "paraphrase",
+      "split": "validation",
+      "question": "数据可能已经到达，但确认消息没回来，TCP 会不会因为等待超时再发一次？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-network-retransmission:PDF第304页"
+      ],
+      "answer": "会，摘录列出确认应答丢失是超时重传的情形之一。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-network-retransmission",
+          "heading": "PDF第304页",
+          "quote": "  数据包丢失\n  确认应答丢失"
+        }
+      ]
+    },
+    {
+      "id": "xl-21",
+      "kind": "multi",
+      "split": "validation",
+      "question": "结合 HTTP 缓存和 TCP 重传摘录，重复内容请求如何减少网络获取，丢失的数据包又由什么机制处理？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-network-http-cache:PDF第72页",
+        "xl-network-retransmission:PDF第303页"
+      ],
+      "answer": "HTTP 缓存让重复请求复用本地数据；TCP 对数据包丢失使用重传机制。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-network-http-cache",
+          "heading": "PDF第72页",
+          "quote": "对于一些具有重复性的 HTTP 请求,比如每次请求得到的数据都一样的,我们可以把这对「请求-响应」的\n数据都缓存在本地,那么下次就直接读取本地的数据,不必在通过网络获取服务器的响应了,这样的话\nHTTP/1.1 的性能肯定肉眼可⻅的提升。"
+        },
+        {
+          "documentId": "xl-network-retransmission",
+          "heading": "PDF第303页",
+          "quote": "所以 TCP 针对数据包丢失的情况,会用重传机制解决。"
+        }
+      ]
+    },
+    {
+      "id": "xl-22",
+      "kind": "distractor",
+      "split": "validation",
+      "question": "HTTP 响应同时有 Cache-Control 和 Expires 时，资料给出的优先级是哪一个更高？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-network-http-cache:PDF第72页"
+      ],
+      "answer": "Cache-Control 优先级更高。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-network-http-cache",
+          "heading": "PDF第72页",
+          "quote": "如果 HTTP 响应头部同时有 Cache-Control 和 Expires 字段的话,Cache-Control 的优先级高于 Expires\n。"
+        }
+      ]
+    },
+    {
+      "id": "xl-23",
+      "kind": "insufficient",
+      "split": "validation",
+      "question": "本项目前端首页实际返回的 Cache-Control max-age 是多少秒？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [],
+      "answer": "这些摘录没有本项目首页的响应头或部署配置。",
+      "shouldAbstain": true,
+      "evidence": []
+    },
+    {
+      "id": "xl-24",
+      "kind": "insufficient",
+      "split": "validation",
+      "question": "仅凭这些摘录能算出我当前到服务器的 RTT 中位数吗？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [],
+      "answer": "不能，没有当前网络的时延采样。",
+      "shouldAbstain": true,
+      "evidence": []
+    },
+    {
+      "id": "xl-25",
+      "kind": "direct",
+      "split": "validation",
+      "question": "《图解系统》进程基础节列出的三种基本活动状态是什么？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-system-process:PDF第147页"
+      ],
+      "answer": "运行、就绪、阻塞。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-system-process",
+          "heading": "PDF第147页",
+          "quote": "所以,在一个进程的活动期间至少具备三种基本状态,即运行状态、就绪状态、阻塞状态。"
+        }
+      ]
+    },
+    {
+      "id": "xl-26",
+      "kind": "direct",
+      "split": "validation",
+      "question": "pipe 返回的 fd[0] 与 fd[1] 分别是哪一端？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-system-ipc:PDF第183页"
+      ],
+      "answer": "fd[0] 是读取端，fd[1] 是写入端。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-system-ipc",
+          "heading": "PDF第183页",
+          "quote": "这里表示创建一个匿名管道,并返回了两个描述符,一个是管道的读取端描述符 fd[0] ,另一个是管道的\n写入端描述符 fd[1] 。注意,这个匿名管道是特殊的文件,只存在于内存,不存于文件系统中。"
+        }
+      ]
+    },
+    {
+      "id": "xl-27",
+      "kind": "synonym",
+      "split": "validation",
+      "question": "进程通信资料中的 FIFO 是哪种管道的另一个名称？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-system-ipc:PDF第182页"
+      ],
+      "answer": "命名管道。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-system-ipc",
+          "heading": "PDF第182页",
+          "quote": "管道还有另外一个类型是命名管道,也被叫做 FIFO ,因为数据是先进先出的传输方式。"
+        }
+      ]
+    },
+    {
+      "id": "xl-28",
+      "kind": "paraphrase",
+      "split": "validation",
+      "question": "一个进程用完分配给它的时间片，暂时让别人运行，它接下来是什么状态？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-system-process:PDF第148页"
+      ],
+      "answer": "从运行状态转为就绪状态。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-system-process",
+          "heading": "PDF第148页",
+          "quote": "  NULL -> 创建状态:一个新进程被创建时的第一个状态;\n  创建状态 -> 就绪状态:当进程被创建完成并初始化后,一切就绪准备运行时,变为就绪状态,这个\n  过程是很快的;\n  就绪态 -> 运行状态:处于就绪状态的进程被操作系统的进程调度器选中后,就分配给 CPU 正式运行\n  该进程;\n  运行状态 -> 结束状态:当进程已经运行完成或出错时,会被操作系统作结束状态处理;\n  运行状态 -> 就绪状态:处于运行状态的进程在运行过程中,由于分配给它的运行时间片用完,操作\n  系统会把该进程变为就绪态,接着从就绪态选中另外一个进程运行;\n  运行状态 -> 阻塞状态:当进程请求某个事件且必须等待时,例如请求 I/O 事件;\n  阻塞状态 -> 就绪状态:当进程要等待的事件完成时,它从阻塞状态变到就绪状态;"
+        }
+      ]
+    },
+    {
+      "id": "xl-29",
+      "kind": "multi",
+      "split": "validation",
+      "question": "结合进程状态和管道资料，一个进程因 I/O 事件尚未完成而无法运行时是什么状态，匿名管道应从哪个描述符读取？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-system-process:PDF第147页",
+        "xl-system-ipc:PDF第183页"
+      ],
+      "answer": "等待 I/O 完成而暂时不能运行属于阻塞状态；匿名管道从 fd[0] 读取。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-system-process",
+          "heading": "PDF第147页",
+          "quote": "  运行状态(Runing):该时刻进程占用 CPU;\n  就绪状态(Ready):可运行,由于其他进程处于运行状态而暂时停止运行;\n  阻塞状态(Blocked):该进程正在等待某一事件发生(如等待输入/输出操作的完成)而暂时停止运\n  行,这时,即使给它CPU控制权,它也无法运行;"
+        },
+        {
+          "documentId": "xl-system-ipc",
+          "heading": "PDF第183页",
+          "quote": "这里表示创建一个匿名管道,并返回了两个描述符,一个是管道的读取端描述符 fd[0] ,另一个是管道的\n写入端描述符 fd[1] 。注意,这个匿名管道是特殊的文件,只存在于内存,不存于文件系统中。"
+        }
+      ]
+    },
+    {
+      "id": "xl-30",
+      "kind": "distractor",
+      "split": "validation",
+      "question": "正在等 I/O 完成、即使获得 CPU 也无法继续的进程，属于就绪还是阻塞？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [
+        "xl-system-process:PDF第147页"
+      ],
+      "answer": "属于阻塞；就绪进程已经可运行，只是在等待 CPU。",
+      "shouldAbstain": false,
+      "evidence": [
+        {
+          "documentId": "xl-system-process",
+          "heading": "PDF第147页",
+          "quote": "  运行状态(Runing):该时刻进程占用 CPU;\n  就绪状态(Ready):可运行,由于其他进程处于运行状态而暂时停止运行;\n  阻塞状态(Blocked):该进程正在等待某一事件发生(如等待输入/输出操作的完成)而暂时停止运\n  行,这时,即使给它CPU控制权,它也无法运行;"
+        }
+      ]
+    },
+    {
+      "id": "xl-31",
+      "kind": "insufficient",
+      "split": "validation",
+      "question": "这些资料能确定我当前操作系统每条管道的实际缓冲区容量是多少字节吗？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [],
+      "answer": "不能，摘录未提供当前系统的管道容量配置。",
+      "shouldAbstain": true,
+      "evidence": []
+    },
+    {
+      "id": "xl-32",
+      "kind": "insufficient",
+      "split": "validation",
+      "question": "我这台机器一次进程上下文切换平均耗时多少纳秒？",
+      "scope": [
+        "xl-network-http-cache",
+        "xl-network-retransmission",
+        "xl-system-process",
+        "xl-system-ipc"
+      ],
+      "expected": [],
+      "answer": "摘录未提供这台机器的上下文切换测量数据。",
+      "shouldAbstain": true,
+      "evidence": []
+    }
+  ]
+}

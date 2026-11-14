@@ -38,8 +38,10 @@ class KnowledgeLearningServiceTest {
         verify(documents).searchVersions(request.focus(), List.of(doc), 18);
         @SuppressWarnings("unchecked") ArgumentCaptor<List<Hit>> evidence = ArgumentCaptor.forClass(List.class);
         verify(generator).generate(evidence.capture(), eq(request));
-        assertThat(evidence.getValue()).hasSize(2).allMatch(h -> h.version() == 2);
-        assertThat(evidence.getValue()).anyMatch(h -> h.chunk().content().contains("共享结果"));
+        assertThat(evidence.getValue()).singleElement().satisfies(h -> {
+            assertThat(h.version()).isEqualTo(2);
+            assertThat(h.chunk().content()).contains("一个加载者回源", "共享结果");
+        });
         verify(quota).admit("1", 2);
     }
 }

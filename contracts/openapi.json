@@ -1062,6 +1062,28 @@
         },
         "type" : "object"
       },
+      "cn.edu.whu.zhizhida.common.ApiResponseJava.util.ListCn.edu.whu.zhizhida.knowledge.ReferenceLibrary$Summary" : {
+        "properties" : {
+          "code" : {
+            "enum" : [ "INVALID_REQUEST", "VALIDATION_FAILED", "FILE_TOO_LARGE", "AUTH_REQUIRED", "AUTH_INVALID_CREDENTIALS", "FORBIDDEN", "RESOURCE_NOT_FOUND", "METHOD_NOT_ALLOWED", "CONFLICT", "UNSUPPORTED_MEDIA_TYPE", "QUOTA_EXCEEDED", "INTERNAL_ERROR", "NOT_IMPLEMENTED", "UPSTREAM_FAILURE", "SERVICE_UNAVAILABLE", "AI_TIMEOUT", "AI_NETWORK_ERROR", "AI_AUTH_FAILED", "AI_CONFIGURATION_ERROR", "AI_RATE_LIMITED", "AI_INVALID_RESPONSE", "AI_CIRCUIT_OPEN", "RESUME_IMPORT_VALIDATION_FAILED", "AUTH_USERNAME_UNAVAILABLE", "RESUME_REVISION_CONFLICT", "TARGET_JOB_REVISION_CONFLICT", "INTERVIEW_STATE_CONFLICT", "RUN_USER_CAPACITY", "RUN_QUEUE_FULL" ],
+            "nullable" : true,
+            "type" : "string"
+          },
+          "data" : {
+            "items" : {
+              "$ref" : "#/components/schemas/cn.edu.whu.zhizhida.knowledge.ReferenceLibrary$Summary"
+            },
+            "type" : "array"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "success" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
       "cn.edu.whu.zhizhida.common.ApiResponseJava.util.ListCn.edu.whu.zhizhida.knowledge.api.KnowledgeDocument$Hit" : {
         "properties" : {
           "code" : {
@@ -3408,6 +3430,26 @@
           }
         },
         "required" : [ "jdText", "requirements", "revision", "title" ],
+        "type" : "object"
+      },
+      "cn.edu.whu.zhizhida.knowledge.ReferenceLibrary$Summary" : {
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "sourceLabel" : {
+            "type" : "string"
+          },
+          "sourceName" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "topic" : {
+            "type" : "string"
+          }
+        },
         "type" : "object"
       },
       "cn.edu.whu.zhizhida.knowledge.api.KnowledgeAnswer" : {
@@ -13558,6 +13600,485 @@
           "bearerAuth" : [ ]
         } ],
         "tags" : [ "knowledge-import-controller" ]
+      }
+    },
+    "/api/knowledge/library" : {
+      "get" : {
+        "operationId" : "list_4",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseJava.util.ListCn.edu.whu.zhizhida.knowledge.ReferenceLibrary$Summary"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "405" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "501" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "502" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "503" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "504" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "tags" : [ "reference-library-controller" ]
+      }
+    },
+    "/api/knowledge/library/{id}" : {
+      "get" : {
+        "operationId" : "preview",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.knowledge.api.KnowledgeImport"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "405" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "501" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "502" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "503" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "504" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "tags" : [ "reference-library-controller" ]
+      }
+    },
+    "/api/knowledge/library/{id}/import" : {
+      "post" : {
+        "operationId" : "importDocument",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/cn.edu.whu.zhizhida.knowledge.api.KnowledgeImport$Confirm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/cn.edu.whu.zhizhida.common.ApiResponseCn.edu.whu.zhizhida.knowledge.api.KnowledgeDocument"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "405" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "415" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "501" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "502" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "503" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          },
+          "504" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "统一错误响应；code 稳定，message 用于展示"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "tags" : [ "reference-library-controller" ]
       }
     },
     "/api/knowledge/organization" : {

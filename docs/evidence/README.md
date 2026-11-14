@@ -2,6 +2,14 @@
 
 本目录保存面试回放、工具调用、知识检索和向量存储的验证数据。报告按场景和批次组织，包含测试条件、实际结果、模型用量及源码指纹，供回归测试与发布核对使用。
 
+**分块对照：** [新旧分块、词项与混合检索](chunking-comparison.md)使用同一批 103 题。全库引文 Recall@6 分别从 78.89%、75.00% 升到 90.56%、86.11%，保留延迟、退步样本与历史引用兼容检查。
+
+**性能复测：** [Redis、RAG、RabbitMQ 与 MCP](performance-retest.md)记录当前代码上的重新测量，RAG 使用新增的 27 份真实原文、103 道题。下文的 5 份合成资料检索结果属于历史固定集，保留作独立对照。
+
+**检索诊断：** [Top-30 与全库实验](retrieval-candidate-diagnostics.md)对比原范围与全部 27 份资料，分别有 22、23 题的标注引文进入 RRF Top-30 却未进最终 Top-6，保留逐题候选与原文证据。
+
+**重排实验：** [固定候选池的 cross-encoder 对照](reranker-experiment.md)保留纯词项、RRF 和章节配额基线，比较引文质量与新增推理耗时，并审计缺失证据的相邻分块。
+
 面试回放测试读取已录制的模型请求、应答和运行结果，校验原始文件的 SHA-256 后复现历史输出、修正失败和原文引用检查；历史裸输出不会重新进入生产 Worker。[回放用例](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/CloseoutRecordedProtocolTest.java) · [录制文件与校验值](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/CloseoutRecordedFixtures.java)
 
 ## 运行专项结果
