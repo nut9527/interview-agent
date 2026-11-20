@@ -70,7 +70,7 @@ final class InterviewToolStage {
                                 execution
                                         .budget()
                                         .toolAvailableMillis(
-                                                cp.path("outputPhase").asText(),
+                                                cp.path("outputPhase").asString(),
                                                 store.remainingMillis(c.id())))
                         .payload();
         sourceGuard.require(c.owner(), session);
@@ -114,12 +114,12 @@ final class InterviewToolStage {
         var callIds = new HashSet<String>();
         if (cp.path("fixedReserved").asBoolean()) callIds.add("fixed-search-1");
         for (var message : cp.path("messages"))
-            if (message.path("role").asText().equals("tool"))
-                callIds.add(message.path("tool_call_id").asText());
+            if (message.path("role").asString().equals("tool"))
+                callIds.add(message.path("tool_call_id").asString());
         int checked = 0;
         for (var call : calls) {
             tools.validate(
-                    call.path("function").path("name").asText(),
+                    call.path("function").path("name").asString(),
                     AgentExecution.arguments(json, call),
                     memorySelection);
             if (checked++ < cp.path("toolIndex").asInt()) continue;
@@ -136,8 +136,8 @@ final class InterviewToolStage {
         }
         for (int i = cp.path("toolIndex").asInt(); i < calls.size(); i++) {
             var call = calls.get(i);
-            String name = call.path("function").path("name").asText(),
-                    callId = call.path("id").asText();
+            String name = call.path("function").path("name").asString(),
+                    callId = call.path("id").asString();
             var args = JsonFingerprint.canonical(AgentExecution.arguments(json, call));
             var qualified = memory.read(c.owner(), memorySelection);
             // 将用户、固定输入和规范化参数纳入缓存键；仅复用本运行同一取证动作的回执。
@@ -172,7 +172,7 @@ final class InterviewToolStage {
                                             .put("status", "SKIPPED")
                                             .put(
                                                     "reason",
-                                                    cp.path("loop").path("stopReason").asText())
+                                                    cp.path("loop").path("stopReason").asString())
                                     : cached.isPresent()
                                             ? tools.checkedPayload(
                                                     name, json.readTree(cached.get()))
@@ -188,7 +188,7 @@ final class InterviewToolStage {
                                                                     .budget()
                                                                     .toolAvailableMillis(
                                                                             cp.path("outputPhase")
-                                                                                    .asText(),
+                                                                                    .asString(),
                                                                             store.remainingMillis(
                                                                                     c.id())))
                                                     .payload();
@@ -198,8 +198,8 @@ final class InterviewToolStage {
                     if (tools.requiresMemory(name)) {
                         var ids = new HashSet<String>();
                         for (var item : result.path("items")) {
-                            if (item.has("id")) ids.add(item.path("id").asText());
-                            for (var id : item.path("observationIds")) ids.add(id.asText());
+                            if (item.has("id")) ids.add(item.path("id").asString());
+                            for (var id : item.path("observationIds")) ids.add(id.asString());
                         }
                         var uses = cp.withArray("memoryUses");
                         int usedAt = pending == null ? 0 : pending.answeredCount();

@@ -59,7 +59,7 @@ public class GoalPlanner {
         var cp = store.open(context, fingerprint, initial);
         Input frozen = json.treeToValue(cp.path("input"), Input.class);
         AgentExecution.requireTime(store.remainingMillis(context), 1, "RUN_BUDGET");
-        if(cp.has("draft") && cp.path("modelAttempts").asInt()==3 && cp.path("messages").get(cp.path("messages").size()-1).path("role").asText().equals("tool"))
+        if(cp.has("draft") && cp.path("modelAttempts").asInt()==3 && cp.path("messages").get(cp.path("messages").size()-1).path("role").asString().equals("tool"))
             return json.treeToValue(cp.path("draft"),LearningGoal.Draft.class);
         while (true) {
             requireScope.run();
@@ -67,13 +67,13 @@ public class GoalPlanner {
             AgentExecution.requireTime(store.remainingMillis(context), 1, "RUN_BUDGET");
             var messages = cp.withArray("messages");
             var last = messages.get(messages.size() - 1);
-            if (last.path("role").asText().equals("assistant")) {
+            if (last.path("role").asString().equals("assistant")) {
                 if (last.path("tool_calls").isArray() && !last.path("tool_calls").isEmpty()) {
                     int count = last.path("tool_calls").size();
                     if (cp.path("toolCount").asInt() + count > 3) throw new RunFailureException("RUN_TOOL_BUDGET");
                     var ids = new HashSet<String>();
                     for (var message : messages)
-                        if (message.path("role").asText().equals("tool")) ids.add(message.path("tool_call_id").asText());
+                        if (message.path("role").asString().equals("tool")) ids.add(message.path("tool_call_id").asString());
                     var arguments = new ArrayList<JsonNode>();
                     for (var call : last.path("tool_calls")) {
                         AgentExecution.callId(call, ids);
@@ -84,7 +84,7 @@ public class GoalPlanner {
                         requireScope.run();
                         runs.requireActive(context);
                         AgentExecution.requireTime(store.remainingMillis(context), 1, "RUN_TOOL_BUDGET");
-                        String name = call.path("function").path("name").asText();
+                        String name = call.path("function").path("name").asString();
                         var args = arguments.get(index++);
                         JsonNode result;
                         if (name.equals("search_training_questions")) {
@@ -104,7 +104,7 @@ public class GoalPlanner {
                         requireScope.run();
                         runs.requireActive(context);
                         AgentExecution.requireTime(store.remainingMillis(context), 1, "RUN_TOOL_BUDGET");
-                        messages.add(message("tool", result.toString()).put("tool_call_id", call.path("id").asText()));
+                        messages.add(message("tool", result.toString()).put("tool_call_id", call.path("id").asString()));
                     }
                     cp.put("toolCount", cp.path("toolCount").asInt() + count);
                     store.save(context, cp, count, false);
@@ -113,10 +113,10 @@ public class GoalPlanner {
                     JsonNode result;
                     try {
                         result = json.reader().with(tools.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                                .readTree(last.path("content").asText());
+                                .readTree(last.path("content").asString());
                     } catch (tools.jackson.core.JacksonException ex) { throw new RunFailureException("MODEL_GOAL_OUTPUT"); }
                     requireFields(result, Set.of("action"));
-                    if (!result.path("action").asText().equals("COMPLETE") || !cp.has("draft"))
+                    if (!result.path("action").asString().equals("COMPLETE") || !cp.has("draft"))
                         throw new RunFailureException("MODEL_GOAL_OUTPUT");
                     return json.treeToValue(cp.path("draft"), LearningGoal.Draft.class);
                 }
@@ -167,9 +167,9 @@ public class GoalPlanner {
                     || node.path("observationIds").size() > 20) throw new RunFailureException("TOOL_ARGUMENT");
             var ids = new ArrayList<String>();
             for (var id : node.path("observationIds")) {
-                if (!id.isTextual() || input.observations().stream().noneMatch(o -> o.id().equals(id.asText()) && o.dimension().equals(dimension)))
+                if (!id.isString() || input.observations().stream().noneMatch(o -> o.id().equals(id.asString()) && o.dimension().equals(dimension)))
                     throw new RunFailureException("TOOL_SCOPE");
-                ids.add(id.asText());
+                ids.add(id.asString());
             }
             if (status.equals("RESOLVED")) {
                 var newest=input.observations().stream().filter(o->o.dimension().equals(dimension))
@@ -191,8 +191,8 @@ public class GoalPlanner {
     }
     private static String text(JsonNode node, String name, int limit) {
         var value = node.path(name);
-        if (!value.isTextual() || value.asText().isBlank() || value.asText().length() > limit) throw new RunFailureException("TOOL_ARGUMENT");
-        return value.asText();
+        if (!value.isString() || value.asString().isBlank() || value.asString().length() > limit) throw new RunFailureException("TOOL_ARGUMENT");
+        return value.asString();
     }
     private ObjectNode message(String role, String content) { return json.createObjectNode().put("role", role).put("content", content); }
     List<JsonNode> definitions() {

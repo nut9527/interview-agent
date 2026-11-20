@@ -5,7 +5,8 @@ import tools.jackson.databind.JsonNode;
 
 /** JSON 与工具对话共用供应商用量协议；缺失或非法用量不记作零消耗。 */
 final class DeepSeekUsage {
-    private DeepSeekUsage() { }
+    private DeepSeekUsage() {
+    }
 
     static ModelUsage parse(JsonNode node) {
         if (node.isMissingNode() || node.isNull()) {

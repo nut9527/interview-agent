@@ -399,7 +399,7 @@ public class InterviewRunStore implements ExecutionPort {
                     long delay = ModelRetryPolicy.delayMillis(row.id(), row.attempts());
                     long minimum =
                             budget.actionMinimumMillis() + AgentLoopPolicy.COMMIT_RESERVE_MILLIS;
-                    if (!cp.path("outputPhase").asText().equals("ACTION")
+                    if (!cp.path("outputPhase").asString().equals("ACTION")
                             || row.attempts() >= budget.attemptLimit("ACTION", false)
                             || remainingMillis(row.id()) <= delay + minimum) return false;
                     journal.checkpoint(row.id(), checkpoint, "RETRY_WAIT");

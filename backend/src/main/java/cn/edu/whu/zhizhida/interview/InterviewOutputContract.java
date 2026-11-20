@@ -8,7 +8,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 
-/** 领域字段清单及本轮生成契约；服务端派生字段不参与生成，不是供应商的 JSON Schema 请求参数。
+/**
+ * 领域字段清单及本轮生成契约；服务端派生字段不参与生成，不是供应商的 JSON Schema 请求参数。
  * 长度和引用均以 UTF-16 单位描述，领域间关系仍由策略和证据校验器验证。
  */
 public final class InterviewOutputContract {
@@ -23,7 +24,8 @@ public final class InterviewOutputContract {
     public static final int INTENT_MAX = 200;
     private static final JsonMapper JSON = new JsonMapper();
 
-    private InterviewOutputContract() { }
+    private InterviewOutputContract() {
+    }
 
     public static String prompt(boolean opening, boolean agent, boolean finalRound) {
         return prompt(opening, agent, finalRound, false);
@@ -37,14 +39,16 @@ public final class InterviewOutputContract {
             assessmentFields.remove("items");
             ((ObjectNode) assessmentFields.path("detail")).put("type", "required object when assessment is supplied");
         }
-        if (!agent) ((ObjectNode) source.path("fields")).remove("assessment");
+        if (!agent)
+            ((ObjectNode) source.path("fields")).remove("assessment");
         var fields = (ObjectNode) source.path("fields");
         if (!opening) {
             fields.remove(finalRound ? "nextQuestion" : "finalSummary");
             if (agent) {
                 var decision = (ObjectNode) fields.path("agentDecision").path("fields");
                 decision.remove("questionCompetencyId");
-                if (finalRound) decision.remove(java.util.List.of("action", "nextCompetencyId", "probe"));
+                if (finalRound)
+                    decision.remove(java.util.List.of("action", "nextCompetencyId", "probe"));
             }
         }
         return "\n服务端字段契约（硬上限；前文较短长度是生成建议）。仅输出该轮字段，未知字段不要生成：\n"
@@ -52,19 +56,21 @@ public final class InterviewOutputContract {
     }
 
     private static JsonNode compact(JsonNode source) {
-        if (source.isTextual()) {
-            String value = source.textValue();
+        if (source.isString()) {
+            String value = source.stringValue();
             if (value.startsWith("string;") && value.contains("; maxUTF16=")) {
                 var parts = value.split(";", 4);
                 String maximum = parts[2].trim().replace("maxUTF16=", "");
                 String shape = parts[1].contains("nonblank")
-                        ? "nonblank string≤" + maximum + " UTF16" : "string[0.." + maximum + " UTF16]";
+                        ? "nonblank string≤" + maximum + " UTF16"
+                        : "string[0.." + maximum + " UTF16]";
                 return JSON.getNodeFactory().stringNode(shape + (parts.length == 4 ? ";" + parts[3] : ""));
             }
             return JSON.getNodeFactory().stringNode(value);
         }
         var result = JSON.createObjectNode();
-        if (source.has("type")) result.set("$type", compact(source.path("type")));
+        if (source.has("type"))
+            result.set("$type", compact(source.path("type")));
         if (source.has("itemFields")) {
             result.set("items", compact(source.path("itemFields")));
         } else {
@@ -86,17 +92,20 @@ public final class InterviewOutputContract {
         var fields = result.putObject("fields");
         if (opening) {
             fields.put("question", text(QUESTION_MAX, false));
-            if (agent) fields.put("questionCompetencyId", text(ID_MAX, false) + "; equals current.id");
+            if (agent)
+                fields.put("questionCompetencyId", text(ID_MAX, false) + "; equals current.id");
             return result;
         }
         fields.put("feedback", text(FEEDBACK_MAX, false));
         fields.put("nextQuestion", finalRound ? "empty string; ignored by parser" : text(NEXT_QUESTION_MAX, false));
         fields.put("finalSummary", finalRound ? text(SUMMARY_MAX, false) : "empty string; ignored by parser");
-        if (agent) fields.set("agentDecision", decision(planning));
+        if (agent)
+            fields.set("agentDecision", decision(planning));
         fields.set("assessment", assessment());
-        result.put("semantics", "Structure alone does not validate evidence. Server validates allowed actions/probes, coverage, "
-                + "citations against current owner and fixed source versions, RAW_UTF16 offsets, observation consistency and revocation. "
-                + "Missing assessment remains NOT_EVALUATED for compatibility; generation should include detailed assessment.");
+        result.put("semantics",
+                "Structure alone does not validate evidence. Server validates allowed actions/probes, coverage, "
+                        + "citations against current owner and fixed source versions, RAW_UTF16 offsets, observation consistency and revocation. "
+                        + "Missing assessment remains NOT_EVALUATED for compatibility; generation should include detailed assessment.");
         return result;
     }
 
@@ -105,13 +114,15 @@ public final class InterviewOutputContract {
                 .put("unknownFields", "ignored by parser; do not generate");
         var fields = node.putObject("fields");
         fields.put("level", values(InterviewAgentState.Level.class));
-        fields.put("evidence", text(EVIDENCE_MAX, true) + "; one contiguous verbatim substring of the latest answer; no omissions or concatenation; empty only for INSUFFICIENT");
+        fields.put("evidence", text(EVIDENCE_MAX, true)
+                + "; one contiguous verbatim substring of the latest answer; no omissions or concatenation; empty only for INSUFFICIENT");
         fields.put("gap", text(DECISION_TEXT_MAX, false));
         fields.put("action", values(InterviewAgentState.Action.class) + "; restricted to allowedActions");
         fields.put("nextCompetencyId", text(ID_MAX, false) + "; target allowed by agentRouting");
         fields.put("reason", text(DECISION_TEXT_MAX, false));
         fields.put("practice", text(DECISION_TEXT_MAX, false));
-        fields.put("probe", values(InterviewAgentState.Probe.class) + "; FOLLOW_UP=allowedProbes; ADVANCE=OPENING; FINISH=NONE");
+        fields.put("probe",
+                values(InterviewAgentState.Probe.class) + "; FOLLOW_UP=allowedProbes; ADVANCE=OPENING; FINISH=NONE");
         fields.put("intent", text(INTENT_MAX, false));
         fields.put("questionCompetencyId", text(ID_MAX, true) + "; equals nextCompetencyId except FINISH=empty");
         if (planning) {
@@ -127,8 +138,9 @@ public final class InterviewOutputContract {
     private static ObjectNode assessment() {
         var node = JSON.createObjectNode().put("type", "optional object or null").put("unknownFields", "rejected")
                 .put("generation", "use detail; legacy items optional for old outputs; absent means not evaluated")
-                .put("presence", "A non-null assessment must supply valid legacy items or non-null detail; empty assessment is rejected by domain validation. "
-                        + "If both are supplied, both must validate. Missing/null assessment remains not evaluated.");
+                .put("presence",
+                        "A non-null assessment must supply valid legacy items or non-null detail; empty assessment is rejected by domain validation. "
+                                + "If both are supplied, both must validate. Missing/null assessment remains not evaluated.");
         var fields = node.putObject("fields");
         var legacy = fields.putObject("items").put("type", "optional array; exactly 2 distinct dimensions if supplied");
         var oldItem = legacy.putObject("itemFields");
@@ -138,9 +150,11 @@ public final class InterviewOutputContract {
         var detail = fields.putObject("detail").put("type", "optional object").put("unknownFields", "rejected");
         var detailFields = detail.putObject("fields");
         detailFields.put("protocolVersion", "literal six-dimensions-v1");
-        var items = detailFields.putObject("items").put("type", "array; exactly 6 distinct dimensions; unknown item fields rejected");
+        var items = detailFields.putObject("items").put("type",
+                "array; exactly 6 distinct dimensions; unknown item fields rejected");
         var item = items.putObject("itemFields");
-        item.putObject("citations").put("type", "array; 0..3; OBSERVED requires answer citation and non-INSUFFICIENT; otherwise empty and INSUFFICIENT")
+        item.putObject("citations").put("type",
+                "array; 0..3; OBSERVED requires answer citation and non-INSUFFICIENT; otherwise empty and INSUFFICIENT")
                 .set("itemFields", quote(true));
         observation(item, DetailedAssessment.Dimension.class);
         item.put("majorCorrection", "boolean; true only for OBSERVED TECHNICAL_CORRECTNESS; omitted defaults false");
@@ -160,10 +174,12 @@ public final class InterviewOutputContract {
 
     private static ObjectNode quote(boolean detailed) {
         var fields = JSON.createObjectNode();
-        if (detailed) fields.put("sourceKey", "string; answer or assessmentSources sourceKey only");
+        if (detailed)
+            fields.put("sourceKey", "string; answer or assessmentSources sourceKey only");
         fields.put("anchorId", "string; citationAnchors ID for sourceKey; unique exact quote; no offsets");
         fields.put("quote", text(EVIDENCE_MAX, false) + "; exact source substring without normalization");
-        if (detailed) fields.put("relation", values(DetailedAssessmentDraft.Relation.class));
+        if (detailed)
+            fields.put("relation", values(DetailedAssessmentDraft.Relation.class));
         return fields;
     }
 

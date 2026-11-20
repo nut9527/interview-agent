@@ -24,10 +24,10 @@ public final class AgentExecution {
 
     public static JsonNode arguments(ObjectMapper json, JsonNode call) {
         var raw = call.path("function").path("arguments");
-        if (!raw.isTextual()) throw new RunFailureException("TOOL_ARGUMENTS");
+        if (!raw.isString()) throw new RunFailureException("TOOL_ARGUMENTS");
         JsonNode args;
         try {
-            args = json.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).readTree(raw.asText());
+            args = json.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).readTree(raw.asString());
         } catch (JacksonException ex) {
             throw new RunFailureException("TOOL_ARGUMENTS");
         }
@@ -37,9 +37,9 @@ public final class AgentExecution {
 
     public static String callId(JsonNode call, Set<String> seen) {
         var id = call.path("id");
-        if (!id.isTextual() || id.asText().isBlank() || id.asText().length() > 160 || !seen.add(id.asText()))
+        if (!id.isString() || id.asString().isBlank() || id.asString().length() > 160 || !seen.add(id.asString()))
             throw new RunFailureException("TOOL_CALL_ID");
-        return id.asText();
+        return id.asString();
     }
 
     public static String modelFailureCode(Throwable failure) {

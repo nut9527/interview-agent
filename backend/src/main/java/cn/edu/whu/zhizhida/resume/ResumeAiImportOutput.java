@@ -265,7 +265,7 @@ final class ResumeAiImportOutput {
     private static String optional(JsonNode node, String field, int limit) {
         if (node == null || !node.hasNonNull(field)) return null;
         JsonNode value = node.get(field);
-        if (value.isTextual() && value.textValue().isBlank()) return null;
+        if (value.isString() && value.stringValue().isBlank()) return null;
         String text = StructuredOutput.text(node, field, limit);
         return PLACEHOLDER.matcher(text).matches() ? null : text;
     }
@@ -293,8 +293,8 @@ final class ResumeAiImportOutput {
         for (int index = 0; index < Math.min(values.size(), count); index++) {
             JsonNode value = values.get(index);
             String text = checked(path + "[" + index + "]", () -> {
-                if (!value.isTextual()) throw StructuredOutput.invalid(field, RejectionReason.TYPE_MISMATCH);
-                String item = value.textValue().strip();
+                if (!value.isString()) throw StructuredOutput.invalid(field, RejectionReason.TYPE_MISMATCH);
+                String item = value.stringValue().strip();
                 if (item.isEmpty()) throw StructuredOutput.invalid(field, RejectionReason.EMPTY_VALUE);
                 if (item.length() > limit) throw StructuredOutput.invalid(field, RejectionReason.LIMIT_EXCEEDED);
                 verifyExcerpt(field, item);

@@ -1,18 +1,18 @@
 package cn.edu.whu.zhizhida.interview;
 
-import org.springframework.web.bind.annotation.RequestParam;
-import cn.edu.whu.zhizhida.common.PageResult;
-import cn.edu.whu.zhizhida.common.PageRequest;
-import cn.edu.whu.zhizhida.interview.api.InterviewService.InterviewHistoryItem;
-import cn.edu.whu.zhizhida.interview.api.InterviewService;
-import cn.edu.whu.zhizhida.interview.api.InterviewSession;
-
-import cn.edu.whu.zhizhida.common.ApiResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import cn.edu.whu.zhizhida.common.ApiResponse;
+import cn.edu.whu.zhizhida.common.PageRequest;
+import cn.edu.whu.zhizhida.common.PageResult;
+import cn.edu.whu.zhizhida.interview.api.InterviewService;
+import cn.edu.whu.zhizhida.interview.api.InterviewService.InterviewHistoryItem;
+import cn.edu.whu.zhizhida.interview.api.InterviewSession;
 
 @RestController
 @RequestMapping("/api/interviews")
@@ -25,10 +25,10 @@ public class InterviewController {
     }
 
     @GetMapping("/sessions")
-    public ApiResponse<PageResult<InterviewHistoryItem>> listHistory(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int size) {
+    public ApiResponse<PageResult<InterviewHistoryItem>> listHistory(@RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
         return ApiResponse.ok(interviewService.listHistory(new PageRequest(page, size)));
     }
-
 
     @GetMapping("/sessions/{sessionId}")
     public ApiResponse<InterviewSession> detail(@PathVariable String sessionId) {

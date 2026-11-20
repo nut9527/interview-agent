@@ -57,17 +57,17 @@ public final class EmbeddingServer implements AutoCloseable {
                 byte[] bytes = exchange.getRequestBody().readNBytes(MAX_BODY_BYTES + 1);
                 if (bytes.length > MAX_BODY_BYTES) { reply(exchange, 413, Map.of("error", "Request too large")); return; }
                 var input = json.readTree(bytes);
-                if (!input.path("model").asText().equals(MODEL)
+                if (!input.path("model").asString().equals(MODEL)
                         || input.has("dimensions") && input.path("dimensions").asInt() != DIMENSION
-                        || input.has("encoding_format") && !input.path("encoding_format").asText().equals("float"))
+                        || input.has("encoding_format") && !input.path("encoding_format").asString().equals("float"))
                     throw new IllegalArgumentException();
                 var values = input.path("input");
                 var texts = new ArrayList<String>();
-                if (values.isTextual()) texts.add(values.asText());
+                if (values.isString()) texts.add(values.asString());
                 else if (values.isArray()) {
                     for (var value : values) {
-                        if (!value.isTextual()) throw new IllegalArgumentException();
-                        texts.add(value.asText());
+                        if (!value.isString()) throw new IllegalArgumentException();
+                        texts.add(value.asString());
                     }
                 } else throw new IllegalArgumentException();
                 if (texts.isEmpty() || texts.size() > 16 || texts.stream().anyMatch(t -> t.isBlank() || t.length() > 4000))

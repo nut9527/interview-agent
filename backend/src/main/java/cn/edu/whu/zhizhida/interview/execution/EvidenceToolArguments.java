@@ -18,8 +18,8 @@ record EvidenceToolArguments(String text, String number, int maxTextLength, int 
     }
     void validate(JsonNode args) {
         if (args == null || !args.isObject() || args.size() != 2
-                || !args.path(text).isTextual() || args.path(text).asText().isBlank()
-                || args.path(text).asText().length() > maxTextLength
+                || !args.path(text).isString() || args.path(text).asString().isBlank()
+                || args.path(text).asString().length() > maxTextLength
                 || !args.path(number).isIntegralNumber() || !args.path(number).canConvertToInt()
                 || args.path(number).asInt() < 1 || args.path(number).asInt() > maxNumber)
             throw new RunFailureException("TOOL_ARGUMENTS");

@@ -28,11 +28,11 @@ public final class ToolRegistry<C, R> {
         public Registration {
             Objects.requireNonNull(limits);
             Objects.requireNonNull(definition);
-            if (!"function".equals(definition.path("type").asText())
-                    || !definition.path("function").path("name").isTextual()
-                    || !definition.path("function").path("name").asText().matches("[a-zA-Z0-9_-]{1,64}")
-                    || !definition.path("function").path("description").isTextual()
-                    || definition.path("function").path("description").asText().isBlank()
+            if (!"function".equals(definition.path("type").asString())
+                    || !definition.path("function").path("name").isString()
+                    || !definition.path("function").path("name").asString().matches("[a-zA-Z0-9_-]{1,64}")
+                    || !definition.path("function").path("description").isString()
+                    || definition.path("function").path("description").asString().isBlank()
                     || !definition.path("function").path("parameters").isObject()
                     || version == null || version.isBlank()) {
                 throw new IllegalArgumentException("Invalid tool registration");
@@ -43,7 +43,7 @@ public final class ToolRegistry<C, R> {
             Objects.requireNonNull(execute);
         }
         @Override public JsonNode definition() { return definition.deepCopy(); }
-        public String name() { return definition.path("function").path("name").asText(); }
+        public String name() { return definition.path("function").path("name").asString(); }
     }
 
     private final Map<String, Registration<C, R>> tools;

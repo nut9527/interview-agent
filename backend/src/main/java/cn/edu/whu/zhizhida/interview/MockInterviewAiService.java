@@ -1,13 +1,15 @@
 package cn.edu.whu.zhizhida.interview;
 
-import cn.edu.whu.zhizhida.interview.api.InterviewAiReply;
-import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
-
-import cn.edu.whu.zhizhida.interview.api.*;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.edu.whu.zhizhida.interview.api.InterviewAgentState;
+import cn.edu.whu.zhizhida.interview.api.InterviewAiReply;
+import cn.edu.whu.zhizhida.interview.api.InterviewDifficulty;
+import cn.edu.whu.zhizhida.interview.api.InterviewPlanning;
+import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 public final class MockInterviewAiService {
     private final ObjectMapper mapper;
@@ -18,9 +20,12 @@ public final class MockInterviewAiService {
 
     public JsonNode generateOpening(String targetRole, String resumeSnapshot) {
         var agent = InterviewAgentContext.decode(resumeSnapshot);
-        if (agent != null && agent.checkpoint() != null) return mapper.createObjectNode()
-                .put("question", retryOpening(agent, agentQuestion(agent.routing().current(), agent.materials(), agent.difficulty())))
-                .put("questionCompetencyId", agent.routing().current().id());
+        if (agent != null && agent.checkpoint() != null)
+            return mapper.createObjectNode()
+                    .put("question",
+                            retryOpening(agent,
+                                    agentQuestion(agent.routing().current(), agent.materials(), agent.difficulty())))
+                    .put("questionCompetencyId", agent.routing().current().id());
         return mapper.createObjectNode().put("question", mockOpeningQuestion(targetRole, resumeSnapshot));
     }
 
@@ -29,7 +34,8 @@ public final class MockInterviewAiService {
         if (training != null && training.objective() != null)
             return "围绕「" + context.routing().current().name() + "」，请展示："
                     + training.objective().substring(0, Math.min(220, training.objective().length()));
-        if (training == null || training.retry() == null) return question;
+        if (training == null || training.retry() == null)
+            return question;
         String opening = "围绕「" + context.routing().current().name() + "」，请补充原回答待验证项「"
                 + training.retry().gap().substring(0, Math.min(100, training.retry().gap().length()))
                 + "」，说明你的具体行动、依据与限制。";
@@ -42,19 +48,23 @@ public final class MockInterviewAiService {
     }
 
     public JsonNode generateReview(String targetRole, String resumeSnapshot, List<InterviewTurn> transcript,
-                                     int answeredCount, boolean finalRound) {
+            int answeredCount, boolean finalRound) {
         var agent = InterviewAgentContext.decode(resumeSnapshot);
         if (agent != null && agent.checkpoint() != null) {
             var route = agent.routing();
             String answer = transcript.get(transcript.size() - 1).content();
             var action = route.allowedActions().getFirst();
             var target = action == InterviewAgentState.Action.ADVANCE ? route.next() : route.current();
-            var probe = action == InterviewAgentState.Action.FOLLOW_UP ? route.allowedProbes().get((answeredCount - 1) % route.allowedProbes().size())
-                    : action == InterviewAgentState.Action.ADVANCE ? InterviewAgentState.Probe.OPENING : InterviewAgentState.Probe.NONE;
-            boolean repeated = agent.checkpoint().evaluations().stream().anyMatch(e -> e.competencyId().equals(route.current().id())
-                    && e.decision().probe() == probe);
+            var probe = action == InterviewAgentState.Action.FOLLOW_UP
+                    ? route.allowedProbes().get((answeredCount - 1) % route.allowedProbes().size())
+                    : action == InterviewAgentState.Action.ADVANCE ? InterviewAgentState.Probe.OPENING
+                            : InterviewAgentState.Probe.NONE;
+            boolean repeated = agent.checkpoint().evaluations().stream()
+                    .anyMatch(e -> e.competencyId().equals(route.current().id())
+                            && e.decision().probe() == probe);
             String intent = action == InterviewAgentState.Action.FOLLOW_UP ? probeIntent(probe, repeated)
-                    : action == InterviewAgentState.Action.ADVANCE ? "考察「" + target.name() + "」的实际应用与边界" : "汇总已考察能力的证据和待验证项";
+                    : action == InterviewAgentState.Action.ADVANCE ? "考察「" + target.name() + "」的实际应用与边界"
+                            : "汇总已考察能力的证据和待验证项";
             var decision = new InterviewAgentState.Decision(
                     InterviewAgentState.Level.INSUFFICIENT,
                     answer.substring(0, Math.min(160, answer.length())),
@@ -65,18 +75,26 @@ public final class MockInterviewAiService {
                     finalRound ? "" : target.id(),
                     cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy.planning(agent.checkpoint())
                             ? new InterviewPlanning.Focus(InterviewPlanning.Dimension.RESPONSIBILITY,
-                                InterviewPlanning.Scenario.CURRENT, target.name() + "：" + intent,
-                                "补充本场第" + (answeredCount + 1) + "轮验证目标对应的职责、行动和记录") : null);
+                                    InterviewPlanning.Scenario.CURRENT, target.name() + "：" + intent,
+                                    "补充本场第" + (answeredCount + 1) + "轮验证目标对应的职责、行动和记录")
+                            : null);
             return mapper.valueToTree(new InterviewAiReply("演示反馈：已收到你的回答。请结合「" + route.current().name()
                     + "」核对个人行动，补充实际验证依据；此模式不提供真实模型能力判断。",
-                    finalRound ? "" : action == InterviewAgentState.Action.FOLLOW_UP
-                            ? "关于「" + (agent.checkpoint().training() != null && agent.checkpoint().training().question() != null
-                                ? route.current().name() + " · " + agent.checkpoint().training().question().title() : route.current().name()) + "」：" + intent + "。"
-                            : agentQuestion(target, agent.materials(), agent.difficulty()),
+                    finalRound ? ""
+                            : action == InterviewAgentState.Action.FOLLOW_UP
+                                    ? "关于「" + (agent.checkpoint().training() != null
+                                            && agent.checkpoint().training().question() != null
+                                                    ? route.current().name() + " · "
+                                                            + agent.checkpoint().training().question().title()
+                                                    : route.current().name())
+                                            + "」：" + intent + "。"
+                                    : agentQuestion(target, agent.materials(), agent.difficulty()),
                     finalRound ? "本轮面试结束。演示模式已完成 " + answeredCount
-                            + " 轮流程；请查看能力覆盖与逐轮原文，根据待验证项继续练习。演示评估不代表真实能力或招聘结果。" : "", decision, unknownAssessment()));
+                            + " 轮流程；请查看能力覆盖与逐轮原文，根据待验证项继续练习。演示评估不代表真实能力或招聘结果。" : "",
+                    decision, unknownAssessment()));
         }
-        if (agent != null) resumeSnapshot = agent.materials();
+        if (agent != null)
+            resumeSnapshot = agent.materials();
         if ((resumeSnapshot == null ? "" : resumeSnapshot.trim()).startsWith("本次练习项目：")) {
             String question = answeredCount == 1 ? "在这个项目中，你比较过哪些备选方案？请说明最终选择的理由和接受的代价。"
                     : "你在这个项目中如何验证方案选择有效？请说明实际验证方法、结果和限制。";
@@ -91,18 +109,26 @@ public final class MockInterviewAiService {
                 .map(d -> new cn.edu.whu.zhizhida.evaluation.api.DetailedAssessmentDraft.Item(d,
                         cn.edu.whu.zhizhida.evaluation.api.AssessmentResult.Observation.NOT_OBSERVED,
                         "规则演示未执行此维度的语义评价", cn.edu.whu.zhizhida.evaluation.api.AssessmentResult.ClaimStatus.INSUFFICIENT,
-                        "不能从篇幅或关键词反推能力", false, List.of())).toList();
+                        "不能从篇幅或关键词反推能力", false, List.of()))
+                .toList();
         return new cn.edu.whu.zhizhida.evaluation.api.AssessmentDraft(null,
                 new cn.edu.whu.zhizhida.evaluation.api.DetailedAssessmentDraft("six-dimensions-v1", items));
     }
 
-    private String agentQuestion(InterviewAgentState.Competency competency, String materials, InterviewDifficulty difficulty) {
+    private String agentQuestion(InterviewAgentState.Competency competency, String materials,
+            InterviewDifficulty difficulty) {
         String project = materials.startsWith("本次练习项目：")
-                ? materials.lines().findFirst().orElse("") + "。" : "请结合一段真实经历或你会采用的方案，";
-        var anchor = competency.materialAnchors().stream().filter(a -> a.kind() == InterviewAgentState.AnchorKind.PROJECT
-                || a.kind() == InterviewAgentState.AnchorKind.INTERNSHIP).findFirst();
-        String question = anchor.map(a -> "请结合材料条目「" + a.quote().substring(0, Math.min(140, a.quote().length())) + "」，").orElse(project)
-                + "说明「" + competency.name() + "」：" + new cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy().controlled(competency).objective() + "。";
+                ? materials.lines().findFirst().orElse("") + "。"
+                : "请结合一段真实经历或你会采用的方案，";
+        var anchor = competency.materialAnchors().stream()
+                .filter(a -> a.kind() == InterviewAgentState.AnchorKind.PROJECT
+                        || a.kind() == InterviewAgentState.AnchorKind.INTERNSHIP)
+                .findFirst();
+        String question = anchor.map(a -> "请结合材料条目「" + a.quote().substring(0, Math.min(140, a.quote().length())) + "」，")
+                .orElse(project)
+                + "说明「" + competency.name() + "」："
+                + new cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy().controlled(competency).objective()
+                + "。";
         question += switch (difficulty) {
             case BEGINNER -> "可以先从自己的职责与一个基础步骤说起。";
             case STANDARD -> "请说明个人行动及验证依据。";
@@ -112,15 +138,16 @@ public final class MockInterviewAiService {
     }
 
     private String probeIntent(InterviewAgentState.Probe probe, boolean repeated) {
-        if (repeated) return switch (probe) {
-            case EVIDENCE -> "请说明结果交付后如何保留可复核记录";
-            case QUANTIFY -> "请说明测量样本、误差与结论的适用范围";
-            case COUNTEREXAMPLE -> "请说明一次表面成功但未达到业务目标的情况";
-            case TRANSFER -> "请说明资源减半时如何调整实施过程";
-            case TRADEOFF -> "请比较短期交付与长期维护成本";
-            case CLARIFY -> "请澄清关键决策的授权与责任边界";
-            default -> throw new IllegalArgumentException("Not a follow-up probe");
-        };
+        if (repeated)
+            return switch (probe) {
+                case EVIDENCE -> "请说明结果交付后如何保留可复核记录";
+                case QUANTIFY -> "请说明测量样本、误差与结论的适用范围";
+                case COUNTEREXAMPLE -> "请说明一次表面成功但未达到业务目标的情况";
+                case TRANSFER -> "请说明资源减半时如何调整实施过程";
+                case TRADEOFF -> "请比较短期交付与长期维护成本";
+                case CLARIFY -> "请澄清关键决策的授权与责任边界";
+                default -> throw new IllegalArgumentException("Not a follow-up probe");
+            };
         return switch (probe) {
             case EVIDENCE -> "请提供能核对个人行动与判断依据的具体细节";
             case QUANTIFY -> "请用实际基线、指标和测量方法说明结果";
@@ -133,8 +160,8 @@ public final class MockInterviewAiService {
     }
 
     private InterviewAiReply mockReview(String targetRole,
-                                        List<InterviewTurn> transcript,
-                                        boolean finalRound) {
+            List<InterviewTurn> transcript,
+            boolean finalRound) {
         String latestAnswer = transcript.stream()
                 .filter(turn -> "user".equals(turn.speaker()))
                 .reduce((first, second) -> second)

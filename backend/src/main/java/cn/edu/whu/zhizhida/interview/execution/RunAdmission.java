@@ -1,11 +1,12 @@
 package cn.edu.whu.zhizhida.interview.execution;
 
-import cn.edu.whu.zhizhida.common.BusinessException;
-import cn.edu.whu.zhizhida.common.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import cn.edu.whu.zhizhida.common.BusinessException;
+import cn.edu.whu.zhizhida.common.ErrorCode;
 
 /** 数据库为排队与执行资格的事实源；仅在主体锁之后的短事务内使用。 */
 @Component
@@ -54,11 +55,14 @@ public class RunAdmission {
                 + "FROM interview_runs WHERE status IN ('ACCEPTED','RUNNING') FOR UPDATE");
         int live = 0;
         for (var other : active) {
-            if (other.get("id").equals(row.id())) continue;
-            if (((Number) other.get("live")).intValue() != 0) live++;
+            if (other.get("id").equals(row.id()))
+                continue;
+            if (((Number) other.get("live")).intValue() != 0)
+                live++;
             // 退避保留用户的在途命令，但不占执行名额。
             if (((Number) other.get("owner_id")).longValue() == row.owner()
-                    && other.get("first_started_at") != null) return false;
+                    && other.get("first_started_at") != null)
+                return false;
         }
         return live < maxActive;
     }

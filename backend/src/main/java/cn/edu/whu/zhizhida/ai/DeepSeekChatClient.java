@@ -1,25 +1,27 @@
 package cn.edu.whu.zhizhida.ai;
 
-import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
-import cn.edu.whu.zhizhida.ai.api.JsonChatResponse;
-import cn.edu.whu.zhizhida.common.InvalidModelOutputException;
-import cn.edu.whu.zhizhida.common.UpstreamServiceException;
-import cn.edu.whu.zhizhida.observability.BusinessMetrics;
+import java.net.http.HttpClient;
+import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import cn.edu.whu.zhizhida.ai.api.JsonChatClient;
+import cn.edu.whu.zhizhida.ai.api.JsonChatResponse;
+import cn.edu.whu.zhizhida.common.InvalidModelOutputException;
+import cn.edu.whu.zhizhida.common.UpstreamServiceException;
+import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.net.http.HttpClient;
-import java.time.Duration;
-
-/** JSON 对话的供应商适配器，负责请求预算、HTTP 通信、完成状态与响应结构校验。 通过 AiCallGuard 共享并发和熔断保护；业务字段是否可用仍由各业务适配器判断。 */
+/**
+ * JSON 对话的供应商适配器，负责请求预算、HTTP 通信、完成状态与响应结构校验。 通过 AiCallGuard
+ * 共享并发和熔断保护；业务字段是否可用仍由各业务适配器判断。
+ */
 @Component
 public class DeepSeekChatClient implements JsonChatClient {
     private static final int LONG_RESPONSE_TOKEN_THRESHOLD = 2000;
@@ -96,10 +98,9 @@ public class DeepSeekChatClient implements JsonChatClient {
         this.objectMapper = objectMapper;
         this.callGuard = callGuard;
         this.metrics = metrics;
-        this.transport =
-                new DeepSeekTransport(
-                        httpClient == null ? DeepSeekTransport.client(this.timeout) : httpClient,
-                        metrics);
+        this.transport = new DeepSeekTransport(
+                httpClient == null ? DeepSeekTransport.client(this.timeout) : httpClient,
+                metrics);
     }
 
     @Override
@@ -132,26 +133,25 @@ public class DeepSeekChatClient implements JsonChatClient {
         Duration requestTimeout = requestTimeout(maxTokens);
         return callGuard.execute(
                 requestTimeout,
-                () ->
-                        send(
-                                buildBody(
-                                        systemPrompt,
-                                        userPrompt,
-                                        temperature,
-                                        maxTokens,
-                                        requestThinking),
-                                requestTimeout));
+                () -> send(
+                        buildBody(
+                                systemPrompt,
+                                userPrompt,
+                                temperature,
+                                maxTokens,
+                                requestThinking),
+                        requestTimeout));
     }
 
     private JsonChatResponse send(ObjectNode body, Duration requestTimeout) {
         // 仅关联追踪：独立 JSON 调用不生成持久 Run 的尝试记录。
         return new LangChain4jExchange<>(
-                        objectMapper,
-                        transport,
-                        body,
-                        requestTimeout,
-                        "json-" + java.util.UUID.randomUUID(),
-                        this::parsePayload)
+                objectMapper,
+                transport,
+                body,
+                requestTimeout,
+                "json-" + java.util.UUID.randomUUID(),
+                this::parsePayload)
                 .execute(baseUrl, apiKey);
     }
 
@@ -194,15 +194,15 @@ public class DeepSeekChatClient implements JsonChatClient {
 
     private JsonChatResponse parsePayload(String responseBody) {
         var response = DeepSeekResponseReader.read(objectMapper, metrics, responseBody);
-        if (!"stop".equals(response.finishReason())) throw UpstreamServiceException.coded("MODEL_PROTOCOL");
-        String content = response.message().path("content").asText().trim();
+        if (!"stop".equals(response.finishReason()))
+            throw UpstreamServiceException.coded("MODEL_PROTOCOL");
+        String content = response.message().path("content").asString().trim();
         JsonNode payload;
         try {
-            payload =
-                    objectMapper
-                            .reader()
-                            .with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                            .readTree(extractJson(content));
+            payload = objectMapper
+                    .reader()
+                    .with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                    .readTree(extractJson(content));
         } catch (tools.jackson.core.JacksonException ex) {
             throw new InvalidModelOutputException(
                     InvalidModelOutputException.Reason.INVALID_JSON,

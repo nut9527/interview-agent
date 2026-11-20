@@ -1,8 +1,8 @@
 package cn.edu.whu.zhizhida.interview.execution;
 
-import cn.edu.whu.zhizhida.interview.api.KnowledgeSnapshot;
-
 import java.util.List;
+
+import cn.edu.whu.zhizhida.interview.api.KnowledgeSnapshot;
 
 final class RunEvidence {
     private final InterviewRunStore store;

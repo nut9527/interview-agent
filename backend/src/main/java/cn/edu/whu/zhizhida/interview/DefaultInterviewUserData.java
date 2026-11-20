@@ -1,12 +1,12 @@
 package cn.edu.whu.zhizhida.interview;
 
-import cn.edu.whu.zhizhida.interview.api.InterviewUserData;
-import cn.edu.whu.zhizhida.interview.execution.InterviewRunStore;
-
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import cn.edu.whu.zhizhida.interview.api.InterviewUserData;
+import cn.edu.whu.zhizhida.interview.execution.InterviewRunStore;
 
 @Service
 @Transactional(propagation = Propagation.MANDATORY)

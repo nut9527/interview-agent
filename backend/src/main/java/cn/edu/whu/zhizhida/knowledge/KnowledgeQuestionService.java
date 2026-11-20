@@ -1,7 +1,5 @@
 package cn.edu.whu.zhizhida.knowledge;
 
-import cn.edu.whu.zhizhida.common.UserInputException;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +8,7 @@ import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 
 import cn.edu.whu.zhizhida.auth.api.CurrentUserProvider;
+import cn.edu.whu.zhizhida.common.UserInputException;
 import cn.edu.whu.zhizhida.knowledge.api.KnowledgeAnswer;
 import cn.edu.whu.zhizhida.knowledge.api.KnowledgeAnswerRecord;
 import cn.edu.whu.zhizhida.quota.AiRequestQuota;
@@ -66,7 +65,8 @@ public class KnowledgeQuestionService {
 
     /** 只为明显的指代或承接补问题上下文，生成的历史结论不能变成检索关键词。 */
     static String retrievalQuestion(String question, List<KnowledgeAnswerRecord> context) {
-        if (context.isEmpty() || !FOLLOW_UP.matcher(question.strip()).find()) return question;
+        if (context.isEmpty() || !FOLLOW_UP.matcher(question.strip()).find())
+            return question;
         // 连续“它/这个”追问回溯至最近的明确问题，最多仍是当前问题加一条历史问题。
         String topic = context.getLast().question();
         for (int i = context.size() - 1; i >= 0; i--) {
@@ -79,7 +79,8 @@ public class KnowledgeQuestionService {
         // 当前问题最多300个UTF-16单元；仅截短历史问题，使合并查询符合向量适配器的500上限。
         int end = Math.min(topic.length(), Math.max(0, 500 - question.length() - 1));
         if (end > 0 && end < topic.length() && Character.isHighSurrogate(topic.charAt(end - 1))
-                && Character.isLowSurrogate(topic.charAt(end))) end--;
+                && Character.isLowSurrogate(topic.charAt(end)))
+            end--;
         return end == 0 ? question : question + " " + topic.substring(0, end);
     }
 }

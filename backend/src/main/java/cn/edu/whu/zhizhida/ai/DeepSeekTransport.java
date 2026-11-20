@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import cn.edu.whu.zhizhida.common.UpstreamServiceException;
 import cn.edu.whu.zhizhida.observability.BusinessMetrics;
 import tools.jackson.databind.ObjectMapper;
@@ -23,7 +24,8 @@ final class DeepSeekTransport {
     }
 
     static HttpClient client(Duration connectTimeout) {
-        return HttpClient.newBuilder().connectTimeout(connectTimeout).followRedirects(HttpClient.Redirect.NEVER).build();
+        return HttpClient.newBuilder().connectTimeout(connectTimeout).followRedirects(HttpClient.Redirect.NEVER)
+                .build();
     }
 
     static ObjectNode body(ObjectMapper json, String model, String thinking, int maxTokens) {
@@ -40,20 +42,26 @@ final class DeepSeekTransport {
         try {
             var response = future.get(request.timeout().orElseThrow().toNanos(), TimeUnit.NANOSECONDS);
             int status = response.statusCode();
-            if (status < 200 || status >= 300) throw UpstreamServiceException.coded("MODEL_HTTP_" + status);
-            metrics.record(BusinessMetrics.Operation.AI_HTTP, BusinessMetrics.Outcome.SUCCESS, System.nanoTime() - started);
+            if (status < 200 || status >= 300)
+                throw UpstreamServiceException.coded("MODEL_HTTP_" + status);
+            metrics.record(BusinessMetrics.Operation.AI_HTTP, BusinessMetrics.Outcome.SUCCESS,
+                    System.nanoTime() - started);
             return response.body();
         } catch (TimeoutException ex) {
             future.cancel(true);
-            metrics.record(BusinessMetrics.Operation.AI_HTTP, BusinessMetrics.Outcome.FAILURE, System.nanoTime() - started);
+            metrics.record(BusinessMetrics.Operation.AI_HTTP, BusinessMetrics.Outcome.FAILURE,
+                    System.nanoTime() - started);
             throw new java.net.http.HttpTimeoutException("Model response deadline exceeded");
         } catch (ExecutionException ex) {
-            metrics.record(BusinessMetrics.Operation.AI_HTTP, BusinessMetrics.Outcome.FAILURE, System.nanoTime() - started);
-            if (ex.getCause() instanceof RuntimeException runtime) throw runtime;
+            metrics.record(BusinessMetrics.Operation.AI_HTTP, BusinessMetrics.Outcome.FAILURE,
+                    System.nanoTime() - started);
+            if (ex.getCause() instanceof RuntimeException runtime)
+                throw runtime;
             throw new IOException("Model response failed", ex.getCause());
         } catch (InterruptedException | RuntimeException ex) {
             future.cancel(true);
-            metrics.record(BusinessMetrics.Operation.AI_HTTP, BusinessMetrics.Outcome.FAILURE, System.nanoTime() - started);
+            metrics.record(BusinessMetrics.Operation.AI_HTTP, BusinessMetrics.Outcome.FAILURE,
+                    System.nanoTime() - started);
             throw ex;
         }
     }

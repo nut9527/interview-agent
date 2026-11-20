@@ -33,11 +33,11 @@ final class EvidenceReview {
         var dimensions = new HashSet<String>();
         for (var check : checks) {
             require(check.isObject() && check.propertyNames().equals(Set.of("dimension", "claim", "status", "evidence", "nextAction")), "证据检查字段不完整");
-            String dimension = check.path("dimension").asText();
+            String dimension = check.path("dimension").asString();
             require(java.util.Arrays.stream(Dimension.values()).anyMatch(d -> d.name().equals(dimension)) && dimensions.add(dimension), "证据检查维度无效或重复");
             text(check, "claim", 240, false);
             text(check, "nextAction", 240, true);
-            String status = check.path("status").asText();
+            String status = check.path("status").asString();
             require(Set.of("SUPPORTED", "CONTRADICTED", "INSUFFICIENT").contains(status), "证据检查状态无效");
             var evidence = check.path("evidence");
             require(evidence.isArray() && evidence.size() <= 3 && (status.equals("INSUFFICIENT") || !evidence.isEmpty()), "判断支持或矛盾必须附原文证据");
@@ -45,17 +45,17 @@ final class EvidenceReview {
                 require(ref.isObject() && ref.propertyNames().equals(Set.of("sourceId", "quote")), "引文必须包含sourceId和quote");
                 text(ref, "sourceId", 240, false);
                 String quote = text(ref, "quote", 500, false);
-                var source = sources.get(ref.path("sourceId").asText());
+                var source = sources.get(ref.path("sourceId").asString());
                 require(source != null && source.text().contains(quote), "证据检查引文不在已提供来源中");
             }
         }
-        if (action.path("action").asText().equals("REVISE"))
+        if (action.path("action").asString().equals("REVISE"))
             require(!checks.isEmpty() && java.util.stream.StreamSupport.stream(checks.spliterator(), false)
-                    .anyMatch(c -> !c.path("status").asText().equals("SUPPORTED") && !c.path("nextAction").asText().isBlank()), "REVISE 必须指出未解决主张和下一步取证目标");
+                    .anyMatch(c -> !c.path("status").asString().equals("SUPPORTED") && !c.path("nextAction").asString().isBlank()), "REVISE 必须指出未解决主张和下一步取证目标");
     }
 
     static boolean apply(ObjectNode checkpoint, JsonNode action) {
-        boolean revise = action.path("action").asText().equals("REVISE");
+        boolean revise = action.path("action").asString().equals("REVISE");
         if (revise) require(!checkpoint.path("evidenceRevised").asBoolean(), "证据检查最多修订一次，请完成检查并保留未知");
         var checks = action.path("checks");
         checkpoint.set("evidenceReview", checks.isArray() ? checks.deepCopy() : checkpoint.arrayNode());
@@ -76,20 +76,20 @@ final class EvidenceReview {
         for (var item : items) {
             var matching = java.util.stream.StreamSupport.stream(checks.spliterator(), false)
                     .filter(c -> c.path("dimension").equals(item.path("dimension"))).findFirst();
-            String conclusion = item.path("claimStatus").asText();
+            String conclusion = item.path("claimStatus").asString();
             if (Set.of("SUPPORTED", "CONTRADICTED").contains(conclusion))
                 require(matching.isPresent(), "确定结论必须有同维度的证据检查；未检查维度保留未知或争议");
             if (matching.isPresent()) {
-                String checked = matching.get().path("status").asText();
+                String checked = matching.get().path("status").asString();
                 require(conclusion.equals(checked) || Set.of("INSUFFICIENT", "DISPUTED").contains(conclusion),
                         "最终评价不能推翻已核对的证据状态或将待核对维度改为确定结论");
             }
             if (item.path("majorCorrection").asBoolean()) {
-                require(matching.isPresent() && matching.get().path("status").asText().equals("CONTRADICTED"), "重大纠错必须先完成反证检查");
+                require(matching.isPresent() && matching.get().path("status").asString().equals("CONTRADICTED"), "重大纠错必须先完成反证检查");
                 require(java.util.stream.StreamSupport.stream(matching.get().path("evidence").spliterator(), false)
                         .anyMatch(e -> {
-                            var source = sources.get(e.path("sourceId").asText());
-                            return source != null && source.reference() && source.text().contains(e.path("quote").asText());
+                            var source = sources.get(e.path("sourceId").asString());
+                            return source != null && source.reference() && source.text().contains(e.path("quote").asString());
                         }), "重大纠错需要已提供参考资料的反证，回答自述不足以证明技术错误");
             }
         }
@@ -97,8 +97,8 @@ final class EvidenceReview {
 
     private static String text(JsonNode node, String key, int max, boolean empty) {
         var value = node.path(key);
-        require(value.isTextual() && value.asText().length() <= max && (empty || !value.asText().isBlank()), "证据检查字段无效：" + key);
-        return value.asText();
+        require(value.isString() && value.asString().length() <= max && (empty || !value.asString().isBlank()), "证据检查字段无效：" + key);
+        return value.asString();
     }
 
     private static void require(boolean valid, String message) {

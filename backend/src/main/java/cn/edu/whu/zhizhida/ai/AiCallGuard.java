@@ -73,12 +73,14 @@ public class AiCallGuard {
             try {
                 settle(token, generation, false);
             } catch (RuntimeException | Error failure) {
-                if (failure != ex) ex.addSuppressed(failure);
+                if (failure != ex)
+                    ex.addSuppressed(failure);
             }
             try {
                 record(BusinessMetrics.Outcome.FAILURE, started);
             } catch (RuntimeException | Error failure) {
-                if (failure != ex) ex.addSuppressed(failure);
+                if (failure != ex)
+                    ex.addSuppressed(failure);
             }
             throw ex;
         }
@@ -104,7 +106,8 @@ public class AiCallGuard {
         } catch (RuntimeException ex) {
             throw unavailable("AI 请求保护服务暂时不可用，请稍后重试。");
         }
-        if ((Long) result.get(0) == 0) throw unavailable("AI 服务繁忙，请稍后重试。");
+        if ((Long) result.get(0) == 0)
+            throw unavailable("AI 服务繁忙，请稍后重试。");
         if ((Long) result.get(0) == -1)
             throw new BusinessException(ErrorCode.AI_CIRCUIT_OPEN, "AI 服务连续调用失败，正在短暂冷却，请稍后重试。");
         return (Long) result.get(1);
@@ -113,7 +116,8 @@ public class AiCallGuard {
     private void settle(String token, long generation, boolean success) {
         Long result = redis.execute(SETTLE, keys, token, Long.toString(generation), success ? "1" : "0",
                 Integer.toString(failureThreshold), Long.toString(cooldownMillis));
-        if (result == null) throw new IllegalStateException("Missing AI guard settlement result");
+        if (result == null)
+            throw new IllegalStateException("Missing AI guard settlement result");
     }
 
     private void record(BusinessMetrics.Outcome outcome, long started) {

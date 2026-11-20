@@ -1,11 +1,13 @@
 package cn.edu.whu.zhizhida.interview.execution;
 
-import cn.edu.whu.zhizhida.common.ResourceNotFoundException;
-import cn.edu.whu.zhizhida.interview.execution.InterviewRunStore.Row;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import cn.edu.whu.zhizhida.common.ResourceNotFoundException;
+import cn.edu.whu.zhizhida.interview.execution.InterviewRunStore.Row;
 
 /** 运行记录的 SQL 查询与行映射，不开启事务、不协调模型或其他模块。 */
 final class RunRepository {
@@ -15,7 +17,9 @@ final class RunRepository {
     static final String EXPIRED = "(deadline<=CURRENT_TIMESTAMP(6) OR (first_started_at IS NULL AND queue_deadline<=CURRENT_TIMESTAMP(6)))";
     private final JdbcTemplate jdbc;
 
-    RunRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
+    RunRepository(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
 
     private final org.springframework.jdbc.core.RowMapper<Row> mapper = (r, n) -> new Row(r.getString("id"),
             r.getLong("owner_id"),
@@ -26,7 +30,8 @@ final class RunRepository {
             r.getString("status"), r.getString("phase"), r.getTimestamp("deadline").toInstant(),
             r.getLong("lease_epoch"), r.getInt("model_attempts"),
             r.getInt("tool_batches"), r.getInt("tool_executions"), r.getInt("repairs"), r.getLong("next_event_seq"),
-            r.getString("error_code"), r.getString("subject_type"), r.getString("subject_id"), r.getLong("subject_revision"));
+            r.getString("error_code"), r.getString("subject_type"), r.getString("subject_id"),
+            r.getLong("subject_revision"));
 
     Row get(long owner, String id) {
         return jdbc.query("SELECT * FROM interview_runs WHERE owner_id=? AND id=?", mapper, owner, id).stream()
@@ -52,12 +57,13 @@ final class RunRepository {
 
     List<Row> candidates() {
         return jdbc.query(
-                "SELECT * FROM interview_runs WHERE " + CLAIMABLE + " AND " + READY + " ORDER BY created_at,id LIMIT 64",
+                "SELECT * FROM interview_runs WHERE " + CLAIMABLE + " AND " + READY
+                        + " ORDER BY created_at,id LIMIT 64",
                 mapper);
     }
 
     Optional<Row> dispatchCandidate(String id) {
-        return jdbc.query("SELECT * FROM interview_runs WHERE id=?",mapper,id).stream().findFirst();
+        return jdbc.query("SELECT * FROM interview_runs WHERE id=?", mapper, id).stream().findFirst();
     }
 
     boolean needsDispatch(String id) {
@@ -65,9 +71,10 @@ final class RunRepository {
                 "SELECT COUNT(*) FROM interview_runs WHERE id=? AND " + CLAIMABLE, Integer.class, id));
     }
 
-    List<Row> forSession(long owner,String session) {
-        return jdbc.query("SELECT * FROM interview_runs WHERE owner_id=? AND session_id=? ORDER BY created_at DESC,id DESC LIMIT 20",
-                mapper,owner,session);
+    List<Row> forSession(long owner, String session) {
+        return jdbc.query(
+                "SELECT * FROM interview_runs WHERE owner_id=? AND session_id=? ORDER BY created_at DESC,id DESC LIMIT 20",
+                mapper, owner, session);
     }
 
     Row lock(long owner, String id) {
@@ -100,12 +107,15 @@ final class RunRepository {
     }
 
     List<Row> find(long owner, String id, boolean locked) {
-        return jdbc.query("SELECT * FROM interview_runs WHERE owner_id=? AND id=?" + (locked ? " FOR UPDATE" : ""), mapper, owner, id);
+        return jdbc.query("SELECT * FROM interview_runs WHERE owner_id=? AND id=?" + (locked ? " FOR UPDATE" : ""),
+                mapper, owner, id);
     }
 
     List<Row> recoverable() {
-        return jdbc.query("SELECT * FROM interview_runs WHERE (next_dispatch_at<=CURRENT_TIMESTAMP(6) OR deadline<=CURRENT_TIMESTAMP(6)) AND "
-                + READY + " AND " + CLAIMABLE + " ORDER BY next_dispatch_at LIMIT 32", mapper);
+        return jdbc.query(
+                "SELECT * FROM interview_runs WHERE (next_dispatch_at<=CURRENT_TIMESTAMP(6) OR deadline<=CURRENT_TIMESTAMP(6)) AND "
+                        + READY + " AND " + CLAIMABLE + " ORDER BY next_dispatch_at LIMIT 32",
+                mapper);
     }
 
     List<Row> expired() {
@@ -115,7 +125,8 @@ final class RunRepository {
 
     List<Row> retained() {
         return jdbc.query("SELECT * FROM interview_runs WHERE status NOT IN ('RUNNING','ACCEPTED') "
-                + "AND updated_at<TIMESTAMPADD(DAY,-7,CURRENT_TIMESTAMP(6)) AND (checkpoint_json IS NOT NULL OR input_json<>'{}') LIMIT 100", mapper);
+                + "AND updated_at<TIMESTAMPADD(DAY,-7,CURRENT_TIMESTAMP(6)) AND (checkpoint_json IS NOT NULL OR input_json<>'{}') LIMIT 100",
+                mapper);
     }
 
     List<Row> memoryRetained(String after) {

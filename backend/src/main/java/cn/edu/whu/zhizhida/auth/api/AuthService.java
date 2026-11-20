@@ -8,7 +8,6 @@ public interface AuthService {
 
     AuthResponse login(AuthRequest request);
 
-
     Optional<AuthenticatedUser> authenticate(String token);
 
     void logout(String token);

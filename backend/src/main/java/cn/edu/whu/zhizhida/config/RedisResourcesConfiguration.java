@@ -1,7 +1,7 @@
 package cn.edu.whu.zhizhida.config;
 
-import io.lettuce.core.ClientOptions;
-import io.lettuce.core.SocketOptions;
+import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.convert.DurationStyle;
@@ -12,7 +12,9 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import java.time.Duration;
+
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.SocketOptions;
 
 /** 缓存与配额协调使用独立客户端及服务端配置；仅分隔数据库编号或键前缀无法隔离内存压力。 */
 @Configuration(proxyBeanMethods = false)
@@ -57,13 +59,16 @@ public class RedisResourcesConfiguration {
         server.setDatabase(database);
         String username = env.getProperty(prefix + ".username", "");
         String password = env.getProperty(prefix + ".password", "");
-        if (!username.isBlank()) server.setUsername(username);
-        if (!password.isEmpty()) server.setPassword(password);
+        if (!username.isBlank())
+            server.setUsername(username);
+        if (!password.isEmpty())
+            server.setPassword(password);
         var client = LettuceClientConfiguration.builder().commandTimeout(timeout)
                 .shutdownTimeout(Duration.ofMillis(100))
                 .clientOptions(ClientOptions.builder().socketOptions(SocketOptions.builder()
                         .connectTimeout(connectTimeout).build()).build());
-        if (env.getProperty(prefix + ".ssl", Boolean.class, false)) client.useSsl();
+        if (env.getProperty(prefix + ".ssl", Boolean.class, false))
+            client.useSsl();
         return new LettuceConnectionFactory(server, client.build());
     }
 }

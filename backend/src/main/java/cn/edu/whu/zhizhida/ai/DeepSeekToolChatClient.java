@@ -26,6 +26,7 @@ public class DeepSeekToolChatClient implements ToolCallingChatClient {
     private final AiCallGuard guard;
     private final BusinessMetrics metrics;
     private final DeepSeekTransport transport;
+
     public DeepSeekToolChatClient(@Value("${ai.api-key:}") String key,
             @Value("${ai.deepseek.base-url:https://api.deepseek.com}") String url,
             @Value("${ai.deepseek.model:deepseek-flash}") String model,
@@ -56,11 +57,12 @@ public class DeepSeekToolChatClient implements ToolCallingChatClient {
         } catch (java.security.NoSuchAlgorithmException ex) {
             throw new IllegalStateException("SHA-256 unavailable", ex);
         }
-        var profile = new java.util.HashMap<>(java.util.Map.of("endpointSha256", endpointHash, "endpointProtocol", "chat/completions",
-                "maxOutputTokens", Integer.toString(MAX_OUTPUT_TOKENS),
-                "maxRequestChars", Integer.toString(MAX_REQUEST_CHARS),
-                "maxTimeoutMillis", Long.toString(MAX_REQUEST_TIMEOUT.toMillis()),
-                "temperature", "PROVIDER_DEFAULT", "finalResponseFormat", "json_object"));
+        var profile = new java.util.HashMap<>(
+                java.util.Map.of("endpointSha256", endpointHash, "endpointProtocol", "chat/completions",
+                        "maxOutputTokens", Integer.toString(MAX_OUTPUT_TOKENS),
+                        "maxRequestChars", Integer.toString(MAX_REQUEST_CHARS),
+                        "maxTimeoutMillis", Long.toString(MAX_REQUEST_TIMEOUT.toMillis()),
+                        "temperature", "PROVIDER_DEFAULT", "finalResponseFormat", "json_object"));
         profile.put("modelSdk", LangChain4jVersions.MODEL_SDK);
         profile.put("httpBoundary", "bounded-jdk-v1");
         profile.put("maxResponseBytes", Integer.toString(DeepSeekJsonSubscriber.MAX_BYTES));
@@ -83,7 +85,8 @@ public class DeepSeekToolChatClient implements ToolCallingChatClient {
     }
 
     private Response send(Request request) {
-        var body = DeepSeekTransport.body(json, request.config().model(), request.config().thinking(), MAX_OUTPUT_TOKENS);
+        var body = DeepSeekTransport.body(json, request.config().model(), request.config().thinking(),
+                MAX_OUTPUT_TOKENS);
         body.set("messages", json.valueToTree(request.messages()));
         if (!request.tools().isEmpty()) {
             body.set("tools", json.valueToTree(request.tools()));

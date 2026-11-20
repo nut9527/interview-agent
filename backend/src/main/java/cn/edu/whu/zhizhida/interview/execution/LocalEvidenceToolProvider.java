@@ -48,7 +48,7 @@ public final class LocalEvidenceToolProvider implements InterviewToolProvider {
                 (context, args) -> arguments.validate(args), handler);
     }
     private InterviewEvidenceTools.Result readMaterial(Context context, JsonNode args) {
-        var section = context.sections().stream().filter(s -> s.sectionId().equals(args.path("sectionId").asText())).findFirst();
+        var section = context.sections().stream().filter(s -> s.sectionId().equals(args.path("sectionId").asString())).findFirst();
         var root = json.createObjectNode();
         String value = null, hash = null;
         if (section.isPresent()) {
@@ -61,7 +61,7 @@ public final class LocalEvidenceToolProvider implements InterviewToolProvider {
         int index = 0;
         String value = null;
         for (var turn : context.turns())
-            if (turn.speaker().equals("user") && ("answer-" + (++index)).equals(args.path("answerId").asText()))
+            if (turn.speaker().equals("user") && ("answer-" + (++index)).equals(args.path("answerId").asString()))
                 value = turn.content();
         return prefix(json.createObjectNode(), value, value == null ? null : InterviewRunStore.sha(value), args.path("maxChars").asInt());
     }
@@ -75,7 +75,7 @@ public final class LocalEvidenceToolProvider implements InterviewToolProvider {
     }
     private InterviewEvidenceTools.Result search(Context context, JsonNode args) {
         var root = json.createObjectNode();
-        var ranked = knowledge.rank(context.knowledge(), args.path("query").asText());
+        var ranked = knowledge.rank(context.knowledge(), args.path("query").asString());
         var selected = new ArrayList<KnowledgeCatalog.RankedExcerpt>();
         int topK = args.path("topK").asInt();
         int remaining = 6000;

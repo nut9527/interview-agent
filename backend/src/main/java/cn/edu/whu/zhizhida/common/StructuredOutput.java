@@ -29,8 +29,8 @@ public final class StructuredOutput {
     public static String text(JsonNode payload, String field, int maxLength) {
         JsonNode node = payload == null ? null : payload.get(field);
         if (node == null || node.isNull()) throw invalid(field, RejectionReason.MISSING_FIELD);
-        if (!node.isTextual()) throw invalid(field, RejectionReason.TYPE_MISMATCH);
-        String value = node.textValue().trim();
+        if (!node.isString()) throw invalid(field, RejectionReason.TYPE_MISMATCH);
+        String value = node.stringValue().trim();
         if (value.isBlank()) throw invalid(field, RejectionReason.EMPTY_VALUE);
         if (value.length() > maxLength) throw invalid(field, RejectionReason.LIMIT_EXCEEDED);
         return value;
@@ -47,10 +47,10 @@ public final class StructuredOutput {
     public static List<String> texts(JsonNode payload, String field, int maxSize, int maxLength) {
         List<String> result = new ArrayList<>();
         for (JsonNode node : array(payload, field, maxSize)) {
-            if (!node.isTextual()) throw invalid(field, RejectionReason.TYPE_MISMATCH);
-            if (node.textValue().isBlank()) throw invalid(field, RejectionReason.EMPTY_VALUE);
-            if (node.textValue().trim().length() > maxLength) throw invalid(field, RejectionReason.LIMIT_EXCEEDED);
-            result.add(node.textValue().trim());
+            if (!node.isString()) throw invalid(field, RejectionReason.TYPE_MISMATCH);
+            if (node.stringValue().isBlank()) throw invalid(field, RejectionReason.EMPTY_VALUE);
+            if (node.stringValue().trim().length() > maxLength) throw invalid(field, RejectionReason.LIMIT_EXCEEDED);
+            result.add(node.stringValue().trim());
         }
         return List.copyOf(result);
     }

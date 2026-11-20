@@ -1,12 +1,13 @@
 package cn.edu.whu.zhizhida.interview;
 
-import cn.edu.whu.zhizhida.interview.api.InterviewAiReply;
-import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
-
-import cn.edu.whu.zhizhida.interview.api.*;
-import cn.edu.whu.zhizhida.common.StructuredOutput;
-import tools.jackson.databind.JsonNode;
 import java.util.List;
+
+import cn.edu.whu.zhizhida.common.StructuredOutput;
+import cn.edu.whu.zhizhida.interview.api.InterviewAgentState;
+import cn.edu.whu.zhizhida.interview.api.InterviewAiReply;
+import cn.edu.whu.zhizhida.interview.api.InterviewPlanning;
+import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
+import tools.jackson.databind.JsonNode;
 
 /** 仅解析模型输出，不依赖模型客户端、指标或业务服务。 */
 public final class InterviewOutputCodec {
@@ -15,6 +16,7 @@ public final class InterviewOutputCodec {
             .with(tools.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .with(tools.jackson.databind.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .without(tools.jackson.databind.DeserializationFeature.ACCEPT_FLOAT_AS_INT);
+
     private static tools.jackson.databind.json.JsonMapper strictMapper() {
         return tools.jackson.databind.json.JsonMapper.builder()
                 .disable(tools.jackson.databind.MapperFeature.ALLOW_COERCION_OF_SCALARS).build();
@@ -26,54 +28,83 @@ public final class InterviewOutputCodec {
             String question = StructuredOutput.text(payload, "question", InterviewOutputContract.QUESTION_MAX);
             if (context != null && context.checkpoint() != null) {
                 String expected = context.routing().current().id();
-                if (!expected.equals(StructuredOutput.text(payload, "questionCompetencyId", InterviewOutputContract.ID_MAX)))
+                if (!expected
+                        .equals(StructuredOutput.text(payload, "questionCompetencyId", InterviewOutputContract.ID_MAX)))
                     throw new InterviewReviewRejected("questionCompetencyId 必须为开场能力 " + expected);
-                try { new cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy().validateQuestion(expected, question); }
-                catch (IllegalArgumentException ex) { throw new InterviewReviewRejected(ex.getMessage()); }
+                try {
+                    new cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy().validateQuestion(expected,
+                            question);
+                } catch (IllegalArgumentException ex) {
+                    throw new InterviewReviewRejected(ex.getMessage());
+                }
             }
             return question;
-        } catch (StructuredOutput.FieldValidationException ex) { throw new InterviewReviewRejected(ex); }
+        } catch (StructuredOutput.FieldValidationException ex) {
+            throw new InterviewReviewRejected(ex);
+        }
     }
 
     public InterviewAiReply parseReview(JsonNode payload, String resumeSnapshot, boolean finalRound) {
         return parseReview(payload, resumeSnapshot, finalRound, List.of());
     }
 
-    public InterviewAiReply parseReview(JsonNode payload, String resumeSnapshot, boolean finalRound, List<InterviewTurn> transcript) {
-        return parseReviewWithAnchors(payload, resumeSnapshot, finalRound, InterviewCitationAnchors.catalog(resumeSnapshot, transcript));
+    public InterviewAiReply parseReview(JsonNode payload, String resumeSnapshot, boolean finalRound,
+            List<InterviewTurn> transcript) {
+        return parseReviewWithAnchors(payload, resumeSnapshot, finalRound,
+                InterviewCitationAnchors.catalog(resumeSnapshot, transcript));
     }
 
-    InterviewAiReply parseReviewWithAnchors(JsonNode payload, String resumeSnapshot, boolean finalRound, List<InterviewCitationAnchors.Anchor> anchors) {
+    InterviewAiReply parseReviewWithAnchors(JsonNode payload, String resumeSnapshot, boolean finalRound,
+            List<InterviewCitationAnchors.Anchor> anchors) {
         payload = InterviewCitationAnchors.resolve(payload, anchors);
         var context = InterviewAgentContext.decode(resumeSnapshot);
         try {
-            String feedback = StructuredOutput.text(payload, "feedback", InterviewOutputContract.FEEDBACK_MAX).replaceFirst("^即时反馈[:：]\\s*", "");
-            if (feedback.isBlank()) throw StructuredOutput.invalid("feedback");
-            var decision = context == null || context.checkpoint() == null ? null : parseDecision(payload, context, finalRound);
+            String feedback = StructuredOutput.text(payload, "feedback", InterviewOutputContract.FEEDBACK_MAX)
+                    .replaceFirst("^即时反馈[:：]\\s*", "");
+            if (feedback.isBlank())
+                throw StructuredOutput.invalid("feedback");
+            var decision = context == null || context.checkpoint() == null ? null
+                    : parseDecision(payload, context, finalRound);
             // 轮次由应用规则决定，模型文本不能直接结束面试状态机。
             return finalRound
-                    ? new InterviewAiReply(feedback, "", StructuredOutput.text(payload, "finalSummary", InterviewOutputContract.SUMMARY_MAX), decision, parseAssessment(payload))
-                    : new InterviewAiReply(feedback, StructuredOutput.text(payload, "nextQuestion", InterviewOutputContract.NEXT_QUESTION_MAX), "", decision, parseAssessment(payload));
-        } catch (StructuredOutput.FieldValidationException ex) { throw new InterviewReviewRejected(ex); }
+                    ? new InterviewAiReply(feedback, "",
+                            StructuredOutput.text(payload, "finalSummary", InterviewOutputContract.SUMMARY_MAX),
+                            decision, parseAssessment(payload))
+                    : new InterviewAiReply(feedback,
+                            StructuredOutput.text(payload, "nextQuestion", InterviewOutputContract.NEXT_QUESTION_MAX),
+                            "", decision, parseAssessment(payload));
+        } catch (StructuredOutput.FieldValidationException ex) {
+            throw new InterviewReviewRejected(ex);
+        }
     }
 
     private cn.edu.whu.zhizhida.evaluation.api.AssessmentDraft parseAssessment(JsonNode payload) {
         var node = payload.path("assessment");
-        if (node.isMissingNode() || node.isNull()) return null; // 旧版输出保持未评估状态
+        if (node.isMissingNode() || node.isNull())
+            return null; // 旧版输出保持未评估状态
         try {
-            if (!node.isObject()) throw new IllegalArgumentException();
+            if (!node.isObject())
+                throw new IllegalArgumentException();
             return ASSESSMENT_READER.readValue(node.toString());
-        } catch (RuntimeException ex) { throw new InterviewReviewRejected("assessment 结构或枚举无效", StructuredOutput.RejectionReason.TYPE_MISMATCH, "assessment"); }
+        } catch (RuntimeException ex) {
+            throw new InterviewReviewRejected("assessment 结构或枚举无效", StructuredOutput.RejectionReason.TYPE_MISMATCH,
+                    "assessment");
+        }
     }
 
-    private InterviewAgentState.Decision parseDecision(JsonNode payload, InterviewAgentContext context, boolean finalRound) {
+    private InterviewAgentState.Decision parseDecision(JsonNode payload, InterviewAgentContext context,
+            boolean finalRound) {
         JsonNode node = payload.path("agentDecision");
         if (node.isMissingNode() || node.isNull())
             throw StructuredOutput.invalid("agentDecision", StructuredOutput.RejectionReason.MISSING_FIELD);
-        if (!node.isObject()) throw StructuredOutput.invalid("agentDecision", StructuredOutput.RejectionReason.TYPE_MISMATCH);
-        var action = finalRound ? InterviewAgentState.Action.FINISH : enumField(InterviewAgentState.Action.class, node, "action");
-        String target = finalRound ? context.routing().current().id() : decisionText(node, "nextCompetencyId", InterviewOutputContract.ID_MAX);
-        var probe = finalRound ? InterviewAgentState.Probe.NONE : enumField(InterviewAgentState.Probe.class, node, "probe");
+        if (!node.isObject())
+            throw StructuredOutput.invalid("agentDecision", StructuredOutput.RejectionReason.TYPE_MISMATCH);
+        var action = finalRound ? InterviewAgentState.Action.FINISH
+                : enumField(InterviewAgentState.Action.class, node, "action");
+        String target = finalRound ? context.routing().current().id()
+                : decisionText(node, "nextCompetencyId", InterviewOutputContract.ID_MAX);
+        var probe = finalRound ? InterviewAgentState.Probe.NONE
+                : enumField(InterviewAgentState.Probe.class, node, "probe");
         return new InterviewAgentState.Decision(
                 enumField(InterviewAgentState.Level.class, node, "level"),
                 optionalEmptyText(node, "evidence", InterviewOutputContract.EVIDENCE_MAX),
@@ -86,11 +117,13 @@ public final class InterviewOutputCodec {
                 decisionText(node, "intent", InterviewOutputContract.INTENT_MAX),
                 action == InterviewAgentState.Action.FINISH ? "" : target,
                 cn.edu.whu.zhizhida.interview.domain.InterviewAgentPolicy.planning(context.checkpoint())
-                        ? parseFocus(node.path("focus")) : null);
+                        ? parseFocus(node.path("focus"))
+                        : null);
     }
 
     private InterviewPlanning.Focus parseFocus(JsonNode node) {
-        if (!node.isObject()) throw StructuredOutput.invalid("agentDecision.focus", StructuredOutput.RejectionReason.TYPE_MISMATCH);
+        if (!node.isObject())
+            throw StructuredOutput.invalid("agentDecision.focus", StructuredOutput.RejectionReason.TYPE_MISMATCH);
         try {
             return new InterviewPlanning.Focus(
                     InterviewPlanning.Dimension.valueOf(StructuredOutput.text(node, "dimension", 40)),
@@ -105,8 +138,9 @@ public final class InterviewOutputCodec {
     }
 
     private String decisionText(JsonNode node, String field, int max) {
-        try { return StructuredOutput.text(node, field, max); }
-        catch (StructuredOutput.FieldValidationException ex) {
+        try {
+            return StructuredOutput.text(node, field, max);
+        } catch (StructuredOutput.FieldValidationException ex) {
             throw StructuredOutput.invalid("agentDecision." + field, ex.reason());
         }
     }
@@ -114,15 +148,21 @@ public final class InterviewOutputCodec {
     private String optionalEmptyText(JsonNode node, String field, int max) {
         var value = node.path(field);
         var path = "agentDecision." + field;
-        if (value.isMissingNode() || value.isNull()) throw StructuredOutput.invalid(path, StructuredOutput.RejectionReason.MISSING_FIELD);
-        if (!value.isTextual()) throw StructuredOutput.invalid(path, StructuredOutput.RejectionReason.TYPE_MISMATCH);
-        if (value.textValue().length() > max) throw StructuredOutput.invalid(path, StructuredOutput.RejectionReason.LIMIT_EXCEEDED);
-        return value.textValue();
+        if (value.isMissingNode() || value.isNull())
+            throw StructuredOutput.invalid(path, StructuredOutput.RejectionReason.MISSING_FIELD);
+        if (!value.isString())
+            throw StructuredOutput.invalid(path, StructuredOutput.RejectionReason.TYPE_MISMATCH);
+        if (value.stringValue().length() > max)
+            throw StructuredOutput.invalid(path, StructuredOutput.RejectionReason.LIMIT_EXCEEDED);
+        return value.stringValue();
     }
 
     private <T extends Enum<T>> T enumField(Class<T> type, JsonNode node, String field) {
-        try { return Enum.valueOf(type, decisionText(node, field, 30)); }
-        catch (IllegalArgumentException ex) { throw StructuredOutput.invalid("agentDecision." + field); }
+        try {
+            return Enum.valueOf(type, decisionText(node, field, 30));
+        } catch (IllegalArgumentException ex) {
+            throw StructuredOutput.invalid("agentDecision." + field);
+        }
     }
 
 }

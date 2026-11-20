@@ -19,7 +19,7 @@ public final class McpReferenceToolProvider implements InterviewToolProvider {
                 "用通用技术关键词检索本地文档目录，获取阅读提示和官方文档链接。只传技术关键词；结果仅供技术参考。"),
                 client.fingerprint(), Set.of(), new ToolRegistry.Limits(5000, 12000),
                 (context, input) -> args.validate(input), (context, input) -> {
-                    var content = client.search(input.path("query").asText(), input.path("topK").asInt());
+                    var content = client.search(input.path("query").asString(), input.path("topK").asInt());
                     return new InterviewEvidenceTools.Result(json.createObjectNode()
                             .put("status", "[]".equals(content) ? "NO_MATCH" : "FOUND")
                             .put("trust", "UNTRUSTED_REFERENCE").put("content", content), List.of());

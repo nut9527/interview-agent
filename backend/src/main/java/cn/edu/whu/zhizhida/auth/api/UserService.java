@@ -8,5 +8,4 @@ public interface UserService {
 
     void changePassword(ChangePasswordRequest request);
 
-
 }

@@ -1,18 +1,17 @@
 package cn.edu.whu.zhizhida.interview;
 
-import cn.edu.whu.zhizhida.common.PageResult;
+import java.util.Optional;
+
 import cn.edu.whu.zhizhida.common.PageRequest;
+import cn.edu.whu.zhizhida.common.PageResult;
 import cn.edu.whu.zhizhida.interview.api.InterviewService.InterviewHistoryItem;
 import cn.edu.whu.zhizhida.interview.api.InterviewSession;
-
-import java.util.Optional;
 
 /** 以显式用户身份隔离会话；调用方负责身份可信性，写入还须满足来源授权与并发约束。 */
 public interface InterviewSessionRepository {
     PageResult<InterviewHistoryItem> page(Long userId, PageRequest page);
 
     PageResult<InterviewHistoryItem> retries(Long userId, String sessionId, PageRequest page);
-
 
     InterviewSession save(Long userId, InterviewSession session);
 

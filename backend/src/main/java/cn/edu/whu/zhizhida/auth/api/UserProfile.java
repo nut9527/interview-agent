@@ -8,8 +8,7 @@ public record UserProfile(
         String displayName,
         String targetRole,
         List<String> skillTags,
-        boolean demo
-) {
+        boolean demo) {
 
     public UserProfile(Long id, String username, String displayName, String targetRole, List<String> skillTags) {
         this(id, username, displayName, targetRole, skillTags, false);

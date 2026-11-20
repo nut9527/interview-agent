@@ -1,25 +1,40 @@
 package cn.edu.whu.zhizhida.observability;
 
-import io.micrometer.core.instrument.MeterRegistry;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.TimeUnit;
+import io.micrometer.core.instrument.MeterRegistry;
 
 /** 指标仅使用有限枚举标签，不附带用户、请求编号、提示词或岗位编号。 */
 @Component
 public class BusinessMetrics {
     private static final BusinessMetrics DISABLED = new BusinessMetrics(
             new io.micrometer.core.instrument.composite.CompositeMeterRegistry());
+
     /** AI 操作仅表示模型协议与 JSON 解析结果，各业务能力单独记录业务执行结果。 */
-    public enum Operation { AI, AI_HTTP, RESUME_OPTIMIZE, INTERVIEW_OPENING, INTERVIEW_REVIEW, INTERVIEW_REPAIR, INTERVIEW_OPENING_REPAIR,
-        INTERVIEW_ANSWER, QUOTA }
-    public enum Outcome { SUCCESS, FAILURE, DEGRADED, REJECTED, CONFLICT }
-    public enum RunOutcome { SUCCEEDED, FAILED, CANCELLED, EXPIRED }
+    public enum Operation {
+        AI, AI_HTTP, RESUME_OPTIMIZE, INTERVIEW_OPENING, INTERVIEW_REVIEW, INTERVIEW_REPAIR, INTERVIEW_OPENING_REPAIR,
+        INTERVIEW_ANSWER, QUOTA
+    }
+
+    public enum Outcome {
+        SUCCESS, FAILURE, DEGRADED, REJECTED, CONFLICT
+    }
+
+    public enum RunOutcome {
+        SUCCEEDED, FAILED, CANCELLED, EXPIRED
+    }
+
     private final MeterRegistry registry;
 
-    public BusinessMetrics(MeterRegistry registry) { this.registry = registry; }
+    public BusinessMetrics(MeterRegistry registry) {
+        this.registry = registry;
+    }
 
-    public static BusinessMetrics disabled() { return DISABLED; }
+    public static BusinessMetrics disabled() {
+        return DISABLED;
+    }
 
     public <T> T measure(Operation operation, java.util.function.Supplier<T> call) {
         long started = System.nanoTime();
@@ -34,7 +49,8 @@ public class BusinessMetrics {
     }
 
     public void modelUsage(cn.edu.whu.zhizhida.ai.api.ModelUsage usage) {
-        registry.counter("zhizhida.ai.usage", "status", usage.status().name().toLowerCase(java.util.Locale.ROOT)).increment();
+        registry.counter("zhizhida.ai.usage", "status", usage.status().name().toLowerCase(java.util.Locale.ROOT))
+                .increment();
         if (usage.status() == cn.edu.whu.zhizhida.ai.api.ModelUsage.Status.REPORTED) {
             registry.counter("zhizhida.ai.tokens", "kind", "input").increment(usage.inputTokens());
             registry.counter("zhizhida.ai.tokens", "kind", "output").increment(usage.outputTokens());

@@ -27,14 +27,16 @@ final class InterviewPromptTemplates {
     static InterviewPromptTemplates defaults() {
         return read(file -> {
             try (var stream = InterviewPromptTemplates.class.getResourceAsStream(RESOURCE_DIRECTORY + file)) {
-                if (stream == null) throw new IOException("Missing classpath resource: " + RESOURCE_DIRECTORY + file);
+                if (stream == null)
+                    throw new IOException("Missing classpath resource: " + RESOURCE_DIRECTORY + file);
                 return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             }
         });
     }
 
     static InterviewPromptTemplates load(String directory) {
-        if (directory == null || directory.isBlank()) return defaults();
+        if (directory == null || directory.isBlank())
+            return defaults();
         final Path root;
         try {
             root = Path.of(directory);
@@ -51,19 +53,22 @@ final class InterviewPromptTemplates {
 
     String get(String name) {
         var value = templates.get(name);
-        if (value == null) throw new IllegalArgumentException("Unknown interview prompt: " + name);
+        if (value == null)
+            throw new IllegalArgumentException("Unknown interview prompt: " + name);
         return value;
     }
 
     private static InterviewPromptTemplates read(TemplateReader reader) {
         String version = required(reader, "version.txt").strip();
         var templates = new LinkedHashMap<String, String>();
-        for (String name : NAMES) templates.put(name, required(reader, name + ".txt"));
+        for (String name : NAMES)
+            templates.put(name, required(reader, name + ".txt"));
         // %% 交给 String.formatted 输出字面百分号，其余占位符只能是两个顺序 %s。
         String routing = templates.get("routing").replace("%%", "");
         String withoutPlaceholders = routing.replace("%s", "");
         if (routing.length() - withoutPlaceholders.length() != 4 || withoutPlaceholders.contains("%"))
-            throw new IllegalStateException("Interview prompt routing.txt must contain exactly two %s placeholders; only %% is allowed for literal percent signs");
+            throw new IllegalStateException(
+                    "Interview prompt routing.txt must contain exactly two %s placeholders; only %% is allowed for literal percent signs");
         return new InterviewPromptTemplates(version, templates);
     }
 
@@ -74,7 +79,8 @@ final class InterviewPromptTemplates {
         } catch (IOException ex) {
             throw new IllegalStateException("Cannot read interview prompt file: " + file, ex);
         }
-        if (content.isBlank()) throw new IllegalStateException("Empty interview prompt file: " + file);
+        if (content.isBlank())
+            throw new IllegalStateException("Empty interview prompt file: " + file);
         // 正文首尾换行参与拼接和指纹；仅版本号去除边界空白。
         return content;
     }

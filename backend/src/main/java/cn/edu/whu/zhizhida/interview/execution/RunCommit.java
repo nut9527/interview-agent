@@ -147,7 +147,7 @@ final class RunCommit {
                             .readTree(row.checkpoint())
                             .path("loop")
                             .path("stopReason")
-                            .asText(null);
+                            .asString(null);
         if (reason == null) reason = status.equals("SUCCEEDED") ? "COMPLETED" : status;
         journal.addStep(row, "STOP", null, status, 0, null, null, null, null, null, false, reason);
         attempts.markInterrupted(row.id());

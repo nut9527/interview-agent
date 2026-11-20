@@ -69,7 +69,7 @@ final class InterviewValidateStage {
     void validateAction(RunContext execution) {
         var cp = execution.checkpoint();
         try {
-            var action = model.validateAction(cp.path("response").path("content").asText());
+            var action = model.validateAction(cp.path("response").path("content").asString());
 
             EvidenceReview.validate(
                     action, evidence.evidenceSources(execution), execution.opening());
@@ -128,7 +128,7 @@ final class InterviewValidateStage {
                     telemetry.observe(
                             Stage.VALIDATE,
                             () -> {
-                                String content = cp.path("response").path("content").asText();
+                                String content = cp.path("response").path("content").asString();
                                 content = model.finalContent(content);
                                 EvidenceReview.validateFinal(
                                         json.readTree(content),

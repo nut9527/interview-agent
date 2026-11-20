@@ -1,12 +1,12 @@
 package cn.edu.whu.zhizhida.interview.domain;
 
-import cn.edu.whu.zhizhida.interview.api.InterviewSession;
-import cn.edu.whu.zhizhida.interview.api.InterviewState;
-import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import cn.edu.whu.zhizhida.interview.api.InterviewSession;
+import cn.edu.whu.zhizhida.interview.api.InterviewSession.InterviewTurn;
+import cn.edu.whu.zhizhida.interview.api.InterviewState;
 
 /**
  * 基于会话快照决定回答回放、题号冲突和轮次推进的确定性规则。
@@ -24,9 +24,11 @@ public final class InterviewTransitions {
 
     public AnswerDecision answer(InterviewSession session, String answer, String requestId, Integer expectedTurn) {
         Optional<InterviewSession> replay = replay(session, answer, requestId, expectedTurn);
-        if (replay.isPresent()) return new ExistingAnswer(replay.get());
+        if (replay.isPresent())
+            return new ExistingAnswer(replay.get());
         // 保持既有接口语义：对已结束会话提交新回答时，返回已保存的会话结果。
-        if (session.state() == InterviewState.FINISHED) return new ExistingAnswer(session);
+        if (session.state() == InterviewState.FINISHED)
+            return new ExistingAnswer(session);
         if (expectedTurn != null && expectedTurn != session.turnCount()) {
             throw new InterviewRuleViolation("面试题目已更新，请重新打开当前会话后回答。");
         }
@@ -35,14 +37,17 @@ public final class InterviewTransitions {
 
     /** 只查找已提交的回答；领取租约失败后可调用此方法回放，但不能继续创建新回答。 */
     public Optional<InterviewSession> replay(InterviewSession session, String answer,
-                                              String requestId, Integer expectedTurn) {
-        if (requestId == null) return Optional.empty();
+            String requestId, Integer expectedTurn) {
+        if (requestId == null)
+            return Optional.empty();
         int answered = 0;
         for (int i = 0; i < session.turns().size(); i++) {
             InterviewTurn turn = session.turns().get(i);
-            if (!"user".equals(turn.speaker())) continue;
+            if (!"user".equals(turn.speaker()))
+                continue;
             answered++;
-            if (!requestId.equals(turn.requestId())) continue;
+            if (!requestId.equals(turn.requestId()))
+                continue;
             if (!answer.trim().equals(turn.content()) || (expectedTurn != null && expectedTurn != answered)) {
                 throw new InterviewRuleViolation("该请求编号已用于另一份回答，请勿重复使用。");
             }
@@ -57,9 +62,11 @@ public final class InterviewTransitions {
         return Optional.empty();
     }
 
-    public sealed interface AnswerDecision permits ExistingAnswer, PendingAnswer { }
+    public sealed interface AnswerDecision permits ExistingAnswer, PendingAnswer {
+    }
 
-    public record ExistingAnswer(InterviewSession session) implements AnswerDecision { }
+    public record ExistingAnswer(InterviewSession session) implements AnswerDecision {
+    }
 
     /** 通过规则检查的待评审快照；应用服务仍需取得租约并成功提交，才能成为持久化结果。 */
     public static final class PendingAnswer implements AnswerDecision {
@@ -98,14 +105,17 @@ public final class InterviewTransitions {
     }
 
     private static InterviewSession withProgress(InterviewSession source, InterviewState state,
-                                                  int turnCount, List<InterviewTurn> turns) {
+            int turnCount, List<InterviewTurn> turns) {
         var preparation = source.preparation();
-        if (preparation != null) preparation = preparation.withFollowUps(
-                state == InterviewState.FINISHED ? ProjectFollowUps.from(turns) : List.of());
+        if (preparation != null)
+            preparation = preparation.withFollowUps(
+                    state == InterviewState.FINISHED ? ProjectFollowUps.from(turns) : List.of());
         return new InterviewSession(source.sessionId(), source.targetRole(), source.resumeId(),
                 source.resumeSnapshot(), source.resumeRevision(), source.jobId(), source.jobSnapshot(),
                 source.mode(), source.totalRounds(), null, state, turnCount, List.copyOf(turns), preparation,
-                source.agent() == null ? null : source.agent().through(
-                        (int) turns.stream().filter(t -> "user".equals(t.speaker())).count()), source.difficulty(), source.experience());
+                source.agent() == null ? null
+                        : source.agent().through(
+                                (int) turns.stream().filter(t -> "user".equals(t.speaker())).count()),
+                source.difficulty(), source.experience());
     }
 }

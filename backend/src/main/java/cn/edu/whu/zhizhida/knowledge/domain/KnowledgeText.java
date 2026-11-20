@@ -1,7 +1,5 @@
 package cn.edu.whu.zhizhida.knowledge.domain;
 
-import cn.edu.whu.zhizhida.common.UserInputException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -12,6 +10,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import cn.edu.whu.zhizhida.common.UserInputException;
 import cn.edu.whu.zhizhida.knowledge.api.KnowledgeDocument.Chunk;
 import cn.edu.whu.zhizhida.knowledge.api.KnowledgeDocument.Hit;
 
@@ -22,6 +21,7 @@ public final class KnowledgeText {
     private static final Pattern FENCE = Pattern.compile("^ {0,3}(`{3,}|~{3,})(.*)$");
     private static final Pattern IMAGE_LINE = Pattern.compile(
             "(?i)(?:(?:!\\[[^\\]]*]\\((?:[^()\\r\\n]|\\([^()\\r\\n]*\\))*\\)|<img\\b[^>]*>)\\s*)+");
+
     private KnowledgeText() {
     }
 
@@ -83,9 +83,11 @@ public final class KnowledgeText {
             if (respectFences) {
                 var marker = FENCE.matcher(value.stripTrailing());
                 if (marker.matches()) {
-                    if (fence.isEmpty()) fence = marker.group(1);
+                    if (fence.isEmpty())
+                        fence = marker.group(1);
                     else if (marker.group(1).charAt(0) == fence.charAt(0)
-                            && marker.group(1).length() >= fence.length() && marker.group(2).isBlank()) fence = "";
+                            && marker.group(1).length() >= fence.length() && marker.group(2).isBlank())
+                        fence = "";
                 }
             }
             // 拆分超长行时保留原文位置，保证引用仍能准确定位。
@@ -193,14 +195,16 @@ public final class KnowledgeText {
     /** 仅用于派生向量，引用仍取 chunk.content() 的原文。 */
     public static String embeddingText(Chunk chunk) {
         return chunk.heading() == null || chunk.heading().isBlank()
-                ? chunk.content() : chunk.heading() + "\n" + chunk.content();
+                ? chunk.content()
+                : chunk.heading() + "\n" + chunk.content();
     }
 
     /** BM25F：语料稀有度、词频饱和、正文长度归一化；标题只加权，不单独生成证据。 */
     public static List<Hit> rank(List<Hit> candidates, String query, int limit) {
         var groups = groups(query);
         var evidence = candidates.stream().filter(h -> isEvidence(h.chunk())).toList();
-        if (evidence.isEmpty() || groups.isEmpty() || limit <= 0) return List.of();
+        if (evidence.isEmpty() || groups.isEmpty() || limit <= 0)
+            return List.of();
         double averageLength = evidence.stream().mapToInt(h -> h.chunk().content().length()).average().orElseThrow();
         var frequencies = new ArrayList<double[]>();
         int[] documentFrequency = new int[groups.size()];
@@ -215,7 +219,8 @@ public final class KnowledgeText {
                 int bodyCount = aliases.stream().mapToInt(t -> occurrences(body, t)).max().orElseThrow();
                 int headingCount = aliases.stream().mapToInt(t -> occurrences(heading, t)).max().orElseThrow();
                 // 文档标题不能让整个无关章节进入候选集。
-                if (bodyCount == 0 && headingCount == 0) continue;
+                if (bodyCount == 0 && headingCount == 0)
+                    continue;
                 int titleCount = aliases.stream().mapToInt(t -> occurrences(title, t)).max().orElseThrow();
                 terms[i] = bodyCount / normalization + 0.35 * headingCount + 3 * titleCount;
                 documentFrequency[i]++;
@@ -233,27 +238,35 @@ public final class KnowledgeText {
             var h = evidence.get(row);
             double score = 0;
             double[] terms = frequencies.get(row);
-            for (int i = 0; i < terms.length; i++) score += weights[i] * terms[i] * 2.2 / (terms[i] + 1.2);
-            if (score > 0) pool.add(new Ranked(new Hit(h.documentId(), h.title(), h.sourceName(), h.version(), h.chunk(),
-                    (int) Math.round(score * 1000)), score, terms));
+            for (int i = 0; i < terms.length; i++)
+                score += weights[i] * terms[i] * 2.2 / (terms[i] + 1.2);
+            if (score > 0)
+                pool.add(new Ranked(new Hit(h.documentId(), h.title(), h.sourceName(), h.version(), h.chunk(),
+                        (int) Math.round(score * 1000)), score, terms));
         }
         var result = new ArrayList<Hit>();
         while (!pool.isEmpty() && result.size() < limit) {
-            var order = Comparator.<Ranked>comparingDouble(h -> h.score() + novel(h.terms(), weights, covered)).reversed()
+            var order = Comparator.<Ranked>comparingDouble(h -> h.score() + novel(h.terms(), weights, covered))
+                    .reversed()
                     .thenComparing(h -> h.hit().documentId()).thenComparingInt(h -> h.hit().chunk().ordinal());
             var best = pool.stream().min(order).orElseThrow();
             pool.remove(best);
             result.add(best.hit());
-            for (int i = 0; i < groups.size(); i++) if (best.terms()[i] > 0) covered.add(i);
+            for (int i = 0; i < groups.size(); i++)
+                if (best.terms()[i] > 0)
+                    covered.add(i);
         }
         return List.copyOf(result);
     }
 
-    private record Ranked(Hit hit, double score, double[] terms) { }
+    private record Ranked(Hit hit, double score, double[] terms) {
+    }
 
     private static double novel(double[] terms, double[] weights, Set<Integer> covered) {
         double gain = 0;
-        for (int i = 0; i < terms.length; i++) if (!covered.contains(i) && terms[i] > 0) gain += 0.35 * weights[i];
+        for (int i = 0; i < terms.length; i++)
+            if (!covered.contains(i) && terms[i] > 0)
+                gain += 0.35 * weights[i];
         return gain;
     }
 
@@ -262,7 +275,8 @@ public final class KnowledgeText {
         int count = 0;
         for (int at = text.indexOf(term); at >= 0; at = text.indexOf(term, at + term.length())) {
             int end = at + term.length();
-            if (!word || (at == 0 || !latin(text.charAt(at - 1))) && (end == text.length() || !latin(text.charAt(end)))) count++;
+            if (!word || (at == 0 || !latin(text.charAt(at - 1))) && (end == text.length() || !latin(text.charAt(end))))
+                count++;
         }
         return count;
     }

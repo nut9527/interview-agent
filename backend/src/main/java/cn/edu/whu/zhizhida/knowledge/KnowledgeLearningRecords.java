@@ -1,7 +1,5 @@
 package cn.edu.whu.zhizhida.knowledge;
 
-import cn.edu.whu.zhizhida.common.UserInputException;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,6 +11,7 @@ import cn.edu.whu.zhizhida.auth.api.CurrentUserProvider;
 import cn.edu.whu.zhizhida.common.PageRequest;
 import cn.edu.whu.zhizhida.common.PageResult;
 import cn.edu.whu.zhizhida.common.ResourceNotFoundException;
+import cn.edu.whu.zhizhida.common.UserInputException;
 import cn.edu.whu.zhizhida.knowledge.api.KnowledgeAnswerRecord.Source;
 import cn.edu.whu.zhizhida.knowledge.api.KnowledgeLearning.Confirm;
 import cn.edu.whu.zhizhida.knowledge.api.KnowledgeLearning.Feedback;

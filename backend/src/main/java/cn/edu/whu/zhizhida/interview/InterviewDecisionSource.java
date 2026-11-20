@@ -1,8 +1,9 @@
 package cn.edu.whu.zhizhida.interview;
 
+import java.util.function.Supplier;
+
 import cn.edu.whu.zhizhida.interview.api.InterviewSession;
 import cn.edu.whu.zhizhida.interview.domain.InterviewTransitions.PendingAnswer;
-import java.util.function.Supplier;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -26,7 +27,8 @@ interface InterviewDecisionSource {
                 }
             } else {
                 output = pending == null ? mock.generateOpening(session.targetRole(), context)
-                        : mock.generateReview(session.targetRole(), context, pending.turns(), pending.answeredCount(), pending.finalRound());
+                        : mock.generateReview(session.targetRole(), context, pending.turns(), pending.answeredCount(),
+                                pending.finalRound());
                 output = json.createObjectNode().put("version", InterviewDecisionContract.VERSION)
                         .put("phase", "FINAL").set("result", output);
             }

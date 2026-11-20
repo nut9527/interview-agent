@@ -1,16 +1,15 @@
 package cn.edu.whu.zhizhida.observability;
 
-import cn.edu.whu.zhizhida.ai.api.ModelUsage;
-
-import io.micrometer.tracing.Span;
-import io.micrometer.tracing.Tracer;
+import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.Callable;
-import java.util.function.Supplier;
+import cn.edu.whu.zhizhida.ai.api.ModelUsage;
+import io.micrometer.tracing.Span;
+import io.micrometer.tracing.Tracer;
 
 /** 追踪只记录元数据；追踪设施异常降级或忽略，不能覆盖业务结果与原始异常。 */
 @Component
@@ -59,9 +58,8 @@ public final class AgentTelemetry {
     private Scope start(Stage stage, Parent parent, boolean detached) {
         Span span = null;
         try {
-            var builder =
-                    tracer.spanBuilder()
-                            .name("agent." + stage.name().toLowerCase(java.util.Locale.ROOT));
+            var builder = tracer.spanBuilder()
+                    .name("agent." + stage.name().toLowerCase(java.util.Locale.ROOT));
             if (detached) {
                 if (parent != null && parent.valid())
                     builder.setParent(
@@ -70,7 +68,8 @@ public final class AgentTelemetry {
                                     .spanId(parent.spanId())
                                     .sampled(parent.sampled())
                                     .build());
-                else builder.setNoParent();
+                else
+                    builder.setNoParent();
             }
             span = builder.start();
             return new Scope(span, tracer.withSpan(span));
@@ -81,7 +80,8 @@ public final class AgentTelemetry {
                 } catch (RuntimeException unavailable) {
                 }
             }
-            return new Scope(Span.NOOP, () -> {});
+            return new Scope(Span.NOOP, () -> {
+            });
         }
     }
 
@@ -93,7 +93,8 @@ public final class AgentTelemetry {
         } catch (RuntimeException ignored) {
             return callback;
         }
-        if (parent == null) return callback;
+        if (parent == null)
+            return callback;
         return () -> {
             Tracer.SpanInScope scope;
             try {
@@ -124,8 +125,7 @@ public final class AgentTelemetry {
     }
 
     public static final class Scope implements AutoCloseable {
-        private static final tools.jackson.databind.ObjectMapper USAGE_JSON =
-                new tools.jackson.databind.json.JsonMapper();
+        private static final tools.jackson.databind.ObjectMapper USAGE_JSON = new tools.jackson.databind.json.JsonMapper();
         private final Span span;
         private final Tracer.SpanInScope current;
         private boolean closed;
@@ -138,11 +138,10 @@ public final class AgentTelemetry {
         public Parent parent() {
             try {
                 var context = span.context();
-                var parent =
-                        new Parent(
-                                context.traceId(),
-                                context.spanId(),
-                                Boolean.TRUE.equals(context.sampled()));
+                var parent = new Parent(
+                        context.traceId(),
+                        context.spanId(),
+                        Boolean.TRUE.equals(context.sampled()));
                 return parent.valid() ? parent : null;
             } catch (RuntimeException ignored) {
                 return null;
@@ -177,8 +176,7 @@ public final class AgentTelemetry {
         }
 
         public void failure(String code) {
-            String safe =
-                    code != null && code.matches("[A-Z][A-Z0-9_]{0,63}") ? code : "STAGE_FAILED";
+            String safe = code != null && code.matches("[A-Z][A-Z0-9_]{0,63}") ? code : "STAGE_FAILED";
             tag("error.type", safe);
             // 不导出原异常、原因或堆栈，防止泄露材料正文或密钥。
             try {
@@ -189,7 +187,8 @@ public final class AgentTelemetry {
 
         @Override
         public void close() {
-            if (closed) return;
+            if (closed)
+                return;
             closed = true;
             try {
                 current.close();

@@ -1,9 +1,16 @@
 package cn.edu.whu.zhizhida.interview.execution;
 
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import cn.edu.whu.zhizhida.auth.api.CurrentUserProvider;
 import cn.edu.whu.zhizhida.common.BusinessException;
-import cn.edu.whu.zhizhida.common.JsonFingerprint;
 import cn.edu.whu.zhizhida.common.ErrorCode;
+import cn.edu.whu.zhizhida.common.JsonFingerprint;
 import cn.edu.whu.zhizhida.common.ResourceNotFoundException;
 import cn.edu.whu.zhizhida.interview.InterviewRunModel;
 import cn.edu.whu.zhizhida.interview.InterviewSessionRepository;
@@ -16,16 +23,8 @@ import cn.edu.whu.zhizhida.interview.api.InterviewSession;
 import cn.edu.whu.zhizhida.interview.api.InterviewState;
 import cn.edu.whu.zhizhida.learning.api.PracticeMemoryAccess;
 import cn.edu.whu.zhizhida.quota.RedisSubmissionRateLimiter;
-
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
-
-import java.util.List;
-import java.util.Set;
 
 /** 面向当前登录用户受理持久运行命令，固定输入与配置，并提供归属受限的查询和取消入口。 */
 @Service
@@ -87,36 +86,36 @@ public class InterviewRunService {
     public InterviewRun acceptStart(InterviewRun.Start request, String objective) {
         long owner = users.requireUserId();
         return store.accept(
-                        owner,
-                        "START",
-                        request.requestId(),
-                        startHash(request, objective),
-                        null,
-                        0,
-                        () -> {
-                            var fixed = machine.prepareStart(request.configuration());
-                            if (objective != null) fixed = fixed.withAgent(fixed.agent().withTraining(
-                                    fixed.agent().training().withObjective(objective)));
-                            var input = json.createObjectNode();
-                            input.set("session", json.valueToTree(fixed));
-                            var materials =
-                                    request.configuration().retrySessionId() == null
-                                            ? json.valueToTree(
-                                                    machine.runProjectSections(
-                                                            request.configuration()))
-                                            : json.readTree(
-                                                    store.materials(
-                                                            owner,
-                                                            request.configuration()
-                                                                    .retrySessionId()));
-                            input.set("materials", materials);
-                            freezeMemory(owner, fixed, input);
-                            return new InterviewRunStore.Fixed(
-                                    fixed.sessionId(),
-                                    input.toString(),
-                                    model.configuration(),
-                                    route);
-                        })
+                owner,
+                "START",
+                request.requestId(),
+                startHash(request, objective),
+                null,
+                0,
+                () -> {
+                    var fixed = machine.prepareStart(request.configuration());
+                    if (objective != null)
+                        fixed = fixed.withAgent(fixed.agent().withTraining(
+                                fixed.agent().training().withObjective(objective)));
+                    var input = json.createObjectNode();
+                    input.set("session", json.valueToTree(fixed));
+                    var materials = request.configuration().retrySessionId() == null
+                            ? json.valueToTree(
+                                    machine.runProjectSections(
+                                            request.configuration()))
+                            : json.readTree(
+                                    store.materials(
+                                            owner,
+                                            request.configuration()
+                                                    .retrySessionId()));
+                    input.set("materials", materials);
+                    freezeMemory(owner, fixed, input);
+                    return new InterviewRunStore.Fixed(
+                            fixed.sessionId(),
+                            input.toString(),
+                            model.configuration(),
+                            route);
+                })
                 .view();
     }
 
@@ -125,36 +124,35 @@ public class InterviewRunService {
         String intent = hash(List.of(sessionId, request.expectedTurn(), request.answer()));
         admit(owner, "ANSWER", request.requestId(), intent);
         return store.accept(
-                        owner,
-                        "ANSWER",
-                        request.requestId(),
-                        intent,
-                        sessionId,
-                        request.expectedTurn(),
-                        () -> {
-                            var fixed =
-                                    sessions.findById(owner, sessionId)
-                                            .orElseThrow(
-                                                    () ->
-                                                            new ResourceNotFoundException(
-                                                                    "interview session not found"));
-                            sourceGuard.require(owner, fixed);
-                            var input = json.createObjectNode();
-                            input.set("answer", json.valueToTree(request));
-                            input.put("sessionHash", hash(fixed));
-                            input.put(
-                                    "materialsHash",
-                                    InterviewRunStore.sha(store.materials(owner, sessionId)));
-                            freezeMemory(owner, fixed, input);
-                            return new InterviewRunStore.Fixed(
-                                    sessionId, input.toString(), model.configuration(), route);
-                        })
+                owner,
+                "ANSWER",
+                request.requestId(),
+                intent,
+                sessionId,
+                request.expectedTurn(),
+                () -> {
+                    var fixed = sessions.findById(owner, sessionId)
+                            .orElseThrow(
+                                    () -> new ResourceNotFoundException(
+                                            "interview session not found"));
+                    sourceGuard.require(owner, fixed);
+                    var input = json.createObjectNode();
+                    input.set("answer", json.valueToTree(request));
+                    input.put("sessionHash", hash(fixed));
+                    input.put(
+                            "materialsHash",
+                            InterviewRunStore.sha(store.materials(owner, sessionId)));
+                    freezeMemory(owner, fixed, input);
+                    return new InterviewRunStore.Fixed(
+                            sessionId, input.toString(), model.configuration(), route);
+                })
                 .view();
     }
 
     private void admit(long owner, String operation, String key, String hash) {
         var limiter = limiters.getIfAvailable();
-        if (limiter == null) return;
+        if (limiter == null)
+            return;
         var existing = store.command(owner, operation, key);
         if (existing.isPresent()) {
             if (!existing.get().requestHash().equals(hash))
@@ -167,14 +165,13 @@ public class InterviewRunService {
     /** 固定本命令可引用的历史观察集合，后续执行仍需检查这些观察的当前授权。 */
     private void freezeMemory(long owner, InterviewSession session, ObjectNode input) {
         var agent = session.agent();
-        var selected =
-                agent == null || !route.equals("TOOL")
-                        ? PracticeMemoryAccess.Selection.none()
-                        : memory.freeze(
-                                owner,
-                                agent.plan().stream().map(c -> c.id()).toList(),
-                                agent.executionMode(),
-                                session.sessionId());
+        var selected = agent == null || !route.equals("TOOL")
+                ? PracticeMemoryAccess.Selection.none()
+                : memory.freeze(
+                        owner,
+                        agent.plan().stream().map(c -> c.id()).toList(),
+                        agent.executionMode(),
+                        session.sessionId());
         input.set("practiceMemory", json.valueToTree(selected));
     }
 
@@ -211,15 +208,14 @@ public class InterviewRunService {
         var session = sessions.findById(owner, row.sessionId()).orElse(null);
         if (session == null && row.operation().equals("START")) {
             var archived = json.readTree(row.input()).path("session");
-            if (archived.isObject()) session = json.treeToValue(archived, InterviewSession.class);
+            if (archived.isObject())
+                session = json.treeToValue(archived, InterviewSession.class);
         }
         // 正式面试结束前隐藏取证轨迹，避免通过运行详情提前暴露参考信息。
-        boolean hidden =
-                session == null
-                        || session.experience() != null
-                                && session.experience().format()
-                                        == InterviewExperience.Format.FORMAL
-                                && session.state() != InterviewState.FINISHED;
+        boolean hidden = session == null
+                || session.experience() != null
+                        && session.experience().format() == InterviewExperience.Format.FORMAL
+                        && session.state() != InterviewState.FINISHED;
         return store.trace(owner, id, hidden);
     }
 

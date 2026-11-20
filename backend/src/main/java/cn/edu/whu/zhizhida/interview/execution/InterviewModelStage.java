@@ -52,7 +52,7 @@ final class InterviewModelStage {
         long remaining = store.remainingMillis(c.id());
         AgentExecution.requireTime(
                 remaining, AgentLoopPolicy.MIN_MODEL_BUDGET_MILLIS, "RUN_BUDGET");
-        if (cp.path("outputPhase").asText().equals("ACTION")) {
+        if (cp.path("outputPhase").asString().equals("ACTION")) {
             boolean exhausted =
                     row.attempts() >= budget.attemptLimit("ACTION", false)
                             || remaining
@@ -85,7 +85,7 @@ final class InterviewModelStage {
                                     .put(
                                             "content",
                                             InterviewRunModel.stopPrompt(
-                                                    cp.path("loop").path("stopReason").asText())));
+                                                    cp.path("loop").path("stopReason").asString())));
             store.checkpoint(c, cp.toString(), "MODEL", "loop.stopped", "已停止继续取证，正在核对已有结果");
         }
         // 为最终输出保留一次模型尝试；修正输出或触及停止条件后不再开放工具。
@@ -100,12 +100,12 @@ final class InterviewModelStage {
         // 工具停止后仍留一次行动调用检查已有证据，再进入 FINAL。
         allowed =
                 allowed
-                        && cp.path("outputPhase").asText().equals("ACTION")
+                        && cp.path("outputPhase").asString().equals("ACTION")
                         && !cp.path("actionRepaired").asBoolean()
                         && row.attempts() < budget.attemptLimit("ACTION", false) - 1;
         long timeout =
                 budget.callTimeout(
-                        cp.path("outputPhase").asText(),
+                        cp.path("outputPhase").asString(),
                         cp.path("repaired").asBoolean(),
                         remaining);
         var verified = evidence.verifiedReviewSources(execution);
@@ -135,15 +135,15 @@ final class InterviewModelStage {
                         .start(Stage.MODEL)
                         .tag("agent.run.id", c.id())
                         .tag("agent.attempt.id", attempt)
-                        .tag("agent.output.phase", cp.path("outputPhase").asText())
+                        .tag("agent.output.phase", cp.path("outputPhase").asString())
                         .tag("gen_ai.operation.name", "chat")
-                        .tag("gen_ai.provider.name", modelConfig.path("provider").asText())
+                        .tag("gen_ai.provider.name", modelConfig.path("provider").asString())
                         .tag(
                                 "gen_ai.request.model",
-                                modelConfig.path("model").path("model").asText())
+                                modelConfig.path("model").path("model").asString())
                         .tag(
                                 "agent.protocol.version",
-                                modelConfig.path("model").path("protocolVersion").asText())
+                                modelConfig.path("model").path("protocolVersion").asString())
                         .tag("agent.usage.status", "MISSING")) {
             try {
                 reply =
@@ -157,7 +157,7 @@ final class InterviewModelStage {
                                 session,
                                 pending,
                                 context,
-                                cp.path("outputPhase").asText());
+                                cp.path("outputPhase").asString());
                 modelSpan.usage(reply.usage());
             } catch (RuntimeException ex) {
                 String error = InterviewRunWorker.modelFailureCode(ex);
@@ -174,7 +174,7 @@ final class InterviewModelStage {
                         ex.getClass().getName(),
                         InterviewRunWorker.location(ex));
                 if (ModelRetryPolicy.retryable(error)
-                        && cp.path("outputPhase").asText().equals("ACTION")) {
+                        && cp.path("outputPhase").asString().equals("ACTION")) {
                     if (store.deferModelFailure(c, attempt, error, elapsed, cp.toString()))
                         return false;
                 } else store.attemptFailure(c, attempt, error, elapsed);
@@ -187,7 +187,7 @@ final class InterviewModelStage {
         String nextStage =
                 requested
                         ? "TOOL"
-                        : cp.path("outputPhase").asText().equals("ACTION")
+                        : cp.path("outputPhase").asString().equals("ACTION")
                                 ? "ACTION_VALIDATE"
                                 : "VALIDATE";
         cp.put("stage", nextStage).put("toolIndex", 0).put("batchReserved", false);

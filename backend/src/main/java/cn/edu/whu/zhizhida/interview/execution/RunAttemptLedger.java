@@ -36,9 +36,9 @@ final class RunAttemptLedger {
         var budget = BudgetProfile.frozen(policyJson, config);
         // 最终调用预留以数据库检查点为准，不信任调用方提供的阶段。
         var cp = InterviewRunCheckpoint.read(policyJson, row.checkpoint(), row.route());
-        if (!cp.path("stage").asText().equals("MODEL"))
+        if (!cp.path("stage").asString().equals("MODEL"))
             throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_CHECKPOINT_INVALID");
-        String phase = cp.path("outputPhase").asText();
+        String phase = cp.path("outputPhase").asString();
         boolean repaired = cp.path("repaired").asBoolean();
         if (repaired != (row.repairs() > 0) || phase.equals("ACTION") && repaired)
             throw new cn.edu.whu.zhizhida.common.execution.RunFailureException("RUN_CHECKPOINT_INVALID");

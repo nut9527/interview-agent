@@ -1,27 +1,34 @@
 package cn.edu.whu.zhizhida.config;
 
-import cn.edu.whu.zhizhida.common.ErrorCode;
-import io.swagger.v3.core.converter.ModelConverter;
-import io.swagger.v3.core.converter.AnnotatedType;
-import io.swagger.v3.core.converter.ModelConverterContext;
-import io.swagger.v3.core.jackson.ModelResolver;
-import io.swagger.v3.core.jackson.TypeNameResolver;
-import io.swagger.v3.core.util.Json;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.media.*;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.responses.ApiResponse;
-import org.springdoc.core.customizers.OpenApiCustomizer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+
+import cn.edu.whu.zhizhida.common.ErrorCode;
+import io.swagger.v3.core.converter.AnnotatedType;
+import io.swagger.v3.core.converter.ModelConverter;
+import io.swagger.v3.core.converter.ModelConverterContext;
+import io.swagger.v3.core.jackson.ModelResolver;
+import io.swagger.v3.core.jackson.TypeNameResolver;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
 @PropertySource("classpath:openapi.properties")
@@ -74,12 +81,15 @@ public class OpenApiConfig {
                     .addProperty("code", new Schema<>().$ref("#/components/schemas/ErrorCode"))
                     .required(List.of("success", "message", "data", "code")));
             api.getPaths().forEach((path, item) -> item.readOperations().forEach(operation -> {
-                if (!PUBLIC_PATHS.contains(path)) operation.addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
-                for (String status : List.of("400", "401", "403", "404", "405", "409", "415", "429", "500", "501", "502", "503", "504")) {
-                    if (!operation.getResponses().containsKey(status)) operation.getResponses().addApiResponse(status,
-                            new ApiResponse().description("统一错误响应；code 稳定，message 用于展示")
-                                    .content(new Content().addMediaType("application/json", new MediaType()
-                                            .schema(new Schema<>().$ref("#/components/schemas/ErrorResponse")))));
+                if (!PUBLIC_PATHS.contains(path))
+                    operation.addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
+                for (String status : List.of("400", "401", "403", "404", "405", "409", "415", "429", "500", "501",
+                        "502", "503", "504")) {
+                    if (!operation.getResponses().containsKey(status))
+                        operation.getResponses().addApiResponse(status,
+                                new ApiResponse().description("统一错误响应；code 稳定，message 用于展示")
+                                        .content(new Content().addMediaType("application/json", new MediaType()
+                                                .schema(new Schema<>().$ref("#/components/schemas/ErrorResponse")))));
                 }
             }));
         };

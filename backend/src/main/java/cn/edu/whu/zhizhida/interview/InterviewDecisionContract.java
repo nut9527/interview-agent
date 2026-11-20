@@ -1,10 +1,11 @@
 package cn.edu.whu.zhizhida.interview;
 
+import java.util.Set;
+
 import cn.edu.whu.zhizhida.common.StructuredOutput;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.DeserializationFeature;
-import java.util.Set;
 
 /** 内部阶段信封不改变公开评价的数据结构。 */
 public final class InterviewDecisionContract {
@@ -37,26 +38,38 @@ public final class InterviewDecisionContract {
     public static final String ACTION_REPAIR = "ACTION 契约未通过：%s。只修正 phased-v2 ACTION COMPLETE 与 checks，不输出评价，不调用工具。";
     public static final String FINAL_REPAIR = " 仅修正 phased-v2 FINAL 包装与 result，不返回 ACTION。";
 
-    private InterviewDecisionContract() { }
+    private InterviewDecisionContract() {
+    }
 
     public static JsonNode parse(ObjectMapper json, String text, String phase) {
         JsonNode node;
-        try { node = json.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).readTree(text); }
-        catch (RuntimeException ex) { throw rejected("$", StructuredOutput.RejectionReason.INVALID_JSON); }
-        if (node == null || !node.isObject()) throw rejected("$", StructuredOutput.RejectionReason.INVALID_JSON);
-        if (!VERSION.equals(node.path("version").asText())) throw rejected("version", StructuredOutput.RejectionReason.INVALID_VALUE);
-        if (!phase.equals(node.path("phase").asText())) throw rejected("phase", StructuredOutput.RejectionReason.INVALID_VALUE);
+        try {
+            node = json.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).readTree(text);
+        } catch (RuntimeException ex) {
+            throw rejected("$", StructuredOutput.RejectionReason.INVALID_JSON);
+        }
+        if (node == null || !node.isObject())
+            throw rejected("$", StructuredOutput.RejectionReason.INVALID_JSON);
+        if (!VERSION.equals(node.path("version").asString()))
+            throw rejected("version", StructuredOutput.RejectionReason.INVALID_VALUE);
+        if (!phase.equals(node.path("phase").asString()))
+            throw rejected("phase", StructuredOutput.RejectionReason.INVALID_VALUE);
         Set<String> fields = phase.equals("ACTION") ? (node.has("checks")
-                ? Set.of("version", "phase", "action", "reason", "checks") : Set.of("version", "phase", "action", "reason"))
+                ? Set.of("version", "phase", "action", "reason", "checks")
+                : Set.of("version", "phase", "action", "reason"))
                 : Set.of("version", "phase", "result");
-        if (!node.propertyNames().equals(fields)) throw rejected("$", StructuredOutput.RejectionReason.INVALID_VALUE);
+        if (!node.propertyNames().equals(fields))
+            throw rejected("$", StructuredOutput.RejectionReason.INVALID_VALUE);
         if (phase.equals("ACTION")) {
-            if (!Set.of("COMPLETE", "REVISE").contains(node.path("action").asText())) throw rejected("action", StructuredOutput.RejectionReason.INVALID_VALUE);
-            if (!node.path("reason").isTextual() || node.path("reason").asText().isBlank()
-                    || node.path("reason").asText().length() > 240) throw rejected("reason", StructuredOutput.RejectionReason.INVALID_VALUE);
+            if (!Set.of("COMPLETE", "REVISE").contains(node.path("action").asString()))
+                throw rejected("action", StructuredOutput.RejectionReason.INVALID_VALUE);
+            if (!node.path("reason").isString() || node.path("reason").asString().isBlank()
+                    || node.path("reason").asString().length() > 240)
+                throw rejected("reason", StructuredOutput.RejectionReason.INVALID_VALUE);
             return node;
         }
-        if (!node.path("result").isObject()) throw rejected("result", StructuredOutput.RejectionReason.TYPE_MISMATCH);
+        if (!node.path("result").isObject())
+            throw rejected("result", StructuredOutput.RejectionReason.TYPE_MISMATCH);
         return node.path("result");
     }
 

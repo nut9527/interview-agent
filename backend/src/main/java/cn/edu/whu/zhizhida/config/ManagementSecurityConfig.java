@@ -1,9 +1,10 @@
 package cn.edu.whu.zhizhida.config;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,10 +19,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.List;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /** 监控凭据与用户会话相互独立，未配置凭据时禁用监控访问。 */
 @Configuration
@@ -37,7 +38,8 @@ public class ManagementSecurityConfig {
                 .exceptionHandling(errors -> errors.authenticationEntryPoint((request, response, ex) -> {
                     response.setStatus(401);
                     response.setContentType("application/json");
-                    response.getWriter().write("{\"success\":false,\"message\":\"monitoring authentication required\"}");
+                    response.getWriter()
+                            .write("{\"success\":false,\"message\":\"monitoring authentication required\"}");
                 }))
                 .authorizeHttpRequests(auth -> auth.anyRequest().hasAuthority("MONITORING"))
                 .addFilterBefore(new OncePerRequestFilter() {
@@ -47,7 +49,8 @@ public class ManagementSecurityConfig {
                         String header = request.getHeader("Authorization");
                         if (!token.isBlank() && header != null && header.length() <= 1024
                                 && header.startsWith("Bearer ") && MessageDigest.isEqual(
-                                token.getBytes(StandardCharsets.UTF_8), header.substring(7).getBytes(StandardCharsets.UTF_8))) {
+                                        token.getBytes(StandardCharsets.UTF_8),
+                                        header.substring(7).getBytes(StandardCharsets.UTF_8))) {
                             SecurityContextHolder.getContext().setAuthentication(
                                     new UsernamePasswordAuthenticationToken("monitoring", null,
                                             List.of(new SimpleGrantedAuthority("MONITORING"))));

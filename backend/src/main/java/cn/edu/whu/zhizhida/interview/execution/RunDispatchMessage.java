@@ -7,9 +7,9 @@ import java.util.UUID;
 public record RunDispatchMessage(int schemaVersion, String eventId, String eventType,
         String runId, long dispatchSeq, Instant occurredAt) {
     public void validate() {
-        if(schemaVersion!=1 || !"AGENT_RUN_READY".equals(eventType) || dispatchSeq<0 || occurredAt==null)
+        if (schemaVersion != 1 || !"AGENT_RUN_READY".equals(eventType) || dispatchSeq < 0 || occurredAt == null)
             throw new IllegalArgumentException("MESSAGE_SCHEMA");
-        if(!UUID.fromString(eventId).toString().equals(eventId) || !UUID.fromString(runId).toString().equals(runId))
+        if (!UUID.fromString(eventId).toString().equals(eventId) || !UUID.fromString(runId).toString().equals(runId))
             throw new IllegalArgumentException("MESSAGE_ID");
     }
 }

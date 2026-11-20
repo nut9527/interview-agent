@@ -48,8 +48,8 @@ final class InterviewRunCheckpoint {
 
     static void validate(ObjectNode cp, String route) {
         var stage = field(cp, "stage", "stage");
-        if (!stage.isTextual()) throw invalid(Reason.INVALID_TYPE, "stage");
-        if (!STAGES.contains(stage.asText())) throw invalid(Reason.INVALID_VALUE, "stage");
+        if (!stage.isString()) throw invalid(Reason.INVALID_TYPE, "stage");
+        if (!STAGES.contains(stage.asString())) throw invalid(Reason.INVALID_VALUE, "stage");
         bool(cp, "repaired", true);
         array(cp, "sources", true, false);
         array(cp, "memoryUses", false, false);
@@ -61,15 +61,15 @@ final class InterviewRunCheckpoint {
         messages(cp);
         loop(cp);
         field(cp, "outputPhase", "outputPhase");
-        if (!Set.of("ACTION", "FINAL").contains(cp.path("outputPhase").asText()))
+        if (!Set.of("ACTION", "FINAL").contains(cp.path("outputPhase").asString()))
             throw invalid(Reason.INVALID_VALUE, "outputPhase");
         bool(cp, "actionRepaired", true);
-        if (stage.asText().equals("ACTION_VALIDATE") && !cp.path("outputPhase").asText().equals("ACTION")
-                || stage.asText().equals("VALIDATE") && !cp.path("outputPhase").asText().equals("FINAL")
-                || stage.asText().equals("TOOL") && (!cp.path("outputPhase").asText().equals("ACTION")
+        if (stage.asString().equals("ACTION_VALIDATE") && !cp.path("outputPhase").asString().equals("ACTION")
+                || stage.asString().equals("VALIDATE") && !cp.path("outputPhase").asString().equals("FINAL")
+                || stage.asString().equals("TOOL") && (!cp.path("outputPhase").asString().equals("ACTION")
                     || cp.path("actionRepaired").asBoolean()))
             throw invalid(Reason.INCONSISTENT_STATE, "outputPhase");
-        switch (stage.asText()) {
+        switch (stage.asString()) {
             case "FIXED" -> {
                 if (!"FIXED".equals(route) || cp.path("repaired").asBoolean())
                     throw invalid(Reason.INCONSISTENT_STATE, "stage");
@@ -77,15 +77,15 @@ final class InterviewRunCheckpoint {
             case "KNOWLEDGE_PREFETCH" -> {
                 if (!"TOOL".equals(route) || cp.path("repaired").asBoolean() || cp.has("response")
                         || !cp.path("sources").isEmpty() || cp.path("actionRepaired").asBoolean()
-                        || !"ACTION".equals(cp.path("outputPhase").asText()))
+                        || !"ACTION".equals(cp.path("outputPhase").asString()))
                     throw invalid(Reason.INCONSISTENT_STATE, "stage");
             }
             case "TOOL" -> toolStage(cp, route);
             case "VALIDATE", "ACTION_VALIDATE" -> {
                 var response = response(cp);
                 var content = field(response, "content", "response.content");
-                if (!content.isTextual()) throw invalid(Reason.INVALID_TYPE, "response.content");
-                if (content.asText().isBlank()) throw invalid(Reason.INVALID_VALUE, "response.content");
+                if (!content.isString()) throw invalid(Reason.INVALID_TYPE, "response.content");
+                if (content.asString().isBlank()) throw invalid(Reason.INVALID_VALUE, "response.content");
                 if (response.hasNonNull("tool_calls") && (!response.path("tool_calls").isArray()
                         || !response.path("tool_calls").isEmpty()))
                     throw invalid(Reason.INCONSISTENT_STATE, "response.tool_calls");
@@ -112,12 +112,12 @@ final class InterviewRunCheckpoint {
             throw invalid(Reason.INCONSISTENT_STATE, "batchReserved");
         var ids = new java.util.HashSet<String>();
         for (var call : calls) {
-            if (!call.isObject() || !call.path("id").isTextual() || call.path("id").asText().isBlank()
-                    || call.path("id").asText().length() > 160 || !ids.add(call.path("id").asText()))
+            if (!call.isObject() || !call.path("id").isString() || call.path("id").asString().isBlank()
+                    || call.path("id").asString().length() > 160 || !ids.add(call.path("id").asString()))
                 throw invalid(Reason.INVALID_VALUE, "response.tool_calls.id");
-            if (!call.path("function").isObject() || !call.path("function").path("name").isTextual()
-                    || call.path("function").path("name").asText().isBlank()
-                    || !call.path("function").path("arguments").isTextual())
+            if (!call.path("function").isObject() || !call.path("function").path("name").isString()
+                    || call.path("function").path("name").asString().isBlank()
+                    || !call.path("function").path("arguments").isString())
                 throw invalid(Reason.INVALID_TYPE, "response.tool_calls.function");
         }
         // 每个持久索引必须对应顺序一致的工具消息，不静默重放或跳过。
@@ -127,7 +127,7 @@ final class InterviewRunCheckpoint {
             throw invalid(Reason.INCONSISTENT_STATE, "messages");
         for (int i = 0; i < index; i++) {
             var receipt = messages.get(responseIndex + i + 1);
-            if (!receipt.path("role").asText().equals("tool")
+            if (!receipt.path("role").asString().equals("tool")
                     || !receipt.path("tool_call_id").equals(calls.get(i).path("id")))
                 throw invalid(Reason.INCONSISTENT_STATE, "messages.tool_call_id");
         }
@@ -136,7 +136,7 @@ final class InterviewRunCheckpoint {
     private static JsonNode response(ObjectNode cp) {
         var response = field(cp, "response", "response");
         if (!response.isObject()) throw invalid(Reason.INVALID_TYPE, "response");
-        if (!response.path("role").asText().equals("assistant"))
+        if (!response.path("role").asString().equals("assistant"))
             throw invalid(Reason.INVALID_VALUE, "response.role");
         return response;
     }
@@ -147,15 +147,15 @@ final class InterviewRunCheckpoint {
         if (messages.isEmpty()) throw invalid(Reason.INVALID_VALUE, "messages");
         for (var message : messages) {
             if (!message.isObject()) throw invalid(Reason.INVALID_TYPE, "messages");
-            String role = message.path("role").asText();
+            String role = message.path("role").asString();
             if (!ROLES.contains(role)) throw invalid(Reason.INVALID_VALUE, "messages.role");
             boolean toolRequest = role.equals("assistant") && message.path("tool_calls").isArray()
                     && !message.path("tool_calls").isEmpty();
-            if (!message.path("content").isTextual()
+            if (!message.path("content").isString()
                     && !(toolRequest && (!message.has("content") || message.path("content").isNull())))
                 throw invalid(Reason.INVALID_TYPE, "messages.content");
-            if (role.equals("tool") && (!message.path("tool_call_id").isTextual()
-                    || message.path("tool_call_id").asText().isBlank()))
+            if (role.equals("tool") && (!message.path("tool_call_id").isString()
+                    || message.path("tool_call_id").asString().isBlank()))
                 throw invalid(Reason.INVALID_TYPE, "messages.tool_call_id");
         }
     }
@@ -170,13 +170,13 @@ final class InterviewRunCheckpoint {
             if (!loop.has(name)) continue;
             if (!loop.path(name).isArray()) throw invalid(Reason.INVALID_TYPE, "loop." + name);
             for (var value : loop.path(name))
-                if (!value.isTextual()) throw invalid(Reason.INVALID_TYPE, "loop." + name);
+                if (!value.isString()) throw invalid(Reason.INVALID_TYPE, "loop." + name);
         }
         for (String name : Set.of("closed", "lastSearchEmpty"))
             if (loop.has(name) && !loop.path(name).isBoolean())
                 throw invalid(Reason.INVALID_TYPE, "loop." + name);
-        if (loop.has("stopReason") && (!loop.path("stopReason").isTextual()
-                || !STOPS.contains(loop.path("stopReason").asText())))
+        if (loop.has("stopReason") && (!loop.path("stopReason").isString()
+                || !STOPS.contains(loop.path("stopReason").asString())))
             throw invalid(Reason.INVALID_VALUE, "loop.stopReason");
         if (loop.path("closed").asBoolean() && !loop.has("stopReason"))
             throw invalid(Reason.INCONSISTENT_STATE, "loop.closed");
@@ -187,7 +187,7 @@ final class InterviewRunCheckpoint {
         var array = field(node, name, name);
         if (!array.isArray()) throw invalid(Reason.INVALID_TYPE, name);
         for (var value : array)
-            if (strings ? !value.isTextual() : !value.isObject()) throw invalid(Reason.INVALID_TYPE, name);
+            if (strings ? !value.isString() : !value.isObject()) throw invalid(Reason.INVALID_TYPE, name);
     }
 
     private static void bool(JsonNode node, String name, boolean required) {

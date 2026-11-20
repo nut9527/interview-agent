@@ -13,7 +13,7 @@ public final class AgentLoopState {
     public record Observation(String decision, String outcome, int newEvidence, String before, String after,
             String actionKey, String sourceKeys, String stopReason) { }
 
-    public static String policy(JsonNode config) { return config.path("loopPolicy").asText("B0"); }
+    public static String policy(JsonNode config) { return config.path("loopPolicy").asString("B0"); }
 
     public static Observation observe(ObjectMapper json, ObjectNode cp, String name, JsonNode args, JsonNode result) {
         return observe(json, cp, name, args, result, false);
@@ -26,27 +26,27 @@ public final class AgentLoopState {
         var actions = strings(state.path("actions"));
         String before = fingerprint(keys, actions);
         String action = name + ":" + cn.edu.whu.zhizhida.common.JsonFingerprint.canonical(args);
-        if (name.equals("search_knowledge")) action = name + ":" + args.path("query").asText().strip()
+        if (name.equals("search_knowledge")) action = name + ":" + args.path("query").asString().strip()
                 .replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
         String actionKey = InterviewRunStore.sha(action);
         boolean repeated = !actions.add(actionKey);
         var found = new TreeSet<String>();
         // 此处字段均由服务端工具基于已固定、已授权的快照生成。
-        if (result.path("status").asText().equals("FOUND")) {
+        if (result.path("status").asString().equals("FOUND")) {
             if (result.has("content")) found.add(InterviewRunStore.sha(name + ":"
-                    + args.path(name.equals("read_material_section") ? "sectionId" : "answerId").asText()
-                    + ":" + result.path("sourceVersion").asText() + ":" + result.path("sha256").asText()
-                    + ":" + result.path("content").asText().length()));
+                    + args.path(name.equals("read_material_section") ? "sectionId" : "answerId").asString()
+                    + ":" + result.path("sourceVersion").asString() + ":" + result.path("sha256").asString()
+                    + ":" + result.path("content").asString().length()));
             for (var ref : result.path("references")) for (var chunk : ref.path("excerpts"))
-                found.add(InterviewRunStore.sha(ref.path("id").asText() + ":" + ref.path("version").asInt()
-                        + ":" + ref.path("sha256").asText() + ":" + chunk.path("chunkId").asText()
+                found.add(InterviewRunStore.sha(ref.path("id").asString() + ":" + ref.path("version").asInt()
+                        + ":" + ref.path("sha256").asString() + ":" + chunk.path("chunkId").asString()
                         + ":" + chunk.path("startLine").asInt() + ":" + chunk.path("endLine").asInt()
-                        + ":" + InterviewRunStore.sha(chunk.path("content").asText())));
+                        + ":" + InterviewRunStore.sha(chunk.path("content").asString())));
             for (var item : result.path("items")) {
                 // 本命令已筛选的历史观察中，每个标识只对应一个不可变修订。
-                if (item.has("id")) found.add(InterviewRunStore.sha("observation:" + item.path("id").asText()));
+                if (item.has("id")) found.add(InterviewRunStore.sha("observation:" + item.path("id").asString()));
                 for (var id : item.path("observationIds"))
-                    found.add(InterviewRunStore.sha("observation:" + id.asText()));
+                    found.add(InterviewRunStore.sha("observation:" + id.asString()));
             }
         }
         int prior = keys.size();
@@ -62,7 +62,7 @@ public final class AgentLoopState {
         state.set("evidence", json.valueToTree(keys));
         state.set("actions", json.valueToTree(actions));
         if (stop != null) state.put("stopReason", stop);
-        String outcome = result.path("status").asText();
+        String outcome = result.path("status").asString();
         if (!java.util.Set.of("FOUND", "EMPTY", "MISSING", "INSUFFICIENT").contains(outcome)) outcome = "INSUFFICIENT";
         return new Observation(decision, outcome, added, before, fingerprint(keys, actions), actionKey,
                 json.writeValueAsString(found), stop);
@@ -70,7 +70,7 @@ public final class AgentLoopState {
 
     private static TreeSet<String> strings(JsonNode array) {
         var values = new TreeSet<String>();
-        for (var value : array) values.add(value.asText());
+        for (var value : array) values.add(value.asString());
         return values;
     }
 

@@ -12,7 +12,9 @@ public final class KnowledgeRetrievalSettings {
     private final int vectorTopN;
     private final int maxPerHeading;
 
-    public KnowledgeRetrievalSettings() { this(60, 30, 30, 2); }
+    public KnowledgeRetrievalSettings() {
+        this(60, 30, 30, 2);
+    }
 
     @Autowired
     public KnowledgeRetrievalSettings(
@@ -32,10 +34,22 @@ public final class KnowledgeRetrievalSettings {
         return value;
     }
 
-    public int rrfK() { return rrfK; }
-    public int lexicalTopN() { return lexicalTopN; }
-    public int vectorTopN() { return vectorTopN; }
-    public int maxPerHeading() { return maxPerHeading; }
+    public int rrfK() {
+        return rrfK;
+    }
+
+    public int lexicalTopN() {
+        return lexicalTopN;
+    }
+
+    public int vectorTopN() {
+        return vectorTopN;
+    }
+
+    public int maxPerHeading() {
+        return maxPerHeading;
+    }
+
     public String fingerprint() {
         return "bm25-rrf-sections-v4:k" + rrfK + ":l" + lexicalTopN + ":v" + vectorTopN + ":h" + maxPerHeading;
     }

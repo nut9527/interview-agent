@@ -32,7 +32,7 @@ final class RunToolReceipts {
                 "SELECT result_json FROM interview_tool_receipts WHERE run_id=? AND tool_name='search_knowledge' "
                 + "AND execution_kind IN ('EXECUTED','CACHE') ORDER BY id", String.class, id)) {
             var payload = policyJson.readTree(result);
-            if ("FOUND".equals(payload.path("status").asText()))
+            if ("FOUND".equals(payload.path("status").asString()))
                 for (var reference : payload.path("references"))
                     receipts.add(policyJson.treeToValue(reference, Reference.class));
         }
