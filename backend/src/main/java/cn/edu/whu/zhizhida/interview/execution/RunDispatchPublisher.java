@@ -2,21 +2,16 @@ package cn.edu.whu.zhizhida.interview.execution;
 
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageDeliveryMode;
-import org.springframework.amqp.core.MessageProperties;
-import org.springframework.amqp.rabbit.connection.CorrelationData;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import cn.edu.whu.zhizhida.messaging.RocketTransport;
 import io.micrometer.core.instrument.MeterRegistry;
 import tools.jackson.databind.ObjectMapper;
 
 public class RunDispatchPublisher {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RunDispatchPublisher.class);
-    private final String exchange;
     private final RunDispatchOutbox outbox;
-    private final RabbitTemplate rabbit;
+    private final RocketTransport transport;
     private final ObjectMapper json;
     private final MeterRegistry metrics;
     private final int batchSize;
@@ -25,44 +20,34 @@ public class RunDispatchPublisher {
     private volatile double oldestPending = Double.NaN;
     private volatile double lastSuccessfulPoll = Double.NaN;
 
-    public RunDispatchPublisher(RunDispatchOutbox outbox, RabbitTemplate rabbit, ObjectMapper json,
+    public RunDispatchPublisher(
+            RunDispatchOutbox outbox,
+            RocketTransport transport,
+            ObjectMapper json,
             MeterRegistry metrics,
-            @org.springframework.beans.factory.annotation.Value("${app.run-dispatch.mode:database}") String mode) {
-        this(outbox, rabbit, json, metrics, mode, 8, 100);
-    }
-
-    public RunDispatchPublisher(RunDispatchOutbox outbox, RabbitTemplate rabbit, ObjectMapper json,
-            MeterRegistry metrics,
-            String mode, int batchSize, long batchBudgetMs) {
-        this(outbox, rabbit, json, metrics, mode, batchSize, batchBudgetMs, RunDispatchConfiguration.EXCHANGE);
-    }
-
-    public RunDispatchPublisher(RunDispatchOutbox outbox, RabbitTemplate rabbit, ObjectMapper json,
-            MeterRegistry metrics,
-            String mode, int batchSize, long batchBudgetMs, String exchange) {
-        if (!"rabbitmq".equals(mode))
-            throw new IllegalArgumentException("Outbox publisher requires rabbitmq mode");
+            int batchSize,
+            long batchBudgetMs) {
         if (batchSize < 1 || batchSize > 32)
             throw new IllegalArgumentException("Outbox batch size must be 1..32");
         if (batchBudgetMs < 1 || batchBudgetMs > 1000)
             throw new IllegalArgumentException("Outbox batch budget must be 1..1000ms");
         this.outbox = outbox;
-        this.rabbit = rabbit;
+        this.transport = transport;
         this.json = json;
         this.metrics = metrics;
-        this.exchange = exchange;
         this.batchSize = batchSize;
         this.batchBudgetNanos = TimeUnit.MILLISECONDS.toNanos(batchBudgetMs);
-        rabbit.setMandatory(true);
         metrics.gauge("zhizhida.outbox.pending", this, value -> value.pending);
         metrics.gauge("zhizhida.outbox.oldest.pending.seconds", this, value -> value.oldestPending);
-        metrics.gauge("zhizhida.outbox.last.successful.poll.timestamp.seconds", this,
+        metrics.gauge(
+                "zhizhida.outbox.last.successful.poll.timestamp.seconds",
+                this,
                 value -> value.lastSuccessfulPoll);
     }
 
     @Scheduled(scheduler = "publisherScheduler", fixedDelayString = "${app.outbox.publisher.interval-ms:500}", initialDelayString = "${app.outbox.publisher.initial-delay-ms:0}")
     public void publish() {
-        // 上一条消息确认并更新数据库后才领取下一条，避免批量预占的租约在等待确认期间过期。
+        // 逐条领取、发送并写回，避免预占后续记录的租约。批次时间预算只在领取下一条前检查。
         long started = System.nanoTime();
         try {
             for (int sent = 0; sent < batchSize && !Thread.currentThread().isInterrupted(); sent++) {
@@ -80,7 +65,9 @@ public class RunDispatchPublisher {
             pending = Double.NaN;
             oldestPending = Double.NaN;
             metrics.counter("zhizhida.outbox.poll", "outcome", "unavailable").increment();
-            log.warn("event=run.outbox.poll outcome=unavailable errorType={}", ex.getClass().getSimpleName());
+            log.warn(
+                    "event=run.outbox.poll outcome=unavailable errorType={}",
+                    ex.getClass().getSimpleName());
         }
     }
 
@@ -88,37 +75,32 @@ public class RunDispatchPublisher {
         var sample = io.micrometer.core.instrument.Timer.start(metrics);
         String error = null;
         try {
-            var properties = new MessageProperties();
-            properties.setMessageId(delivery.message().eventId());
-            properties.setContentType(MessageProperties.CONTENT_TYPE_JSON);
-            properties.setDeliveryMode(MessageDeliveryMode.PERSISTENT);
-            var correlation = new CorrelationData(delivery.message().eventId() + ":" + delivery.token());
-            rabbit.send(exchange, RunDispatchConfiguration.KEY,
-                    new Message(json.writeValueAsBytes(delivery.message()), properties), correlation);
-            var confirm = correlation.getFuture().get(5, TimeUnit.SECONDS);
-            // 框架在完成 confirm future 之前填入关联 Return；ACK 本身不代表可路由。
-            if (correlation.getReturned() != null)
-                error = "RETURNED";
-            else if (!confirm.ack())
-                error = "NACK";
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            error = "INTERRUPTED";
-        } catch (java.util.concurrent.TimeoutException ex) {
-            error = "CONFIRM_TIMEOUT";
-        } catch (Exception ex) {
-            error = "PUBLISH_UNAVAILABLE";
+            transport.send(
+                    "run-ready",
+                    delivery.message().eventId(),
+                    json.writeValueAsBytes(delivery.message()));
+        } catch (RuntimeException ex) {
+            error = Thread.currentThread().isInterrupted() ? "INTERRUPTED" : "PUBLISH_UNAVAILABLE";
         }
-        // 确认后落库失败仍可能触发重投；消息只是唤醒提示，执行资格由数据库租约裁决。
+        // 发布令牌限定可写回的记录。若收到回执后写回失败，租约到期时同一事件可能再次发送。
         if (error == null)
             outbox.published(delivery);
         else {
-            log.warn("event=run.outbox.publish outcome={} runId={} eventId={} attempt={}",
-                    error, delivery.message().runId(), delivery.message().eventId(), delivery.attempts());
+            log.warn(
+                    "event=run.outbox.publish outcome={} runId={} eventId={} attempt={}",
+                    error,
+                    delivery.message().runId(),
+                    delivery.message().eventId(),
+                    delivery.attempts());
             outbox.retry(delivery, error);
         }
-        metrics.counter("zhizhida.outbox.publish", "outcome", error == null ? "confirmed" : error).increment();
-        sample.stop(metrics.timer("zhizhida.outbox.publish.duration", "outcome", error == null ? "confirmed" : error));
+        metrics.counter("zhizhida.outbox.publish", "outcome", error == null ? "confirmed" : error)
+                .increment();
+        sample.stop(
+                metrics.timer(
+                        "zhizhida.outbox.publish.duration",
+                        "outcome",
+                        error == null ? "confirmed" : error));
         return error == null;
     }
 }

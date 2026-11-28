@@ -11,7 +11,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 
 // 验证流程不读取 .env、不复用已有数据库、不调整 Docker 守护进程，也不安装全局工具。
-export async function verifyBackend(args = process.argv.slice(2), mavenArgs = []) {
+export async function verifyBackend(args = process.argv.slice(2), mavenArgs = [], stages) {
   if (args.some((arg) => !['--offline', '--integration-only', '--help'].includes(arg))) throw new Error('Usage: node scripts/verify-backend.mjs [--offline] [--integration-only]');
   if (args.includes('--help')) {
     console.log('Create an isolated MySQL using mysqld/mysql from PATH, run Maven verify, then remove only this run\'s database.');
@@ -24,7 +24,7 @@ export async function verifyBackend(args = process.argv.slice(2), mavenArgs = []
   const buildDirectory = resolve(root, 'backend', overrides[0]?.slice('-Dzhizhida.build.directory='.length) || 'target');
   const buildRelative = relative(root, buildDirectory);
   if (!buildRelative || buildRelative.startsWith('..') || isAbsolute(buildRelative)) throw new Error('Build directory must stay inside the project');
-  // 分阶段仍保留单步 5 分钟上限；全量单测先在 backend 目录 mvn test 执行。
+  // 分开运行单测和集成测试时，两次执行须使用同一构建目录才能合并覆盖率数据。
   const goals = args.includes('--integration-only')
     ? ['test-compile', 'jacoco:prepare-agent-integration@prepare-agent-integration', 'failsafe:integration-test', 'failsafe:verify',
       'jacoco:merge@merge-coverage', 'jacoco:report@report', 'jacoco:check@coverage-gate']
@@ -103,19 +103,21 @@ export async function verifyBackend(args = process.argv.slice(2), mavenArgs = []
         + `GRANT ALL ON zhizhida_test.* TO 'it_user'@'localhost';\n`);
     });
     if (controller.signal.aborted) throw new Error('Verification interrupted');
-    console.log(`[integration] MySQL ready on 127.0.0.1:${port}; Maven goals: ${goals.join(' ')}.`);
+    const plan = stages || [goals];
+    console.log(`[integration] MySQL ready on 127.0.0.1:${port}; running ${plan.length} Maven stage(s).`);
     // capture 兼容 Windows 的 .cmd 路径，超时仅终止自身启动的子进程树。
     await mkdir(buildDirectory, { recursive: true });
     const report = createWriteStream(join(buildDirectory, 'verification.log'));
     report.on('error', interrupt);
     const heartbeat = setInterval(() => console.log('[integration] Maven verify is running; reports: ' + buildDirectory), 30000);
-    let result;
     try {
-      result = await capture(maven, [...(args.includes('--offline') ? ['-o'] : []), '-B', ...mavenArgs, ...goals],
-        { cwd: join(root, 'backend'), env, timeout: 300000, signal: controller.signal, onOutput: (data) => report.write(data) });
+      for (const stage of plan) {
+        const result = await capture(maven, [...(args.includes('--offline') ? ['-o'] : []), '-B', ...mavenArgs, ...stage],
+          { cwd: join(root, 'backend'), env, timeout: 300000, signal: controller.signal, onOutput: (data) => report.write(data) });
+        console.log(result.output);
+        if (result.code !== 0) throw new Error(`Maven verification failed (${result.code}); inspect Surefire/Failsafe reports.`);
+      }
     } finally { clearInterval(heartbeat); report.end(); await finished(report); }
-    console.log(result.output);
-    if (result.code !== 0) throw new Error(`Maven verify failed (${result.code}); inspect Surefire/Failsafe reports.`);
   } finally {
     if (server?.pid && server.exitCode === null && server.signalCode === null) {
       await capture(mysqladmin, [...common, 'shutdown'], { cwd: runDir,

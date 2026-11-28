@@ -81,13 +81,13 @@ export async function preflight(path) {
 // 禁止环境中的实验开关和真实密钥进入评测子进程；它只持有本机闸门令牌。
 export function evaluationEnv(base, url, token, report) {
   const env = Object.fromEntries(Object.entries(base).filter(([key]) =>
-    !/^(?:AI_|DEEPSEEK_|INTERVIEW_|AGENT_|LEARNING_|REDIS_|RABBITMQ_|APP_|RUN_EVAL_|RUN_REAL_|SPRING_|MAVEN_|JAVA_TOOL_OPTIONS$|JDK_JAVA_OPTIONS$|_JAVA_OPTIONS$)/i.test(key)));
+    !/^(?:AI_|DEEPSEEK_|INTERVIEW_|AGENT_|LEARNING_|REDIS_|ROCKETMQ_|APP_|RUN_EVAL_|RUN_REAL_|SPRING_|MAVEN_|JAVA_TOOL_OPTIONS$|JDK_JAVA_OPTIONS$|_JAVA_OPTIONS$)/i.test(key)));
   return { ...env, DEEPSEEK_API_KEY: token, AI_API_KEY: token, DEEPSEEK_BASE_URL: url,
     DEEPSEEK_MODEL: 'deepseek-flash', DEEPSEEK_THINKING: 'disabled', DEEPSEEK_TIMEOUT_SECONDS: '30',
     INTERVIEW_RUNS_LOOP_POLICY: 'B0', SPRING_PROFILES_ACTIVE: 'agent-evaluation',
     INTERVIEW_RUNS_DECISION_PROTOCOL: 'phased-v2', INTERVIEW_ADAPTIVE_ROUTING_ENABLED: 'false',
     LEARNING_PRACTICE_TOOLS_ENABLED: 'false', AGENT_VECTOR_ENABLED: 'false',
-    AGENT_TRACE_EXPORT_ENABLED: 'false', REDIS_HEALTH_ENABLED: 'false', RABBITMQ_HEALTH_ENABLED: 'false',
+    AGENT_TRACE_EXPORT_ENABLED: 'false', REDIS_HEALTH_ENABLED: 'false',
     REDIS_RATE_LIMIT_ENABLED: 'false', QUESTION_CACHE_ENABLED: 'false', RUN_DISPATCH_MODE: 'database',
     KNOWLEDGE_DISPATCH_MODE: 'local',
     RUN_EVAL_IDS: 'redis-order,adequate-owner', RUN_EVAL_REPORT: report,

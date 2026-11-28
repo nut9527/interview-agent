@@ -1,7 +1,7 @@
 package cn.edu.whu.zhizhida.common;
 
 public record ApiResponse<T>(boolean success, String message, T data,
-                             @io.swagger.v3.oas.annotations.media.Schema(nullable = true) ErrorCode code) {
+        @io.swagger.v3.oas.annotations.media.Schema(nullable = true) ErrorCode code) {
 
     public ApiResponse(boolean success, String message, T data) {
         this(success, message, data, success ? null : ErrorCode.INTERNAL_ERROR);

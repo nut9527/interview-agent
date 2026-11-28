@@ -34,8 +34,8 @@
       "split": "validation",
       "kind": "source-excerpt",
       "version": "第5版",
-      "contentSha256": "d548ea5a02eda35b4aabb465b8a234bbdc0fe42146beaa5be202c2cb40c16dfb",
-      "transformation": "pdftotext -layout + Unicode NFKC + LF + page headings",
+      "contentSha256": "4be6c1658fbf14ca006fc434448343101321ba21689ed53538a068b77ecc5a9a",
+      "transformation": "pdftotext -layout + Unicode NFKC + LF + page headings; selected paragraphs",
       "sources": [
         {
           "title": "Spring实战（第5版）",
@@ -49,31 +49,6 @@
         }
       ],
       "resource": "/reference-library/books/spring5-messaging.md"
-    },
-    {
-      "id": "book-spring5-rabbitmq",
-      "title": "8.2 使用RabbitMQ和AMQP",
-      "file": "spring5-rabbitmq.md",
-      "topic": "spring",
-      "family": "book-spring-in-action-5",
-      "split": "validation",
-      "kind": "source-excerpt",
-      "version": "第5版",
-      "contentSha256": "5e6194d757fe72c5dc64f78fdc1b668ed500155f99e02cda60050fab44ecd18a",
-      "transformation": "pdftotext -layout + Unicode NFKC + LF + page headings",
-      "sources": [
-        {
-          "title": "Spring实战（第5版）",
-          "path": "D:/学习/实习/Spring实战（第5版） (克雷格·沃斯).pdf",
-          "sha256": "2b062bccc4e2bc277d49292b0d28415265099a1b2fbe7348a21557f3b37dd98d",
-          "pages": [
-            331,
-            332
-          ],
-          "license": "原作品版权"
-        }
-      ],
-      "resource": "/reference-library/books/spring5-rabbitmq.md"
     },
     {
       "id": "book-spring5-actuator",
@@ -110,7 +85,6 @@
       "scope": [
         "book-spring5-jdbc",
         "book-spring5-messaging",
-        "book-spring5-rabbitmq",
         "book-spring5-actuator"
       ],
       "expected": [
@@ -134,7 +108,6 @@
       "scope": [
         "book-spring5-jdbc",
         "book-spring5-messaging",
-        "book-spring5-rabbitmq",
         "book-spring5-actuator"
       ],
       "expected": [
@@ -158,7 +131,6 @@
       "scope": [
         "book-spring5-jdbc",
         "book-spring5-messaging",
-        "book-spring5-rabbitmq",
         "book-spring5-actuator"
       ],
       "expected": [
@@ -188,37 +160,12 @@
       "scope": [
         "book-spring5-jdbc",
         "book-spring5-messaging",
-        "book-spring5-rabbitmq",
         "book-spring5-actuator"
       ],
       "expected": [],
       "answer": "摘录未给出数据库连接池最大连接数。",
       "shouldAbstain": true,
       "evidence": []
-    },
-    {
-      "id": "BOOK-05",
-      "kind": "direct",
-      "split": "validation",
-      "question": "《Spring实战》第5版第8章介绍了哪三种异步消息方案？",
-      "scope": [
-        "book-spring5-jdbc",
-        "book-spring5-messaging",
-        "book-spring5-rabbitmq",
-        "book-spring5-actuator"
-      ],
-      "expected": [
-        "book-spring5-messaging:PDF第312页"
-      ],
-      "answer": "JMS、RabbitMQ/AMQP、Apache Kafka。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "book-spring5-messaging",
-          "heading": "PDF第312页",
-          "quote": "我们将\n会考虑Spring提供的3种异步消息方案:Java消息服务(Java Message\nService,JMS)、RabbitMQ和高级消息队列协议(Advanced Message\nQueueing Protocol)、Apache Kafka。"
-        }
-      ]
     },
     {
       "id": "BOOK-06",
@@ -228,7 +175,6 @@
       "scope": [
         "book-spring5-jdbc",
         "book-spring5-messaging",
-        "book-spring5-rabbitmq",
         "book-spring5-actuator"
       ],
       "expected": [
@@ -245,148 +191,6 @@
       ]
     },
     {
-      "id": "BOOK-07",
-      "kind": "distractor",
-      "split": "validation",
-      "question": "只依据第8章的 JMS 小节，发送和接收 JMS 队列或主题消息使用的是 JmsTemplate 还是 RabbitTemplate？",
-      "scope": [
-        "book-spring5-jdbc",
-        "book-spring5-messaging",
-        "book-spring5-rabbitmq",
-        "book-spring5-actuator"
-      ],
-      "expected": [
-        "book-spring5-messaging:PDF第313页"
-      ],
-      "answer": "JmsTemplate。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "book-spring5-messaging",
-          "heading": "PDF第313页",
-          "quote": "JmsTemplate。借助JmsTemplate,我们能够非常容易地在消息生产方发送队列\n和主题消息,在消费消息的那一方,也能够非常容易地接收这些消息。"
-        }
-      ]
-    },
-    {
-      "id": "BOOK-08",
-      "kind": "multi",
-      "split": "validation",
-      "question": "书中先介绍 JMS 标准、后介绍 RabbitMQ：JMS 的通用接口解决什么问题，两者寻址方式如何不同？",
-      "scope": [
-        "book-spring5-jdbc",
-        "book-spring5-messaging",
-        "book-spring5-rabbitmq",
-        "book-spring5-actuator"
-      ],
-      "expected": [
-        "book-spring5-messaging:PDF第313页",
-        "book-spring5-rabbitmq:PDF第331页"
-      ],
-      "answer": "JMS让遵循规范的实现共享接口；JMS用目的地名称寻址，AMQP使用Exchange和routing key。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "book-spring5-messaging",
-          "heading": "PDF第313页",
-          "quote": "在\nJMS出现之前,每个消息代理都有私有的API,这就使得不同代理之间的消息代码\n很难通用。但是借助JMS,所有遵从规范的实现都使用通用的接口,这就好像\nJDBC为数据库操作提供了通用的接口一样。"
-        },
-        {
-          "documentId": "book-spring5-rabbitmq",
-          "heading": "PDF第331页",
-          "quote": "JMS消息使用目的地名称来寻址,接收者要从这里检索消息,而AMQP消\n息使用Exchange和routing key来寻址,这样消息就与接收者要监听的队列解耦\n了。Exchange和队列的关系如图8.1所示。"
-        }
-      ]
-    },
-    {
-      "id": "BOOK-09",
-      "kind": "direct",
-      "split": "validation",
-      "question": "根据第5版第8.2节，Exchange 将消息路由到队列时依据哪些信息？",
-      "scope": [
-        "book-spring5-jdbc",
-        "book-spring5-messaging",
-        "book-spring5-rabbitmq",
-        "book-spring5-actuator"
-      ],
-      "expected": [
-        "book-spring5-rabbitmq:PDF第331页"
-      ],
-      "answer": "Exchange类型、Exchange与队列的binding、消息routing key。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "book-spring5-rabbitmq",
-          "heading": "PDF第331页",
-          "quote": "Exchange负责将它路由到一个或多个队列中,这个过程会根据Exchange的类\n型、Exchange和队列之间的binding以及消息的routing key进行路由。"
-        }
-      ]
-    },
-    {
-      "id": "BOOK-10",
-      "kind": "synonym",
-      "split": "validation",
-      "question": "第8.2节中，哪种 Exchange 会把消息广播到全部已绑定队列，而不看路由键？",
-      "scope": [
-        "book-spring5-jdbc",
-        "book-spring5-messaging",
-        "book-spring5-rabbitmq",
-        "book-spring5-actuator"
-      ],
-      "expected": [
-        "book-spring5-rabbitmq:PDF第331页"
-      ],
-      "answer": "Fanout。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "book-spring5-rabbitmq",
-          "heading": "PDF第331页",
-          "quote": "Fanout:不管routing key和binding key是什么,消息都将会路由到所有\n   绑定队列上。"
-        }
-      ]
-    },
-    {
-      "id": "BOOK-11",
-      "kind": "paraphrase",
-      "split": "validation",
-      "question": "依照书中搭建步骤，把 Artemis 或 ActiveMQ 切换成 RabbitMQ 消息支持时，要换成哪个 starter？",
-      "scope": [
-        "book-spring5-jdbc",
-        "book-spring5-messaging",
-        "book-spring5-rabbitmq",
-        "book-spring5-actuator"
-      ],
-      "expected": [
-        "book-spring5-rabbitmq:PDF第332页"
-      ],
-      "answer": "spring-boot-starter-amqp。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "book-spring5-rabbitmq",
-          "heading": "PDF第332页",
-          "quote": "<artifactId>spring-boot-starter-amqp</artifactId>"
-        }
-      ]
-    },
-    {
-      "id": "BOOK-12",
-      "kind": "insufficient",
-      "split": "validation",
-      "question": "Taco Cloud 生产环境 RabbitMQ 集群实际有几个节点？",
-      "scope": [
-        "book-spring5-jdbc",
-        "book-spring5-messaging",
-        "book-spring5-rabbitmq",
-        "book-spring5-actuator"
-      ],
-      "expected": [],
-      "answer": "摘录没有给出生产集群节点数。",
-      "shouldAbstain": true,
-      "evidence": []
-    },
-    {
       "id": "BOOK-13",
       "kind": "direct",
       "split": "validation",
@@ -394,7 +198,6 @@
       "scope": [
         "book-spring5-jdbc",
         "book-spring5-messaging",
-        "book-spring5-rabbitmq",
         "book-spring5-actuator"
       ],
       "expected": [
@@ -418,7 +221,6 @@
       "scope": [
         "book-spring5-jdbc",
         "book-spring5-messaging",
-        "book-spring5-rabbitmq",
         "book-spring5-actuator"
       ],
       "expected": [
@@ -442,7 +244,6 @@
       "scope": [
         "book-spring5-jdbc",
         "book-spring5-messaging",
-        "book-spring5-rabbitmq",
         "book-spring5-actuator"
       ],
       "expected": [
@@ -466,7 +267,6 @@
       "scope": [
         "book-spring5-jdbc",
         "book-spring5-messaging",
-        "book-spring5-rabbitmq",
         "book-spring5-actuator"
       ],
       "expected": [

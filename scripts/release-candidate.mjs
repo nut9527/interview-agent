@@ -12,7 +12,8 @@ const files = new Set(['README.md', 'LICENSE', '.gitignore', '.dockerignore', '.
     'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'postcss.config.js', 'tailwind.config.js',
     'tsconfig.json', 'tsconfig.node.json', 'vite.config.ts'].map(name => `frontend/${name}`)]);
 const trees = ['.github/workflows/', 'backend/.mvn/', 'backend/src/', 'backend/docker/',
-  'backend/compatibility/', 'frontend/src/', 'frontend/public/', 'frontend/scripts/', 'services/mcp-reference/', 'services/embedding/', 'contracts/', 'scripts/', 'docs/'];
+  'backend/compatibility/', 'frontend/src/', 'frontend/public/', 'frontend/scripts/', 'services/mcp-reference/', 'services/embedding/',
+  'services/rocketmq/', 'contracts/', 'scripts/', 'docs/'];
 const forbidden = /^(?:\.git|\.runtime|\.cache|\.m2|\.pnpm-store|node_modules|target|dist|coverage|outputs|tmp|logs|__pycache__)$/;
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
 export const jsonBytes = value => JSON.stringify(value, null, 2) + '\n';
@@ -26,7 +27,8 @@ export function safePath(path) {
 export function allowed(path) {
   safePath(path);
   const parts = path.split('/');
-  if (parts.some(part => forbidden.test(part)) || /(?:^|\/)\.env(?:\.|$)/.test(path) && path !== '.env.example'
+  if (/^docs\/evidence\/resume-retest-[^/]{8}\//.test(path) || parts.some(part => forbidden.test(part))
+      || /(?:^|\/)\.env(?:\.|$)/.test(path) && path !== '.env.example'
       || /(?:\.pem|\.key|\.p12|\.pfx|\.jks|\.log|\.class|\.tsbuildinfo)$/i.test(path)
       || /(?:^|\/)(?:application-local\.[^/]+|_tmp_[^/]+|.*~)$/.test(path)) return false;
   return files.has(path) || trees.some(prefix => path.startsWith(prefix));
@@ -84,7 +86,8 @@ export async function createCandidate(id, root = projectRoot) {
   const directory = join(parent, id);
   const paths = await listPayload(root);
   for (const required of ['README.md', 'backend/pom.xml', 'frontend/package.json', 'frontend/pnpm-lock.yaml',
-    'docs/使用指南.md', 'contracts/release-v1.0.json', 'scripts/release-candidate.mjs']) {
+    'docs/使用指南.md', 'contracts/release-v1.0.json', 'scripts/release-candidate.mjs',
+    'services/rocketmq/broker.conf', 'services/rocketmq/proxy.json', 'services/rocketmq/init.sh', 'services/rocketmq/InitResources.java']) {
     if (!paths.includes(required)) throw new Error(`Required release file missing: ${required}`);
   }
   await mkdir(directory); // EEXIST 时直接拒绝，失败候选也不覆盖。

@@ -16,11 +16,11 @@ class ReferenceLibraryIT extends IntegrationTestBase {
         String other = registerUniqueUserToken("password123", "另一个账号");
         assertThat(performGet("/api/knowledge/library").getResponse().getStatus()).isEqualTo(401);
         var catalog = data(performGet("/api/knowledge/library", owner));
-        assertThat(catalog.size()).isEqualTo(27);
+        assertThat(catalog.size()).isEqualTo(25);
         var entry = catalog.get(0);
-        String base = "/api/knowledge/library/" + entry.path("id").asText();
+        String base = "/api/knowledge/library/" + entry.path("id").asString();
         var preview = data(performGet(base, owner));
-        String content = preview.path("content").asText() + "\n\n## 我的阅读记录\n\n已核对召回与生成的区别。";
+        String content = preview.path("content").asString() + "\n\n## 我的阅读记录\n\n已核对召回与生成的区别。";
         var imported =
                 data(
                         performPost(
@@ -35,13 +35,13 @@ class ReferenceLibraryIT extends IntegrationTestBase {
                                         "confirmed",
                                         true),
                                 owner));
-        assertThat(imported.path("content").asText()).isEqualTo(content);
-        assertThat(imported.path("sourceName").asText())
-                .isEqualTo(entry.path("sourceName").asText());
+        assertThat(imported.path("content").asString()).isEqualTo(content);
+        assertThat(imported.path("sourceName").asString())
+                .isEqualTo(entry.path("sourceName").asString());
         assertThat(imported.path("chunks").size()).isGreaterThan(1);
-        String path = "/api/knowledge/documents/" + imported.path("id").asText();
+        String path = "/api/knowledge/documents/" + imported.path("id").asString();
         var archived = data(performGet(path + "/versions/1", owner));
-        assertThat(archived.path("content").asText()).isEqualTo(content);
+        assertThat(archived.path("content").asString()).isEqualTo(content);
         assertThat(performGet(path, other).getResponse().getStatus()).isEqualTo(404);
     }
 

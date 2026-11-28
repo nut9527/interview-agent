@@ -5,7 +5,7 @@
 ## 一次回答如何落库
 
 1. 页面向 `POST /api/interviews/sessions/{id}/answer-commands` 提交回答、预期轮次 `expectedTurn` 和 `requestId`。后端受理后返回 HTTP 202 和任务 ID。同一账号用同一个 `requestId` 重试相同的作答命令，会取回原任务。若改了回答或轮次却复用该 ID，后端返回 HTTP 409。
-2. 标准部署将任务和待发送的 Outbox 记录一起提交。发布器收到 RabbitMQ 的投递确认后更新记录。Worker 收到通知，从 MySQL 领取任务并取得执行租约。模型在数据库事务外运行，按需读取岗位或简历片段、回答原文、本场选定的知识资料。工具的返回内容随任务保存。
+2. 标准部署将任务和待发送的 Outbox 记录一起提交。发布器收到 RocketMQ 的投递确认后更新记录。Worker 收到通知，从 MySQL 领取任务并取得执行租约。模型在数据库事务外运行，按需读取岗位或简历片段、回答原文、本场选定的知识资料。工具的返回内容随任务保存。
 3. 服务端检查结构化输出、允许的路由和引用。模型提供来源、锚点和连续原文，服务端定位并生成引用偏移。校验失败时在任务预算内允许模型修正一次；仍不合法则任务失败，不提交候选评价。
 4. 提交前再次检查任务归属、租约、轮次和资料使用资格。会话变更、任务终态和最终事件写入同一事务。浏览器通过 SSE 接收进度，重连时用 `afterSeq` 续读已保存的事件。若事件流反复连接失败，页面改为查询任务状态。任务成功后，页面重新读取会话，展示已保存的问答。
 
@@ -55,17 +55,19 @@ TypeScript 契约生成器复用 `ApiResponse<T>` 和统一错误码类型。知
 
 ## 中间件协作
 
-RabbitMQ 负责异步任务通知；两个 Redis 分别承担题目快照缓存，以及提交频控、共享 AI 配额、熔断、SSE 许可和清理租约；MCP 提供只读技术资料检索。标准部署下，在「精选题目」打开「消息重复消费与业务落库」，查看解析、开始练习并提交回答，即可走通这些链路。Mock 模式使用相同的业务接口和中间件，学习记忆的持久数据保存在 MySQL。
+Topic、消费组、ACK 时机和版本切换见 [RocketMQ 任务派发与迁移](RocketMQ迁移实施计划.md)。
+
+RocketMQ 负责异步任务通知；两个 Redis 分别承担题目快照缓存，以及提交频控、共享 AI 配额、熔断、SSE 许可和清理租约；MCP 提供只读技术资料检索。标准部署下，在「精选题目」打开「消息重复消费与业务落库」，查看解析、开始练习并提交回答，即可走通这些链路。Mock 模式使用相同的业务接口和中间件，学习记忆的持久数据保存在 MySQL。
 
 | 用户动作 | 处理流程 | 设计说明 |
 | --- | --- | --- |
-| 查看解析和延伸阅读 | 后端将已发布题目的标题和标签交给只读 MCP 工具。资料服务在本地目录检索，返回 RabbitMQ 消费确认与发布确认的官方文档链接和阅读提示。面试 Agent 也能通过同一工具查资料。 | 同一份资料目录可供题库和模型使用。资料范围由服务端维护，目录未收录的主题可能没有结果。资料服务故障时用户仍能读题和查看原解析。 |
+| 查看解析和延伸阅读 | 后端将已发布题目的标题和标签交给只读 MCP 工具。资料服务在本地目录检索，返回 RocketMQ 消费重试的官方文档链接和阅读提示。面试 Agent 也能通过同一工具查资料。 | 同一份资料目录可供题库和模型使用。资料范围由服务端维护，目录未收录的主题可能没有结果。资料服务故障时用户仍能读题和查看原解析。 |
 | 开始练习、重复练习 | 后端核对发布状态后，按题号和版本从缓存 Redis 读取不可变快照。缓存缺失或失效时从 MySQL 归档取正文。新的开场与作答命令还要经过独立的频控 Redis，Lua 脚本原子检查计数和剩余时间。 | 题库缓存允许淘汰，频控实例使用 `noeviction`，避免缓存压力清掉限流计数。频控故障时新命令返回 503；超限返回 429 和 `Retry-After`。已受理的相同请求可以取回原任务。 |
-| 提交回答，等待本轮问题 | API 返回任务 ID，Outbox 发布任务。Worker 无容量、退避等待或执行失败时，先将原消息发布到持久 quorum 重试队列并等待确认，再 ACK；2 秒 TTL 后按至少一次语义转回执行队列。 | MySQL 保存检查点和租约，终态与活跃租约使重复通知直接结束；重试不重置模型预算。数据库扫描保留崩溃和超时恢复职责。资料上传也通过队列处理，原文件保存在共享目录。 |
+| 提交回答，等待本轮问题 | API 返回任务 ID，Outbox 发布任务。Worker 无容量、退避等待或执行失败时，向 DELAY 主题发送两秒后交付的通知，收到回执再 ACK；面试消费组同时订阅普通和延迟主题。 | MySQL 保存检查点和租约，终态与活跃租约使重复通知直接结束；重试不重置模型预算。数据库扫描保留崩溃和超时恢复职责。资料上传也通过队列处理，原文件保存在共享目录。 |
 
 代码可从[只读资料服务](../services/mcp-reference/server.mjs)、[题目快照缓存](../backend/src/main/java/cn/edu/whu/zhizhida/questionbank/QuestionSnapshotCache.java)、[频控脚本](../backend/src/main/resources/redis/ai-submit.lua)和[面试任务消费者](../backend/src/main/java/cn/edu/whu/zhizhida/interview/execution/RunDispatchConsumer.java)查看。要复现缓存回源、跨 API 限流和消息重投，可在具备本地测试镜像、MySQL 工具及 Maven 依赖的机器上执行 `node scripts/verify-middleware-live.mjs --offline`。[业务集成断言](../backend/src/test/java/cn/edu/whu/zhizhida/middleware/MiddlewareApplicationIT.java) · [知识导入重投断言](../backend/src/test/java/cn/edu/whu/zhizhida/knowledge/KnowledgeMqIT.java)
 
-中间件集成测试使用两个独立的 Redis 7.4.2、RabbitMQ 4.1.0 和临时 MySQL，覆盖跨 API 实例的限流窗口、幂等请求重放，以及落库后 ACK 丢失触发的消息重投，核对任务、会话事件和配额记录。MCP 验收通过 Mock 模型的题库 HTTP 链路检查资料检索、鉴权和服务中断行为：资料服务关闭后，延伸阅读返回 503，题目详情返回 200。在 `backend/` 执行 `mvn package -DskipTests`，准备前端依赖和 MySQL 工具后，到项目根目录运行 [`node scripts/verify-mcp-reference-live.mjs`](../scripts/verify-mcp-reference-live.mjs)。
+中间件集成测试使用两个独立的 Redis 7.4.2、RocketMQ 5.x 和临时 MySQL，覆盖跨 API 实例的限流窗口、幂等请求重放，以及落库后 ACK 丢失触发的消息重投，核对任务、会话事件和配额记录。MCP 验收通过 Mock 模型的题库 HTTP 链路检查资料检索、鉴权和服务中断行为：资料服务关闭后，延伸阅读返回 503，题目详情返回 200。在 `backend/` 执行 `mvn package -DskipTests`，准备前端依赖和 MySQL 工具后，到项目根目录运行 [`node scripts/verify-mcp-reference-live.mjs`](../scripts/verify-mcp-reference-live.mjs)。
 
 ## 验证入口
 

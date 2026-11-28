@@ -47,7 +47,7 @@ function DeleteAccountModal({ open, user, onClose, onDeleted }: DeleteAccountMod
       confirmLoading={submitting}
       onOk={handleSubmit}
       onCancel={onClose}
-      destroyOnClose
+      destroyOnHidden
     >
       <Alert
         type="error"
@@ -66,19 +66,14 @@ function DeleteAccountModal({ open, user, onClose, onDeleted }: DeleteAccountMod
           rules={[
             { required: true, message: '请输入用户名' },
             {
-              validator: (_, value) => value === user.username
-                ? Promise.resolve()
-                : Promise.reject(new Error('用户名不匹配')),
+              validator: (_, value) =>
+                value === user.username ? Promise.resolve() : Promise.reject(new Error('用户名不匹配')),
             },
           ]}
         >
           <Input autoComplete="off" placeholder={user.username} />
         </Form.Item>
-        <Form.Item
-          name="currentPassword"
-          label="当前密码"
-          rules={[{ required: true, message: '请输入当前密码' }]}
-        >
+        <Form.Item name="currentPassword" label="当前密码" rules={[{ required: true, message: '请输入当前密码' }]}>
           <Input.Password autoComplete="current-password" />
         </Form.Item>
       </Form>

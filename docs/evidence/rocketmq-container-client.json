@@ -1,0 +1,9 @@
+{
+  "run": "8e3e1f15b250188c",
+  "endpoint": "mqproxy:8081",
+  "sdkVersion": "5.2.2",
+  "repeatedInitialization": true,
+  "normalAck": true,
+  "delayedAck": true,
+  "clusterRemoved": true
+}

@@ -3,9 +3,9 @@
   "audit": "PASSED",
   "reranBenchmark": false,
   "evidence": {
-    "path": "docs/evidence/middleware-batch1-baseline.json",
-    "sha256": "667b7df9a9cf998d1174787dbaeb7ce7256687943713689e70228442b84b3836",
-    "provenance": "Byte-for-byte historical archive copy; hash also matched backend/target/middleware-benchmark.json during restoration."
+    "path": "docs/evidence/cache-baseline.json",
+    "sha256": "97eac84ea658e3bcc5d13a356de73ef573fa177917c616f9ef48a4478f63ff39",
+    "provenance": "Cache fields extracted from the historical benchmark. The sample file records the original artifact checksum."
   },
   "originalBenchmark": {
     "archivedSha256": "163f95161d685d3b72eb0d002ea4c0213223c4ce6551358b70dd3d3c259ce05e",
@@ -40,13 +40,13 @@
     {
       "path": "backend/src/test/java/cn/edu/whu/zhizhida/middleware/SplitRuntimeIT.java",
       "archivedSha256": "61871106cbb795bea9f2c50f7f886c0aa41a59ba8ff5eb5e1af316d75fc033ac",
-      "currentSha256": "18adc553fb5120b8cd66f5a4b2dab9482328d83078052ed78b48718be76e814d",
+      "currentSha256": "5871cef6100be95ec6ec200a1ac6bd16c4aeb3647c0f701ef938419df50575c5",
       "sameBytesAsArchivedSource": false
     },
     {
       "path": "backend/src/main/java/cn/edu/whu/zhizhida/questionbank/QuestionSnapshotCache.java",
       "archivedSha256": "a1790501596aa2deaf707782f722cd1ff631179bde94d6c5f8675ccb992ebe9a",
-      "currentSha256": "9a290f0ed8beaef313358f6e69994e98fd61174c28d8d2383c33b5d35ceee809",
+      "currentSha256": "f0f60aed716edfa02fe995433ca4ae0f536cf3180325bc3d5ab2351ca9a1dad6",
       "sameBytesAsArchivedSource": false
     },
     {

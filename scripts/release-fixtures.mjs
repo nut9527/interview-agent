@@ -63,7 +63,7 @@ export async function expectedFixtures(root = projectRoot) {
       promptVersion: 'interview-run-contract-v6', outputContract: 'interview-output-v2', toolset: 'evidence-v2', fingerprintFormat: 'sorted-json-v1',
       model: 'deepseek-flash', modelAvailability: 'NOT_CHECKED', thinking: 'disabled',
       tools: ['read_material_section', 'read_answer_evidence', 'search_knowledge'],
-      optionalFeatures: { streaming: false, adaptiveRouting: false, plannerV4: false, history: false, redis: false, rabbitmq: false, vector: false, mcp: false },
+      optionalFeatures: { streaming: false, adaptiveRouting: false, plannerV4: false, history: false, redis: false, rocketmq: false, vector: false, mcp: false },
       runLimits: { seconds: 90, attempts: 4, toolBatches: 2, toolExecutions: 3, repairs: 1 },
       generation: { temperature: 'PROVIDER_DEFAULT', openingMaxTokens: 3000, reviewMaxTokens: 3000 } },
     samples: samples.map((sample, index) => ({ order: index + 1, ...sample, toolExpectation: toolExpectations[index], check: checks[index],

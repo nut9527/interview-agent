@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- RocketMQ SDK 使用独立的 Logback 上下文，诊断日志统一写入应用的标准错误流。 -->
+<configuration>
+    <appender name="STDERR" class="org.apache.rocketmq.shaded.ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder>
+            <pattern>%d{ISO8601} %-5level [rocketmq] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="WARN">
+        <appender-ref ref="STDERR"/>
+    </root>
+</configuration>

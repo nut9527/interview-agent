@@ -1,10 +1,10 @@
-# Worker exposes only health and authenticated metrics; it does not accept business HTTP traffic.
+# Worker 领取任务并恢复过期租约，HTTP 仅提供健康检查和需鉴权的指标接口。
 app:
   runtime:
     role: worker
   cache.questions.enabled: true
   rate-limit.redis.enabled: false
-  run-dispatch.mode: rabbitmq
+  run-dispatch.mode: rocketmq
   outbox.publisher.enabled: false
   run-recovery.enabled: true
 interview.runs:
@@ -13,7 +13,7 @@ agent.vector.worker-enabled: true
 learning.worker-enabled: true
 knowledge:
   dispatch:
-    mode: rabbitmq
+    mode: rocketmq
     publisher-enabled: false
     index-scan-ms: 60000
   import.worker-enabled: true

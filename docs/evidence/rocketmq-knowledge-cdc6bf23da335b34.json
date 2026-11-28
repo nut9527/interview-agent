@@ -1,0 +1,141 @@
+{
+  "run": "cdc6bf23da335b34",
+  "date": "2026-11-28",
+  "baseRevision": "188d8505c3d35946fe7082b6f009c10e17fcaf0f",
+  "workingTreeCandidate": true,
+  "command": "node scripts/verify-middleware-live.mjs --knowledge-only --offline",
+  "rocketmqVersion": "5.3.2",
+  "javaClientVersion": "5.2.2",
+  "receiveWaitMillis": 200,
+  "suites": {
+    "unit": [
+      {
+        "class": "cn.edu.whu.zhizhida.architecture.ModuleBoundaryTest",
+        "passed": 12,
+        "seconds": 5.595,
+        "cases": [
+          "coreRulesDoNotDependOnInfrastructure",
+          "businessModulesHaveNoCycles",
+          "onlyModelAdaptersAndWiringDependOnGenericModelApi",
+          "modulesOnlyUsePublicContracts",
+          "productionImportIncludesEveryBusinessModuleAndCoreRules",
+          "interviewRulesOnlyDependOnDataAndDeterministicJdkTypes",
+          "langchain4jTypesStayInsideTheModelAdapter",
+          "allowlistsReferenceExistingProductionContractsAndAdapters",
+          "applicationAndApiDoNotAccessPersistence",
+          "exportedTypesAreInterfacesOrDataAndNeverPersistenceTypes",
+          "controllersUseServicesInsteadOfPersistenceOrCoreRules",
+          "applicationOwnsTheOnlyToolLoop"
+        ]
+      },
+      {
+        "class": "cn.edu.whu.zhizhida.config.RuntimeRoleConfigurationTest",
+        "passed": 8,
+        "seconds": 0.531,
+        "cases": [
+          "workerExposesOnlyHealthAndTheExistingProtectedMetricsRoute",
+          "adaptiveEvidenceBudgetCanRunInBothProductionRoles",
+          "retiredDecisionProtocolIsRejectedInEveryProfile",
+          "experimentalPoliciesAreConfinedToEvaluation",
+          "comparisonRoutesRequireAnExplicitTestOrEvaluationProfile",
+          "splitRolesRejectInvalidSharedCapacity",
+          "capacityDoesNotMultiplyWithReplicaCount",
+          "shippedProfilesValidateAndFailClosedOnConflictingOverrides"
+        ]
+      },
+      {
+        "class": "cn.edu.whu.zhizhida.knowledge.KnowledgeDocumentImporterTest",
+        "passed": 9,
+        "seconds": 4.622,
+        "cases": [
+          "exportBrowserFixturesWhenRequested",
+          "acceptsThousandPagesLargeBinaryAndLongChineseBody",
+          "rejectsScansEncryptionEmptyCorruptAndWrongFormat",
+          "mixedPdfWarnsAboutMissingImagePages",
+          "interruptionAndExternalXmlEntitiesNeverBecomeText",
+          "enforcesSeparatePdfDocxAndTextUploadBoundaries",
+          "preservesTextExactlyExceptBom",
+          "extractsPdfPagesInOrderAndDocxBodyAroundTables",
+          "rejectsEveryLimitWithoutTruncation"
+        ]
+      },
+      {
+        "class": "cn.edu.whu.zhizhida.knowledge.KnowledgeImportJobsTest",
+        "passed": 12,
+        "seconds": 3.422,
+        "cases": [
+          "localMaintenanceOnlyDeletesAbandonedJobDirectories",
+          "sharedLeaseLossStopsProgressAndCannotCommitADraft(boolean)[1]",
+          "sharedLeaseLossStopsProgressAndCannotCommitADraft(boolean)[2]",
+          "sharedSubmissionKeepsTheUploadOnlyWhenTheCommitIsUncertain(boolean)[1]",
+          "sharedSubmissionKeepsTheUploadOnlyWhenTheCommitIsUncertain(boolean)[2]",
+          "interruptedUploadRemovesPartialFilesBeforeRegistration(String)[1]",
+          "interruptedUploadRemovesPartialFilesBeforeRegistration(String)[2]",
+          "failedJobsOnlyPublishReviewedMessagesAndRemoveTheirTemporaryFiles(RuntimeException, String)[1]",
+          "failedJobsOnlyPublishReviewedMessagesAndRemoveTheirTemporaryFiles(RuntimeException, String)[2]",
+          "failedJobsOnlyPublishReviewedMessagesAndRemoveTheirTemporaryFiles(RuntimeException, String)[3]",
+          "workerRoleDoesNotRecoverOrRemoveApiImportFiles",
+          "aClaimCannotParseAnotherJobsSharedUpload"
+        ]
+      }
+    ],
+    "integration": [
+      {
+        "class": "cn.edu.whu.zhizhida.knowledge.KnowledgeImportIT",
+        "passed": 7,
+        "seconds": 33.129,
+        "cases": [
+          "durablePreviewConfirmIsIdempotentAndOwnerScopedWithLongTrainingBody",
+          "secondExecutorOnlyRecoversExpiredLeasesAndCannotCompleteAnotherExecutorsJob",
+          "deadlineFailureReleasesTemporaryFiles(Path)",
+          "previewDoesNotPersistAndConfirmedBodyDrivesVersionsSearchCitationsAndTraining",
+          "cancelAndFailuresCannotSaveOrLeakDraftsAndExpiredJobsDisappear",
+          "boundsWorkersQueueAndCancellation",
+          "failuresAndUnconfirmedRequestsCannotCreateDocuments"
+        ]
+      },
+      {
+        "class": "cn.edu.whu.zhizhida.knowledge.KnowledgeIndexLifecycleIT",
+        "passed": 6,
+        "seconds": 4.824,
+        "cases": [
+          "retiresOldProfileOnlyAfterNewGenerationIsReady",
+          "questionsAndFocusedQuizzesUseSemanticOnlyHitsFromOwnedArchive",
+          "accountCascadeLeavesCleanupTombstoneAndDeletionRetries",
+          "discoversVersionsRebuildsAndRejectsOtherOwners",
+          "concurrentWorkersCannotEnterSameGenerationAndDeletionDuringWriteIsCleaned",
+          "retriesFailureAndRecoversPublishedButUnacknowledgedWork"
+        ]
+      },
+      {
+        "class": "cn.edu.whu.zhizhida.knowledge.KnowledgeMqIT",
+        "passed": 10,
+        "seconds": 48.002,
+        "cases": [
+          "indexNotificationForDeletedDocumentOnlyRemovesVectors",
+          "commitBeforeAckIsRedeliveredWithoutParsingTwice",
+          "realListenerRecoversReservedNotificationAndCanceledJobsRemainCanceled",
+          "expiredLeaseRetriesWithNewTokenAndOldExecutorCannotCommitOrFailIt",
+          "fullAdmissionAndDelayedCleanupPreserveQueuedFilesAndUnknownArtifacts",
+          "survivesApiExecutorReplacementAndRequiresIdempotentUserConfirmation",
+          "canceledExpiredAndDeletedOwnerJobsCannotBeRevived",
+          "switchingToMqReleasesAbandonedLocalUploadsAndRetainsUsableDrafts",
+          "rolledBackVersionNeverCreatesDispatchableIndexWork",
+          "retryBudgetIsFiniteAndMissingFilesNeverProduceDrafts"
+        ]
+      },
+      {
+        "class": "cn.edu.whu.zhizhida.middleware.SplitRuntimeIT",
+        "passed": 1,
+        "seconds": 66.359,
+        "cases": [
+          "apiQueuesWithoutWorkerThenIndependentWorkerExecutesAndCanRestart"
+        ]
+      }
+    ]
+  },
+  "passedTests": {
+    "unit": 41,
+    "integration": 24
+  }
+}

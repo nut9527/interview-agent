@@ -104,14 +104,6 @@
     "resource": "javaguide/docs/system-design/framework/spring/spring-transaction.md"
   },
   {
-    "id": "jg-rabbitmq",
-    "title": "RabbitMQ 常见问题总结",
-    "topic": "messaging",
-    "sourceName": "JavaGuide · rabbitmq-questions.md",
-    "sourceLabel": "JavaGuide",
-    "resource": "javaguide/docs/high-performance/message-queue/rabbitmq-questions.md"
-  },
-  {
     "id": "jg-idempotency",
     "title": "接口幂等性设计详解：幂等键、Token、唯一索引、去重表与支付回调",
     "topic": "reliability",
@@ -198,14 +190,6 @@
     "sourceName": "Spring 实战 · spring5-messaging.md",
     "sourceLabel": "Spring实战（第5版） · PDF 311–313 页",
     "resource": "books/spring5-messaging.md"
-  },
-  {
-    "id": "book-spring5-rabbitmq",
-    "title": "8.2 使用RabbitMQ和AMQP",
-    "topic": "spring",
-    "sourceName": "Spring 实战 · spring5-rabbitmq.md",
-    "sourceLabel": "Spring实战（第5版） · PDF 331–332 页",
-    "resource": "books/spring5-rabbitmq.md"
   },
   {
     "id": "book-spring5-actuator",

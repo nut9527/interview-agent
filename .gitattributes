@@ -3,6 +3,14 @@
 *.tsx text eol=lf
 *.css text eol=lf
 backend/src/main/resources/prompts/**/*.txt text eol=lf
+services/rocketmq/*.sh text eol=lf
+
+# 固定语料和评测输入的换行符，使 Windows 与 Linux 检出后的文件指纹一致。
+backend/src/main/resources/reference-library/javaguide/**/*.md text eol=crlf
+backend/src/main/resources/reference-library/books/*.md text eol=lf
+backend/src/main/resources/reference-library/xiaolin/*.md text eol=lf
+backend/src/test/resources/rag-corpus/**/*.json text eol=lf
+docs/evidence/cache-baseline.json text eol=lf
 
 # 发布校验按原始字节比对录制、冻结输入与登记文件。
 docs/evidence/*.jsonl -text

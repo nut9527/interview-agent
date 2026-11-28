@@ -1,9 +1,8 @@
-"""Download the pinned ONNX reranker into the project cache."""
+"""按固定版本下载 ONNX 重排模型和分词器，校验后存入项目缓存。"""
 import hashlib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import time
-import httpx
 
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = "Xenova/bge-reranker-base"
@@ -29,6 +28,7 @@ def prepare():
             assert sha256(target) == expected, target
             print(f"Verified {target.name}", flush=True)
             continue
+        import httpx
         partial = target.with_suffix(".part")
         for attempt in (1, 2):
             started = time.monotonic()

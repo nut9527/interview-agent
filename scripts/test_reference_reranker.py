@@ -1,5 +1,6 @@
-"""Check the Python experiment against the recorded Java production rankings and metrics."""
+"""用 Java 诊断记录核对 Python 重算的候选排名和检索指标。"""
 import json
+import os
 from pathlib import Path
 import runpy
 import statistics
@@ -7,7 +8,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 EVAL = runpy.run_path(str(ROOT / "scripts/evaluate-reference-reranker.py"))
-DATA = json.loads(EVAL["INPUT"].read_text(encoding="utf-8"))["diagnostics"]
+DATA = json.loads(Path(os.getenv("RAG_DIAGNOSTICS", EVAL["DEFAULT_INPUT"])).read_text(encoding="utf-8"))["diagnostics"]
 
 
 class RecordedParityTest(unittest.TestCase):
@@ -25,7 +26,7 @@ class RecordedParityTest(unittest.TestCase):
                             with self.subTest(scope=scope, criterion=criterion, stage=stage, k=cutoff, metric=metric):
                                 self.assertAlmostEqual(statistics.mean(v[metric] for v in values), expected[metric])
 
-    def test_quota_matches_all_206_production_results(self):
+    def test_quota_matches_all_production_results(self):
         for case in DATA["details"]:
             for scope in EVAL["SCOPES"]:
                 stages = case["scopes"][scope]["stages"]

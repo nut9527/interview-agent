@@ -1,122 +1,185 @@
 package cn.edu.whu.zhizhida.interview.execution;
 
-import com.rabbitmq.client.Channel;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.Test;
-import org.springframework.amqp.core.*;
-import tools.jackson.databind.json.JsonMapper;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.assertj.core.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.env.MockEnvironment;
+
+import cn.edu.whu.zhizhida.messaging.RocketTransport;
+import cn.edu.whu.zhizhida.messaging.RocketTransport.Delivery;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import tools.jackson.databind.json.JsonMapper;
 
 class RunDispatchConsumerTest {
-    final InterviewRunStore store=mock(InterviewRunStore.class);
-    final InterviewRunWorker worker=mock(InterviewRunWorker.class);
-    final Channel channel=mock(Channel.class);
-    final JsonMapper json=new JsonMapper();
-    final SimpleMeterRegistry metrics=new SimpleMeterRegistry();
-    final RunDispatchRetry retry=mock(RunDispatchRetry.class);
-    final RunDispatchConsumer consumer=new RunDispatchConsumer(store,worker,json,metrics,retry);
-    final String id=UUID.randomUUID().toString();
-    Message message() {
-        var event=new RunDispatchMessage(1,UUID.randomUUID().toString(),"AGENT_RUN_READY",id,0,Instant.now());
-        var props=new MessageProperties(); props.setMessageId(event.eventId()); props.setDeliveryTag(7);
-        return new Message(json.writeValueAsBytes(event),props);
+    final InterviewRunStore store = mock(InterviewRunStore.class);
+    final InterviewRunWorker worker = mock(InterviewRunWorker.class);
+    final RocketTransport transport = mock(RocketTransport.class);
+    final JsonMapper json = new JsonMapper();
+    final SimpleMeterRegistry metrics = new SimpleMeterRegistry();
+    final RunDispatchRetry retry = mock(RunDispatchRetry.class);
+    final RunDispatchConsumer consumer = new RunDispatchConsumer(
+            store, worker, json, metrics, retry, transport, new MockEnvironment());
+    final String id = UUID.randomUUID().toString();
+
+    Delivery message() {
+        var event = new RunDispatchMessage(
+                1, UUID.randomUUID().toString(), "AGENT_RUN_READY", id, 0, Instant.now());
+        return new Delivery(
+                "run-ready", "broker-id", List.of(event.eventId()), json.writeValueAsBytes(event));
     }
-    @Test void tenDuplicatesOfTerminalRunNeverExecute() throws Exception {
-        var row=mock(InterviewRunStore.Row.class); when(row.terminal()).thenReturn(true);
+
+    @Test
+    void tenDuplicatesOfTerminalRunNeverExecute() throws Exception {
+        var row = mock(InterviewRunStore.Row.class);
+        when(row.terminal()).thenReturn(true);
         when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
-        for(int i=0;i<10;i++) consumer.receive(message(),channel);
-        verify(channel,times(10)).basicAck(7,false); verifyNoInteractions(worker);
-    }
-    @Test void absentRunAndBusyLeaseAreAcknowledgedWithoutExecution() throws Exception {
-        when(store.dispatchCandidate(id)).thenReturn(Optional.empty());
-        consumer.receive(message(),channel);
-        var row=mock(InterviewRunStore.Row.class); when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
-        when(worker.executeCandidate(row)).thenReturn(true);
-        consumer.receive(message(),channel);
-        verify(channel,times(2)).basicAck(7,false); verify(worker).executeCandidate(row);
-        verifyNoInteractions(retry);
-    }
-    @Test void ackFollowsSharedWorkerAdmissionAndExecution() throws Exception {
-        var row=mock(InterviewRunStore.Row.class);
-        when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
-        when(worker.executeCandidate(row)).thenReturn(true);
-        consumer.receive(message(),channel);
-        var ordered=inOrder(store,worker,channel);
-        ordered.verify(store).dispatchCandidate(id);
-        ordered.verify(worker).executeCandidate(row); ordered.verify(channel).basicAck(7,false);
-    }
-    @Test void databaseFailureConfirmsDelayedRetryBeforeAck() throws Exception {
-        when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException());
-        var message=message();
-        consumer.receive(message,channel);
-        var ordered=inOrder(retry,channel);
-        ordered.verify(retry).publish(message);
-        ordered.verify(channel).basicAck(7,false);
-        verify(channel).basicAck(7,false); verify(channel,never()).basicNack(anyLong(),anyBoolean(),anyBoolean());
-        assertThat(metrics.get("zhizhida.run.delivery").tag("outcome","retry_execution").counter().count()).isEqualTo(1);
+        for (int i = 0; i < 10; i++)
+            assertThat(consumer.receive(message())).isTrue();
         verifyNoInteractions(worker);
     }
-    @Test void unpersistedResultGetsBrokerRetry() throws Exception {
-        var row=mock(InterviewRunStore.Row.class); when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
-        doThrow(new IllegalStateException("RUN_NOT_TERMINAL")).when(worker).executeCandidate(row);
-        consumer.receive(message(),channel); verify(channel).basicAck(7,false);
-        verify(retry).publish(any(Message.class));
-        verify(channel,never()).basicNack(anyLong(),anyBoolean(),anyBoolean());
+
+    @Test
+    void absentRunAndBusyLeaseAreAcknowledgedWithoutExecution() throws Exception {
+        when(store.dispatchCandidate(id)).thenReturn(Optional.empty());
+        assertThat(consumer.receive(message())).isTrue();
+        var row = mock(InterviewRunStore.Row.class);
+        when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
+        when(worker.executeCandidate(row)).thenReturn(true);
+        assertThat(consumer.receive(message())).isTrue();
+        verify(worker).executeCandidate(row);
+        verifyNoInteractions(retry);
     }
-    @Test void saturatedWorkerRetriesWithoutClaimOrDatabaseReminder() throws Exception {
-        var row=mock(InterviewRunStore.Row.class);
+
+    @Test
+    void ackFollowsSharedWorkerAdmissionAndExecution() throws Exception {
+        var row = mock(InterviewRunStore.Row.class);
+        when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
+        when(worker.executeCandidate(row)).thenReturn(true);
+        assertThat(consumer.receive(message())).isTrue();
+        var ordered = inOrder(store, worker);
+        ordered.verify(store).dispatchCandidate(id);
+        ordered.verify(worker).executeCandidate(row);
+    }
+
+    @Test
+    void databaseFailureConfirmsDelayedRetryBeforeAck() throws Exception {
+        when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException());
+        var message = message();
+        assertThat(consumer.receive(message)).isTrue();
+
+        verify(retry).publish(message);
+
+        assertThat(
+                metrics.get("zhizhida.run.delivery")
+                        .tag("outcome", "retry_execution")
+                        .counter()
+                        .count())
+                .isEqualTo(1);
+        verifyNoInteractions(worker);
+    }
+
+    @Test
+    void unpersistedResultGetsBrokerRetry() throws Exception {
+        var row = mock(InterviewRunStore.Row.class);
+        when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
+        doThrow(new IllegalStateException("RUN_NOT_TERMINAL")).when(worker).executeCandidate(row);
+        assertThat(consumer.receive(message())).isTrue();
+        verify(retry).publish(any(Delivery.class));
+    }
+
+    @Test
+    void saturatedWorkerRetriesWithoutClaimOrDatabaseReminder() throws Exception {
+        var row = mock(InterviewRunStore.Row.class);
         when(store.dispatchCandidate(id)).thenReturn(Optional.of(row));
         when(worker.executeCandidate(row)).thenReturn(false);
-        var message=message();
-        consumer.receive(message,channel);
-        var ordered=inOrder(retry,channel);
-        ordered.verify(retry).publish(message);
-        ordered.verify(channel).basicAck(7,false);
-        assertThat(metrics.get("zhizhida.run.delivery").tag("outcome","retry_waiting").counter().count()).isEqualTo(1);
+        var message = message();
+        assertThat(consumer.receive(message)).isTrue();
+
+        verify(retry).publish(message);
+
+        assertThat(
+                metrics.get("zhizhida.run.delivery")
+                        .tag("outcome", "retry_waiting")
+                        .counter()
+                        .count())
+                .isEqualTo(1);
     }
-    @Test void unconfirmedRetryKeepsOriginalNotification() throws Exception {
+
+    @Test
+    void unconfirmedRetryKeepsOriginalNotification() throws Exception {
         when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException());
-        doThrow(new org.springframework.amqp.AmqpException("nack")).when(retry).publish(any());
-        consumer.receive(message(),channel);
-        verify(channel).basicNack(7,false,true); verify(channel,never()).basicAck(anyLong(),anyBoolean());
+        doThrow(new IllegalStateException("offline")).when(retry).publish(any());
+        assertThat(consumer.receive(message())).isFalse();
     }
-    @Test void shutdownReturnsNotificationAndPreservesInterrupt() throws Exception {
+
+    @Test
+    void shutdownReturnsNotificationAndPreservesInterrupt() throws Exception {
         when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException());
         try {
             Thread.currentThread().interrupt();
-            consumer.receive(message(),channel);
+            assertThat(consumer.receive(message())).isFalse();
             assertThat(Thread.currentThread().isInterrupted()).isTrue();
-            verify(channel).basicNack(7,false,true); verify(channel,never()).basicAck(anyLong(),anyBoolean());
             verifyNoInteractions(retry);
-        } finally { Thread.interrupted(); }
+        } finally {
+            Thread.interrupted();
+        }
     }
-    @Test void failedAckAfterRetryConfirmationPropagatesForBrokerRecovery() throws Exception {
-        when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException());
-        doThrow(new java.io.IOException("connection lost")).when(channel).basicAck(7,false);
-        assertThatThrownBy(()->consumer.receive(message(),channel)).isInstanceOf(java.io.IOException.class);
-        verify(channel,never()).basicNack(anyLong(),anyBoolean(),anyBoolean());
-    }
-    @Test void failedDeliveryDoesNotLogExceptionPayload() throws Exception {
-        var logger=(ch.qos.logback.classic.Logger)org.slf4j.LoggerFactory.getLogger(RunDispatchConsumer.class);
-        var logs=new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
-        logs.start();logger.addAppender(logs);
+
+    @Test
+    void failedDeliveryDoesNotLogExceptionPayload() throws Exception {
+        var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(RunDispatchConsumer.class);
+        var logs = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        logs.start();
+        logger.addAppender(logs);
         try {
-            when(store.dispatchCandidate(id)).thenThrow(new IllegalStateException("SECRET_PROMPT_AND_CREDENTIAL"));
-            consumer.receive(message(),channel);
+            when(store.dispatchCandidate(id))
+                    .thenThrow(new IllegalStateException("SECRET_PROMPT_AND_CREDENTIAL"));
+            assertThat(consumer.receive(message())).isTrue();
             assertThat(logs.list).hasSize(1);
-            assertThat(logs.list.getFirst().getFormattedMessage()).contains("outcome=retry","runId="+id,
-                    "errorType=IllegalStateException").doesNotContain("SECRET_PROMPT_AND_CREDENTIAL");
+            assertThat(logs.list.getFirst().getFormattedMessage())
+                    .contains("outcome=retry", "runId=" + id, "errorType=IllegalStateException")
+                    .doesNotContain("SECRET_PROMPT_AND_CREDENTIAL");
             assertThat(logs.list.getFirst().getThrowableProxy()).isNull();
-        } finally { logger.detachAppender(logs);logs.stop(); }
+        } finally {
+            logger.detachAppender(logs);
+            logs.stop();
+        }
     }
-    @Test void malformedProtocolGoesToDiagnosticQueue() throws Exception {
-        var props=new MessageProperties(); props.setDeliveryTag(7);
-        consumer.receive(new Message("{}".getBytes(java.nio.charset.StandardCharsets.UTF_8),props),channel);
-        verify(channel).basicReject(7,false); verifyNoInteractions(store,worker);
+
+    @Test
+    void malformedProtocolGoesToDiagnosticTopic() {
+        var bad = new Delivery("run-ready", "trace-id", List.of(), new byte[0]);
+        assertThat(consumer.receive(bad)).isTrue();
+        verify(transport).quarantine(bad, "invalid-json");
+        verifyNoInteractions(store, worker);
+        doThrow(new IllegalStateException()).when(transport).quarantine(any(), anyString());
+        assertThatThrownBy(() -> consumer.receive(bad)).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void wrongBusinessKeyCannotExecute() {
+        var original = message();
+        var bad = new Delivery(
+                original.topic(),
+                original.messageId(),
+                List.of("incorrect"),
+                original.body());
+        assertThat(consumer.receive(bad)).isTrue();
+        verify(transport).quarantine(bad, "business-key");
+        verifyNoInteractions(worker, store);
     }
 }

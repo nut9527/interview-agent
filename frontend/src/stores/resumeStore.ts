@@ -1,15 +1,10 @@
 import { CanceledError } from 'axios';
 import { captureAccountScope, onAccountReset } from '../api/accountScope.ts';
 import { create } from 'zustand';
-import { useAuthStore } from './authStore';
-import { removeDraft } from '@/pages/Resumes/Editor/resumeDraft';
-import type {
-  ResumeProfile,
-  ResumeVersionSummary,
-  ResumeCompareRequest,
-  ResumeComparison,
-} from '@/types/api.d';
-import { resumeService } from '@/api/modules/resume';
+import { useAuthStore } from './authStore.ts';
+import { removeDraft } from '../pages/Resumes/Editor/resumeDraft.ts';
+import type { ResumeProfile, ResumeVersionSummary, ResumeCompareRequest, ResumeComparison } from '@/types/api.d';
+import { resumeService } from '../api/modules/resume.ts';
 
 export interface ResumeState {
   resumes: ResumeProfile[];
@@ -89,6 +84,5 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
 
 onAccountReset(() => {
   versionRequest += 1;
-  useResumeStore.setState({ resumes: [], versions: [], versionTotal: 0,
-    compareResult: null, loading: false });
+  useResumeStore.setState({ resumes: [], versions: [], versionTotal: 0, compareResult: null, loading: false });
 });

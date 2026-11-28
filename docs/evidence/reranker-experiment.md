@@ -1,121 +1,26 @@
-# 固定候选池的 reranker 对照
+# 固定候选池重排实验
 
-重排提升了排序质量：原范围引文 Recall@6 从 **80.00% 升至 86.11%**，全库从 **75.00% 升至 85.00%**。代价是新增重排阶段 P95 达 **8.90 秒 / 6.89 秒**；原范围相对纯词项检索仅高 0.56 个百分点。建议保留实验方案，暂不接入默认请求链路。
+本轮在更新后的 25 份资料、91 道题上生成了 Java 候选报告。Python 校验重算了每个问题在选定资料和全库两种范围的 RRF 排名、章节配额和质量指标，共 182 组排名。另用量化 ONNX 重排器对 JG-01 的两组真实 Top-30 各执行一轮推理，验证了模型、分词器和新诊断格式可配合工作。当前语料的整集重排质量和延迟尚未测量。[当前候选诊断](reference-retrieval-diagnostics.json) · [两次推理输出](reference-reranker.json)
 
-[完整排名、分区指标、三轮耗时和源码指纹](reference-reranker.json)
+## 历史整集对照
 
-## 质量结果
+下表是旧语料、旧分块下实测的 27 份资料、103 道题的结果，其中 90 道有引文标注，13 道资料不足。量化 BGE-Reranker-base 对固定的 RRF Top-30 重排，每章节优先选择 2 块，取最终 Top-6。按有引文问题计算宏平均。
 
-共 103 题，90 道正例计分，13 道资料不足题单列。下表要求返回块包含完整标注引文；同章的其他段落不计作引文命中。
-
-| 范围 | 路线 | 引文 Recall@6 | MRR@6 | nDCG@6 |
-| --- | --- | ---: | ---: | ---: |
-| 原范围 | 纯词项 | 85.56% | 0.744 | 0.754 |
-| 原范围 | 词项＋章节配额 | 85.56% | 0.744 | 0.754 |
-| 原范围 | RRF＋章节配额 | 80.00% | 0.703 | 0.709 |
-| 原范围 | Reranker＋章节配额 | **86.11%** | **0.809** | **0.801** |
-| 全库 | 纯词项 | 78.89% | 0.693 | 0.692 |
-| 全库 | 词项＋章节配额 | 77.22% | 0.688 | 0.686 |
-| 全库 | RRF＋章节配额 | 75.00% | 0.642 | 0.646 |
-| 全库 | Reranker＋章节配额 | **85.00%** | **0.788** | **0.783** |
-
-固定 Top-30 的 RRF 基线与生产记录在全部 206 次查询中一致。章节 Recall@6 也有提升：原范围 89.44% → 93.89%，全库 87.78% → 92.78%。
-
-| 范围 / 分区 | 纯词项引文 Recall@6 | RRF | Reranker |
+| 范围 | RRF 引文 Recall@6 | 重排引文 Recall@6 | 新增重排阶段 P95 |
 | --- | ---: | ---: | ---: |
-| 原范围 / 开发，46 正例 | 85.87% | 78.26% | 85.87% |
-| 原范围 / 验证，44 正例 | 85.23% | 81.82% | 86.36% |
-| 全库 / 开发，46 正例 | 76.09% | 77.17% | 86.96% |
-| 全库 / 验证，44 正例 | 81.82% | 72.73% | 82.95% |
+| 每题选定资料 | 80.00% | 86.11% | 8.90 秒 |
+| 全部 27 份资料 | 75.00% | 85.00% | 6.89 秒 |
 
-相对 RRF，引文 Recall 的增量为 6.11 / 10.00 个百分点；按题做 10,000 次配对 bootstrap 的 95% 区间分别为 **[0.00, 12.78] / [2.22, 18.33]** 个百分点。该区间未校正同一资料家族内的相关性。全库验证集相对纯词项的提升为 1.14 个百分点。
+历史汇总保存旧输入和报告的 SHA-256、模型版本、配置、各分区指标与计时，当前单题推理另存于同一 JSON 的 `currentSmoke` 字段。[历史聚合值与当前推理记录](reference-reranker.json)
 
-## 修复与退步
+## 复跑当前整集
 
-| 范围 | 引文 Recall 改善题数 | 退步题数 | 补回原 Top-30 失败样本的缺失引文 |
-| --- | ---: | ---: | ---: |
-| 原范围 | 10 | 3 | 11 / 22 |
-| 全库 | 15 | 4 | 16 / 23 |
+先生成当前语料的候选报告。准备好项目内的 Python 重排环境和模型后，将其路径传给评测脚本。默认每题、每种范围计时三轮，另可传 `--rounds 1` 运行单轮。
 
-原范围退步：`JG-21`、`JG-30`、`JG-50`。全库退步：`JG-20`、`JG-21`、`JG-36`、`JG-50`。全部改善和退步清单均保存在 JSON 的 `pairedChanges`。
-
-| 全库样本 | 重排前 → 重排后 | 说明 |
-| --- | --- | --- |
-| JG-08：线程池达到 corePoolSize 后的处理路径 | 未进 Top-6 → 第 1 | 补回正确引文 |
-| JG-20：stdio 调试日志写在哪里 | 第 3 → 未进 Top-6，模型排第 10 | 退步；第 1 条变成仅含图片链接的块 |
-| JG-25：EXPLAIN 预估扫描行数 | 仍未进 Top-6，模型排第 20 | 候选已召回，模型仍未排好 |
-| JG-50：去重事务与 Spring 回滚规则 | 两段命中 → 只剩去重事务 | 回滚规则被排至第 8 |
-| xl-29：进程状态与管道读描述符 | 进程状态命中 → 管道描述符命中 | 补回一段又丢失一段，总 Recall 不变 |
-
-因此“补回旧缺失引文”与“题目 Recall 改善”分别统计。未标注的等价证据没有重新判定。13 道资料不足题仍全部返回非空候选，本轮未运行回答生成或拒答判断。
-
-## 新增耗时
-
-Intel Core i7-14650HX，ONNX Runtime CPU，两线程；每种范围 309 个计时样本。
-
-| 范围 | P50 | P95 | 最大值 |
-| --- | ---: | ---: | ---: |
-| 原范围 | 2.95 秒 | 8.90 秒 | 11.18 秒 |
-| 全库 | 3.08 秒 | 6.89 秒 | 8.27 秒 |
-
-这是新增重排阶段耗时，初始词项与向量检索另计。全部 206 组查询的三轮分数及排名一致；6,180 个候选输入均未触发截断。
-
-## 实验配置
-
-使用 [BGE reranker-base](https://huggingface.co/BAAI/bge-reranker-base) 的 [Xenova ONNX 导出](https://huggingface.co/Xenova/bge-reranker-base/tree/280bcc27a84e0b898c251e06fddb25171bd9b101)，固定提交 `280bcc27a84e0b898c251e06fddb25171bd9b101`，文件为 `model_quantized.onnx`。模型及 tokenizer 下载后均核对发布的 SHA-256。
-
-候选来自[上一轮 103 题诊断](reference-retrieval-diagnostics.json)。每题分别使用原 4–5 份资料范围和全 27 份资料范围；保持问题、分块、标注和 RRF Top-30 不变。
-
-| 路线 | 最终结果来源 |
-| --- | --- |
-| `lexical6` | 原词项排序前 6 条 |
-| `lexical30Quota6` | 词项 Top-30 应用章节配额后取 6 条 |
-| `productionHybrid6` | 上一轮记录的生产混合检索结果 |
-| `rrf30Quota6` | 固定 RRF Top-30，应用章节配额后取 6 条；重排实验的直接基线 |
-| `reranked30Quota6` | 同一 RRF Top-30，经 cross-encoder 排序、应用相同配额后取 6 条 |
-
-章节配额均为每章优先保留 2 条，不足 6 条时按原顺序补齐延后候选。Python 实现已与 Java 的 206 次生产结果和两种计分口径逐项核对。
-
-模型输入为“问题、章节标题＋正文”，最多 512 token，仅截断正文；batch size 8，CPU intra-op 2 线程、inter-op 1 线程。每题每种范围运行 3 次，每批先做一次完整查询预热。预先固定一组参数，两种分区均未用于调参。
-
-耗时包含分词、补齐、推理、排序与配额选择，排除初始检索、模型加载和预热。报告记录候选原始 logit、最终排名、三轮耗时、排名一致性及被截断的标注引文。无答案题单独统计，质量指标按 90 道正例取宏平均。
-
-## 召回缺失审计
-
-[逐题结果与原文证据](reference-recall-gaps.json)。这里比较候选覆盖率；扩展候选未参与上述固定 Top-30 重排测试。
-
-| 全库候选构造 | 候选数中位数 | 引文覆盖率 |
-| --- | ---: | ---: |
-| RRF Top-30 | 30 | 95.00% |
-| 两路候选去重并集 | 53 | 95.56% |
-| RRF Top-30＋同章节前后各一个证据块 | 62 | 98.33% |
-| 两路并集＋同章节前后各一个证据块 | 111 | 99.44% |
-
-- `xl-06`：第二段证据在两路并集中，被 RRF Top-30 截断。
-- `xl-20`、`BOOK-11`、`BOOK-16`：列表、依赖代码、配置与说明文字被分开；补相邻块可恢复标注引文。
-- `JG-43`：并集中的同章节相邻块可补回 MCP 职责引文。
-- `JG-46`：上述四种候选构造均未覆盖 EXPLAIN `key` 字段引文，仍需单独检查跨文档召回。
-
-## 复跑
-
-依赖与模型均放在项目缓存中：
-
-```powershell
-New-Item -ItemType Directory -Force .runtime/reranker-setup | Out-Null
-$env:TEMP = Join-Path (Get-Location) '.runtime/reranker-setup'
-$env:TMP = $env:TEMP
-python -m venv .cache/reranker-venv
-.cache/reranker-venv/Scripts/python.exe -m pip install --no-cache-dir -r scripts/reranker-requirements.txt
+```text
+node scripts/evaluate-reference-retrieval.mjs --diagnostics
 .cache/reranker-venv/Scripts/python.exe -B scripts/prepare-reference-reranker.py
-.cache/reranker-venv/Scripts/python.exe -B scripts/test_reference_reranker.py
-.cache/reranker-venv/Scripts/python.exe -B scripts/evaluate-reference-reranker.py
-node scripts/audit-reference-recall-gaps.mjs
+.cache/reranker-venv/Scripts/python.exe -B scripts/evaluate-reference-reranker.py --diagnostics <诊断报告.json>
 ```
 
-重排脚本按 5 题分批，每批最多 5 分钟，超时只重试一次；成功后保存带运行编号的 JSON 并清理本轮中间文件。模型缓存保留供复跑使用。
-
-## 验证与后续
-
-2 项 Python 一致性测试、22 项语料与文档检查通过。另用独立 Node 计算核对了 206 组候选与排名、618 条计时、全部范围及分区指标、输入文件和 4 个源码指纹。
-
-下一步优先合并被拆开的说明、列表和代码块，再复测纯词项与混合检索。邻接审计已定位可补回的原文；本轮量化 reranker 的 CPU 延迟和退步样本不支持直接替换默认检索。
+`python -B scripts/test_reference_reranker.py` 使用仓库收录的当前诊断核对 Python 和 Java 排名；设置 `RAG_DIAGNOSTICS` 可以指定其他本轮报告。候选池覆盖率及扩展结果见[召回缺口核对](reference-recall-gaps.json)。

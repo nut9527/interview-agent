@@ -1,0 +1,6 @@
+{
+  "rocketMQClusterName": "DefaultCluster",
+  "useEndpointPortFromRequest": true,
+  "grpcClientConsumerMinLongPollingTimeoutMillis": 200,
+  "grpcServerPort": 8081
+}

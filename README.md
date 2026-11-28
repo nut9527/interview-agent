@@ -33,7 +33,7 @@ flowchart TB
 
     subgraph Data["数据与任务基础设施"]
         MySQL[("MySQL<br/>业务数据 / 材料快照 / 任务 / Outbox")]
-        MQ["RabbitMQ<br/>面试任务 / 资料导入与索引通知"]
+        MQ["RocketMQ<br/>面试任务 / 资料导入与索引通知"]
         Coordination["Redis · 协调实例<br/>共享配额 / 提交频控 / 协调租约"]
         Cache["Redis · 缓存实例<br/>题目版本快照"]
     end
@@ -53,7 +53,7 @@ flowchart TB
     App -->|"BM25 + 向量融合"| RAG
 ```
 
-MySQL 保存任务检查点与跨会话学习记忆，RabbitMQ 负责 Worker 调度与延迟重试。两个 Redis 实例分别承担协调与缓存。标准 Docker 部署使用 BM25 与 BGE 向量融合检索；MCP 提供技术参考资料。开启个人历史使用偏好后，Agent 可以检索历史能力观察及原始证据。
+MySQL 保存任务检查点与跨会话学习记忆，RocketMQ 负责 Worker 调度与延迟重试。两个 Redis 实例分别承担协调与缓存。标准 Docker 部署使用 BM25 与 BGE 向量融合检索；MCP 提供技术参考资料。开启个人历史使用偏好后，Agent 可以检索历史能力观察及原始证据。
 
 ### 后端模块
 
@@ -78,7 +78,7 @@ sequenceDiagram
     participant API as API
     participant DB as MySQL
     participant Pub as Outbox 发布器
-    participant MQ as RabbitMQ
+    participant MQ as RocketMQ
     participant Worker as Worker
     participant AI as 模型与工具
 
@@ -155,8 +155,7 @@ docker compose --profile app up -d --build
 | MySQL           | 3307 → 3306                | 3307         | 业务数据与任务状态                  |
 | Redis 协调实例  | 6379 → 6379                | 6379         | 共享配额、租约与提交频控            |
 | Redis 缓存实例  | 6380 → 6379                | 6380         | 题目快照缓存                        |
-| RabbitMQ        | 5672 → 5672                | 5672         | 异步任务通知                        |
-| RabbitMQ 管理页 | 15672 → 15672              | 15672        | [队列管理](http://127.0.0.1:15672/) |
+| RocketMQ        | 8081 → 8081                | 8081         | 异步任务通知                        |
 | MCP 资料服务    | 容器内 18091，不映射宿主机 | 18091        | 只读技术资料检索                    |
 
 端口可在 [.env.example](.env.example) 对应配置项中调整；`FRONTEND_PORT` 用于 Docker，`DEV_FRONTEND_PORT` 用于本机 Vite。Docker 默认前端监听所有网卡，其他已映射端口监听本机回环地址。
@@ -169,7 +168,7 @@ Docker 内置的 BGE 与 pgvector 仅在容器网络提供服务。源码运行�
 | ---------- | -------------------------------------------------------------------------------- |
 | 前端       | React 18、TypeScript、Ant Design、Zustand、Vite                                  |
 | 后端       | Java 21、Spring Boot 4、Spring Security、MyBatis-Plus                            |
-| 数据与消息 | MySQL 8.4、Flyway、Redis、RabbitMQ                                               |
+| 数据与消息 | MySQL 8.4、Flyway、Redis、RocketMQ                                               |
 | 模型与检索 | LangChain4j、DeepSeek、MCP、本地 BGE、pgvector                                   |
 | 文档处理   | Apache PDFBox、Apache POI                                                        |
 | 观测与测试 | Actuator、Micrometer、OpenTelemetry、JUnit、ArchUnit、Playwright、GitHub Actions |
@@ -195,7 +194,7 @@ Windows 也可运行 `.\start.cmd --mock-ai`。启动器准备依赖服务、编
 
 [GitHub Actions](.github/workflows/verify.yml) 先校验四种 Compose 配置组合、接口契约和交付包登记，再运行单元测试、MySQL/Redis 集成测试、覆盖率检查、完整脚本测试、容器构建和浏览器验收。完整命令、浏览器前置条件及模型评测记录见[开发与验证](docs/开发与验证.md)和[测试与评测记录](docs/evidence/README.md)。
 
-已完成真实模型单轮生命周期与引用专项复核、6 项 RabbitMQ 派发与故障回放、前端与 MCP 的 11 项容器检查；后端、BGE、前端及 MCP 镜像均完成构建。面试相关回归测试 276 项通过。各项样本、模型用量与验证范围见[运行验收](docs/evidence/runtime-acceptance.md)。
+已完成真实模型单轮生命周期与引用专项复核、前端与 MCP 的 11 项容器检查；后端、BGE、前端及 MCP 镜像均完成构建。面试相关回归测试 276 项通过。各项样本、模型用量与验证范围见[运行验收](docs/evidence/runtime-acceptance.md)。
 
 ### 接口说明
 

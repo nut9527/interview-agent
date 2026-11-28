@@ -1,7 +1,3 @@
-// 仅在 Node 测试中解析 Vite 别名和环境，要求 Node 22.14 及以上。
-import { register } from 'node:module';
-register('./test-loader.mjs', import.meta.url);
-
 const storage = () => {
   const values = new Map();
   return {

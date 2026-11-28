@@ -23,13 +23,13 @@ final class KnowledgeCorpusFixture {
         var documents = json.createArrayNode();
         var cases = json.createArrayNode();
         for (var group : manifest.path("groups")) {
-            String path = "/rag-corpus/" + group.asText();
+            String path = "/rag-corpus/" + group.asString();
             byte[] groupBytes = read(path);
             digest.update(groupBytes);
             var data = json.readTree(groupBytes);
             for (var item : data.path("documents")) {
                 var document = (ObjectNode) item.deepCopy();
-                String contentPath = item.path("resource").asText();
+                String contentPath = item.path("resource").asString();
                 byte[] content = read(contentPath);
                 digest.update(content);
                 document.put("content", new String(content, StandardCharsets.UTF_8));

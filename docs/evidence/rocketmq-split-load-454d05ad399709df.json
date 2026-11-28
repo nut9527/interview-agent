@@ -1,0 +1,153 @@
+{
+  "run": "454d05ad399709df",
+  "date": "2026-11-28",
+  "baseRevision": "188d8505c3d35946fe7082b6f009c10e17fcaf0f",
+  "workingTreeCandidate": true,
+  "rocketmqVersion": "5.3.2",
+  "javaClientVersion": "5.2.2",
+  "receiveWaitMillis": 200,
+  "passedTests": {
+    "unit": 14,
+    "integration": 1
+  },
+  "oneWorker": {
+    "httpMs": {
+      "p95": 876.5394,
+      "mean": 817.5521625,
+      "max": 876.5394,
+      "count": 8,
+      "p50": 863.4602,
+      "samples": [
+        876.5394,
+        865.3267,
+        732.0503,
+        715.6141,
+        759.9801,
+        863.8868,
+        863.4602,
+        863.5597
+      ]
+    },
+    "endToEndMs": {
+      "p95": 6129.235,
+      "mean": 4365.821625,
+      "max": 6129.235,
+      "count": 8,
+      "p50": 4059.598,
+      "samples": [
+        6129.235,
+        5987.443,
+        2528.149,
+        2593.598,
+        4918.972,
+        5096.088,
+        3613.49,
+        4059.598
+      ]
+    },
+    "completed": 8,
+    "providerSends": 16,
+    "queueMs": {
+      "p95": 5304.341,
+      "mean": 3301.202125,
+      "max": 5304.341,
+      "count": 8,
+      "p50": 3101.07,
+      "samples": [
+        5304.341,
+        5147.074,
+        1094.509,
+        732.064,
+        4052.141,
+        4252.528,
+        2725.89,
+        3101.07
+      ]
+    },
+    "throughputPerSecond": 1.1264689665755396,
+    "peakProviderCalls": 2,
+    "elapsedSeconds": 7.1018379
+  },
+  "twoWorkers": {
+    "httpMs": {
+      "p95": 124.2811,
+      "mean": 86.4380625,
+      "max": 124.2811,
+      "count": 8,
+      "p50": 83.2435,
+      "samples": [
+        72.2971,
+        101.3209,
+        124.2811,
+        61.191,
+        94.3112,
+        83.2435,
+        42.3475,
+        112.5122
+      ]
+    },
+    "endToEndMs": {
+      "p95": 3208.92,
+      "mean": 2248.138875,
+      "max": 3208.92,
+      "count": 8,
+      "p50": 2165.265,
+      "samples": [
+        2148.042,
+        2489.84,
+        2988.995,
+        2165.265,
+        3208.92,
+        1479.958,
+        1264.458,
+        2239.633
+      ]
+    },
+    "completed": 8,
+    "providerSends": 16,
+    "queueMs": {
+      "p95": 2471.186,
+      "mean": 1252.0598750000001,
+      "max": 2471.186,
+      "count": 8,
+      "p50": 667.677,
+      "samples": [
+        580.182,
+        1686.872,
+        2201.206,
+        520.253,
+        2471.186,
+        667.677,
+        454.133,
+        1434.97
+      ]
+    },
+    "throughputPerSecond": 2.35926532595713,
+    "peakProviderCalls": 4,
+    "elapsedSeconds": 3.3908861
+  },
+  "durableProgressReplayHttpMs": {
+    "p95": 1229.3675,
+    "mean": 1227.038025,
+    "max": 1229.3675,
+    "count": 4,
+    "p50": 1226.4791,
+    "samples": [
+      1229.3675,
+      1226.4791,
+      1227.5366,
+      1224.7689
+    ]
+  },
+  "aggregateProviderPeak": 6,
+  "apiOverloadRejectedBeforeProvider": true,
+  "inFlightCancellation": "PASSED",
+  "scope": "independent-jvms-real-mysql-redis-rocketmq-synthetic-json-upstream-durable-sse",
+  "capacity": {
+    "sharedModelLimit": 6,
+    "syntheticFinalDelayMs": 600,
+    "apiModelLoadIncluded": true,
+    "processes": 3,
+    "workerPeakLimit": 4
+  }
+}

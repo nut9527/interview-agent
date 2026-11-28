@@ -1,12 +1,17 @@
-// Diagnose missing evidence using the frozen candidate pools and source-local neighbors.
+// 对比冻结的候选池与补入同一文档、同一标题相邻块后的候选池，核对遗漏的标注引文。
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { resolve, relative } from 'node:path';
 
 const root = new URL('../', import.meta.url);
-const input = 'docs/evidence/reference-retrieval-diagnostics.json';
-const bytes = await readFile(new URL(input, root));
+const args = process.argv.slice(2);
+if (args.length && (args.length !== 2 || args[0] !== '--diagnostics'))
+  throw new Error('Usage: node scripts/audit-reference-recall-gaps.mjs [--diagnostics <report.json>]');
+const inputPath = args.length ? resolve(args[1]) : fileURLToPath(new URL('docs/evidence/reference-retrieval-diagnostics.json', root));
+const input = relative(fileURLToPath(root), inputPath).replaceAll('\\', '/');
+const bytes = await readFile(inputPath);
 const data = JSON.parse(bytes).diagnostics;
 const hash = value => createHash('sha256').update(value).digest('hex');
 const chapters = new Map();
@@ -27,7 +32,7 @@ const stats = values => {
 };
 const details = [];
 const summary = {};
-for (const scope of ['selected', 'all27']) {
+for (const scope of ['selected', 'all']) {
   const rows = data.details.map(item => {
     const original = item.scopes[scope];
     const rrf = original.stages.rrfTop30.map(row => row.chunkId);
@@ -54,9 +59,9 @@ for (const scope of ['selected', 'all27']) {
     data.summary[scope].exactQuote.all.candidatePools.rrfTop30.recall);
   details.push(...rows);
 }
-const missingCases = data.details.filter(item => item.scopes.all27.diagnostics.exactQuote.rrfTop30.absentFromPool.length);
+const missingCases = data.details.filter(item => item.scopes.all.diagnostics.exactQuote.rrfTop30.absentFromPool.length);
 const evidence = missingCases.map(item => ({ id: item.id, question: item.question,
-  missingGold: item.gold.filter(g => item.scopes.all27.diagnostics.exactQuote.rrfTop30.absentFromPool.includes(g.source))
+  missingGold: item.gold.filter(g => item.scopes.all.diagnostics.exactQuote.rrfTop30.absentFromPool.includes(g.source))
     .map(g => ({ ...g, chunks: g.chunkIds.map(id => ({ id, ...data.chunks[id],
       neighbors: neighbors.get(id).filter(n => n !== id).map(n => ({ id: n, ...data.chunks[n] })) })) })) }));
 const runId = randomUUID();

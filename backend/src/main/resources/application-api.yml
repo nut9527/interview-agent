@@ -1,10 +1,10 @@
-# API accepts durable commands; workers execute them and clients observe status or SSE.
+# API 先将任务持久化，再发布执行通知。客户端通过任务查询或 SSE 跟踪进度。
 app:
   runtime:
     role: api
   cache.questions.enabled: true
   rate-limit.redis.enabled: true
-  run-dispatch.mode: rabbitmq
+  run-dispatch.mode: rocketmq
   outbox.publisher.enabled: true
   run-recovery.enabled: false
 interview.runs:
@@ -13,7 +13,7 @@ agent.vector.worker-enabled: false
 learning.worker-enabled: false
 knowledge:
   dispatch:
-    mode: rabbitmq
+    mode: rocketmq
     publisher-enabled: true
     index-scan-ms: 60000
   import.worker-enabled: false

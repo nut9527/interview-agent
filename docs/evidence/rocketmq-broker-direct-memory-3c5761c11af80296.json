@@ -1,0 +1,89 @@
+{
+  "date": "2026-11-28",
+  "run": "3c5761c11af80296",
+  "baseRevision": "188d8505c3d35946fe7082b6f009c10e17fcaf0f",
+  "workingTreeCandidate": true,
+  "rocketmqVersion": "5.3.2",
+  "javaClientVersion": "5.2.2",
+  "workload": {
+    "scope": "standalone Java SDK with a single Broker and Proxy",
+    "consumerSlots": 2,
+    "longPollMillis": 200,
+    "messagesPerWave": 12,
+    "simulatedHandlerMillis": 80,
+    "pauseBeforeResumeMillis": 1000,
+    "measurement": "Time from completing the burst publication or resuming consumers until all keys were observed. The handler subsequently acknowledges each message.",
+    "memorySource": "io.netty.util.internal.PlatformDependent.usedDirectMemory() in the Broker JVM, sampled after each wave."
+  },
+  "previousConfiguration": {
+    "reproductionRun": "1cd061be9282db37",
+    "maxDirectMemoryMiB": 256,
+    "pullThreads": "16 + 2 * availableProcessors",
+    "failingOperation": "CommitLog per-thread message encoder, via PopMessageProcessor checkpoint write",
+    "failure": "OutOfDirectMemoryError",
+    "usedBytes": 267714560,
+    "requestedBytes": 4259840,
+    "limitBytes": 268435456,
+    "proxyObserved": "broker remoting request sent but unanswered",
+    "sdkObserved": "DEADLINE_EXCEEDED after 6.2 seconds"
+  },
+  "testedConfiguration": {
+    "sendThreads": 4,
+    "pullThreads": 8,
+    "ackThreads": 4,
+    "maxDirectMemoryMiB": 512
+  },
+  "waves": [
+    {
+      "wave": 1,
+      "consumerPausedWhilePublishing": false,
+      "cumulativeObserved": 12,
+      "receiveWaitMillis": 1311,
+      "nettyUsedDirectBytes": 126877696
+    },
+    {
+      "wave": 2,
+      "consumerPausedWhilePublishing": false,
+      "cumulativeObserved": 24,
+      "receiveWaitMillis": 1516,
+      "nettyUsedDirectBytes": 126877696
+    },
+    {
+      "wave": 3,
+      "consumerPausedWhilePublishing": false,
+      "cumulativeObserved": 36,
+      "receiveWaitMillis": 1472,
+      "nettyUsedDirectBytes": 126877696
+    },
+    {
+      "wave": 4,
+      "consumerPausedWhilePublishing": true,
+      "cumulativeObserved": 48,
+      "receiveWaitMillis": 1494,
+      "nettyUsedDirectBytes": 126877696
+    },
+    {
+      "wave": 5,
+      "consumerPausedWhilePublishing": true,
+      "cumulativeObserved": 60,
+      "receiveWaitMillis": 1479,
+      "nettyUsedDirectBytes": 126877696
+    },
+    {
+      "wave": 6,
+      "consumerPausedWhilePublishing": true,
+      "cumulativeObserved": 72,
+      "receiveWaitMillis": 1491,
+      "nettyUsedDirectBytes": 126877696
+    },
+    {
+      "wave": 7,
+      "consumerPausedWhilePublishing": true,
+      "cumulativeObserved": 84,
+      "receiveWaitMillis": 1511,
+      "nettyUsedDirectBytes": 126877696
+    }
+  ],
+  "distinctMessageKeysObserved": 84,
+  "rpcFailures": 0
+}

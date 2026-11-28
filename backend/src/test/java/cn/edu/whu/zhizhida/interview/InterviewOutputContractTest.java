@@ -6,7 +6,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
+
 import cn.edu.whu.zhizhida.common.StructuredOutput;
 import cn.edu.whu.zhizhida.evaluation.EvaluationEngine;
 import cn.edu.whu.zhizhida.evaluation.api.AssessmentDraft;
@@ -19,129 +21,234 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 class InterviewOutputContractTest {
-    private final JsonMapper json = new JsonMapper();
-    private final InterviewOutputCodec service = new InterviewOutputCodec();
-    private final InterviewPromptBuilder prompts = new InterviewPromptBuilder(json);
+        private final JsonMapper json = new JsonMapper();
+        private final InterviewOutputCodec service = new InterviewOutputCodec();
+        private final InterviewPromptBuilder prompts = new InterviewPromptBuilder(json);
 
-    @Test
-    void everyDeclaredNestedRecordFieldHasAContractIncludingActiveFocus() {
-        var fields = InterviewOutputContract.contract(false, true, false, true).path("fields");
-        sameFields(fields.path("agentDecision").path("fields"), InterviewAgentState.Decision.class);
-        sameFields(fields.path("agentDecision").path("fields").path("focus").path("fields"),
-                cn.edu.whu.zhizhida.interview.api.InterviewPlanning.Focus.class);
-        assertThat(InterviewOutputContract.prompt(false, true, false)).doesNotContain("claimToVerify");
-        assertThat(InterviewOutputContract.prompt(false, true, false, true)).contains("claimToVerify", "expectedEvidence", "NEW_CONTEXT");
-        var assessment = fields.path("assessment").path("fields");
-        sameFields(assessment, AssessmentDraft.class);
-        sameFields(assessment.path("items").path("itemFields"), AssessmentDraft.Item.class);
-        sameFields(assessment.path("items").path("itemFields").path("quotes").path("itemFields"), AssessmentDraft.Quote.class);
-        var detail = assessment.path("detail").path("fields");
-        sameFields(detail, DetailedAssessmentDraft.class);
-        sameFields(detail.path("items").path("itemFields"), DetailedAssessmentDraft.Item.class);
-        sameFields(detail.path("items").path("itemFields").path("citations").path("itemFields"), DetailedAssessmentDraft.Citation.class);
-        assertThat(InterviewOutputContract.contract(false, true, false).path("fields").has("planProposal")).isFalse();
-        assertThat(InterviewOutputContract.contract(false, true, true).path("fields").has("planProposal")).isFalse();
-        assertThat(InterviewOutputContract.contract(true, false, false).path("fields").has("questionCompetencyId")).isFalse();
-        assertThat(InterviewOutputContract.contract(true, true, false).path("fields").has("questionCompetencyId")).isTrue();
-        var renderedVariants = prompts.templateManifest().path("renderedContracts");
-        assertThat(renderedVariants.size()).isEqualTo(8);
-        for (var variant : renderedVariants) {
-            String prompt = variant.asText();
-            assertThat(json.readTree(prompt.substring(prompt.lastIndexOf('\n') + 1)).isObject()).isTrue();
+        @Test
+        void everyDeclaredNestedRecordFieldHasAContractIncludingActiveFocus() {
+                var fields = InterviewOutputContract.contract(false, true, false, true).path("fields");
+                sameFields(fields.path("agentDecision").path("fields"), InterviewAgentState.Decision.class);
+                sameFields(
+                                fields.path("agentDecision").path("fields").path("focus").path("fields"),
+                                cn.edu.whu.zhizhida.interview.api.InterviewPlanning.Focus.class);
+                assertThat(InterviewOutputContract.prompt(false, true, false))
+                                .doesNotContain("claimToVerify");
+                assertThat(InterviewOutputContract.prompt(false, true, false, true))
+                                .contains("claimToVerify", "expectedEvidence", "NEW_CONTEXT");
+                var assessment = fields.path("assessment").path("fields");
+                sameFields(assessment, AssessmentDraft.class);
+                sameFields(assessment.path("items").path("itemFields"), AssessmentDraft.Item.class);
+                sameFields(
+                                assessment.path("items").path("itemFields").path("quotes").path("itemFields"),
+                                AssessmentDraft.Quote.class);
+                var detail = assessment.path("detail").path("fields");
+                sameFields(detail, DetailedAssessmentDraft.class);
+                sameFields(detail.path("items").path("itemFields"), DetailedAssessmentDraft.Item.class);
+                sameFields(
+                                detail.path("items").path("itemFields").path("citations").path("itemFields"),
+                                DetailedAssessmentDraft.Citation.class);
+                assertThat(
+                                InterviewOutputContract.contract(false, true, false)
+                                                .path("fields")
+                                                .has("planProposal"))
+                                .isFalse();
+                assertThat(
+                                InterviewOutputContract.contract(false, true, true)
+                                                .path("fields")
+                                                .has("planProposal"))
+                                .isFalse();
+                assertThat(
+                                InterviewOutputContract.contract(true, false, false)
+                                                .path("fields")
+                                                .has("questionCompetencyId"))
+                                .isFalse();
+                assertThat(
+                                InterviewOutputContract.contract(true, true, false)
+                                                .path("fields")
+                                                .has("questionCompetencyId"))
+                                .isTrue();
+                var renderedVariants = prompts.templateManifest().path("renderedContracts");
+                assertThat(renderedVariants.size()).isEqualTo(8);
+                for (var variant : renderedVariants) {
+                        String prompt = variant.asString();
+                        assertThat(json.readTree(prompt.substring(prompt.lastIndexOf('\n') + 1)).isObject())
+                                        .isTrue();
+                }
         }
-    }
 
-    @Test
-    void actualPromptUsesDeclaredContractAndFitsExistingAdapterLimitIncludingRepair() {
-        var policy = new InterviewAgentPolicy();
-        var state = policy.plan(InterviewMode.GENERAL, 6, "", "model");
-        var v4 = new InterviewAgentState("interview-agent-v4", state.executionMode(), state.plan(), state.activeCompetencyId(), List.of());
-        var context = InterviewAgentContext.encode("private material", v4, policy.routing(v4, 1, 6));
-        var reason = new InterviewReviewRejected(StructuredOutput.invalid("agentDecision.gap", StructuredOutput.RejectionReason.MISSING_FIELD));
-        var input = prompts.reviewInput("Java", context, List.of(new InterviewTurn("user", "private answer")), 1, false, reason.repairFeedback());
-        assertThat(input.system()).contains(InterviewOutputContract.prompt(false, true, false));
-        assertThat(input.system().length()).isLessThanOrEqualTo(7500);
-        assertThat(json.readTree(input.user()).path("validationFeedback").path("path").asText()).isEqualTo("agentDecision.gap");
-        assertThat(prompts.templateManifest().toString()).doesNotContain("private material", "private answer");
-        assertThat(prompts.templateManifest().path("renderedContracts").toString()).doesNotContain("planProposal");
-        assertThat(input.user()).doesNotContain("plannerVersion", "candidateDifficulties", "previousIntents");
-        assertThat(input.temperature()).isEqualTo(prompts.templateManifest().path("generation").path("reviewTemperature").asDouble());
-        assertThat(input.maxTokens()).isEqualTo(prompts.templateManifest().path("generation").path("agentReviewMaxTokens").asInt());
-        assertThat(prompts.openingInput("Java", context, reason.repairFeedback()).system().length()).isLessThanOrEqualTo(8000);
-        var finalInput = prompts.reviewInput("Java", context, List.of(new InterviewTurn("user", "private answer")), 6, true, null);
-        assertThat(finalInput.system()).doesNotContain("planProposal", "本场启用 intent-planner-v4.1");
-        assertThat(finalInput.system()).contains(InterviewOutputContract.prompt(false, true, true));
-        assertThat(input.system()).contains("required object when assessment is supplied");
-    }
-
-    @Test
-    void hardLimitsUseUtf16AndRetainLegacyUnknownFieldAndMissingAssessmentCompatibility() {
-        var opening = json.createObjectNode().put("question", "😀".repeat(150)).put("ignored", "legacy extension");
-        assertThat(service.parseOpening(opening, "").length()).isEqualTo(InterviewOutputContract.QUESTION_MAX);
-        opening.put("question", "😀".repeat(150) + "a");
-        assertThatThrownBy(() -> service.parseOpening(opening, "")).isInstanceOfSatisfying(InterviewReviewRejected.class,
-                ex -> assertThat(ex.reason()).isEqualTo(StructuredOutput.RejectionReason.LIMIT_EXCEEDED));
-        var review = json.createObjectNode().put("feedback", "f".repeat(1000)).put("nextQuestion", "q".repeat(600)).put("ignored", true);
-        assertThat(service.parseReview(review, "", false).assessment()).isNull();
-        review.putObject("assessment").put("ownerId", 999);
-        assertThatThrownBy(() -> service.parseReview(review, "", false)).isInstanceOf(InterviewReviewRejected.class);
-        review.putObject("assessment");
-        var emptyAssessment = service.parseReview(review, "", false).assessment();
-        assertThatThrownBy(() -> new EvaluationEngine().evaluateAnswer(1, "fixture-answer", "回答", Instant.EPOCH,
-                emptyAssessment, "GENERAL")).isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("assessment 必须包含两个独立维度");
-    }
-
-    @Test
-    void finalRoutingIsOwnedByTheServerAndGenerationKeepsCitationConstraints() {
-        var state = new InterviewAgentPolicy().plan(InterviewMode.GENERAL, 1, "", "model");
-        var policy = new InterviewAgentPolicy();
-        String context = InterviewAgentContext.encode("", state, policy.routing(state, 1, 1));
-        var payload = json.createObjectNode().put("feedback", "反馈").put("finalSummary", "总结");
-        payload.putObject("agentDecision").put("level", "PARTIAL").put("evidence", "我负责接口")
-                .put("gap", "验证结果待补充").put("reason", "已说明职责").put("practice", "补充验证")
-                .put("intent", "结束复盘");
-        var decision = service.parseReview(payload, context, true).agentDecision();
-        assertThat(decision.action()).isEqualTo(InterviewAgentState.Action.FINISH);
-        assertThat(decision.nextCompetencyId()).isEqualTo(state.activeCompetencyId());
-        assertThat(decision.questionCompetencyId()).isEmpty();
-        assertThat(decision.probe()).isEqualTo(InterviewAgentState.Probe.NONE);
-        assertThat(policy.advance(state, 1, 1, "我负责接口", decision).evaluations()).hasSize(1);
-        var prompt = InterviewOutputContract.prompt(false, true, true);
-        assertThat(prompt).doesNotContain("questionCompetencyId", "nextCompetencyId", "\"action\"", "\"probe\"", "nextQuestion")
-                .contains("one contiguous", "exact source substring", "exactly 6 distinct dimensions");
-    }
-
-    @Test
-    void diagnosticFeedbackNeverCopiesUntrustedExceptionText() {
-        var rejected = new InterviewReviewRejected(StructuredOutput.invalid("private\nAuthorization: secret"));
-        var feedback = json.readTree(rejected.repairFeedback());
-        assertThat(feedback.path("path").asText()).isEqualTo("$");
-        assertThat(feedback.path("code").asText()).isEqualTo("INVALID_VALUE");
-        assertThat(feedback.toString()).doesNotContain("private", "Authorization", "secret");
-        var semantic = new InterviewReviewRejected("观察与证据状态不一致");
-        assertThat(json.readTree(semantic.repairFeedback()).path("constraint").asText()).contains("OBSERVED", "INSUFFICIENT");
-    }
-
-    @Test
-    void retainedHistoricalCandidateStillFailsSemanticValidationEvenThoughStructureParses() throws Exception {
-        JsonNode fixture;
-        try (var input = getClass().getResourceAsStream("/interview-output-replay.json")) { fixture = json.readTree(input); }
-        var reply = service.parseReview(fixture.path("candidate"), "", false);
-        assertThat(reply.assessment().detail()).isNotNull();
-        assertThatThrownBy(() -> new EvaluationEngine().evaluateAnswer(1, "fixture-answer", fixture.path("answer").asText(),
-                Instant.parse("2026-10-31T00:00:00Z"), reply.assessment(), "GENERAL"))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage(fixture.path("expectedRejection").asText());
-    }
-
-    private static void sameFields(JsonNode declared, Class<?> record) {
-        var expected = new java.util.ArrayList<>(Arrays.stream(record.getRecordComponents())
-                .map(java.lang.reflect.RecordComponent::getName).toList());
-        if (expected.remove("offsetStart")) {
-            expected.remove("offsetEnd");
-            expected.add("anchorId");
+        @Test
+        void actualPromptUsesDeclaredContractAndFitsExistingAdapterLimitIncludingRepair() {
+                var policy = new InterviewAgentPolicy();
+                var state = policy.plan(InterviewMode.GENERAL, 6, "", "model");
+                var v4 = new InterviewAgentState(
+                                "interview-agent-v4",
+                                state.executionMode(),
+                                state.plan(),
+                                state.activeCompetencyId(),
+                                List.of());
+                var context = InterviewAgentContext.encode("private material", v4, policy.routing(v4, 1, 6));
+                var reason = new InterviewReviewRejected(
+                                StructuredOutput.invalid(
+                                                "agentDecision.gap",
+                                                StructuredOutput.RejectionReason.MISSING_FIELD));
+                var input = prompts.reviewInput(
+                                "Java",
+                                context,
+                                List.of(new InterviewTurn("user", "private answer")),
+                                1,
+                                false,
+                                reason.repairFeedback());
+                assertThat(input.system()).contains(InterviewOutputContract.prompt(false, true, false));
+                assertThat(input.system().length()).isLessThanOrEqualTo(7500);
+                assertThat(json.readTree(input.user()).path("validationFeedback").path("path").asString())
+                                .isEqualTo("agentDecision.gap");
+                assertThat(prompts.templateManifest().toString())
+                                .doesNotContain("private material", "private answer");
+                assertThat(prompts.templateManifest().path("renderedContracts").toString())
+                                .doesNotContain("planProposal");
+                assertThat(input.user())
+                                .doesNotContain("plannerVersion", "candidateDifficulties", "previousIntents");
+                assertThat(input.temperature())
+                                .isEqualTo(
+                                                prompts.templateManifest()
+                                                                .path("generation")
+                                                                .path("reviewTemperature")
+                                                                .asDouble());
+                assertThat(input.maxTokens())
+                                .isEqualTo(
+                                                prompts.templateManifest()
+                                                                .path("generation")
+                                                                .path("agentReviewMaxTokens")
+                                                                .asInt());
+                assertThat(prompts.openingInput("Java", context, reason.repairFeedback()).system().length())
+                                .isLessThanOrEqualTo(8000);
+                var finalInput = prompts.reviewInput(
+                                "Java",
+                                context,
+                                List.of(new InterviewTurn("user", "private answer")),
+                                6,
+                                true,
+                                null);
+                assertThat(finalInput.system()).doesNotContain("planProposal", "本场启用 intent-planner-v4.1");
+                assertThat(finalInput.system()).contains(InterviewOutputContract.prompt(false, true, true));
+                assertThat(input.system()).contains("required object when assessment is supplied");
         }
-        assertThat(declared.propertyNames()).containsExactlyInAnyOrderElementsOf(
-                expected);
-    }
+
+        @Test
+        void hardLimitsUseUtf16AndRetainLegacyUnknownFieldAndMissingAssessmentCompatibility() {
+                var opening = json.createObjectNode()
+                                .put("question", "😀".repeat(150))
+                                .put("ignored", "legacy extension");
+                assertThat(service.parseOpening(opening, "").length())
+                                .isEqualTo(InterviewOutputContract.QUESTION_MAX);
+                opening.put("question", "😀".repeat(150) + "a");
+                assertThatThrownBy(() -> service.parseOpening(opening, ""))
+                                .isInstanceOfSatisfying(
+                                                InterviewReviewRejected.class,
+                                                ex -> assertThat(ex.reason())
+                                                                .isEqualTo(
+                                                                                StructuredOutput.RejectionReason.LIMIT_EXCEEDED));
+                var review = json.createObjectNode()
+                                .put("feedback", "f".repeat(1000))
+                                .put("nextQuestion", "q".repeat(600))
+                                .put("ignored", true);
+                assertThat(service.parseReview(review, "", false).assessment()).isNull();
+                review.putObject("assessment").put("ownerId", 999);
+                assertThatThrownBy(() -> service.parseReview(review, "", false))
+                                .isInstanceOf(InterviewReviewRejected.class);
+                review.putObject("assessment");
+                var emptyAssessment = service.parseReview(review, "", false).assessment();
+                assertThatThrownBy(
+                                () -> new EvaluationEngine()
+                                                .evaluateAnswer(
+                                                                1,
+                                                                "fixture-answer",
+                                                                "回答",
+                                                                Instant.EPOCH,
+                                                                emptyAssessment,
+                                                                "GENERAL"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessage("assessment 必须包含两个独立维度");
+        }
+
+        @Test
+        void finalRoutingIsOwnedByTheServerAndGenerationKeepsCitationConstraints() {
+                var state = new InterviewAgentPolicy().plan(InterviewMode.GENERAL, 1, "", "model");
+                var policy = new InterviewAgentPolicy();
+                String context = InterviewAgentContext.encode("", state, policy.routing(state, 1, 1));
+                var payload = json.createObjectNode().put("feedback", "反馈").put("finalSummary", "总结");
+                payload.putObject("agentDecision")
+                                .put("level", "PARTIAL")
+                                .put("evidence", "我负责接口")
+                                .put("gap", "验证结果待补充")
+                                .put("reason", "已说明职责")
+                                .put("practice", "补充验证")
+                                .put("intent", "结束复盘");
+                var decision = service.parseReview(payload, context, true).agentDecision();
+                assertThat(decision.action()).isEqualTo(InterviewAgentState.Action.FINISH);
+                assertThat(decision.nextCompetencyId()).isEqualTo(state.activeCompetencyId());
+                assertThat(decision.questionCompetencyId()).isEmpty();
+                assertThat(decision.probe()).isEqualTo(InterviewAgentState.Probe.NONE);
+                assertThat(policy.advance(state, 1, 1, "我负责接口", decision).evaluations()).hasSize(1);
+                var prompt = InterviewOutputContract.prompt(false, true, true);
+                assertThat(prompt)
+                                .doesNotContain(
+                                                "questionCompetencyId",
+                                                "nextCompetencyId",
+                                                "\"action\"",
+                                                "\"probe\"",
+                                                "nextQuestion")
+                                .contains(
+                                                "one contiguous",
+                                                "exact source substring",
+                                                "exactly 6 distinct dimensions");
+        }
+
+        @Test
+        void diagnosticFeedbackNeverCopiesUntrustedExceptionText() {
+                var rejected = new InterviewReviewRejected(
+                                StructuredOutput.invalid("private\nAuthorization: secret"));
+                var feedback = json.readTree(rejected.repairFeedback());
+                assertThat(feedback.path("path").asString()).isEqualTo("$");
+                assertThat(feedback.path("code").asString()).isEqualTo("INVALID_VALUE");
+                assertThat(feedback.toString()).doesNotContain("private", "Authorization", "secret");
+                var semantic = new InterviewReviewRejected("观察与证据状态不一致");
+                assertThat(json.readTree(semantic.repairFeedback()).path("constraint").asString())
+                                .contains("OBSERVED", "INSUFFICIENT");
+        }
+
+        @Test
+        void retainedHistoricalCandidateStillFailsSemanticValidationEvenThoughStructureParses()
+                        throws Exception {
+                JsonNode fixture;
+                try (var input = getClass().getResourceAsStream("/interview-output-replay.json")) {
+                        fixture = json.readTree(input);
+                }
+                var reply = service.parseReview(fixture.path("candidate"), "", false);
+                assertThat(reply.assessment().detail()).isNotNull();
+                assertThatThrownBy(
+                                () -> new EvaluationEngine()
+                                                .evaluateAnswer(
+                                                                1,
+                                                                "fixture-answer",
+                                                                fixture.path("answer").asString(),
+                                                                Instant.parse("2026-10-31T00:00:00Z"),
+                                                                reply.assessment(),
+                                                                "GENERAL"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessage(fixture.path("expectedRejection").asString());
+        }
+
+        private static void sameFields(JsonNode declared, Class<?> record) {
+                var expected = new java.util.ArrayList<>(
+                                Arrays.stream(record.getRecordComponents())
+                                                .map(java.lang.reflect.RecordComponent::getName)
+                                                .toList());
+                if (expected.remove("offsetStart")) {
+                        expected.remove("offsetEnd");
+                        expected.add("anchorId");
+                }
+                assertThat(declared.propertyNames()).containsExactlyInAnyOrderElementsOf(expected);
+        }
 }

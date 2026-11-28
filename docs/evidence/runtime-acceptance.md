@@ -1,6 +1,6 @@
 # Agent 与中间件运行验收
 
-本页汇总可复现的运行结果，按功能与协议版本组织。面试模板为 `interview-prompts-v5`，输出契约为 `interview-output-v3`，取证与最终生成使用 `phased-v1`。
+历史真实模型验收使用 `interview-prompts-v5`、`interview-output-v3` 和 `phased-v1`。本轮 RocketMQ 分进程验收使用 `TOOL` 路由、`A1` 策略和 `phased-v2` 协议。
 
 ## 实现与结果
 
@@ -9,9 +9,15 @@
 | 真实模型与 LangChain4j | 认证 API → 持久化任务 → Worker → DeepSeek → 评价提交 → `FINISHED`；成功流程使用 5 次生成，包含一次输出修复 | 一个合成单轮案例；最终结果通过独立 Agent 语义复核，未进行人工评分或多轮稳定率评测 |
 | 评价与引用 | 4 个已观察维度的结论分别由对应引文支持，原文位置与哈希一致；技术正确性和方案取舍保持未知 | 保留首次被拒输出与修复后提交结果，不能把流程成功单独当作语义正确 |
 | RAG | 真实 BGE 与回答模型组合中，5 个无答案样本正确拒答；误拒问题修正后，2 个定向案例通过复测 | 原始候选可以非空；回答层在现有一次生成中判断证据充分性。初始 5 个正例经 Agent 复核有 4 个正确，修正后未重跑全部样本 |
-| Redis 与 RabbitMQ | 独立 Redis、MySQL 和 RabbitMQ 环境下，6 个真实派发与故障场景全部通过 | 使用 Mock 生成模型，覆盖容量不足、数据库中断、Broker 重启、重复投递、取消与过期；未测量无路由恢复的最坏等待时间 |
 | Docker | 后端、BGE、前端和 MCP 镜像构建通过；BGE 实际推理与 pgvector 插入、相似度查询通过；前端及 MCP 容器检查 11 项通过 | 前端检查覆盖入口、脚本、SPA 路由与响应头，MCP 检查覆盖协议、工具和检索；不等同于全套 Compose 联调 |
 | 代码回归 | 面试相关测试 276 项通过 | 覆盖状态机、输出契约、引用、路由、Worker 与模块边界 |
+| RocketMQ 分进程派发 | 单、双 Worker 分别完成 8 个面试任务，吞吐为每秒 1.13 和 2.36 个，排队 P95 为 5.30 和 2.47 秒。断线续读与在途取消通过，API 和两个 Worker 的总模型调用并发峰值为 6。 | 2026-11-28 本机独立 JVM、真实 MySQL、Redis 和 RocketMQ 5.3.2，使用本地合成模型响应，最终调用加入 600 毫秒延迟。[原始样本与运行配置](rocketmq-split-load-454d05ad399709df.json) |
+
+2026-11-28 的资料派发专项通过 41 项单测和 24 项集成测试。场景覆盖资料上传、共享文件、索引版本、真实 Broker 投递，以及 API 先受理后由独立 Worker 领取和重启接管。[逐项验收结果](rocketmq-knowledge-cdc6bf23da335b34.json)
+
+同日执行 `node scripts/verify-middleware-live.mjs --offline`，通用验收通过 114 项单元测试和 82 项集成测试，另有 4 项条件跳过的故障用例由消息故障回放入口执行。[故障专项结果](rocketmq-acceptance.json)
+
+独立 Java SDK 压测分 7 波发送 84 个不同业务 Key，后 4 波发送时暂停消费者 1 秒。恢复后各波均收齐，7 次采样中 Broker 的 Netty 直接内存均为 121 MiB，未出现 gRPC 超时。[逐波耗时、内存及原始故障对照](rocketmq-broker-direct-memory-3c5761c11af80296.json)
 
 ## 生成契约
 
@@ -26,7 +32,8 @@
 | 入口 | 产物与用途 |
 | --- | --- |
 | [真实 Worker 验收](../../scripts/verify-provider-lifecycle.mjs) | `backend/target/provider-simplified/<stage>/` 保存完整回复、校验过程、持久化结果和用量；运行方法见[开发与验证](../开发与验证.md) |
-| [消息故障回放](../../scripts/verify-run-retry-live.mjs) | [6 场景运行记录](rabbitmq-retry-live-f670e16f4d49c466.json)，新报告按随机运行编号保存 |
+| [消息故障回放](../../scripts/verify-run-retry-live.mjs) | 关闭数据库恢复扫描，验证确认丢失、延迟重投、Broker 与 Proxy 重启、异常消息查询及死信处理。[九项故障验收结果](rocketmq-acceptance.json) |
+| [应用回退演练](rocketmq-application-rollback-c514a35f.json) | Proxy 离线时新版 API 受理面试，旧版数据库 Worker 完成同一任务。重放请求后仍只有一条任务记录和一次业务提交，重新升级后可读到相同结果。 |
 | [前端与 MCP 容器验收](../../scripts/verify-web-containers-live.mjs) | [11 项容器检查](web-container-smoke-5719bc1a643ed751.json)，包含镜像指纹、检查结果和清理记录 |
 | 后端镜像核对 | 原始证据目录中的 `backend-container-v5-*.json`；镜像内模板版本及正文指纹与工作区一致 |
 | RAG 回答验收 | `backend/target/rag-acceptance/` 保存逐题答案、向量分数和定向复测结果 |

@@ -1,14 +1,9 @@
-import { interviewRuns } from './interviewRuns';
-import { acceptRunCommand } from './runCommand';
-import type {
-  PageResult,
-  InterviewHistoryItem,
-  InterviewSessionRequest,
-  InterviewSession,
-} from '@/types/api.d';
-import { del, get } from '@/api/request';
+import { interviewRuns } from './interviewRuns.ts';
+import { acceptRunCommand } from './runCommand.ts';
+import type { PageResult, InterviewHistoryItem, InterviewSessionRequest, InterviewSession } from '@/types/api.d';
+import { del, get } from '../request.ts';
 import { CanceledError } from 'axios';
-import { captureAccountScope } from '../accountScope';
+import { captureAccountScope } from '../accountScope.ts';
 
 export const interviewService = {
   runs: interviewRuns,

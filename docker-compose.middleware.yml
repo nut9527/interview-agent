@@ -1,11 +1,10 @@
-# Compatibility override for deployments that explicitly select middleware.
+# 显式启用中间件时，与基础 Compose 文件叠加使用。
 services:
-  # The app profile also starts its required services when this override is selected.
   redis:
     profiles: ["app", "middleware"]
   redis-cache:
     profiles: ["app", "middleware"]
-  rabbitmq:
+  mqinit:
     profiles: ["app", "middleware"]
   backend:
     volumes:
@@ -15,15 +14,15 @@ services:
         condition: service_healthy
       redis-cache:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      mqinit:
+        condition: service_completed_successfully
     environment:
       QUESTION_CACHE_ENABLED: "true"
       REDIS_RATE_LIMIT_ENABLED: "true"
-      RUN_DISPATCH_MODE: rabbitmq
+      RUN_DISPATCH_MODE: rocketmq
       INTERVIEW_RUNS_WORKER_ENABLED: "true"
       RUN_OUTBOX_PUBLISHER_ENABLED: "true"
       RUN_RECOVERY_ENABLED: "true"
-      KNOWLEDGE_DISPATCH_MODE: rabbitmq
+      KNOWLEDGE_DISPATCH_MODE: rocketmq
       KNOWLEDGE_IMPORT_SHARED_DIRECTORY: /app/data/knowledge-imports
       KNOWLEDGE_DISPATCH_INDEX_SCAN_MS: "60000"

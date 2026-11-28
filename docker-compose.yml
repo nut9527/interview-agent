@@ -1,6 +1,8 @@
+x-rocketmq-image: &rocketmq-image ${ROCKETMQ_IMAGE:-apache/rocketmq:5.3.2@sha256:4a80ff5cd4b0a3d3ef6dc338ce2028a85bd995648cb3aa5c3e753746d2dbc587}
+
 services:
   redis:
-    # Shared AI/SSE/retention coordination and submission protection; never evict leases.
+    # AI 配额、SSE 连接、清理租约和提交限流共用协调实例，禁止驱逐仍然有效的键。
     profiles: ["app", "middleware"]
     image: ${REDIS_IMAGE:-redis:7.4.2}
     restart: unless-stopped
@@ -28,25 +30,84 @@ services:
       timeout: 3s
       retries: 5
 
-  rabbitmq:
+  mqnamesrv:
     profiles: ["app", "middleware"]
-    image: ${RABBITMQ_IMAGE:-rabbitmq:4.1.0-management}
-    hostname: zhizhida-rabbitmq
+    image: *rocketmq-image
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-zhizhida}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-zhizhida-local}
-      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/zhizhida-lab}
-    ports:
-      - "127.0.0.1:${RABBITMQ_PORT:-5672}:5672"
-      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
-    volumes:
-      - ./.runtime/middleware/rabbitmq:/var/lib/rabbitmq
+      JAVA_OPT_EXT: "-Xms128m -Xmx128m -Xmn64m"
+    command: ["sh", "mqnamesrv"]
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ["CMD", "bash", "-c", "true >/dev/tcp/127.0.0.1/9876"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mq-store-init:
+    profiles: ["app", "middleware"]
+    image: *rocketmq-image
+    user: "0:0"
+    # 新数据卷由 root 持有，首次启动前将卷根目录交给 Broker 运行账号。
+    command: ["chown", "3000:3000", "/home/rocketmq/store"]
+    volumes:
+      - mq-store:/home/rocketmq/store
+
+  mqbroker:
+    profiles: ["app", "middleware"]
+    image: *rocketmq-image
+    restart: unless-stopped
+    depends_on:
+      mqnamesrv:
+        condition: service_healthy
+      mq-store-init:
+        condition: service_completed_successfully
+    environment:
+      NAMESRV_ADDR: mqnamesrv:9876
+      JAVA_OPT_EXT: "-Xms256m -Xmx512m -Xmn128m -XX:MaxDirectMemorySize=512m"
+    command: ["sh", "mqbroker", "-c", "/dispatch/broker.conf"]
+    volumes:
+      - ./services/rocketmq:/dispatch:ro
+      - mq-store:/home/rocketmq/store
+    healthcheck:
+      test: ["CMD-SHELL", "sh mqadmin clusterList -n mqnamesrv:9876 | grep -q dispatch-broker"]
+      start_period: 15s
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 8s
+      retries: 30
+
+  mqproxy:
+    profiles: ["app", "middleware"]
+    image: *rocketmq-image
+    restart: unless-stopped
+    depends_on:
+      mqbroker:
+        condition: service_healthy
+    environment:
+      NAMESRV_ADDR: mqnamesrv:9876
+      JAVA_OPT_EXT: "-Xms128m -Xmx256m -Xmn64m"
+    command: ["sh", "mqproxy", "-pm", "CLUSTER", "-pc", "/dispatch/proxy.json"]
+    volumes:
+      - ./services/rocketmq:/dispatch:ro
+    ports:
+      - "127.0.0.1:${ROCKETMQ_PROXY_PORT:-8081}:8081"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "true >/dev/tcp/127.0.0.1/8081"]
+      start_period: 25s
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  mqinit:
+    profiles: ["app", "middleware"]
+    image: *rocketmq-image
+    depends_on:
+      mqproxy:
+        condition: service_healthy
+    environment:
+      ROCKETMQ_RESOURCE_PREFIX: ${ROCKETMQ_RESOURCE_PREFIX:-zhizhida}
+    command: ["sh", "/dispatch/init.sh"]
+    volumes:
+      - ./services/rocketmq:/dispatch:ro
 
   mcp-reference:
     profiles: ["app"]
@@ -125,8 +186,8 @@ services:
         condition: service_healthy
       redis-cache:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      mqinit:
+        condition: service_completed_successfully
       embedding:
         condition: service_healthy
       pgvector:
@@ -145,7 +206,7 @@ services:
       REDIS_CACHE_PORT: 6379
       REDIS_RATE_HOST: redis
       REDIS_RATE_PORT: 6379
-      # Bundled loopback-only Redis services have no authentication; external services use app.redis.*.
+      # 内置 Redis 仅向宿主机回环地址映射端口。使用外部实例时，在 app.redis.* 中配置认证信息。
       REDIS_CACHE_PASSWORD: ""
       REDIS_RATE_PASSWORD: ""
       REDIS_NAMESPACE: ${REDIS_NAMESPACE:-zhizhida:dev}
@@ -153,13 +214,14 @@ services:
       REDIS_RATE_LIMIT_ENABLED: ${REDIS_RATE_LIMIT_ENABLED:-true}
       REDIS_SUBMISSION_LIMIT: ${REDIS_SUBMISSION_LIMIT:-10}
       REDIS_SUBMISSION_WINDOW_MS: ${REDIS_SUBMISSION_WINDOW_MS:-10000}
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-zhizhida}
-      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-zhizhida-local}
-      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/zhizhida-lab}
-      RUN_DISPATCH_MODE: rabbitmq
-      KNOWLEDGE_DISPATCH_MODE: rabbitmq
+      ROCKETMQ_ENDPOINTS: ${ROCKETMQ_ENDPOINTS:-mqproxy:8081}
+      ROCKETMQ_ACCESS_KEY: ${ROCKETMQ_ACCESS_KEY:-}
+      ROCKETMQ_SECRET_KEY: ${ROCKETMQ_SECRET_KEY:-}
+      ROCKETMQ_TLS_ENABLED: ${ROCKETMQ_TLS_ENABLED:-false}
+      ROCKETMQ_RECEIVE_WAIT_MS: ${ROCKETMQ_RECEIVE_WAIT_MS:-200}
+      ROCKETMQ_RESOURCE_PREFIX: ${ROCKETMQ_RESOURCE_PREFIX:-zhizhida}
+      RUN_DISPATCH_MODE: rocketmq
+      KNOWLEDGE_DISPATCH_MODE: rocketmq
       KNOWLEDGE_IMPORT_SHARED_DIRECTORY: /app/data/knowledge-imports
       KNOWLEDGE_DISPATCH_INDEX_SCAN_MS: "60000"
       AGENT_MCP_REFERENCE_ENABLED: ${AGENT_MCP_REFERENCE_ENABLED:-true}
@@ -187,7 +249,6 @@ services:
       KNOWLEDGE_IMPORT_CONCURRENCY: ${KNOWLEDGE_IMPORT_CONCURRENCY:-2}
       KNOWLEDGE_INDEX_CONCURRENCY: ${KNOWLEDGE_INDEX_CONCURRENCY:-1}
       KNOWLEDGE_IMPORT_TIMEOUT_SECONDS: ${KNOWLEDGE_IMPORT_TIMEOUT_SECONDS:-180}
-      KNOWLEDGE_DISPATCH_NAMESPACE: ${KNOWLEDGE_DISPATCH_NAMESPACE:-zhizhida.knowledge}
       INTERVIEW_RUNS_WORKER_ENABLED: ${INTERVIEW_RUNS_WORKER_ENABLED:-true}
       RUN_OUTBOX_PUBLISHER_ENABLED: ${RUN_OUTBOX_PUBLISHER_ENABLED:-true}
       RUN_OUTBOX_PUBLISHER_INTERVAL_MS: ${RUN_OUTBOX_PUBLISHER_INTERVAL_MS:-500}
@@ -256,3 +317,4 @@ services:
 
 volumes:
   mysql-data:
+  mq-store:

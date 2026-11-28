@@ -17,8 +17,7 @@ export function wslPathArguments(distro, windowsPath) {
 }
 
 export function ownedWslDirectory(output, tmp) {
-  // WSL notices use UTF-16 stderr, while wslpath writes UTF-8 stdout. The combined
-  // capture may therefore leave a NUL immediately before the valid path line.
+  // 合并 WSL 的 UTF-16 提示和 wslpath 的 UTF-8 输出时，路径行前可能残留空字符。
   const paths = output.replaceAll('\0', '').split(/\r?\n/).map(line => line.trim()).filter(line => line.startsWith('/'));
   const suffix = '/' + relative(PROJECT_ROOT, tmp).replaceAll('\\', '/');
   if (paths.length !== 1 || !paths[0].endsWith(suffix)) throw new Error('Cannot resolve the owned Redis directory inside WSL.');
@@ -43,7 +42,7 @@ export function browserEnvironment(base, { dir, password, ciServices = false }) 
     REDIS_RATE_HOST: '127.0.0.1', REDIS_RATE_PORT: '16379', REDIS_RATE_PASSWORD: '',
     REDIS_NAMESPACE: 'zhizhida:browser:' + randomBytes(12).toString('hex'),
     REDIS_RATE_LIMIT_ENABLED: 'false', QUESTION_CACHE_ENABLED: 'false', REDIS_HEALTH_ENABLED: 'true',
-    RABBITMQ_HEALTH_ENABLED: 'false', RUN_DISPATCH_MODE: 'database', KNOWLEDGE_DISPATCH_MODE: 'local',
+    RUN_DISPATCH_MODE: 'database', KNOWLEDGE_DISPATCH_MODE: 'local',
     AGENT_VECTOR_ENABLED: 'false', AGENT_VECTOR_WORKER_ENABLED: 'false', AGENT_MCP_REFERENCE_ENABLED: 'false',
     AGENT_TRACE_EXPORT_ENABLED: 'false', LEARNING_PRACTICE_TOOLS_ENABLED: 'false',
     INTERVIEW_RUNS_WORKER_ENABLED: 'true', INTERVIEW_RUNS_LOOP_POLICY: 'B0',
@@ -78,7 +77,7 @@ function redisRequest(args, expected, allowEof = false) {
 }
 
 export async function startBrowserStack({ ciServices = false, signal, offline = false } = {}) {
-  // No package, image or tool downloads occur here; offline is accepted for the common runner interface.
+  // 浏览器验收始终使用本机依赖，保留 offline 参数以兼容统一启动入口。
   void offline;
   signal?.throwIfAborted();
   if (ciServices && process.env.CI !== 'true') throw new Error('--ci-services requires CI=true and disposable CI services.');
@@ -106,8 +105,7 @@ export async function startBrowserStack({ ciServices = false, signal, offline = 
     children.push(child); child.on('error', error => failures.set(child, error));
     return child;
   };
-  // Stop serving on cancellation, but let the caller close Chromium before removing its profile.
-  // MySQL and WSL Redis retain their normal shutdown path in cleanup().
+  // 取消时先停应用服务。调用方关闭 Chromium 后再清理浏览器目录，MySQL 和 Redis 由 cleanup 正常关闭。
   const interrupted = () => {
     interruptedStops = Promise.allSettled(children.filter(child => child !== mysqlServer && child !== redisServer).map(stopChild));
   };
@@ -180,7 +178,7 @@ export async function startBrowserStack({ ciServices = false, signal, offline = 
     }
     const backend = await launch(findExecutable('java'), ['-XX:-UsePerfData', '-Djava.io.tmpdir=' + tmp, '-jar', jar], 'backend.log');
     await waitForHttp(backendOrigin + '/api/health/ready', acceptsBackend, { timeout: 60000, alive: () => !signal?.aborted && active(backend) });
-    // Vite preview inherits server.proxy from vite.config.ts and serves the already-built dist.
+    // 预览已构建的 dist，沿用 vite.config.ts 中的后端代理。
     const frontend = await launch(process.execPath, [join(PROJECT_ROOT, 'frontend/node_modules/vite/bin/vite.js'), 'preview', '--config', join(PROJECT_ROOT, 'frontend/vite.config.ts'), '--host', '127.0.0.1', '--port', '15173', '--strictPort', '--outDir', join(PROJECT_ROOT, 'frontend/dist')], 'frontend.log');
     await waitForHttp(origin + '/api/health/ready', acceptsBackend, { timeout: 30000, alive: () => !signal?.aborted && active(frontend) });
     signal?.throwIfAborted(); signal?.addEventListener('abort', interrupted, { once: true });

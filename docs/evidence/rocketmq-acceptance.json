@@ -1,0 +1,85 @@
+{
+  "run": "265fdc24a64ca58d",
+  "databasePort": 13317,
+  "modelProvider": "mock",
+  "applicationRecoverySchedulerEnabled": false,
+  "brokerConfiguration": "RocketMQ 5.3.2, synchronous disk flush, native delay topics",
+  "sdkVersion": "5.2.2",
+  "tests": [
+    {
+      "name": "globalCapacityRejectionUsesDelayedBrokerRetryWithoutSpendingModelBudget",
+      "seconds": 17.375,
+      "passed": true
+    },
+    {
+      "name": "abandonedPublishLeaseAndLostAckDoNotDuplicateBusinessCommit",
+      "seconds": 20.488,
+      "passed": true
+    },
+    {
+      "name": "databaseOutageMovesOriginalToRetryBeforeAckAndCommitsOnceAfterRecovery",
+      "seconds": 19.561,
+      "passed": true
+    },
+    {
+      "name": "queuedCancellationAndExpiredBudgetRemainTerminalAfterDelivery",
+      "seconds": 10.474,
+      "passed": true
+    },
+    {
+      "name": "actualListenerExecutesAnApiAcceptedRun",
+      "seconds": 6.559,
+      "passed": true
+    },
+    {
+      "name": "confirmedDelaySurvivesBrokerRestart",
+      "seconds": 29.236,
+      "passed": true
+    },
+    {
+      "name": "proxyRestartResumesBufferedWork",
+      "seconds": 9.891,
+      "passed": true
+    },
+    {
+      "name": "invalidMessageIsQuarantinedAndQueryableByKey",
+      "seconds": 16.761,
+      "passed": true
+    },
+    {
+      "name": "exhaustedRedeliveryGoesToConsumerGroupDeadLetterTopic",
+      "seconds": 41.777,
+      "passed": true
+    }
+  ],
+  "cleanup": [
+    {
+      "cluster": "zdmq265fdc24a64ca58d",
+      "removed": true
+    },
+    {
+      "container": "zhizhida-mq-acceptance-redis-cache-265fdc24a64ca58d",
+      "removed": true
+    },
+    {
+      "container": "zhizhida-mq-acceptance-redis-265fdc24a64ca58d",
+      "removed": true
+    },
+    {
+      "container": "zhizhida-mq-acceptance-mysql-265fdc24a64ca58d",
+      "removed": true
+    }
+  ],
+  "images": "[mysql:8.4] sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902\n[redis:7.4.2] sha256:fbdbaea47b9ae4ecc2082ecdb4e1cea81e32176ffb1dcf643d422ad07427e5d9\n[apache/rocketmq:5.3.2] sha256:4a80ff5cd4b0a3d3ef6dc338ce2028a85bd995648cb3aa5c3e753746d2dbc587",
+  "brokerSettings": {
+    "flushDiskType": "SYNC_FLUSH",
+    "timerWheelEnable": "true",
+    "sendMessageThreadPoolNums": "4",
+    "pullMessageThreadPoolNums": "8",
+    "ackMessageThreadPoolNums": "4",
+    "jvm": "-Xms256m -Xmx512m -Xmn128m -XX:MaxDirectMemorySize=512m"
+  },
+  "revision": "188d8505c3d35946fe7082b6f009c10e17fcaf0f",
+  "workingTreeModified": true,
+  "passed": true
+}

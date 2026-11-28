@@ -5,6 +5,9 @@ import { join, dirname, sep } from 'node:path';
 import { createCandidate, verifyCandidate, allowed, safePath, projectRoot, sha256 } from './release-candidate.mjs';
 import { checkFixtures } from './release-fixtures.mjs';
 
+const brokerInputs = ['broker.conf', 'proxy.json', 'init.sh', 'InitResources.java']
+  .map(name => 'services/rocketmq/' + name);
+
 async function fixture(t) {
   const parent = join(projectRoot, '.runtime');
   await mkdir(parent, { recursive: true });
@@ -20,18 +23,23 @@ async function fixture(t) {
   };
   for (const path of ['README.md', 'backend/pom.xml', 'frontend/package.json', 'frontend/pnpm-lock.yaml',
     'docs/使用指南.md', 'contracts/release-v1.0.json', 'scripts/release-candidate.mjs']) await put(path);
+  for (const path of brokerInputs) await put(path, await readFile(join(projectRoot, path)));
   return { root, put };
 }
 
 test('candidate copies only allowed bytes and refuses to overwrite', async t => {
   const { root, put } = await fixture(t);
   for (const path of ['.env', '.runtime/data.db', '1/private.md', 'backend/target/classes/x.class',
-    'frontend/node_modules/module.js', 'docs/local.key']) await put(path, 'MUST_NOT_SHIP');
+    'frontend/node_modules/module.js', 'docs/local.key', 'docs/evidence/resume-retest-20261120/raw.json']) await put(path, 'MUST_NOT_SHIP');
   await put('.env.example', 'DEEPSEEK_API_KEY=\r\n');
   await put('backend/src/main/java/例.java', '中文😀\r\n');
   const result = await createCandidate('s0-test', root);
   const list = JSON.parse(await readFile(join(result.directory, 'FILES.json'), 'utf8'));
-  assert.equal(list.length, 9);
+  assert.equal(list.length, 9 + brokerInputs.length);
+  for (const path of brokerInputs) {
+    assert.ok(list.some(file => file.path === path), path);
+    assert.deepEqual(await readFile(join(result.directory, 'payload', path)), await readFile(join(projectRoot, path)));
+  }
   assert.equal(await readFile(join(result.directory, 'payload/backend/src/main/java/例.java'), 'utf8'), '中文😀\r\n');
   assert.equal(result.status, 'INTEGRITY_VERIFIED_NOT_RELEASE_ACCEPTED');
   await assert.rejects(createCandidate('s0-test', root), /EEXIST/);

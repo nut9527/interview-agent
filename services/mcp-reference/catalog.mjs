@@ -1,4 +1,4 @@
-// Source summaries. Only the reader's browser follows a source link.
+// MCP 在本地资料目录中检索摘要，原文链接由读者的浏览器打开。
 const catalog = [
   {
     title: 'Redis · EXPIRE 与键的生存时间',
@@ -13,10 +13,10 @@ const catalog = [
     terms: ['淘汰', 'eviction', 'maxmemory', '命中率', '容量保护', 'lru', 'lfu'],
   },
   {
-    title: 'RabbitMQ · 消费确认与发布确认',
-    url: 'https://www.rabbitmq.com/docs/confirms',
-    summary: '发布确认告知生产者消息已被 broker 接收；消费确认告知 broker 消息已处理。手动确认模式下，连接或通道关闭时尚未确认的消息会重新入队。',
-    terms: ['rabbitmq', '消息', '重投', '重复消费', '消费确认', 'acknowledgement', 'publisher confirm'],
+    title: 'RocketMQ · 消费确认和重试',
+    url: 'https://rocketmq.apache.org/docs/featureBehavior/10consumerretrypolicy/',
+    summary: '消费者完成处理后确认消息。确认超时会触发重新投递，达到消费组的重试上限后进入死信队列；业务可按任务 ID 核对执行结果。',
+    terms: ['rocketmq', '消息', '重投', '重复消费', '消费确认', '不可见时间', '死信队列'],
   },
   {
     title: 'MySQL · InnoDB 事务隔离级别',
@@ -133,10 +133,10 @@ const catalog = [
     terms: ['spring', '@transactional', '事务传播', '自调用', 'rollbackfor', 'requires_new'],
   },
   {
-    title: 'JavaGuide · RabbitMQ 确认与死信交换机',
-    url: 'https://javaguide.cn/high-performance/message-queue/rabbitmq-questions.html',
-    summary: 'RabbitMQ 通过交换机和绑定把消息路由到队列。消费者完成处理后再手动确认；死信交换机 DLX 接收符合死信条件的消息，再按绑定路由到对应队列。',
-    terms: ['rabbitmq', '手动确认', '死信', 'dlx', '交换机', 'routing key', '消息路由'],
+    title: 'RocketMQ · 延迟消息',
+    url: 'https://rocketmq.apache.org/docs/featureBehavior/02delaymessage/',
+    summary: '延迟消息投递到 DELAY 类型的主题，发送方指定交付时间。到期后消费者可以领取并处理消息。',
+    terms: ['延迟消息', '定时消息', '交付时间', 'delay', '调度'],
   },
   {
     title: 'JavaGuide · 接口幂等与去重表',

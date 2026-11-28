@@ -1,66 +1,74 @@
 {
   "schemaVersion": 1,
+  "runId": "ce8edc7d-841a-4023-98d4-6b6d442905d5",
   "input": {
     "path": "docs/evidence/reference-retrieval-diagnostics.json",
-    "sha256": "e2e25fe7de5e50e99b3d4f798b303e18a00c421f19c8bfbcce6b86cfdb9d653d"
+    "sha256": "add0aa2cb097103d25affde47091f2cb653cdd5954ae4f2034ce7d660ed5ff2f"
   },
-  "sourceSha256": "1a30e8bede29ab97c7c351baf7f0311c1a428c729b1678de920427bfb932b69b",
+  "sourceSha256": "4eb5c77e152c9201978a3989cde8cad6f4482e9ad89457e54984d75897a854c2",
   "method": "At most one previous and next evidence chunk within the same document and heading, ordered by source offset. Original chunks and labels remain unchanged.",
   "interpretation": "Candidate coverage only. Expanded pools have not been reranked, timed, or deployed.",
   "summary": {
     "selected": {
       "rrf30": {
-        "positiveCases": 90,
-        "macroRecall": 0.9888888888888889,
+        "positiveCases": 80,
+        "macroRecall": 0.99375,
         "candidateCount": {
-          "min": 30,
+          "min": 12,
           "median": 30,
           "max": 30
         },
         "restoredSinceRrf30": []
       },
       "unionUpTo60": {
-        "positiveCases": 90,
-        "macroRecall": 0.9888888888888889,
+        "positiveCases": 80,
+        "macroRecall": 1,
         "candidateCount": {
-          "min": 30,
-          "median": 45,
-          "max": 57
+          "min": 12,
+          "median": 40,
+          "max": 53
         },
-        "restoredSinceRrf30": []
+        "restoredSinceRrf30": [
+          {
+            "id": "JG-46",
+            "sources": [
+              "jg-mysql-explain:key（重要）"
+            ]
+          }
+        ]
       },
       "rrf30WithNeighbors": {
-        "positiveCases": 90,
-        "macroRecall": 0.9888888888888889,
+        "positiveCases": 80,
+        "macroRecall": 0.99375,
         "candidateCount": {
-          "min": 39,
-          "median": 56,
-          "max": 75
+          "min": 12,
+          "median": 33,
+          "max": 45
         },
         "restoredSinceRrf30": []
       },
       "unionWithNeighbors": {
-        "positiveCases": 90,
-        "macroRecall": 0.9944444444444445,
+        "positiveCases": 80,
+        "macroRecall": 1,
         "candidateCount": {
-          "min": 41,
-          "median": 81,
-          "max": 122
+          "min": 12,
+          "median": 45,
+          "max": 66
         },
         "restoredSinceRrf30": [
           {
-            "id": "JG-43",
+            "id": "JG-46",
             "sources": [
-              "jg-mcp:MCP 的意义只是让模型会调接口吗？"
+              "jg-mysql-explain:key（重要）"
             ]
           }
         ]
       }
     },
-    "all27": {
+    "all": {
       "rrf30": {
-        "positiveCases": 90,
-        "macroRecall": 0.95,
+        "positiveCases": 80,
+        "macroRecall": 0.9875,
         "candidateCount": {
           "min": 30,
           "median": 30,
@@ -69,12 +77,12 @@
         "restoredSinceRrf30": []
       },
       "unionUpTo60": {
-        "positiveCases": 90,
-        "macroRecall": 0.9555555555555556,
+        "positiveCases": 80,
+        "macroRecall": 0.99375,
         "candidateCount": {
-          "min": 36,
-          "median": 53,
-          "max": 59
+          "min": 41,
+          "median": 51,
+          "max": 60
         },
         "restoredSinceRrf30": [
           {
@@ -86,71 +94,28 @@
         ]
       },
       "rrf30WithNeighbors": {
-        "positiveCases": 90,
-        "macroRecall": 0.9833333333333333,
+        "positiveCases": 80,
+        "macroRecall": 0.9875,
         "candidateCount": {
-          "min": 44,
-          "median": 62,
-          "max": 80
+          "min": 32,
+          "median": 39,
+          "max": 48
         },
-        "restoredSinceRrf30": [
-          {
-            "id": "xl-20",
-            "sources": [
-              "xl-network-retransmission:PDF第304页"
-            ]
-          },
-          {
-            "id": "BOOK-11",
-            "sources": [
-              "book-spring5-rabbitmq:PDF第332页"
-            ]
-          },
-          {
-            "id": "BOOK-16",
-            "sources": [
-              "book-spring5-actuator:PDF第622页"
-            ]
-          }
-        ]
+        "restoredSinceRrf30": []
       },
       "unionWithNeighbors": {
-        "positiveCases": 90,
-        "macroRecall": 0.9944444444444445,
+        "positiveCases": 80,
+        "macroRecall": 0.99375,
         "candidateCount": {
-          "min": 52,
-          "median": 111,
-          "max": 143
+          "min": 48,
+          "median": 67,
+          "max": 81
         },
         "restoredSinceRrf30": [
-          {
-            "id": "JG-43",
-            "sources": [
-              "jg-mcp:MCP 的意义只是让模型会调接口吗？"
-            ]
-          },
           {
             "id": "xl-06",
             "sources": [
               "xl-mysql-logs:PDF第298页"
-            ]
-          },
-          {
-            "id": "xl-20",
-            "sources": [
-              "xl-network-retransmission:PDF第304页"
-            ]
-          },
-          {
-            "id": "BOOK-11",
-            "sources": [
-              "book-spring5-rabbitmq:PDF第332页"
-            ]
-          },
-          {
-            "id": "BOOK-16",
-            "sources": [
-              "book-spring5-actuator:PDF第622页"
             ]
           }
         ]
@@ -159,43 +124,6 @@
   },
   "evidence": [
     {
-      "id": "JG-43",
-      "question": "Agent Loop 与 MCP 分别承担什么职责？",
-      "missingGold": [
-        {
-          "source": "jg-mcp:MCP 的意义只是让模型会调接口吗？",
-          "quote": "Function Calling 已经可以让模型表达“调用哪个接口”。MCP 解决的是同一个工具交付给多个 Host 时的重复集成。",
-          "chunkIds": [
-            "jg-mcp:84"
-          ],
-          "chunks": [
-            {
-              "id": "jg-mcp:84",
-              "content": "Function Calling 已经可以让模型表达“调用哪个接口”。MCP 解决的是同一个工具交付给多个 Host 时的重复集成。\r\n",
-              "title": "什么是 Model Context Protocol (MCP)？和 Function Calling、Agent 什么关系？",
-              "documentId": "jg-mcp",
-              "endOffset": 8363,
-              "startOffset": 8295,
-              "topic": "agent",
-              "heading": "MCP 的意义只是让模型会调接口吗？",
-              "neighbors": [
-                {
-                  "id": "jg-mcp:85",
-                  "content": "例如，内部工单系统接入一个 Agent 后，换成另一个 Host 往往还要重写连接、参数和结果处理。将能力封装为 MCP Server 后，支持 MCP Client 的应用可以按同一套发现和调用方式接入。\r\n",
-                  "title": "什么是 Model Context Protocol (MCP)？和 Function Calling、Agent 什么关系？",
-                  "documentId": "jg-mcp",
-                  "endOffset": 8470,
-                  "startOffset": 8365,
-                  "topic": "agent",
-                  "heading": "MCP 的意义只是让模型会调接口吗？"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
       "id": "JG-46",
       "question": "如何结合索引文档和 EXPLAIN 判断覆盖索引思路与实际选用索引？",
       "missingGold": [
@@ -203,18 +131,18 @@
           "source": "jg-mysql-explain:key（重要）",
           "quote": "key 列表示 MySQL 实际使用到的索引。如果为 NULL，则表示未用到索引。",
           "chunkIds": [
-            "jg-mysql-explain:54"
+            "jg-mysql-explain:b2:24"
           ],
           "chunks": [
             {
-              "id": "jg-mysql-explain:54",
-              "content": "key 列表示 MySQL 实际使用到的索引。如果为 NULL，则表示未用到索引。\r\n",
-              "title": "MySQL执行计划分析",
+              "id": "jg-mysql-explain:b2:24",
               "documentId": "jg-mysql-explain",
               "endOffset": 7916,
               "startOffset": 7873,
               "topic": "mysql",
               "heading": "key（重要）",
+              "content": "key 列表示 MySQL 实际使用到的索引。如果为 NULL，则表示未用到索引。\r\n",
+              "title": "MySQL执行计划分析",
               "neighbors": []
             }
           ]
@@ -229,161 +157,19 @@
           "source": "xl-mysql-logs:PDF第298页",
           "quote": "另外,undo log 还有一个作用,通过 ReadView + undo log 实现 MVCC(多版本并发控\n制)。",
           "chunkIds": [
-            "xl-mysql-logs:23"
+            "xl-mysql-logs:b2:9"
           ],
           "chunks": [
             {
-              "id": "xl-mysql-logs:23",
-              "content": "另外,undo log 还有一个作用,通过 ReadView + undo log 实现 MVCC(多版本并发控\n制)。\n",
-              "title": "5.1 MySQL 日志：undo log、redo log、binlog 有什么用？",
+              "id": "xl-mysql-logs:b2:9",
               "documentId": "xl-mysql-logs",
               "endOffset": 1869,
-              "startOffset": 1808,
+              "startOffset": 1231,
               "topic": "mysql",
               "heading": "PDF第298页",
-              "neighbors": [
-                {
-                  "id": "xl-mysql-logs:22",
-                  "content": "版本链如下图:\n",
-                  "title": "5.1 MySQL 日志：undo log、redo log、binlog 有什么用？",
-                  "documentId": "xl-mysql-logs",
-                  "endOffset": 1804,
-                  "startOffset": 1796,
-                  "topic": "mysql",
-                  "heading": "PDF第298页"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "xl-20",
-      "question": "数据可能已经到达，但确认消息没回来，TCP 会不会因为等待超时再发一次？",
-      "missingGold": [
-        {
-          "source": "xl-network-retransmission:PDF第304页",
-          "quote": "  数据包丢失\n  确认应答丢失",
-          "chunkIds": [
-            "xl-network-retransmission:20"
-          ],
-          "chunks": [
-            {
-              "id": "xl-network-retransmission:20",
-              "content": "  数据包丢失\n  确认应答丢失\n",
-              "title": "4.2 TCP 重传、滑动窗口、流量控制、拥塞控制",
-              "documentId": "xl-network-retransmission",
-              "endOffset": 644,
-              "startOffset": 627,
-              "topic": "network",
-              "heading": "PDF第304页",
-              "neighbors": [
-                {
-                  "id": "xl-network-retransmission:19",
-                  "content": "TCP 会在以下两种情况发生超时重传:\n",
-                  "title": "4.2 TCP 重传、滑动窗口、流量控制、拥塞控制",
-                  "documentId": "xl-network-retransmission",
-                  "endOffset": 625,
-                  "startOffset": 605,
-                  "topic": "network",
-                  "heading": "PDF第304页"
-                },
-                {
-                  "id": "xl-network-retransmission:21",
-                  "content": " 超时时间应该设置为多少呢?\n",
-                  "title": "4.2 TCP 重传、滑动窗口、流量控制、拥塞控制",
-                  "documentId": "xl-network-retransmission",
-                  "endOffset": 663,
-                  "startOffset": 648,
-                  "topic": "network",
-                  "heading": "PDF第304页"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "BOOK-11",
-      "question": "依照书中搭建步骤，把 Artemis 或 ActiveMQ 切换成 RabbitMQ 消息支持时，要换成哪个 starter？",
-      "missingGold": [
-        {
-          "source": "book-spring5-rabbitmq:PDF第332页",
-          "quote": "<artifactId>spring-boot-starter-amqp</artifactId>",
-          "chunkIds": [
-            "book-spring5-rabbitmq:10"
-          ],
-          "chunks": [
-            {
-              "id": "book-spring5-rabbitmq:10",
-              "content": "<dependency>\n  <groupId>org.springframework.boot</groupId>\n  <artifactId>spring-boot-starter-amqp</artifactId>\n</dependency>\n",
-              "title": "8.2 使用RabbitMQ和AMQP",
-              "documentId": "book-spring5-rabbitmq",
-              "endOffset": 1546,
-              "startOffset": 1421,
-              "topic": "spring",
-              "heading": "PDF第332页",
-              "neighbors": [
-                {
-                  "id": "book-spring5-rabbitmq:9",
-                  "content": "8.2.1       添加RabbitMQ到Spring中\n    在使用Spring发送和接收RabbitMQ消息之前,我们需要将Spring Boot的\nAMQP starter依赖添加到构建文件中,替换上文中Artemis或ActiveMQ\nstarter的位置:\n",
-                  "title": "8.2 使用RabbitMQ和AMQP",
-                  "documentId": "book-spring5-rabbitmq",
-                  "endOffset": 1420,
-                  "startOffset": 1283,
-                  "topic": "spring",
-                  "heading": "PDF第332页"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "BOOK-16",
-      "question": "按第16.1.2节的配置例子，如何开放其他端点但留下线程转储和堆转储这两个端点不开放？",
-      "missingGold": [
-        {
-          "source": "book-spring5-actuator:PDF第622页",
-          "quote": "include: '*'\n         exclude: threaddump,heapdump",
-          "chunkIds": [
-            "book-spring5-actuator:35"
-          ],
-          "chunks": [
-            {
-              "id": "book-spring5-actuator:35",
-              "content": "management:\n  endpoints:\n    web:\n      exposure:\n         include: '*'\n         exclude: threaddump,heapdump\n",
-              "title": "16.1 Actuator概览",
-              "documentId": "book-spring5-actuator",
-              "endOffset": 3886,
-              "startOffset": 3776,
-              "topic": "spring",
-              "heading": "PDF第622页",
-              "neighbors": [
-                {
-                  "id": "book-spring5-actuator:34",
-                  "content": "   如果除了个别端点之外,我们想暴露其他的所有端点,那么一般来讲更简\n单的方式是通过通配符将它们全部包含进来,然后明确排除一部分。例如,我\n们想要暴露除了“/threaddump”和“/heapdump”之外的端点,那么可以按照\n如下的形式同时设置management.endpoints.web.exposure.include和\nmanagement.endpoints.web.exposure.exclude属性:\n",
-                  "title": "16.1 Actuator概览",
-                  "documentId": "book-spring5-actuator",
-                  "endOffset": 3775,
-                  "startOffset": 3562,
-                  "topic": "spring",
-                  "heading": "PDF第622页"
-                },
-                {
-                  "id": "book-spring5-actuator:36",
-                  "content": "    如果你决定对外公开比“/health”和“/info”更多的信息,那么最好配置\nSpring Security来限制对其他端点的访问。我们将会在16.4节中了解如何保\n护Actuator端点。现在,我们看一下如何消费Actuator对外暴露的HTTP端\n点。\n",
-                  "title": "16.1 Actuator概览",
-                  "documentId": "book-spring5-actuator",
-                  "endOffset": 4022,
-                  "startOffset": 3888,
-                  "topic": "spring",
-                  "heading": "PDF第622页"
-                }
-              ]
+              "content": "针对 delete 操作和 update 操作会有一些特殊的处理:\n\n        delete操作实际上不会立即直接删除,而是将delete对象打上delete flag,标记为\n        删除,最终的删除操作是purge线程完成的。\n        update分为两种情况:update的列是否是主键列。\n             如果不是主键列,在undo log中直接反向记录是如何update的。即\n             update是直接进行的。\n             如果是主键列,update分两部执行:先删除该行,再插入一行目标行。\n\n不同的操作,需要记录的内容也是不同的,所以不同类型的操作(修改、删除、新增)产生\n的 undo log 的格式也是不同的,具体的每一个操作的 undo log 的格式我就不详细介绍了,\n感兴趣的可以自己去查查。\n\n一条记录的每一次更新操作产生的 undo log 格式都有一个 roll_pointer 指针和一个 trx_id\n事务id:\n\n        通过 trx_id 可以知道该记录是被哪个事务修改的;\n        通过 roll_pointer 指针可以将这些 undo log 串成一个链表,这个链表就被称为版\n        本链;\n\n版本链如下图:\n\n\n\n\n另外,undo log 还有一个作用,通过 ReadView + undo log 实现 MVCC(多版本并发控\n制)。\n",
+              "title": "5.1 MySQL 日志：undo log、redo log、binlog 有什么用？",
+              "neighbors": []
             }
           ]
         }
@@ -404,7 +190,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 56,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？"
@@ -412,7 +198,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 68,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？"
@@ -420,7 +206,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 116,
+          "candidates": 57,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？"
@@ -442,7 +228,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 55,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值"
@@ -450,7 +236,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 63,
+          "candidates": 34,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值"
@@ -458,7 +244,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 114,
+          "candidates": 58,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值"
@@ -480,7 +266,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:分开保管开发集和终评集"
@@ -488,7 +274,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 65,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:分开保管开发集和终评集"
@@ -496,7 +282,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 111,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:分开保管开发集和终评集"
@@ -518,7 +304,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
+          "candidates": 45,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？"
@@ -526,7 +312,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？"
@@ -534,7 +320,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 94,
+          "candidates": 53,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？"
@@ -556,7 +342,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 47,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -564,7 +350,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 75,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -572,7 +358,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 114,
+          "candidates": 62,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -594,7 +380,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 44,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-cache-basics:本地缓存有什么痛点？"
@@ -602,7 +388,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 50,
+          "candidates": 31,
           "recall": 1,
           "hits": [
             "jg-cache-basics:本地缓存有什么痛点？"
@@ -610,7 +396,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 65,
+          "candidates": 42,
           "recall": 1,
           "hits": [
             "jg-cache-basics:本地缓存有什么痛点？"
@@ -640,7 +426,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 55,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
@@ -648,7 +434,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 79,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
@@ -670,7 +456,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
+          "candidates": 52,
           "recall": 1,
           "hits": [
             "jg-thread-summary:线程池参数分析"
@@ -678,7 +464,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 70,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-thread-summary:线程池参数分析"
@@ -686,7 +472,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 105,
+          "candidates": 66,
           "recall": 1,
           "hits": [
             "jg-thread-summary:线程池参数分析"
@@ -708,7 +494,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 42,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？"
@@ -716,7 +502,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 53,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？"
@@ -724,7 +510,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 79,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？"
@@ -746,7 +532,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
+          "candidates": 46,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结"
@@ -754,7 +540,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 67,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结"
@@ -762,7 +548,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 102,
+          "candidates": 59,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结"
@@ -784,7 +570,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 43,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -792,7 +578,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 54,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -800,7 +586,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 76,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -822,7 +608,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 53,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:key（重要）"
@@ -830,7 +616,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:key（重要）"
@@ -838,7 +624,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 104,
+          "candidates": 60,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:key（重要）"
@@ -860,64 +646,26 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 42,
-          "recall": 1,
-          "hits": [
-            "jg-spring-transaction:事务回滚规则"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 62,
-          "recall": 1,
-          "hits": [
-            "jg-spring-transaction:事务回滚规则"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 85,
-          "recall": 1,
-          "hits": [
-            "jg-spring-transaction:事务回滚规则"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-14",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:什么是死信队列？如何导致的？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
           "candidates": 43,
           "recall": 1,
           "hits": [
-            "jg-rabbitmq:什么是死信队列？如何导致的？"
+            "jg-spring-transaction:事务回滚规则"
           ],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 50,
+          "candidates": 40,
           "recall": 1,
           "hits": [
-            "jg-rabbitmq:什么是死信队列？如何导致的？"
+            "jg-spring-transaction:事务回滚规则"
           ],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 81,
+          "candidates": 49,
           "recall": 1,
           "hits": [
-            "jg-rabbitmq:什么是死信队列？如何导致的？"
+            "jg-spring-transaction:事务回滚规则"
           ],
           "missing": []
         }
@@ -936,7 +684,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 47,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表"
@@ -944,7 +692,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 66,
+          "candidates": 42,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表"
@@ -952,7 +700,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 96,
+          "candidates": 59,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表"
@@ -974,7 +722,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 51,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-rag-basis:RAG 和微调怎么选？"
@@ -982,7 +730,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 58,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-rag-basis:RAG 和微调怎么选？"
@@ -990,7 +738,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 97,
+          "candidates": 62,
           "recall": 1,
           "hits": [
             "jg-rag-basis:RAG 和微调怎么选？"
@@ -1012,7 +760,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Top-K 不是越大越好"
@@ -1020,7 +768,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Top-K 不是越大越好"
@@ -1028,7 +776,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 102,
+          "candidates": 61,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Top-K 不是越大越好"
@@ -1050,7 +798,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 47,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:执行失败应该怎么算？"
@@ -1058,7 +806,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 57,
+          "candidates": 33,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:执行失败应该怎么算？"
@@ -1066,7 +814,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 90,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:执行失败应该怎么算？"
@@ -1088,7 +836,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 42,
           "recall": 1,
           "hits": [
             "jg-agent:ReAct"
@@ -1096,7 +844,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 66,
+          "candidates": 32,
           "recall": 1,
           "hits": [
             "jg-agent:ReAct"
@@ -1104,7 +852,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 97,
+          "candidates": 47,
           "recall": 1,
           "hits": [
             "jg-agent:ReAct"
@@ -1126,7 +874,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
@@ -1134,7 +882,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
@@ -1142,7 +890,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 105,
+          "candidates": 59,
           "recall": 1,
           "hits": [
             "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
@@ -1164,7 +912,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -1172,7 +920,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 47,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -1180,7 +928,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 75,
+          "candidates": 45,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -1202,7 +950,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 44,
+          "candidates": 43,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Write Behind Pattern（异步缓存写入）"
@@ -1210,7 +958,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 56,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Write Behind Pattern（异步缓存写入）"
@@ -1218,7 +966,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 73,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Write Behind Pattern（异步缓存写入）"
@@ -1240,7 +988,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
+          "candidates": 46,
           "recall": 1,
           "hits": [
             "jg-thread-summary:`shutdown()`VS`shutdownNow()`"
@@ -1248,7 +996,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 61,
+          "candidates": 43,
           "recall": 1,
           "hits": [
             "jg-thread-summary:`shutdown()`VS`shutdownNow()`"
@@ -1256,7 +1004,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 93,
+          "candidates": 61,
           "recall": 1,
           "hits": [
             "jg-thread-summary:`shutdown()`VS`shutdownNow()`"
@@ -1278,7 +1026,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 48,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-thread-practices:CallerRunsPolicy 能形成背压吗？"
@@ -1286,7 +1034,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 51,
+          "candidates": 38,
           "recall": 1,
           "hits": [
             "jg-thread-practices:CallerRunsPolicy 能形成背压吗？"
@@ -1294,7 +1042,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 84,
+          "candidates": 62,
           "recall": 1,
           "hits": [
             "jg-thread-practices:CallerRunsPolicy 能形成背压吗？"
@@ -1316,7 +1064,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 42,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:rows"
@@ -1324,7 +1072,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 45,
+          "candidates": 34,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:rows"
@@ -1332,7 +1080,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 68,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:rows"
@@ -1354,7 +1102,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 53,
           "recall": 1,
           "hits": [
             "jg-rag-basis:RAG 和微调怎么选？"
@@ -1362,7 +1110,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 63,
+          "candidates": 34,
           "recall": 1,
           "hits": [
             "jg-rag-basis:RAG 和微调怎么选？"
@@ -1370,7 +1118,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 95,
+          "candidates": 60,
           "recall": 1,
           "hits": [
             "jg-rag-basis:RAG 和微调怎么选？"
@@ -1392,7 +1140,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值"
@@ -1400,7 +1148,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值"
@@ -1408,7 +1156,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 101,
+          "candidates": 61,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值"
@@ -1430,7 +1178,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:分开保管开发集和终评集"
@@ -1438,7 +1186,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 67,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:分开保管开发集和终评集"
@@ -1446,7 +1194,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 114,
+          "candidates": 58,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:分开保管开发集和终评集"
@@ -1468,7 +1216,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 48,
+          "candidates": 46,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？"
@@ -1476,7 +1224,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 70,
+          "candidates": 34,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？"
@@ -1484,7 +1232,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 102,
+          "candidates": 54,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？"
@@ -1506,7 +1254,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
@@ -1514,7 +1262,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 74,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
@@ -1522,7 +1270,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 117,
+          "candidates": 61,
           "recall": 1,
           "hits": [
             "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
@@ -1544,7 +1292,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 47,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
@@ -1552,7 +1300,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 57,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
@@ -1560,7 +1308,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 86,
+          "candidates": 53,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
@@ -1582,7 +1330,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 53,
+          "candidates": 46,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？"
@@ -1590,7 +1338,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 38,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？"
@@ -1598,7 +1346,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 102,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？"
@@ -1620,7 +1368,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 56,
+          "candidates": 46,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结"
@@ -1628,7 +1376,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结"
@@ -1636,7 +1384,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 97,
+          "candidates": 61,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结"
@@ -1658,7 +1406,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 48,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-spring-transaction:Spring AOP 自调用问题"
@@ -1666,7 +1414,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 58,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "jg-spring-transaction:Spring AOP 自调用问题"
@@ -1674,48 +1422,10 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 92,
-          "recall": 1,
-          "hits": [
-            "jg-spring-transaction:Spring AOP 自调用问题"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-35",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 43,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
           "candidates": 50,
           "recall": 1,
           "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 65,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
+            "jg-spring-transaction:Spring AOP 自调用问题"
           ],
           "missing": []
         }
@@ -1734,7 +1444,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 43,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:rows"
@@ -1742,7 +1452,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 51,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:rows"
@@ -1750,7 +1460,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 72,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:rows"
@@ -1772,7 +1482,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -1780,7 +1490,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 58,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -1788,7 +1498,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 114,
+          "candidates": 61,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -1810,7 +1520,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -1818,7 +1528,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 53,
+          "candidates": 34,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -1826,48 +1536,10 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 81,
+          "candidates": 47,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-39",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 50,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 54,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 79,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
           ],
           "missing": []
         }
@@ -1894,7 +1566,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 50,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引"
@@ -1902,7 +1574,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 81,
+          "candidates": 57,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引"
@@ -1925,7 +1597,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？",
@@ -1934,7 +1606,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 66,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？",
@@ -1943,7 +1615,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 95,
+          "candidates": 60,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？",
@@ -1967,7 +1639,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 51,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值",
@@ -1976,7 +1648,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 32,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值",
@@ -1985,7 +1657,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 98,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值",
@@ -2001,36 +1673,33 @@
       "variants": {
         "rrf30": {
           "candidates": 30,
-          "recall": 0.5,
+          "recall": 1,
           "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": [
+            "jg-agent:什么是 Agent Loop？",
             "jg-mcp:MCP 的意义只是让模型会调接口吗？"
-          ]
+          ],
+          "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
-          "recall": 0.5,
+          "candidates": 48,
+          "recall": 1,
           "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": [
+            "jg-agent:什么是 Agent Loop？",
             "jg-mcp:MCP 的意义只是让模型会调接口吗？"
-          ]
+          ],
+          "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 55,
-          "recall": 0.5,
+          "candidates": 35,
+          "recall": 1,
           "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": [
+            "jg-agent:什么是 Agent Loop？",
             "jg-mcp:MCP 的意义只是让模型会调接口吗？"
-          ]
+          ],
+          "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 86,
+          "candidates": 53,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？",
@@ -2054,7 +1723,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）",
@@ -2063,7 +1732,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 53,
+          "candidates": 33,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）",
@@ -2072,7 +1741,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 79,
+          "candidates": 43,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）",
@@ -2105,7 +1774,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 54,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？",
@@ -2114,7 +1783,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 85,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？",
@@ -2139,17 +1808,16 @@
           ]
         },
         "unionUpTo60": {
-          "candidates": 50,
-          "recall": 0.5,
+          "candidates": 39,
+          "recall": 1,
           "hits": [
-            "jg-mysql-index:覆盖索引"
-          ],
-          "missing": [
+            "jg-mysql-index:覆盖索引",
             "jg-mysql-explain:key（重要）"
-          ]
+          ],
+          "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 57,
+          "candidates": 33,
           "recall": 0.5,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -2159,14 +1827,13 @@
           ]
         },
         "unionWithNeighbors": {
-          "candidates": 95,
-          "recall": 0.5,
+          "candidates": 45,
+          "recall": 1,
           "hits": [
-            "jg-mysql-index:覆盖索引"
-          ],
-          "missing": [
+            "jg-mysql-index:覆盖索引",
             "jg-mysql-explain:key（重要）"
-          ]
+          ],
+          "missing": []
         }
       }
     },
@@ -2184,7 +1851,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结",
@@ -2193,7 +1860,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 38,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结",
@@ -2202,53 +1869,11 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 84,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结",
             "jg-spring-transaction:事务回滚规则"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-48",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？",
-            "jg-idempotency:去重表"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 45,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？",
-            "jg-idempotency:去重表"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 54,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？",
-            "jg-idempotency:去重表"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 74,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？",
-            "jg-idempotency:去重表"
           ],
           "missing": []
         }
@@ -2268,7 +1893,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引",
@@ -2277,7 +1902,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 65,
+          "candidates": 38,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引",
@@ -2286,7 +1911,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 93,
+          "candidates": 53,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引",
@@ -2310,7 +1935,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表",
@@ -2319,7 +1944,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 63,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表",
@@ -2328,7 +1953,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 91,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表",
@@ -2349,19 +1974,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 48,
+          "candidates": 47,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 72,
+          "candidates": 38,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 107,
+          "candidates": 56,
           "recall": null,
           "hits": [],
           "missing": []
@@ -2379,19 +2004,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 55,
+          "candidates": 44,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 69,
+          "candidates": 41,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 122,
+          "candidates": 52,
           "recall": null,
           "hits": [],
           "missing": []
@@ -2409,49 +2034,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 41,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 66,
+          "candidates": 45,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 109,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-54",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 52,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
           "candidates": 57,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 93,
           "recall": null,
           "hits": [],
           "missing": []
@@ -2469,19 +2064,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 55,
+          "candidates": 51,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 72,
+          "candidates": 35,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 115,
+          "candidates": 63,
           "recall": null,
           "hits": [],
           "missing": []
@@ -2493,7 +2088,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页"
@@ -2501,7 +2096,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 44,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页"
@@ -2509,7 +2104,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 50,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页"
@@ -2517,7 +2112,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 75,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页"
@@ -2531,7 +2126,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -2539,7 +2134,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -2547,7 +2142,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 56,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -2555,7 +2150,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 78,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -2569,7 +2164,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第156页"
@@ -2577,7 +2172,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 37,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第156页"
@@ -2585,7 +2180,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 52,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第156页"
@@ -2593,7 +2188,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 63,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第156页"
@@ -2607,7 +2202,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第297页"
@@ -2615,7 +2210,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第297页"
@@ -2623,7 +2218,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 56,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第297页"
@@ -2631,7 +2226,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 74,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第297页"
@@ -2645,7 +2240,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -2654,7 +2249,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 44,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -2663,7 +2258,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 49,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -2672,7 +2267,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 71,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -2687,7 +2282,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -2696,7 +2291,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 38,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -2705,7 +2300,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 48,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -2714,7 +2309,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 63,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -2729,7 +2324,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -2737,7 +2332,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 36,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -2745,7 +2340,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 47,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -2753,7 +2348,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 60,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -2767,25 +2362,25 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 24,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 71,
+          "candidates": 24,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 109,
+          "candidates": 24,
           "recall": null,
           "hits": [],
           "missing": []
@@ -2797,7 +2392,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -2805,7 +2400,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 37,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -2813,7 +2408,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 39,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -2821,7 +2416,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 53,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -2835,7 +2430,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -2843,7 +2438,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 38,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -2851,7 +2446,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 48,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -2859,7 +2454,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 61,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -2873,7 +2468,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第241页"
@@ -2881,7 +2476,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 37,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第241页"
@@ -2889,7 +2484,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 52,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第241页"
@@ -2897,7 +2492,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 68,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第241页"
@@ -2911,7 +2506,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -2919,7 +2514,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -2927,7 +2522,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 64,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -2935,7 +2530,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 86,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -2949,7 +2544,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页",
@@ -2958,7 +2553,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 41,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页",
@@ -2967,7 +2562,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 58,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页",
@@ -2976,7 +2571,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 66,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页",
@@ -2991,7 +2586,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第235页",
@@ -3000,7 +2595,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 47,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第235页",
@@ -3009,7 +2604,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 46,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第235页",
@@ -3018,7 +2613,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 69,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第235页",
@@ -3033,7 +2628,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -3041,7 +2636,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 53,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -3049,7 +2644,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 64,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -3057,7 +2652,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 94,
+          "candidates": 24,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -3071,25 +2666,25 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 24,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 48,
+          "candidates": 24,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 56,
+          "candidates": 24,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 84,
+          "candidates": 24,
           "recall": null,
           "hits": [],
           "missing": []
@@ -3101,7 +2696,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -3109,7 +2704,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -3117,7 +2712,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 53,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -3125,7 +2720,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 78,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -3139,7 +2734,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第305页"
@@ -3147,7 +2742,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 47,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第305页"
@@ -3155,7 +2750,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 53,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第305页"
@@ -3163,7 +2758,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 74,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第305页"
@@ -3177,7 +2772,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第73页"
@@ -3185,7 +2780,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 44,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第73页"
@@ -3193,7 +2788,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 49,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第73页"
@@ -3201,7 +2796,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 73,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第73页"
@@ -3215,7 +2810,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第304页"
@@ -3223,7 +2818,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 44,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第304页"
@@ -3231,7 +2826,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 52,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第304页"
@@ -3239,7 +2834,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 71,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第304页"
@@ -3253,7 +2848,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页",
@@ -3262,7 +2857,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页",
@@ -3271,7 +2866,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页",
@@ -3280,7 +2875,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 85,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页",
@@ -3295,7 +2890,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -3303,7 +2898,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 46,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -3311,7 +2906,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 57,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -3319,7 +2914,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 83,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -3333,25 +2928,25 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 39,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 53,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 71,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
@@ -3363,25 +2958,25 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 40,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 57,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 68,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
@@ -3393,7 +2988,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -3401,7 +2996,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 38,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -3409,7 +3004,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 47,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -3417,7 +3012,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 59,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -3431,7 +3026,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第183页"
@@ -3439,7 +3034,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 43,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第183页"
@@ -3447,7 +3042,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 67,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第183页"
@@ -3455,7 +3050,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 88,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第183页"
@@ -3469,7 +3064,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第182页"
@@ -3477,7 +3072,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 41,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第182页"
@@ -3485,7 +3080,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 51,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第182页"
@@ -3493,7 +3088,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 65,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第182页"
@@ -3507,7 +3102,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第148页"
@@ -3515,7 +3110,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 44,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第148页"
@@ -3523,7 +3118,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 58,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第148页"
@@ -3531,7 +3126,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 81,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第148页"
@@ -3545,7 +3140,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页",
@@ -3554,7 +3149,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页",
@@ -3563,7 +3158,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 52,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页",
@@ -3572,7 +3167,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 68,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页",
@@ -3587,7 +3182,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -3595,7 +3190,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 41,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -3603,7 +3198,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 48,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -3611,7 +3206,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 64,
+          "candidates": 27,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -3625,25 +3220,25 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 63,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 91,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
@@ -3655,25 +3250,25 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 46,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 78,
+          "candidates": 27,
           "recall": null,
           "hits": [],
           "missing": []
@@ -3685,7 +3280,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页"
@@ -3693,7 +3288,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 37,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页"
@@ -3701,7 +3296,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 42,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页"
@@ -3709,7 +3304,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 48,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页"
@@ -3723,7 +3318,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第132页"
@@ -3731,7 +3326,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 34,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第132页"
@@ -3739,7 +3334,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 43,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第132页"
@@ -3747,7 +3342,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 45,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第132页"
@@ -3761,7 +3356,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页",
@@ -3770,7 +3365,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 34,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页",
@@ -3779,7 +3374,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 44,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页",
@@ -3788,7 +3383,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 48,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页",
@@ -3803,65 +3398,27 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 12,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 39,
+          "candidates": 12,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 45,
+          "candidates": 12,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 49,
+          "candidates": 12,
           "recall": null,
           "hits": [],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-05",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 35,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 44,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 49,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
           "missing": []
         }
       }
@@ -3871,7 +3428,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-messaging:PDF第312页"
@@ -3879,7 +3436,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 34,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-messaging:PDF第312页"
@@ -3887,7 +3444,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 43,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-messaging:PDF第312页"
@@ -3895,235 +3452,11 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 46,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-messaging:PDF第312页"
           ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-07",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 34,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 43,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 47,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-08",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页",
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 33,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页",
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 39,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页",
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 41,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页",
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-09",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 35,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 45,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 47,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-10",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 35,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 41,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 46,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-11",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第332页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第332页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 41,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第332页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 41,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第332页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-12",
-      "scope": "selected",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 34,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 44,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 45,
-          "recall": null,
-          "hits": [],
           "missing": []
         }
       }
@@ -4133,7 +3466,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -4141,7 +3474,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 40,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -4149,7 +3482,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 41,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -4157,7 +3490,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 45,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -4171,7 +3504,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -4179,7 +3512,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 34,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -4187,7 +3520,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 41,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -4195,7 +3528,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 45,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -4209,7 +3542,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第620页"
@@ -4217,7 +3550,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 44,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第620页"
@@ -4225,7 +3558,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 40,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第620页"
@@ -4233,7 +3566,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 49,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第620页"
@@ -4247,7 +3580,7 @@
       "scope": "selected",
       "variants": {
         "rrf30": {
-          "candidates": 30,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第622页"
@@ -4255,7 +3588,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 40,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第622页"
@@ -4263,7 +3596,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 42,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第622页"
@@ -4271,7 +3604,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 50,
+          "candidates": 12,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第622页"
@@ -4282,7 +3615,7 @@
     },
     {
       "id": "JG-01",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4293,7 +3626,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 59,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？"
@@ -4301,7 +3634,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 63,
+          "candidates": 38,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？"
@@ -4309,7 +3642,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 127,
+          "candidates": 69,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？"
@@ -4320,7 +3653,7 @@
     },
     {
       "id": "JG-02",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4331,7 +3664,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 54,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值"
@@ -4339,7 +3672,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 71,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值"
@@ -4347,7 +3680,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 122,
+          "candidates": 63,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值"
@@ -4358,7 +3691,7 @@
     },
     {
       "id": "JG-03",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4369,7 +3702,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 55,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:分开保管开发集和终评集"
@@ -4377,7 +3710,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 66,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:分开保管开发集和终评集"
@@ -4385,7 +3718,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 114,
+          "candidates": 68,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:分开保管开发集和终评集"
@@ -4396,7 +3729,7 @@
     },
     {
       "id": "JG-04",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4407,7 +3740,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 53,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？"
@@ -4415,7 +3748,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 70,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？"
@@ -4423,7 +3756,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 115,
+          "candidates": 61,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？"
@@ -4434,7 +3767,7 @@
     },
     {
       "id": "JG-05",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4445,7 +3778,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -4453,7 +3786,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 80,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -4461,7 +3794,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 124,
+          "candidates": 68,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -4472,7 +3805,7 @@
     },
     {
       "id": "JG-06",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4483,7 +3816,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-cache-basics:本地缓存有什么痛点？"
@@ -4491,7 +3824,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 56,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "jg-cache-basics:本地缓存有什么痛点？"
@@ -4499,7 +3832,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 80,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "jg-cache-basics:本地缓存有什么痛点？"
@@ -4510,7 +3843,7 @@
     },
     {
       "id": "JG-07",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4521,7 +3854,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 52,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
@@ -4529,7 +3862,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
@@ -4537,7 +3870,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 86,
+          "candidates": 67,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
@@ -4548,7 +3881,7 @@
     },
     {
       "id": "JG-08",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4559,7 +3892,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 53,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "jg-thread-summary:线程池参数分析"
@@ -4567,7 +3900,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 71,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-thread-summary:线程池参数分析"
@@ -4575,7 +3908,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 119,
+          "candidates": 68,
           "recall": 1,
           "hits": [
             "jg-thread-summary:线程池参数分析"
@@ -4586,7 +3919,7 @@
     },
     {
       "id": "JG-09",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4597,7 +3930,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 48,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？"
@@ -4605,7 +3938,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？"
@@ -4613,7 +3946,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 100,
+          "candidates": 64,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？"
@@ -4624,7 +3957,7 @@
     },
     {
       "id": "JG-10",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4643,7 +3976,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 73,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结"
@@ -4651,7 +3984,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 124,
+          "candidates": 73,
           "recall": 1,
           "hits": [
             "jg-mysql-isolation:事务隔离级别总结"
@@ -4662,7 +3995,7 @@
     },
     {
       "id": "JG-11",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4673,7 +4006,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 45,
+          "candidates": 46,
           "recall": 1,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -4681,7 +4014,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 54,
+          "candidates": 38,
           "recall": 1,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -4689,7 +4022,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 81,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -4700,7 +4033,7 @@
     },
     {
       "id": "JG-12",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4711,7 +4044,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 52,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:key（重要）"
@@ -4719,7 +4052,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:key（重要）"
@@ -4727,7 +4060,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 115,
+          "candidates": 66,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:key（重要）"
@@ -4738,7 +4071,7 @@
     },
     {
       "id": "JG-13",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4749,7 +4082,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 46,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "jg-spring-transaction:事务回滚规则"
@@ -4757,7 +4090,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "jg-spring-transaction:事务回滚规则"
@@ -4765,48 +4098,10 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 95,
+          "candidates": 65,
           "recall": 1,
           "hits": [
             "jg-spring-transaction:事务回滚规则"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-14",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:什么是死信队列？如何导致的？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 53,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:什么是死信队列？如何导致的？"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 53,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:什么是死信队列？如何导致的？"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 97,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:什么是死信队列？如何导致的？"
           ],
           "missing": []
         }
@@ -4814,7 +4109,7 @@
     },
     {
       "id": "JG-15",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4825,7 +4120,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 51,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表"
@@ -4833,7 +4128,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 68,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表"
@@ -4841,7 +4136,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 112,
+          "candidates": 67,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表"
@@ -4852,7 +4147,7 @@
     },
     {
       "id": "JG-16",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4863,7 +4158,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 51,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "jg-rag-basis:RAG 和微调怎么选？"
@@ -4871,7 +4166,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "jg-rag-basis:RAG 和微调怎么选？"
@@ -4879,7 +4174,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 105,
+          "candidates": 62,
           "recall": 1,
           "hits": [
             "jg-rag-basis:RAG 和微调怎么选？"
@@ -4890,7 +4185,7 @@
     },
     {
       "id": "JG-17",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4901,7 +4196,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Top-K 不是越大越好"
@@ -4909,7 +4204,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 66,
+          "candidates": 38,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Top-K 不是越大越好"
@@ -4917,7 +4212,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 120,
+          "candidates": 64,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Top-K 不是越大越好"
@@ -4928,7 +4223,7 @@
     },
     {
       "id": "JG-18",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4939,7 +4234,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:执行失败应该怎么算？"
@@ -4947,7 +4242,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:执行失败应该怎么算？"
@@ -4955,7 +4250,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 109,
+          "candidates": 62,
           "recall": 1,
           "hits": [
             "jg-rag-evaluation:执行失败应该怎么算？"
@@ -4966,7 +4261,7 @@
     },
     {
       "id": "JG-19",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -4977,7 +4272,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 46,
           "recall": 1,
           "hits": [
             "jg-agent:ReAct"
@@ -4985,7 +4280,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 66,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "jg-agent:ReAct"
@@ -4993,7 +4288,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 105,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-agent:ReAct"
@@ -5004,7 +4299,7 @@
     },
     {
       "id": "JG-20",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5023,7 +4318,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
@@ -5031,7 +4326,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 105,
+          "candidates": 63,
           "recall": 1,
           "hits": [
             "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
@@ -5042,7 +4337,7 @@
     },
     {
       "id": "JG-21",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5053,7 +4348,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -5061,7 +4356,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 50,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -5069,7 +4364,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 93,
+          "candidates": 66,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -5080,7 +4375,7 @@
     },
     {
       "id": "JG-22",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5091,7 +4386,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Write Behind Pattern（异步缓存写入）"
@@ -5099,7 +4394,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 33,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Write Behind Pattern（异步缓存写入）"
@@ -5107,7 +4402,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 111,
+          "candidates": 61,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Write Behind Pattern（异步缓存写入）"
@@ -5118,7 +4413,7 @@
     },
     {
       "id": "JG-23",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5129,7 +4424,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 56,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "jg-thread-summary:`shutdown()`VS`shutdownNow()`"
@@ -5137,7 +4432,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 64,
+          "candidates": 42,
           "recall": 1,
           "hits": [
             "jg-thread-summary:`shutdown()`VS`shutdownNow()`"
@@ -5145,7 +4440,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 124,
+          "candidates": 64,
           "recall": 1,
           "hits": [
             "jg-thread-summary:`shutdown()`VS`shutdownNow()`"
@@ -5156,7 +4451,7 @@
     },
     {
       "id": "JG-24",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5175,7 +4470,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-thread-practices:CallerRunsPolicy 能形成背压吗？"
@@ -5183,7 +4478,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 102,
+          "candidates": 69,
           "recall": 1,
           "hits": [
             "jg-thread-practices:CallerRunsPolicy 能形成背压吗？"
@@ -5194,425 +4489,7 @@
     },
     {
       "id": "JG-25",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-mysql-explain:rows"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 43,
-          "recall": 1,
-          "hits": [
-            "jg-mysql-explain:rows"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 45,
-          "recall": 1,
-          "hits": [
-            "jg-mysql-explain:rows"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 77,
-          "recall": 1,
-          "hits": [
-            "jg-mysql-explain:rows"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-26",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rag-basis:RAG 和微调怎么选？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 55,
-          "recall": 1,
-          "hits": [
-            "jg-rag-basis:RAG 和微调怎么选？"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 60,
-          "recall": 1,
-          "hits": [
-            "jg-rag-basis:RAG 和微调怎么选？"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 108,
-          "recall": 1,
-          "hits": [
-            "jg-rag-basis:RAG 和微调怎么选？"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-27",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rag-optimization:Chunk 大小没有万能值"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 54,
-          "recall": 1,
-          "hits": [
-            "jg-rag-optimization:Chunk 大小没有万能值"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 60,
-          "recall": 1,
-          "hits": [
-            "jg-rag-optimization:Chunk 大小没有万能值"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 114,
-          "recall": 1,
-          "hits": [
-            "jg-rag-optimization:Chunk 大小没有万能值"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-28",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rag-evaluation:分开保管开发集和终评集"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 56,
-          "recall": 1,
-          "hits": [
-            "jg-rag-evaluation:分开保管开发集和终评集"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 70,
-          "recall": 1,
-          "hits": [
-            "jg-rag-evaluation:分开保管开发集和终评集"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 126,
-          "recall": 1,
-          "hits": [
-            "jg-rag-evaluation:分开保管开发集和终评集"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-29",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 51,
-          "recall": 1,
-          "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 74,
-          "recall": 1,
-          "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 112,
-          "recall": 1,
-          "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-30",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 58,
-          "recall": 1,
-          "hits": [
-            "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 75,
-          "recall": 1,
-          "hits": [
-            "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 143,
-          "recall": 1,
-          "hits": [
-            "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-31",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 53,
-          "recall": 1,
-          "hits": [
-            "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 58,
-          "recall": 1,
-          "hits": [
-            "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 110,
-          "recall": 1,
-          "hits": [
-            "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-32",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-thread-practices:任务超时后会自动停止吗？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 55,
-          "recall": 1,
-          "hits": [
-            "jg-thread-practices:任务超时后会自动停止吗？"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 63,
-          "recall": 1,
-          "hits": [
-            "jg-thread-practices:任务超时后会自动停止吗？"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 121,
-          "recall": 1,
-          "hits": [
-            "jg-thread-practices:任务超时后会自动停止吗？"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-33",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-mysql-isolation:事务隔离级别总结"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 55,
-          "recall": 1,
-          "hits": [
-            "jg-mysql-isolation:事务隔离级别总结"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 62,
-          "recall": 1,
-          "hits": [
-            "jg-mysql-isolation:事务隔离级别总结"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 99,
-          "recall": 1,
-          "hits": [
-            "jg-mysql-isolation:事务隔离级别总结"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-34",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-spring-transaction:Spring AOP 自调用问题"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 51,
-          "recall": 1,
-          "hits": [
-            "jg-spring-transaction:Spring AOP 自调用问题"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 60,
-          "recall": 1,
-          "hits": [
-            "jg-spring-transaction:Spring AOP 自调用问题"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 106,
-          "recall": 1,
-          "hits": [
-            "jg-spring-transaction:Spring AOP 自调用问题"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-35",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 45,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 58,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 73,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-36",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5631,7 +4508,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 50,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:rows"
@@ -5639,7 +4516,387 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 80,
+          "candidates": 58,
+          "recall": 1,
+          "hits": [
+            "jg-mysql-explain:rows"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-26",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-rag-basis:RAG 和微调怎么选？"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 55,
+          "recall": 1,
+          "hits": [
+            "jg-rag-basis:RAG 和微调怎么选？"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 32,
+          "recall": 1,
+          "hits": [
+            "jg-rag-basis:RAG 和微调怎么选？"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 64,
+          "recall": 1,
+          "hits": [
+            "jg-rag-basis:RAG 和微调怎么选？"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-27",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-rag-optimization:Chunk 大小没有万能值"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 49,
+          "recall": 1,
+          "hits": [
+            "jg-rag-optimization:Chunk 大小没有万能值"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 37,
+          "recall": 1,
+          "hits": [
+            "jg-rag-optimization:Chunk 大小没有万能值"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 60,
+          "recall": 1,
+          "hits": [
+            "jg-rag-optimization:Chunk 大小没有万能值"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-28",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-rag-evaluation:分开保管开发集和终评集"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 55,
+          "recall": 1,
+          "hits": [
+            "jg-rag-evaluation:分开保管开发集和终评集"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 44,
+          "recall": 1,
+          "hits": [
+            "jg-rag-evaluation:分开保管开发集和终评集"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 70,
+          "recall": 1,
+          "hits": [
+            "jg-rag-evaluation:分开保管开发集和终评集"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-29",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-agent:什么是 Agent Loop？"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 50,
+          "recall": 1,
+          "hits": [
+            "jg-agent:什么是 Agent Loop？"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 37,
+          "recall": 1,
+          "hits": [
+            "jg-agent:什么是 Agent Loop？"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 62,
+          "recall": 1,
+          "hits": [
+            "jg-agent:什么是 Agent Loop？"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-30",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 56,
+          "recall": 1,
+          "hits": [
+            "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 44,
+          "recall": 1,
+          "hits": [
+            "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 72,
+          "recall": 1,
+          "hits": [
+            "jg-mcp:stdio 和 Streamable HTTP 怎么选？"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-31",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 48,
+          "recall": 1,
+          "hits": [
+            "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 36,
+          "recall": 1,
+          "hits": [
+            "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 56,
+          "recall": 1,
+          "hits": [
+            "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-32",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-thread-practices:任务超时后会自动停止吗？"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 52,
+          "recall": 1,
+          "hits": [
+            "jg-thread-practices:任务超时后会自动停止吗？"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 39,
+          "recall": 1,
+          "hits": [
+            "jg-thread-practices:任务超时后会自动停止吗？"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 68,
+          "recall": 1,
+          "hits": [
+            "jg-thread-practices:任务超时后会自动停止吗？"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-33",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-mysql-isolation:事务隔离级别总结"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 52,
+          "recall": 1,
+          "hits": [
+            "jg-mysql-isolation:事务隔离级别总结"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 38,
+          "recall": 1,
+          "hits": [
+            "jg-mysql-isolation:事务隔离级别总结"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 63,
+          "recall": 1,
+          "hits": [
+            "jg-mysql-isolation:事务隔离级别总结"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-34",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-spring-transaction:Spring AOP 自调用问题"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 51,
+          "recall": 1,
+          "hits": [
+            "jg-spring-transaction:Spring AOP 自调用问题"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 39,
+          "recall": 1,
+          "hits": [
+            "jg-spring-transaction:Spring AOP 自调用问题"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 61,
+          "recall": 1,
+          "hits": [
+            "jg-spring-transaction:Spring AOP 自调用问题"
+          ],
+          "missing": []
+        }
+      }
+    },
+    {
+      "id": "JG-36",
+      "scope": "all",
+      "variants": {
+        "rrf30": {
+          "candidates": 30,
+          "recall": 1,
+          "hits": [
+            "jg-mysql-explain:rows"
+          ],
+          "missing": []
+        },
+        "unionUpTo60": {
+          "candidates": 51,
+          "recall": 1,
+          "hits": [
+            "jg-mysql-explain:rows"
+          ],
+          "missing": []
+        },
+        "rrf30WithNeighbors": {
+          "candidates": 39,
+          "recall": 1,
+          "hits": [
+            "jg-mysql-explain:rows"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
+          "candidates": 62,
           "recall": 1,
           "hits": [
             "jg-mysql-explain:rows"
@@ -5650,7 +4907,7 @@
     },
     {
       "id": "JG-37",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5661,7 +4918,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 53,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -5669,7 +4926,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 56,
+          "candidates": 42,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -5677,7 +4934,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 112,
+          "candidates": 70,
           "recall": 1,
           "hits": [
             "jg-mcp:Roots、Sampling 和 Elicitation"
@@ -5688,7 +4945,7 @@
     },
     {
       "id": "JG-38",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5699,7 +4956,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 51,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -5707,7 +4964,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 55,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
@@ -5715,48 +4972,10 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 99,
+          "candidates": 57,
           "recall": 1,
           "hits": [
             "jg-cache-basics:多级缓存一致性如何保证？"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-39",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 52,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 59,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 95,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？"
           ],
           "missing": []
         }
@@ -5764,7 +4983,7 @@
     },
     {
       "id": "JG-40",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5775,7 +4994,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 46,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引"
@@ -5783,7 +5002,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 52,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引"
@@ -5791,7 +5010,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 85,
+          "candidates": 64,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引"
@@ -5802,7 +5021,7 @@
     },
     {
       "id": "JG-41",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5814,7 +5033,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 51,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？",
@@ -5823,7 +5042,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 64,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？",
@@ -5832,7 +5051,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 102,
+          "candidates": 62,
           "recall": 1,
           "hits": [
             "jg-rag-basis:Embedding 是什么？",
@@ -5844,7 +5063,7 @@
     },
     {
       "id": "JG-42",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5856,7 +5075,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 55,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值",
@@ -5865,7 +5084,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 33,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值",
@@ -5874,7 +5093,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 112,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-rag-optimization:Chunk 大小没有万能值",
@@ -5886,40 +5105,37 @@
     },
     {
       "id": "JG-43",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
-          "recall": 0.5,
+          "recall": 1,
           "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": [
+            "jg-agent:什么是 Agent Loop？",
             "jg-mcp:MCP 的意义只是让模型会调接口吗？"
-          ]
+          ],
+          "missing": []
         },
         "unionUpTo60": {
-          "candidates": 53,
-          "recall": 0.5,
+          "candidates": 50,
+          "recall": 1,
           "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": [
+            "jg-agent:什么是 Agent Loop？",
             "jg-mcp:MCP 的意义只是让模型会调接口吗？"
-          ]
+          ],
+          "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 57,
-          "recall": 0.5,
+          "candidates": 38,
+          "recall": 1,
           "hits": [
-            "jg-agent:什么是 Agent Loop？"
-          ],
-          "missing": [
+            "jg-agent:什么是 Agent Loop？",
             "jg-mcp:MCP 的意义只是让模型会调接口吗？"
-          ]
+          ],
+          "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 96,
+          "candidates": 62,
           "recall": 1,
           "hits": [
             "jg-agent:什么是 Agent Loop？",
@@ -5931,7 +5147,7 @@
     },
     {
       "id": "JG-44",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5952,7 +5168,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 63,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）",
@@ -5961,7 +5177,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 94,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-cache-strategies:Cache Aside Pattern（旁路缓存模式）",
@@ -5973,7 +5189,7 @@
     },
     {
       "id": "JG-45",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -5985,7 +5201,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 53,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？",
@@ -5994,7 +5210,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 38,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？",
@@ -6003,7 +5219,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 115,
+          "candidates": 67,
           "recall": 1,
           "hits": [
             "jg-thread-practices:任务超时后会自动停止吗？",
@@ -6015,7 +5231,7 @@
     },
     {
       "id": "JG-46",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6028,7 +5244,7 @@
           ]
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 42,
           "recall": 0.5,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -6038,7 +5254,7 @@
           ]
         },
         "rrf30WithNeighbors": {
-          "candidates": 56,
+          "candidates": 39,
           "recall": 0.5,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -6048,7 +5264,7 @@
           ]
         },
         "unionWithNeighbors": {
-          "candidates": 97,
+          "candidates": 50,
           "recall": 0.5,
           "hits": [
             "jg-mysql-index:覆盖索引"
@@ -6061,7 +5277,7 @@
     },
     {
       "id": "JG-47",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6082,6 +5298,15 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
+          "candidates": 41,
+          "recall": 1,
+          "hits": [
+            "jg-mysql-isolation:事务隔离级别总结",
+            "jg-spring-transaction:事务回滚规则"
+          ],
+          "missing": []
+        },
+        "unionWithNeighbors": {
           "candidates": 62,
           "recall": 1,
           "hits": [
@@ -6089,63 +5314,12 @@
             "jg-spring-transaction:事务回滚规则"
           ],
           "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 95,
-          "recall": 1,
-          "hits": [
-            "jg-mysql-isolation:事务隔离级别总结",
-            "jg-spring-transaction:事务回滚规则"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-48",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？",
-            "jg-idempotency:去重表"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 48,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？",
-            "jg-idempotency:去重表"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 61,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？",
-            "jg-idempotency:去重表"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 88,
-          "recall": 1,
-          "hits": [
-            "jg-rabbitmq:如何保证消息的可靠性？",
-            "jg-idempotency:去重表"
-          ],
-          "missing": []
         }
       }
     },
     {
       "id": "JG-49",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6157,7 +5331,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 46,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引",
@@ -6166,7 +5340,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 66,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引",
@@ -6175,7 +5349,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 101,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "jg-idempotency:唯一索引",
@@ -6187,7 +5361,7 @@
     },
     {
       "id": "JG-50",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6199,7 +5373,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 53,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表",
@@ -6208,7 +5382,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 63,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表",
@@ -6217,7 +5391,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 108,
+          "candidates": 67,
           "recall": 1,
           "hits": [
             "jg-idempotency:去重表",
@@ -6229,7 +5403,7 @@
     },
     {
       "id": "JG-51",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6238,19 +5412,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 50,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 69,
+          "candidates": 41,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 116,
+          "candidates": 62,
           "recall": null,
           "hits": [],
           "missing": []
@@ -6259,7 +5433,7 @@
     },
     {
       "id": "JG-52",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6268,19 +5442,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 51,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 69,
+          "candidates": 41,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 125,
+          "candidates": 66,
           "recall": null,
           "hits": [],
           "missing": []
@@ -6289,7 +5463,7 @@
     },
     {
       "id": "JG-53",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6298,49 +5472,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 55,
+          "candidates": 54,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 72,
+          "candidates": 46,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 132,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "JG-54",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 56,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 60,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 116,
+          "candidates": 79,
           "recall": null,
           "hits": [],
           "missing": []
@@ -6349,7 +5493,7 @@
     },
     {
       "id": "JG-55",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6358,19 +5502,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 55,
+          "candidates": 58,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 72,
+          "candidates": 38,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 129,
+          "candidates": 75,
           "recall": null,
           "hits": [],
           "missing": []
@@ -6379,7 +5523,7 @@
     },
     {
       "id": "xl-01",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6390,7 +5534,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
+          "candidates": 54,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页"
@@ -6398,7 +5542,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页"
@@ -6406,7 +5550,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 98,
+          "candidates": 75,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页"
@@ -6417,7 +5561,7 @@
     },
     {
       "id": "xl-02",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6428,7 +5572,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 56,
+          "candidates": 57,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -6436,7 +5580,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 71,
+          "candidates": 45,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -6444,7 +5588,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 130,
+          "candidates": 81,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -6455,7 +5599,7 @@
     },
     {
       "id": "xl-03",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6466,7 +5610,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第156页"
@@ -6474,7 +5618,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第156页"
@@ -6482,7 +5626,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 104,
+          "candidates": 63,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第156页"
@@ -6493,7 +5637,7 @@
     },
     {
       "id": "xl-04",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6504,7 +5648,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 47,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第297页"
@@ -6512,7 +5656,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 71,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第297页"
@@ -6520,7 +5664,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 121,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第297页"
@@ -6531,7 +5675,7 @@
     },
     {
       "id": "xl-05",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6543,7 +5687,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 48,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -6552,7 +5696,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 61,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -6561,7 +5705,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 100,
+          "candidates": 69,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -6573,7 +5717,7 @@
     },
     {
       "id": "xl-06",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6586,7 +5730,7 @@
           ]
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 45,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -6595,7 +5739,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 58,
+          "candidates": 37,
           "recall": 0.5,
           "hits": [
             "xl-mysql-transactions:PDF第155页"
@@ -6605,7 +5749,7 @@
           ]
         },
         "unionWithNeighbors": {
-          "candidates": 81,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "xl-mysql-transactions:PDF第155页",
@@ -6617,7 +5761,7 @@
     },
     {
       "id": "xl-07",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6628,7 +5772,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 49,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -6636,7 +5780,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -6644,7 +5788,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 100,
+          "candidates": 71,
           "recall": 1,
           "hits": [
             "xl-mysql-logs:PDF第295页"
@@ -6655,7 +5799,7 @@
     },
     {
       "id": "xl-08",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6664,19 +5808,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 59,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 78,
+          "candidates": 40,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 139,
+          "candidates": 78,
           "recall": null,
           "hits": [],
           "missing": []
@@ -6685,7 +5829,7 @@
     },
     {
       "id": "xl-09",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6696,7 +5840,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 36,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -6704,7 +5848,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 44,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -6712,7 +5856,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 52,
+          "candidates": 63,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -6723,7 +5867,7 @@
     },
     {
       "id": "xl-10",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6734,7 +5878,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 42,
+          "candidates": 53,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -6742,7 +5886,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 52,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -6750,7 +5894,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 79,
+          "candidates": 73,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -6761,7 +5905,7 @@
     },
     {
       "id": "xl-11",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6772,7 +5916,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 58,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第241页"
@@ -6780,7 +5924,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 43,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第241页"
@@ -6788,7 +5932,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 100,
+          "candidates": 78,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第241页"
@@ -6799,7 +5943,7 @@
     },
     {
       "id": "xl-12",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6810,7 +5954,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 51,
+          "candidates": 52,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -6818,7 +5962,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 65,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -6826,7 +5970,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 109,
+          "candidates": 64,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页"
@@ -6837,7 +5981,7 @@
     },
     {
       "id": "xl-13",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6849,7 +5993,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 48,
+          "candidates": 49,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页",
@@ -6858,7 +6002,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 62,
+          "candidates": 35,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页",
@@ -6867,7 +6011,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 89,
+          "candidates": 59,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第232页",
@@ -6879,7 +6023,7 @@
     },
     {
       "id": "xl-14",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6891,7 +6035,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 56,
+          "candidates": 54,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第235页",
@@ -6900,7 +6044,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 51,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第235页",
@@ -6909,7 +6053,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 99,
+          "candidates": 67,
           "recall": 1,
           "hits": [
             "xl-redis-expiry:PDF第235页",
@@ -6921,7 +6065,7 @@
     },
     {
       "id": "xl-15",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6932,7 +6076,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 55,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -6940,7 +6084,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 71,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -6948,7 +6092,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 121,
+          "candidates": 69,
           "recall": 1,
           "hits": [
             "xl-redis-eviction:PDF第239页"
@@ -6959,7 +6103,7 @@
     },
     {
       "id": "xl-16",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -6968,19 +6112,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 56,
+          "candidates": 60,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 74,
+          "candidates": 43,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 136,
+          "candidates": 81,
           "recall": null,
           "hits": [],
           "missing": []
@@ -6989,7 +6133,7 @@
     },
     {
       "id": "xl-17",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7000,7 +6144,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 56,
+          "candidates": 54,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -7008,7 +6152,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 74,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -7016,7 +6160,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 131,
+          "candidates": 71,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -7027,7 +6171,7 @@
     },
     {
       "id": "xl-18",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7046,7 +6190,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 75,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第305页"
@@ -7054,7 +6198,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 130,
+          "candidates": 77,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第305页"
@@ -7065,7 +6209,7 @@
     },
     {
       "id": "xl-19",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7084,7 +6228,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 57,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第73页"
@@ -7092,7 +6236,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 89,
+          "candidates": 57,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第73页"
@@ -7103,26 +6247,26 @@
     },
     {
       "id": "xl-20",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
-          "recall": 0,
-          "hits": [],
-          "missing": [
+          "recall": 1,
+          "hits": [
             "xl-network-retransmission:PDF第304页"
-          ]
+          ],
+          "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
-          "recall": 0,
-          "hits": [],
-          "missing": [
+          "candidates": 50,
+          "recall": 1,
+          "hits": [
             "xl-network-retransmission:PDF第304页"
-          ]
+          ],
+          "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 68,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第304页"
@@ -7130,7 +6274,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 111,
+          "candidates": 57,
           "recall": 1,
           "hits": [
             "xl-network-retransmission:PDF第304页"
@@ -7141,7 +6285,7 @@
     },
     {
       "id": "xl-21",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7153,7 +6297,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页",
@@ -7162,7 +6306,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 67,
+          "candidates": 38,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页",
@@ -7171,7 +6315,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 123,
+          "candidates": 76,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页",
@@ -7183,7 +6327,7 @@
     },
     {
       "id": "xl-22",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7194,7 +6338,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 53,
+          "candidates": 58,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -7202,7 +6346,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -7210,7 +6354,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 109,
+          "candidates": 76,
           "recall": 1,
           "hits": [
             "xl-network-http-cache:PDF第72页"
@@ -7221,7 +6365,7 @@
     },
     {
       "id": "xl-23",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7230,19 +6374,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 56,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 74,
+          "candidates": 40,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 128,
+          "candidates": 74,
           "recall": null,
           "hits": [],
           "missing": []
@@ -7251,7 +6395,7 @@
     },
     {
       "id": "xl-24",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7260,19 +6404,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 59,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 72,
+          "candidates": 42,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 125,
+          "candidates": 76,
           "recall": null,
           "hits": [],
           "missing": []
@@ -7281,7 +6425,7 @@
     },
     {
       "id": "xl-25",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7292,7 +6436,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -7300,7 +6444,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 42,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -7308,7 +6452,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 104,
+          "candidates": 76,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -7319,7 +6463,7 @@
     },
     {
       "id": "xl-26",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7330,7 +6474,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第183页"
@@ -7338,7 +6482,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 66,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第183页"
@@ -7346,7 +6490,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 117,
+          "candidates": 67,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第183页"
@@ -7357,7 +6501,7 @@
     },
     {
       "id": "xl-27",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7368,7 +6512,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 48,
+          "candidates": 52,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第182页"
@@ -7376,7 +6520,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 60,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第182页"
@@ -7384,7 +6528,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 89,
+          "candidates": 66,
           "recall": 1,
           "hits": [
             "xl-system-ipc:PDF第182页"
@@ -7395,7 +6539,7 @@
     },
     {
       "id": "xl-28",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7406,7 +6550,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 54,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第148页"
@@ -7414,7 +6558,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 68,
+          "candidates": 36,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第148页"
@@ -7422,7 +6566,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 112,
+          "candidates": 71,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第148页"
@@ -7433,7 +6577,7 @@
     },
     {
       "id": "xl-29",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7445,7 +6589,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 50,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页",
@@ -7454,7 +6598,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 70,
+          "candidates": 37,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页",
@@ -7463,7 +6607,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 126,
+          "candidates": 65,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页",
@@ -7475,7 +6619,7 @@
     },
     {
       "id": "xl-30",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7486,7 +6630,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 54,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -7494,7 +6638,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 71,
+          "candidates": 43,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -7502,7 +6646,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 113,
+          "candidates": 76,
           "recall": 1,
           "hits": [
             "xl-system-process:PDF第147页"
@@ -7513,7 +6657,7 @@
     },
     {
       "id": "xl-31",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7522,19 +6666,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 53,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 78,
+          "candidates": 36,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 142,
+          "candidates": 67,
           "recall": null,
           "hits": [],
           "missing": []
@@ -7543,7 +6687,7 @@
     },
     {
       "id": "xl-32",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7552,19 +6696,19 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 56,
+          "candidates": 52,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 67,
+          "candidates": 38,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 116,
+          "candidates": 67,
           "recall": null,
           "hits": [],
           "missing": []
@@ -7573,7 +6717,7 @@
     },
     {
       "id": "BOOK-01",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7584,7 +6728,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 59,
+          "candidates": 58,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页"
@@ -7592,7 +6736,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 59,
+          "candidates": 41,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页"
@@ -7600,7 +6744,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 124,
+          "candidates": 78,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页"
@@ -7611,7 +6755,7 @@
     },
     {
       "id": "BOOK-02",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7622,7 +6766,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 59,
+          "candidates": 58,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第132页"
@@ -7630,7 +6774,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 72,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第132页"
@@ -7638,7 +6782,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 134,
+          "candidates": 79,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第132页"
@@ -7649,7 +6793,7 @@
     },
     {
       "id": "BOOK-03",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7661,7 +6805,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
+          "candidates": 54,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页",
@@ -7670,7 +6814,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 64,
+          "candidates": 48,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页",
@@ -7679,7 +6823,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 126,
+          "candidates": 79,
           "recall": 1,
           "hits": [
             "book-spring5-jdbc:PDF第130页",
@@ -7691,7 +6835,7 @@
     },
     {
       "id": "BOOK-04",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7700,66 +6844,28 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 52,
+          "candidates": 53,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 70,
+          "candidates": 46,
           "recall": null,
           "hits": [],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 116,
+          "candidates": 76,
           "recall": null,
           "hits": [],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-05",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 52,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 66,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 109,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
           "missing": []
         }
       }
     },
     {
       "id": "BOOK-06",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -7770,7 +6876,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 53,
+          "candidates": 55,
           "recall": 1,
           "hits": [
             "book-spring5-messaging:PDF第312页"
@@ -7778,250 +6884,26 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 68,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 124,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第312页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-07",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 47,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 53,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 80,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-08",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页",
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 56,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页",
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 68,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页",
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 127,
-          "recall": 1,
-          "hits": [
-            "book-spring5-messaging:PDF第313页",
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-09",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 42,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 52,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 65,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-10",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "unionUpTo60": {
           "candidates": 43,
           "recall": 1,
           "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
-          ],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 53,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
+            "book-spring5-messaging:PDF第312页"
           ],
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 81,
+          "candidates": 77,
           "recall": 1,
           "hits": [
-            "book-spring5-rabbitmq:PDF第331页"
+            "book-spring5-messaging:PDF第312页"
           ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-11",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": 0,
-          "hits": [],
-          "missing": [
-            "book-spring5-rabbitmq:PDF第332页"
-          ]
-        },
-        "unionUpTo60": {
-          "candidates": 56,
-          "recall": 0,
-          "hits": [],
-          "missing": [
-            "book-spring5-rabbitmq:PDF第332页"
-          ]
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 69,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第332页"
-          ],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 115,
-          "recall": 1,
-          "hits": [
-            "book-spring5-rabbitmq:PDF第332页"
-          ],
-          "missing": []
-        }
-      }
-    },
-    {
-      "id": "BOOK-12",
-      "scope": "all27",
-      "variants": {
-        "rrf30": {
-          "candidates": 30,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "unionUpTo60": {
-          "candidates": 51,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "rrf30WithNeighbors": {
-          "candidates": 57,
-          "recall": null,
-          "hits": [],
-          "missing": []
-        },
-        "unionWithNeighbors": {
-          "candidates": 96,
-          "recall": null,
-          "hits": [],
           "missing": []
         }
       }
     },
     {
       "id": "BOOK-13",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -8032,7 +6914,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 50,
+          "candidates": 56,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -8040,7 +6922,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 64,
+          "candidates": 46,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -8048,7 +6930,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 112,
+          "candidates": 80,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -8059,7 +6941,7 @@
     },
     {
       "id": "BOOK-14",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -8070,7 +6952,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 56,
+          "candidates": 51,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -8078,7 +6960,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 61,
+          "candidates": 39,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -8086,7 +6968,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 114,
+          "candidates": 68,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第621页"
@@ -8097,7 +6979,7 @@
     },
     {
       "id": "BOOK-15",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
@@ -8108,7 +6990,7 @@
           "missing": []
         },
         "unionUpTo60": {
-          "candidates": 59,
+          "candidates": 52,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第620页"
@@ -8116,7 +6998,7 @@
           "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 64,
+          "candidates": 44,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第620页"
@@ -8124,7 +7006,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 117,
+          "candidates": 75,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第620页"
@@ -8135,26 +7017,26 @@
     },
     {
       "id": "BOOK-16",
-      "scope": "all27",
+      "scope": "all",
       "variants": {
         "rrf30": {
           "candidates": 30,
-          "recall": 0,
-          "hits": [],
-          "missing": [
+          "recall": 1,
+          "hits": [
             "book-spring5-actuator:PDF第622页"
-          ]
+          ],
+          "missing": []
         },
         "unionUpTo60": {
-          "candidates": 57,
-          "recall": 0,
-          "hits": [],
-          "missing": [
+          "candidates": 54,
+          "recall": 1,
+          "hits": [
             "book-spring5-actuator:PDF第622页"
-          ]
+          ],
+          "missing": []
         },
         "rrf30WithNeighbors": {
-          "candidates": 71,
+          "candidates": 40,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第622页"
@@ -8162,7 +7044,7 @@
           "missing": []
         },
         "unionWithNeighbors": {
-          "candidates": 135,
+          "candidates": 72,
           "recall": 1,
           "hits": [
             "book-spring5-actuator:PDF第622页"

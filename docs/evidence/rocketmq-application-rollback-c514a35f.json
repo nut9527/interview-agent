@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "run": "c514a35f",
+  "date": "2026-11-28",
+  "passed": true,
+  "priorRevision": "188d8505c3d35946fe7082b6f009c10e17fcaf0f",
+  "priorJarSha256": "e98664a92cd084eead42c1e49ce2ef81d4a76d76a6b011edac0163c18bfe9a0a",
+  "candidateJarSha256": "4507a896d38cacae630b008e5e91ed1f496c2bb6ba7ad037d35e243369634b94",
+  "model": "mock",
+  "environment": {
+    "sql": "isolated mysql:8.4 container",
+    "redis": "isolated redis:7.4.2 container",
+    "proxy": "unavailable for the entire rehearsal",
+    "priorDispatch": "database",
+    "candidateRole": "api",
+    "candidateDispatch": "rocketmq",
+    "network": "random host loopback ports"
+  },
+  "steps": [
+    "Booted prior executable against an empty database and verified V52 checksum 1176925259.",
+    "Applied scripts/sql/upgrade-v52-question-seed.sql, verified checksum 1976613928, and started candidate API on V53.",
+    "Accepted a start-commands request while broker unavailable, verified one Outbox row and ACCEPTED status, then stopped the candidate.",
+    "Restored the prior V52 checksum, started the released-source executable in database-dispatch mode, and waited for the original run to succeed.",
+    "Replayed the identical request, checked the run ID and committed business rows, restored the candidate checksum, and restarted the candidate API on the same database."
+  ],
+  "assertions": {
+    "candidateAcceptedHttp": 202,
+    "outboxRowsAfterAccept": 1,
+    "terminalStatusAfterRollback": "SUCCEEDED",
+    "runId": "c8b41c49-a707-4f7a-834e-8c8f3537ce57",
+    "runRowsForRequestId": 1,
+    "turnCommittedEvents": 1,
+    "sessionRows": 1,
+    "idempotentReplayReturnedSameRun": true,
+    "candidateRestartReadSameSuccess": true,
+    "finalOutboxStateWhileBrokerOffline": "SENDING",
+    "testContainersRemoved": true
+  },
+  "scope": "Application rollback using the previous database-dispatch worker. The pending Outbox entry requires a healthy publisher after the proxy returns.",
+  "artifactCompatibility": "Both JARs packaged identical LF prompt bytes. A mismatched agent.txt line ending produced MODEL_CONFIG_CHANGED on worker takeover."
+}

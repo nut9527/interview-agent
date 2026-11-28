@@ -1,8 +1,11 @@
 package cn.edu.whu.zhizhida.auth;
 
-import cn.edu.whu.zhizhida.auth.api.AuthenticatedUser;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
-import cn.edu.whu.zhizhida.common.BusinessException;
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,11 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import cn.edu.whu.zhizhida.auth.api.AuthenticatedUser;
+import cn.edu.whu.zhizhida.common.BusinessException;
 
 class SecurityCurrentUserProviderTest {
 
@@ -74,10 +74,7 @@ class SecurityCurrentUserProviderTest {
         SecurityContextHolder.clearContext();
         // 默认安全上下文不包含认证信息。
 
-        BusinessException ex = catchThrowableOfType(
-                () -> provider.requireUserId(),
-                BusinessException.class
-        );
+        BusinessException ex = catchThrowableOfType(BusinessException.class, provider::requireUserId);
         assertThat(ex).isNotNull();
         assertThat(ex.status()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(ex.getMessage()).isEqualTo("请先登录");

@@ -1,0 +1,220 @@
+{
+  "schemaVersion" : 1,
+  "measuredAt" : "2026-11-28T09:56:41.334725100Z",
+  "middleware" : {
+    "sdkVersion" : "5.2.2",
+    "mysqlVersion" : "8.0.46",
+    "receiveWaitMs" : "200",
+    "brokerImage" : "apache/rocketmq:5.3.2@sha256:4a80ff5cd4b0a3d3ef6dc338ce2028a85bd995648cb3aa5c3e753746d2dbc587"
+  },
+  "environment" : {
+    "os" : "Windows 11",
+    "queueDeadlineSeconds" : 10,
+    "model" : "mock",
+    "receiveBatchSize" : 1,
+    "processes" : 1,
+    "publisherIntervalMs" : 500,
+    "consumerConcurrency" : 2,
+    "java" : "21.0.12",
+    "availableProcessors" : 24
+  },
+  "publisher" : {
+    "batchSize" : 8,
+    "batchBudgetMs" : 100,
+    "maxInFlight" : 1,
+    "intervalMs" : 500
+  },
+  "coldCache" : {
+    "catalogMs" : {
+      "count" : 50,
+      "max" : 7.2298,
+      "mean" : 5.015744000000001,
+      "p95" : 6.4975,
+      "samples" : [ 5.2457, 5.8652, 5.3862, 5.8487, 4.7355, 4.6852, 4.421, 4.7619, 6.3141, 4.8221, 4.1414, 3.8953, 4.4634, 4.7532, 4.2587, 4.592, 4.5379, 3.5986, 5.0786, 5.2896, 7.0966, 6.4975, 5.9339, 4.9268, 5.8685, 4.4982, 4.9222, 5.0867, 4.5495, 4.8578, 4.3075, 4.6052, 4.5547, 4.8241, 5.3497, 7.2298, 5.415, 6.0712, 4.8402, 4.8988, 4.7762, 5.0021, 4.5971, 5.1276, 4.4197, 4.2977, 4.8379, 4.5802, 5.1415, 4.979 ],
+      "p50" : 4.8379
+    },
+    "bodySourceReads" : 50.0,
+    "hits" : 0.0,
+    "hitRatio" : 0.0
+  },
+  "warmCache" : {
+    "catalogMs" : {
+      "count" : 50,
+      "max" : 3.5589,
+      "mean" : 2.6280599999999996,
+      "p95" : 3.3399,
+      "samples" : [ 3.3399, 2.6546, 2.7361, 2.2871, 2.4735, 2.2802, 2.7595, 2.2943, 3.078, 2.87, 2.5268, 2.8191, 2.4522, 3.5589, 3.1718, 2.7434, 2.5572, 2.436, 2.5738, 2.4905, 2.2688, 2.2681, 2.4078, 2.2996, 2.3021, 2.6802, 3.5443, 3.0585, 3.149, 3.1632, 3.0949, 2.6961, 2.3743, 2.382, 2.7215, 2.8752, 2.5125, 2.5151, 2.2534, 2.6468, 2.4953, 2.7074, 2.1098, 2.3692, 2.7493, 2.2666, 2.3991, 1.9661, 2.1183, 2.9056 ],
+      "p50" : 2.5268
+    },
+    "bodySourceReads" : 0.0,
+    "hits" : 50.0,
+    "hitRatio" : 1.0
+  },
+  "warmSourceCreationHttpMs" : {
+    "count" : 20,
+    "max" : 37.8971,
+    "mean" : 16.019585,
+    "p95" : 18.0998,
+    "samples" : [ 37.8971, 14.1526, 14.5434, 16.4228, 16.3254, 18.0998, 17.9412, 16.4147, 13.6959, 14.5832, 13.7497, 16.3787, 13.1196, 13.2645, 13.6118, 13.4725, 15.3339, 15.7848, 14.1858, 11.4143 ],
+    "p50" : 14.5434
+  },
+  "burstWaves" : [ {
+    "queueMs" : {
+      "count" : 12,
+      "max" : 1572.96,
+      "mean" : 947.8014166666667,
+      "p95" : 1572.96,
+      "samples" : [ 654.844, 766.584, 887.657, 1222.635, 1572.96, 534.43, 1336.25, 1449.345, 411.465, 1000.959, 465.237, 1071.251 ],
+      "p50" : 887.657
+    },
+    "completed" : 12,
+    "endToEndMs" : {
+      "count" : 12,
+      "max" : 1611.006,
+      "mean" : 997.3698333333333,
+      "p95" : 1611.006,
+      "samples" : [ 706.192, 816.018, 934.003, 1270.354, 1611.006, 584.673, 1381.537, 1502.663, 473.668, 1047.983, 518.421, 1121.92 ],
+      "p50" : 934.003
+    },
+    "sampledMaxPending" : 12,
+    "drainMs" : 1630.6409,
+    "executionMs" : {
+      "count" : 12,
+      "max" : 62.203,
+      "mean" : 49.56841666666667,
+      "p95" : 62.203,
+      "samples" : [ 51.348, 49.434, 46.346, 47.719, 38.046, 50.243, 45.287, 53.318, 62.203, 47.024, 53.184, 50.669 ],
+      "p50" : 49.434
+    },
+    "sampledOldestPendingSeconds" : 0.9799,
+    "acceptHttpMs" : {
+      "count" : 12,
+      "max" : 103.0798,
+      "mean" : 62.5222,
+      "p95" : 103.0798,
+      "samples" : [ 30.0439, 58.9314, 36.9837, 89.107, 80.2727, 54.088, 71.236, 103.0798, 24.5648, 64.6548, 43.8151, 93.4892 ],
+      "p50" : 58.9314
+    },
+    "wallSeconds" : 1.7355849,
+    "completedPerSecond" : 6.914095645796411
+  }, {
+    "queueMs" : {
+      "count" : 12,
+      "max" : 1641.391,
+      "mean" : 993.2068333333333,
+      "p95" : 1641.391,
+      "samples" : [ 939.13, 1093.185, 1641.391, 1527.1, 1137.248, 563.506, 683.196, 815.733, 372.618, 1311.236, 440.456, 1393.683 ],
+      "p50" : 939.13
+    },
+    "completed" : 12,
+    "endToEndMs" : {
+      "count" : 12,
+      "max" : 1683.997,
+      "mean" : 1046.55375,
+      "p95" : 1683.997,
+      "samples" : [ 995.9, 1135.435, 1683.997, 1570.002, 1185.505, 632.164, 748.464, 867.439, 429.834, 1368.913, 491.263, 1449.729 ],
+      "p50" : 995.9
+    },
+    "sampledMaxPending" : 12,
+    "drainMs" : 1703.0928,
+    "executionMs" : {
+      "count" : 12,
+      "max" : 68.658,
+      "mean" : 53.346916666666665,
+      "p95" : 68.658,
+      "samples" : [ 56.77, 42.25, 42.606, 42.902, 48.257, 68.658, 65.268, 51.706, 57.216, 57.677, 50.807, 56.046 ],
+      "p50" : 51.706
+    },
+    "sampledOldestPendingSeconds" : 0.948,
+    "acceptHttpMs" : {
+      "count" : 12,
+      "max" : 96.9027,
+      "mean" : 54.76761666666667,
+      "p95" : 96.9027,
+      "samples" : [ 45.1294, 27.0644, 78.5314, 73.8221, 96.9027, 58.05, 38.3068, 63.8362, 20.8277, 53.955, 32.7353, 68.0504 ],
+      "p50" : 53.955
+    },
+    "wallSeconds" : 1.8012037,
+    "completedPerSecond" : 6.662211497788951
+  }, {
+    "queueMs" : {
+      "count" : 12,
+      "max" : 1427.657,
+      "mean" : 828.9014166666666,
+      "p95" : 1427.657,
+      "samples" : [ 673.153, 995.336, 1427.657, 1327.07, 802.649, 457.493, 260.945, 858.789, 319.328, 538.05, 1211.591, 1074.756 ],
+      "p50" : 802.649
+    },
+    "completed" : 12,
+    "endToEndMs" : {
+      "count" : 12,
+      "max" : 1463.487,
+      "mean" : 870.7246666666666,
+      "p95" : 1463.487,
+      "samples" : [ 719.89, 1037.664, 1463.487, 1369.955, 843.068, 494.02, 307.44, 901.164, 366.053, 582.255, 1250.205, 1113.495 ],
+      "p50" : 843.068
+    },
+    "sampledMaxPending" : 12,
+    "drainMs" : 1450.6096,
+    "executionMs" : {
+      "count" : 12,
+      "max" : 46.737,
+      "mean" : 41.82325,
+      "p95" : 46.737,
+      "samples" : [ 46.737, 42.328, 35.83, 42.885, 40.419, 36.527, 46.495, 42.375, 46.725, 44.205, 38.614, 38.739 ],
+      "p50" : 42.328
+    },
+    "sampledOldestPendingSeconds" : 0.8108,
+    "acceptHttpMs" : {
+      "count" : 12,
+      "max" : 74.55,
+      "mean" : 46.85329166666667,
+      "p95" : 74.55,
+      "samples" : [ 34.5818, 54.4631, 63.0, 43.8287, 26.1362, 29.3682, 19.3929, 70.6026, 38.0935, 48.692, 59.5305, 74.55 ],
+      "p50" : 43.8287
+    },
+    "wallSeconds" : 1.5266074,
+    "completedPerSecond" : 7.860567163502548
+  } ],
+  "consumerRecovery" : {
+    "queueMs" : {
+      "count" : 6,
+      "max" : 2046.069,
+      "mean" : 1743.8588333333335,
+      "p95" : 2046.069,
+      "samples" : [ 1663.939, 1832.582, 1436.458, 1589.166, 2046.069, 1894.939 ],
+      "p50" : 1663.939
+    },
+    "completed" : 6,
+    "endToEndMs" : {
+      "count" : 6,
+      "max" : 2089.341,
+      "mean" : 1785.5033333333333,
+      "p95" : 2089.341,
+      "samples" : [ 1707.699, 1871.113, 1475.723, 1633.462, 2089.341, 1935.682 ],
+      "p50" : 1707.699
+    },
+    "sampledMaxPending" : 0,
+    "drainMs" : 721.701,
+    "executionMs" : {
+      "count" : 6,
+      "max" : 44.296,
+      "mean" : 41.6445,
+      "p95" : 44.296,
+      "samples" : [ 43.76, 38.531, 39.265, 44.296, 43.272, 40.743 ],
+      "p50" : 40.743
+    },
+    "sampledOldestPendingSeconds" : 0.0,
+    "acceptHttpMs" : {
+      "count" : 6,
+      "max" : 37.9433,
+      "mean" : 25.37195,
+      "p95" : 37.9433,
+      "samples" : [ 27.1406, 14.8045, 17.7827, 37.9433, 21.6841, 32.8765 ],
+      "p50" : 21.6841
+    },
+    "resumeToCompletedMs" : 721.8161,
+    "fault" : "worker polling paused and resumed; broker and application remain alive"
+  },
+  "limitations" : [ "Local single-process middleware baseline with mock AI; not production capacity or provider throughput", "Three waves of 12; nearest-rank percentiles; retain samples; no latency assertions", "Database polling every 50 ms adds observer overhead; pending maxima are sampled after submission", "Cold cache includes Redis miss/write plus database body read; warm cache still checks publication/version in MySQL", "Consumer recovery excludes JVM restart and broker restart; split-process correctness is covered by SplitRuntimeIT" ]
+}

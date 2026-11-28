@@ -46,17 +46,37 @@ public final class SkillLexicon {
         register("llm", "llm", "大模型", "大型语言模型");
         register("rag", "rag", "检索增强生成");
         register("prompt", "prompt", "提示词");
-        for (String skill : List.of("html", "css", "linux", "git", "junit", "selenium", "playwright",
-                "kafka", "rabbitmq", "pytorch", "tensorflow", "django", "flask", "fastapi", "api", "ai")) {
+        for (String skill : List.of(
+                "html",
+                "css",
+                "linux",
+                "git",
+                "junit",
+                "selenium",
+                "playwright",
+                "kafka",
+                "rocketmq",
+                "pytorch",
+                "tensorflow",
+                "django",
+                "flask",
+                "fastapi",
+                "api",
+                "ai")) {
             register(skill, skill);
         }
     }
 
-    private SkillLexicon() {}
+    private SkillLexicon() {
+    }
 
     public static String normalize(String value) {
-        return value == null ? "" : Normalizer.normalize(value, Normalizer.Form.NFKC)
-                .toLowerCase(Locale.ROOT).replaceAll("\\s+", " ").trim();
+        return value == null
+                ? ""
+                : Normalizer.normalize(value, Normalizer.Form.NFKC)
+                        .toLowerCase(Locale.ROOT)
+                        .replaceAll("\\s+", " ")
+                        .trim();
     }
 
     public static String canonical(String skill) {
@@ -70,29 +90,39 @@ public final class SkillLexicon {
 
     public static boolean contains(String text, String skill) {
         String canonical = canonical(skill);
-        if (canonical.isBlank()) return false;
+        if (canonical.isBlank())
+            return false;
         Pattern pattern = PATTERNS.get(canonical);
-        if (pattern == null) pattern = compile(List.of(canonical));
+        if (pattern == null)
+            pattern = compile(List.of(canonical));
         String normalized = normalize(text);
         Matcher matcher = pattern.matcher(normalized);
         while (matcher.find()) {
             String prefix = normalized.substring(Math.max(0, matcher.start() - 32), matcher.start());
-            if (!NEGATION.matcher(prefix).find()) return true;
+            if (!NEGATION.matcher(prefix).find())
+                return true;
         }
         return false;
     }
 
     private static void register(String canonical, String... aliases) {
-        for (String alias : aliases) ALIASES.put(alias, canonical);
+        for (String alias : aliases)
+            ALIASES.put(alias, canonical);
         PATTERNS.put(canonical, compile(List.of(aliases)));
     }
 
     private static Pattern compile(List<String> aliases) {
-        String alternatives = aliases.stream().map(alias -> {
-            String left = alias.charAt(0) < 128 ? "(?<![a-z0-9_+#.])" : "";
-            String right = alias.charAt(alias.length() - 1) < 128 ? "(?![a-z0-9_+#]|\\.[a-z0-9])" : "";
-            return left + Pattern.quote(alias).replace(" ", "\\E\\s+\\Q") + right;
-        })
+        String alternatives = aliases.stream()
+                .map(
+                        alias -> {
+                            String left = alias.charAt(0) < 128 ? "(?<![a-z0-9_+#.])" : "";
+                            String right = alias.charAt(alias.length() - 1) < 128
+                                    ? "(?![a-z0-9_+#]|\\.[a-z0-9])"
+                                    : "";
+                            return left
+                                    + Pattern.quote(alias).replace(" ", "\\E\\s+\\Q")
+                                    + right;
+                        })
                 .collect(java.util.stream.Collectors.joining("|"));
         return Pattern.compile("(?:" + alternatives + ")");
     }

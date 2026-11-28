@@ -64,6 +64,14 @@ try {
       if (command.configuration) return ok({ runId: 'run-' + writes.length, sessionId: session.sessionId, requestId: command.requestId, operation: 'START', status: 'SUCCEEDED', phase: 'COMMIT', errorCode: null });
       return ok(session);
     }
+    if (url.pathname.endsWith('/answer-commands')) {
+      const command = request.postDataJSON();
+      session.turns.push({ speaker: 'user', content: command.answer, requestId: command.requestId },
+        { speaker: 'interviewer', content: `第 ${session.turnCount + 1} 轮：如何验证这次改动？` });
+      session.turnCount += 1;
+      return ok({ runId: 'run-answer', sessionId: session.sessionId, requestId: command.requestId,
+        operation: 'ANSWER', status: 'SUCCEEDED', phase: 'COMMIT', errorCode: null });
+    }
     if (url.pathname.startsWith('/api/interviews/sessions/')) return ok(session);
     if (url.pathname.startsWith('/api/')) { errors.push(`Unexpected API: ${url.pathname}`); return route.fulfill({ status: 404, body: '{}' }); }
     return route.continue();
@@ -128,6 +136,33 @@ try {
   assert.equal(writes[1].targetJobRevision, 3);
   assert.equal(writes[1].jobDescription, undefined);
   checks.push('Saved JD selection sends its revision and excludes inline material.');
+
+  const answerInput = page.getByLabel('面试回答', { exact: true });
+  await answerInput.fill('确认候选词');
+  const confirmed = await answerInput.evaluate(input => {
+    input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '词' }));
+    const key = { key: 'Enter', bubbles: true, cancelable: true, isComposing: false };
+    const keyAccepted = input.dispatchEvent(new KeyboardEvent('keydown', key));
+    const editAccepted = input.dispatchEvent(new InputEvent('beforeinput', {
+      bubbles: true, cancelable: true, inputType: 'insertFromComposition', data: '词',
+    }));
+    input.dispatchEvent(new KeyboardEvent('keyup', key));
+    return keyAccepted && editAccepted;
+  });
+  assert.equal(confirmed, true);
+  await answerInput.press('Shift+Enter');
+  assert.equal(await answerInput.inputValue(), '确认候选词\n');
+  await page.keyboard.insertText('补充回答');
+  const [submitted] = await Promise.all([
+    page.waitForRequest(request => request.url().endsWith('/answer-commands')),
+    answerInput.press('Enter'),
+  ]);
+  assert.equal(submitted.postDataJSON().answer, '确认候选词\n补充回答');
+  await page.getByText('第 2 轮：如何验证这次改动？', { exact: true }).waitFor();
+  await answerInput.fill('继续说明验证结果');
+  await answerInput.press('Control+Enter');
+  await page.getByText('第 3 轮：如何验证这次改动？', { exact: true }).waitFor();
+  checks.push('输入法确认候选词后可继续编辑，Shift+Enter 换行，Enter 提交完整回答。');
 
   await page.goto(origin + '/resumes');
   await page.getByRole('button', { name: /预览/ }).click();

@@ -261,26 +261,6 @@
       "resource": "/reference-library/javaguide/docs/system-design/framework/spring/spring-transaction.md"
     },
     {
-      "id": "jg-rabbitmq",
-      "title": "RabbitMQ 常见问题总结",
-      "file": "docs/high-performance/message-queue/rabbitmq-questions.md",
-      "topic": "messaging",
-      "family": "javaguide-messaging",
-      "split": "validation",
-      "kind": "source-copy",
-      "version": "local-snapshot-2026-11-13",
-      "contentSha256": "9cd7c36c31446a6c1b4b84f7ff2cbcd2eb18d00cce0bb9eb914f0af8880a26b8",
-      "sources": [
-        {
-          "title": "RabbitMQ 常见问题总结",
-          "path": "D:/学习/实习/JavaGuide/docs/high-performance/message-queue/rabbitmq-questions.md",
-          "sha256": "9cd7c36c31446a6c1b4b84f7ff2cbcd2eb18d00cce0bb9eb914f0af8880a26b8",
-          "license": "Apache-2.0"
-        }
-      ],
-      "resource": "/reference-library/javaguide/docs/high-performance/message-queue/rabbitmq-questions.md"
-    },
-    {
       "id": "jg-idempotency",
       "title": "接口幂等性设计详解：幂等键、Token、唯一索引、去重表与支付回调",
       "file": "docs/high-availability/idempotency.md",
@@ -536,8 +516,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-mysql-isolation:事务隔离级别总结"
@@ -561,8 +540,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-mysql-index:覆盖索引"
@@ -586,8 +564,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-mysql-explain:key（重要）"
@@ -611,8 +588,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-spring-transaction:事务回滚规则"
@@ -624,31 +600,6 @@
           "documentId": "jg-spring-transaction",
           "heading": "事务回滚规则",
           "quote": "这些规则定义了哪些异常会导致事务回滚而哪些不会。默认情况下，事务只有遇到运行期异常（`RuntimeException` 的子类）时才会回滚，`Error` 也会导致事务回滚，但是，在遇到检查型（Checked）异常时不会回滚。"
-        }
-      ]
-    },
-    {
-      "id": "JG-14",
-      "kind": "direct",
-      "split": "validation",
-      "question": "RabbitMQ 的 DLX 与死信队列是什么关系？",
-      "scope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
-      ],
-      "expected": [
-        "jg-rabbitmq:什么是死信队列？如何导致的？"
-      ],
-      "answer": "消息成为死信后可转发到死信交换器DLX，绑定该交换器的队列称为死信队列。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "jg-rabbitmq",
-          "heading": "什么是死信队列？如何导致的？",
-          "quote": "DLX，全称为 `Dead-Letter-Exchange`（死信交换器），当消息在一个队列中变成死信（`dead message`）之后，它能被重新发送到另一个交换器中，这个交换器就是 DLX，绑定 DLX 的队列就称之为死信队列。"
         }
       ]
     },
@@ -911,8 +862,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-mysql-explain:rows"
@@ -1111,8 +1061,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-mysql-isolation:事务隔离级别总结"
@@ -1136,8 +1085,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-spring-transaction:Spring AOP 自调用问题"
@@ -1153,31 +1101,6 @@
       ]
     },
     {
-      "id": "JG-35",
-      "kind": "paraphrase",
-      "split": "validation",
-      "question": "生产者收到了成功确认，就能断定消息到了业务队列吗？",
-      "scope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
-      ],
-      "expected": [
-        "jg-rabbitmq:如何保证消息的可靠性？"
-      ],
-      "answer": "不能；路由失败也可能收到basic.ack，需处理mandatory return或Alternate Exchange。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "jg-rabbitmq",
-          "heading": "如何保证消息的可靠性？",
-          "quote": "只开 Confirm 不够。路由失败的消息也可能收到 `basic.ack`，因为 Broker 已经处理了这次发布；是否进入业务队列，要靠 mandatory return 或 Alternate Exchange 兜住。"
-        }
-      ]
-    },
-    {
       "id": "JG-36",
       "kind": "distractor",
       "split": "validation",
@@ -1186,8 +1109,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-mysql-explain:rows"
@@ -1249,31 +1171,6 @@
           "documentId": "jg-cache-basics",
           "heading": "多级缓存一致性如何保证？",
           "quote": "多级缓存通常按最终一致性设计，需要分别处理 **DB → Redis** 和 **Redis → 各实例 L1** 的变化。只删除 Redis 中的 key，其他 JVM 中的本地副本仍可能被读取；给 L1 设置较短 TTL 能缩短陈旧读取时间，但不能代替失效通知。"
-        }
-      ]
-    },
-    {
-      "id": "JG-39",
-      "kind": "distractor",
-      "split": "validation",
-      "question": "看到 confirm 的 basic.ack 与看到消息进入目标队列，是否是一回事？",
-      "scope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
-      ],
-      "expected": [
-        "jg-rabbitmq:如何保证消息的可靠性？"
-      ],
-      "answer": "不是；确认与成功路由需分别处理。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "jg-rabbitmq",
-          "heading": "如何保证消息的可靠性？",
-          "quote": "只开 Confirm 不够。路由失败的消息也可能收到 `basic.ack`，因为 Broker 已经处理了这次发布；是否进入业务队列，要靠 mandatory return 或 Alternate Exchange 兜住。"
         }
       ]
     },
@@ -1466,8 +1363,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-mysql-index:覆盖索引",
@@ -1497,8 +1393,7 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [
         "jg-mysql-isolation:事务隔离级别总结",
@@ -1516,37 +1411,6 @@
           "documentId": "jg-spring-transaction",
           "heading": "事务回滚规则",
           "quote": "这些规则定义了哪些异常会导致事务回滚而哪些不会。默认情况下，事务只有遇到运行期异常（`RuntimeException` 的子类）时才会回滚，`Error` 也会导致事务回滚，但是，在遇到检查型（Checked）异常时不会回滚。"
-        }
-      ]
-    },
-    {
-      "id": "JG-48",
-      "kind": "multi",
-      "split": "validation",
-      "question": "消息消费的确认时机与数据库去重记录，应怎样配合？",
-      "scope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-rabbitmq",
-        "jg-idempotency"
-      ],
-      "expected": [
-        "jg-rabbitmq:如何保证消息的可靠性？",
-        "jg-idempotency:去重表"
-      ],
-      "answer": "消费成功后手动Ack；去重记录与业务修改放同一数据库事务，成功提交才代表处理完成。",
-      "shouldAbstain": false,
-      "evidence": [
-        {
-          "documentId": "jg-rabbitmq",
-          "heading": "如何保证消息的可靠性？",
-          "quote": "- **手动 Ack**：`basicAck(deliveryTag, multiple)`，确保消费成功后再确认"
-        },
-        {
-          "documentId": "jg-idempotency",
-          "heading": "去重表",
-          "quote": "去重表的插入要和后续业务操作放在同一个数据库事务中。事务提交成功，才表示“去重记录存在 = 业务已经处理完成”；如果业务逻辑失败回滚，去重记录也要一起回滚，后续请求才能正常重入。否则可能出现“去重记录已写入，但业务实际没完成”的不一致状态。分库分表导致去重表和业务表不在同一物理库时，需要额外考虑 TCC / Saga 等分布式事务方案，或者改用其他能保证一致性的设计。"
         }
       ]
     },
@@ -1655,28 +1519,10 @@
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ],
       "expected": [],
       "answer": "没有该业务表在指定日期的实际统计。",
-      "shouldAbstain": true,
-      "evidence": []
-    },
-    {
-      "id": "JG-54",
-      "kind": "insufficient",
-      "split": "validation",
-      "question": "职智达 RabbitMQ 集群过去一天发生了多少次故障？",
-      "scope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
-      ],
-      "expected": [],
-      "answer": "资料没有该集群的运行日志或故障统计。",
       "shouldAbstain": true,
       "evidence": []
     },

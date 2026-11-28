@@ -46,7 +46,7 @@ export function supportedNode(version) {
 
 export function infrastructureUpArgs(options) {
   return ['up', '-d', '--pull', options.offline ? 'never' : 'missing',
-    '--wait', '--wait-timeout', '120', 'mysql', 'redis', 'redis-cache', 'rabbitmq'];
+    '--wait', '--wait-timeout', '120', 'mysql', 'redis', 'redis-cache', 'mqproxy'];
 }
 
 function port(value, fallback, name) {
@@ -78,27 +78,27 @@ export function makeSettings(env, options) {
   if (aiProvider === 'deepseek' && !(env.DEEPSEEK_API_KEY || env.AI_API_KEY)) {
     throw new Error('DeepSeek 模式未设置密钥。可加 --mock-ai 使用本地 AI 模拟，或在 .env 配置密钥。');
   }
-  const dispatch = env.RUN_DISPATCH_MODE || (options.externalDb ? 'database' : 'rabbitmq');
+  const dispatch = env.RUN_DISPATCH_MODE || (options.externalDb ? 'database' : 'rocketmq');
   const mcpEnabled = env.AGENT_MCP_REFERENCE_ENABLED || 'true';
   const managedMcp = mcpEnabled.toLowerCase() === 'true' && !env.AGENT_MCP_REFERENCE_URL;
   const mcpPort = managedMcp ? port(env.MCP_PORT, 18091, 'MCP_PORT') : undefined;
   const localPorts = [backendPort, frontendPort];
   if (!options.externalDb) {
     localPorts.push(mysqlPort, redisPort,
-      port(env.REDIS_CACHE_PORT, 6380, 'REDIS_CACHE_PORT'), port(env.RABBITMQ_PORT, 5672, 'RABBITMQ_PORT'),
-      port(env.RABBITMQ_MANAGEMENT_PORT, 15672, 'RABBITMQ_MANAGEMENT_PORT'));
+      port(env.REDIS_CACHE_PORT, 6380, 'REDIS_CACHE_PORT'), port(env.ROCKETMQ_PROXY_PORT, 8081, 'ROCKETMQ_PROXY_PORT'));
   }
   if (managedMcp) localPorts.push(mcpPort);
   if (new Set(localPorts).size !== localPorts.length) {
-    throw new Error('应用与依赖服务的本机监听端口冲突，请检查 MCP_PORT、Redis、RabbitMQ 与前后端设置。');
+    throw new Error('应用与依赖服务的本机监听端口冲突，请检查 MCP_PORT、Redis、RocketMQ 与前后端设置。');
   }
   return { backendPort, frontendPort, mcpPort, databaseHost: database.hostname.replace(/^\[|\]$/g, ''), databasePort: Number(database.port || 3306),
     redisHost, redisPort,
     childEnv: { ...env, AI_PROVIDER: aiProvider, SPRING_DOCKER_COMPOSE_ENABLED: 'false',
       QUESTION_CACHE_ENABLED: env.QUESTION_CACHE_ENABLED || String(!options.externalDb),
       REDIS_RATE_LIMIT_ENABLED: env.REDIS_RATE_LIMIT_ENABLED || String(!options.externalDb),
+      ROCKETMQ_ENDPOINTS: env.ROCKETMQ_ENDPOINTS || `127.0.0.1:${env.ROCKETMQ_PROXY_PORT || 8081}`,
       RUN_DISPATCH_MODE: dispatch,
-      KNOWLEDGE_DISPATCH_MODE: env.KNOWLEDGE_DISPATCH_MODE || (dispatch === 'rabbitmq' ? 'rabbitmq' : 'local'),
+      KNOWLEDGE_DISPATCH_MODE: env.KNOWLEDGE_DISPATCH_MODE || (dispatch === 'rocketmq' ? 'rocketmq' : 'local'),
       KNOWLEDGE_IMPORT_SHARED_DIRECTORY: env.KNOWLEDGE_IMPORT_SHARED_DIRECTORY || join(PROJECT_ROOT, '.runtime', 'knowledge-shared'),
       AGENT_MCP_REFERENCE_ENABLED: mcpEnabled,
       AGENT_MCP_REFERENCE_URL: env.AGENT_MCP_REFERENCE_URL || `http://127.0.0.1:${mcpPort || 18091}/mcp`,
@@ -237,7 +237,7 @@ export const acceptsBackend = async (response) => {
 export async function main(args = process.argv.slice(2)) {
   const options = parseArgs(args);
   if (options.help) {
-    console.log('用法：node scripts/dev.mjs [start|check] [--external-db] [--offline] [--install] [--mock-ai]\n默认启动 MySQL、Redis、RabbitMQ、本地 MCP 资料服务、后端和 Vite。\nCtrl+C 停止本次源码进程，保留容器和数据。check 仅检查环境；--external-db 使用已有 MySQL 和协调 Redis 并跳过容器启动，Redis 地址通过 REDIS_RATE_HOST/PORT（兼容 REDIS_HOST/PORT）设置；--install 按锁文件重装前端依赖。');
+    console.log('用法：node scripts/dev.mjs [start|check] [--external-db] [--offline] [--install] [--mock-ai]\n默认启动 MySQL、Redis、RocketMQ、本地 MCP 资料服务、后端和 Vite。\nCtrl+C 停止本次源码进程，保留容器和数据。check 仅检查环境；--external-db 使用已有 MySQL 和协调 Redis 并跳过容器启动，Redis 地址通过 REDIS_RATE_HOST/PORT（兼容 REDIS_HOST/PORT）设置；--install 按锁文件重装前端依赖。');
     return;
   }
   if (!supportedNode(process.version)) throw new Error('需要 Node.js 22.14 或更高版本。');
@@ -335,6 +335,9 @@ export async function main(args = process.argv.slice(2)) {
       await stage('mysql', docker,
         ['compose', '--progress', 'plain', '--project-directory', PROJECT_ROOT, '-f', join(PROJECT_ROOT, 'docker-compose.yml'),
           ...infrastructureUpArgs(options)], PROJECT_ROOT, { MYSQL_IMAGE: mysqlImage });
+      // Proxy 就绪后创建并校验 Topic 和消费组，资源可用后再启动后端。
+      await stage('mq-init', docker, ['compose', '-f', join(PROJECT_ROOT, 'docker-compose.yml'),
+        'run', '--rm', '--no-deps', '-T', 'mqinit'], PROJECT_ROOT);
     }
     await assertDatabaseReachable(settings.databaseHost, settings.databasePort);
     await assertRedisReachable(settings.redisHost, settings.redisPort);

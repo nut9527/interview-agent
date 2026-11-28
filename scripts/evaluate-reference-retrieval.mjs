@@ -1,4 +1,4 @@
-// Local-BGE performance runs or selected/full-library candidate diagnostics.
+// 使用本地 BGE 复测检索耗时，按选定资料和全库两种范围诊断候选排名与分块效果。
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
@@ -93,13 +93,13 @@ public class ReferenceCorpusStats {
   var json = new JsonMapper(); var fixture = KnowledgeCorpusFixture.load(json, KnowledgeCorpusFixture.RESOURCE);
   var documents = new ArrayList<Map<String,Object>>(); int total = 0, evidence = 0;
   for (var document : fixture.path("documents")) {
-   var chunks = KnowledgeText.split(document.path("id").asText(), 1, document.path("content").asText());
+   var chunks = KnowledgeText.split(document.path("id").asString(), 1, document.path("content").asString());
    int eligible = (int) chunks.stream().filter(KnowledgeText::isEvidence).count(); total += chunks.size(); evidence += eligible;
-   documents.add(Map.of("id", document.path("id").asText(), "chunks", chunks.size(), "evidenceChunks", eligible,
-    "split", document.path("split").asText(), "contentSha256", document.path("contentSha256").asText()));
+   documents.add(Map.of("id", document.path("id").asString(), "chunks", chunks.size(), "evidenceChunks", eligible,
+    "split", document.path("split").asString(), "contentSha256", document.path("contentSha256").asString()));
   }
   Files.writeString(Path.of(args[0]), json.writeValueAsString(Map.of("documents", documents, "chunks", total,
-   "evidenceChunks", evidence, "fixtureSha256", fixture.path("fixtureSha256").asText())));
+   "evidenceChunks", evidence, "fixtureSha256", fixture.path("fixtureSha256").asString())));
  }
 }
 `);
@@ -133,8 +133,6 @@ public class ReferenceCorpusStats {
       '-Dknowledge.eval.report=' + join(runDir, 'unit-retrieval.json'),
       '-Dknowledge.eval.hybridReport=' + join(runDir, 'unit-hybrid.json'), 'surefire:test'], join(root, 'backend'));
     const baseline = 'backend/src/test/resources/rag-corpus/baseline/KnowledgeText.java';
-    const previous = JSON.parse(await readFile(join(root, 'docs/evidence/reference-retrieval-diagnostics.json'), 'utf8'));
-    assert.equal(sha256(await readFile(join(root, baseline))), previous.sourceSha256['backend/src/main/java/cn/edu/whu/zhizhida/knowledge/domain/KnowledgeText.java']);
     chunking = {};
     for (const [variant, source] of [['old', baseline], ['new', 'backend/src/main/java/cn/edu/whu/zhizhida/knowledge/domain/KnowledgeText.java']]) {
       await stage('Compile ' + variant + ' chunking', findExecutable('javac'), ['-encoding', 'UTF-8', '-cp', backendClasspath,
@@ -213,18 +211,18 @@ public class ReferenceCorpusStats {
     command: 'node scripts/evaluate-reference-retrieval.mjs' + (chunkingMode ? ' --chunking' : diagnosticMode ? ' --diagnostics' : ''), repetitions,
     corpus: { ...corpusSummary, ...chunkStats, documentCount: corpusSummary.documents }, scopeAdjustment,
     measurement: chunkingMode ? {
-      purpose: 'Paired old/new chunking, lexical/hybrid, selected/all27; same 103 questions and original gold quotes.',
-      qualityCases: 103, timingSamplesPerVariantScopeMode: 309,
+      purpose: 'Paired old/new chunking, lexical/hybrid, selected/all; same questions and original gold quotes.',
+      qualityCases: corpus.cases.length, timingSamplesPerVariantScopeMode: corpus.cases.length * 3,
       timing: 'Three warm measurements per question. Hybrid includes uncached loopback HTTP embedding, vector search, RRF and quota. Excludes indexing and scope filtering.',
       baseline: 'Frozen pre-change KnowledgeText compiled in the same isolated build; all other code and BGE settings identical.',
     } : diagnosticMode ? {
       qualityCases: corpus.cases.length,
-      scope: 'Same questions and labels; original 4/5 selected documents versus all 27 reference documents.',
+      scope: 'Same questions and labels; selected documents versus all reference documents.',
       purpose: 'Candidate and ranking diagnostics, not a latency benchmark or deployed full-library API.',
       labels: 'Annotated sections and exact evidence quotes are scored separately; unjudged alternative evidence is retained for review.',
     } : { qualityCases: corpus.cases.length, latencySamplesPerMode: corpus.cases.length * repetitions,
       warmup: 'First query of each mode in each JVM is executed once without recording time.',
-      scope: 'Per-question selected documents, at most five. Not unrestricted search across all 27 documents.',
+      scope: 'Per-question selected documents, at most five. Not unrestricted search across the complete corpus.',
       timing: 'Starts after per-question scope selection. Includes lexical ranking; hybrid also includes loopback HTTP embedding, in-memory vector search, RRF and section diversification. Excludes scope filtering, indexing, SQL and answer generation.',
       noAnswer: 'Nonempty candidate retrieval on labeled no-answer cases; not an answer-generation hallucination rate.',
       baseline: 'Both modes rerun after scope correction; previous broader-scope lexical scores are not this baseline.' },

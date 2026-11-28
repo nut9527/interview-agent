@@ -56,6 +56,45 @@ jobs:
       - name: Verify release registration and candidate integrity
         run: node scripts/release-status.mjs check
 
+  rocketmq:
+    needs: baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/cache@v4
+        with:
+          path: .m2/repository
+          key: maven-${{ runner.os }}-java21-${{ hashFiles('backend/pom.xml', 'backend/.mvn/project-parent/pom.xml', 'backend/compatibility/langchain4j/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-java21-
+      - name: Prepare the broker fault suite
+        # 故障验收离线运行，先缓存 Maven 依赖和隔离集群使用的镜像。
+        working-directory: backend
+        run: |
+          mvn -B -ntp -DskipTests -Djacoco.skip=true verify
+          docker pull apache/rocketmq:5.3.2
+          docker pull mysql:8.4
+          docker pull redis:7.4.2
+      - name: Exercise RocketMQ delivery and recovery with owned fault targets
+        run: node scripts/verify-run-retry-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rocketmq-fault-results
+          path: |
+            backend/target/mq-acceptance/*/report.json
+            backend/target/mq-acceptance/*/acceptance.log
+            backend/target/mq-acceptance/*/failsafe-reports/*.txt
+
   backend:
     needs: baseline
     runs-on: ubuntu-24.04
@@ -71,7 +110,7 @@ jobs:
         env:
           MYSQL_DATABASE: zhizhida_test
           MYSQL_USER: it_user
-          # Credentials for this disposable CI service only.
+          # 这组凭据仅用于本次 CI 的临时 MySQL 实例。
           MYSQL_PASSWORD: ci_ephemeral_only
           MYSQL_ROOT_PASSWORD: ci_root_ephemeral_only
         ports:

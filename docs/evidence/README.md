@@ -2,19 +2,19 @@
 
 本目录保存面试回放、工具调用、知识检索和向量存储的验证数据。报告按场景和批次组织，包含测试条件、实际结果、模型用量及源码指纹，供回归测试与发布核对使用。
 
-**分块对照：** [新旧分块、词项与混合检索](chunking-comparison.md)使用同一批 103 题。全库引文 Recall@6 分别从 78.89%、75.00% 升到 90.56%、86.11%，保留延迟、退步样本与历史引用兼容检查。
+[分块对照](chunking-comparison.md)使用当前 91 道题。全库词项与混合的引文 Recall@6 分别由 78.13%、75.63% 升至 89.38%、85.63%。
 
-**性能复测：** [Redis、RAG、RabbitMQ 与 MCP](performance-retest.md)记录当前代码上的重新测量，RAG 使用新增的 27 份真实原文、103 道题。下文的 5 份合成资料检索结果属于历史固定集，保留作独立对照。
+[性能复测](performance-retest.md)记录历史缓存实验和当前 25 份资料的三轮检索。下面的 5 份合成资料来自另一组历史实验。
 
-**检索诊断：** [Top-30 与全库实验](retrieval-candidate-diagnostics.md)对比原范围与全部 27 份资料，分别有 22、23 题的标注引文进入 RRF Top-30 却未进最终 Top-6，保留逐题候选与原文证据。
+[检索诊断](retrieval-candidate-diagnostics.md)在选定范围和全库分别发现 10、14 道题的标注引文进入 RRF 前 30，却未进最终 6 块。
 
-**重排实验：** [固定候选池的 cross-encoder 对照](reranker-experiment.md)保留纯词项、RRF 和章节配额基线，比较引文质量与新增推理耗时，并审计缺失证据的相邻分块。
+[重排实验](reranker-experiment.md)保留旧语料的整集重排指标，并记录当前语料 182 组排名核对与单题真实重排。
 
 面试回放测试读取已录制的模型请求、应答和运行结果，校验原始文件的 SHA-256 后复现历史输出、修正失败和原文引用检查；历史裸输出不会重新进入生产 Worker。[回放用例](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/CloseoutRecordedProtocolTest.java) · [录制文件与校验值](../../backend/src/test/java/cn/edu/whu/zhizhida/interview/CloseoutRecordedFixtures.java)
 
 ## 运行专项结果
 
-当前实现的专项结果集中在[Agent 与中间件运行验收](runtime-acceptance.md)：真实模型单轮生命周期及最终引用复核通过，消息派发与故障回放 6 项通过，前端与 MCP 容器检查 11 项通过，面试相关回归测试 276 项通过。后端、BGE、前端和 MCP 镜像已构建，真实 BGE 推理与 pgvector 查询已验证。
+当前实现的专项结果集中在[Agent 与中间件运行验收](runtime-acceptance.md)：真实模型单轮生命周期及最终引用复核通过，前端与 MCP 容器检查 11 项通过，面试相关回归测试 276 项通过。后端、BGE、前端和 MCP 镜像已构建，真实 BGE 推理与 pgvector 查询已验证。
 
 RAG 回答层的 5 个无答案样本正确拒答，误拒修正后的 2 个定向案例通过。该结果与下述检索排序实验分别统计；非空检索候选不代表资料足以回答。真实模型专项覆盖一个合成单轮案例，包含一次正常输出修复及独立 Agent 语义复核。
 
@@ -53,7 +53,7 @@ node --test scripts/release-status.test.mjs
 | 数据 | 用途 |
 | --- | --- |
 | [Agent 与中间件运行验收](runtime-acceptance.md) | v5 真实 Worker、引用复核、RAG 回答、消息故障与容器构建的结果和复跑入口 |
-| [缓存证据复核](cache-benchmark.md)与[审计结果](cache-benchmark-audit.json) | 从历史原始样本重算缓存统计，说明命中率、正文回源与 DB 查询的区别；本次未重跑中间件压测 |
+| [缓存证据复核](cache-benchmark.md)与[审计结果](cache-benchmark-audit.json) | 从历史原始样本重算缓存统计，说明命中率、正文回源与 DB 查询的区别。本次 RocketMQ 批次对照与暂停领取后的恢复数据见[派发复测](performance-retest.md#rocketmq-面试任务派发) |
 | [向量与章节配额消融](retrieval-ablation.md)与[逐题结果](retrieval-ablation.json) | 词项基线上的四组独立开关对照；本次固定集的配额增量为 0，不能将混合检索整体收益归因于配额 |
 | [Agent 质量评测准备](agent-quality.md)与[覆盖汇总](agent-quality-smoke/summary.json) | 冻结 30 个非保留家族，提供人工盲评入口；目前仅有 6/90 条路线输出、0 条人工评分，不能宣称质量提升 |
 | `closeout-1-*.plan.json`、`closeout-1-*.wire.jsonl` | 该批次的执行计划，以及逐次录制的模型请求与应答 |

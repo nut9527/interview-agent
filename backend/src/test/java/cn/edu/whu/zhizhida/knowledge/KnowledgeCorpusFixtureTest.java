@@ -24,30 +24,31 @@ class KnowledgeCorpusFixtureTest {
         for (var document : fixture.path("documents")) {
             var evidence =
                     KnowledgeText.split(
-                                    document.path("id").asText(), document.path("content").asText())
+                                    document.path("id").asString(),
+                                    document.path("content").asString())
                             .stream()
                             .filter(KnowledgeText::isEvidence)
                             .toList();
-            chunks.put(document.path("id").asText(), evidence);
+            chunks.put(document.path("id").asString(), evidence);
             var counts =
                     evidence.stream()
                             .collect(Collectors.groupingBy(Chunk::heading, Collectors.counting()));
             if (counts.values().stream().anyMatch(count -> count > 2))
-                crowdedTopics.add(document.path("topic").asText());
+                crowdedTopics.add(document.path("topic").asString());
         }
         assertThat(crowdedTopics).isNotEmpty();
         for (var item : fixture.path("cases")) {
             assertThat(item.path("scope").size())
-                    .as("Production vector scope limit: %s", item.path("id").asText())
+                    .as("Production vector scope limit: %s", item.path("id").asString())
                     .isBetween(1, 5);
             for (var quote : item.path("evidence")) {
-                assertThat(chunks.get(quote.path("documentId").asText()))
-                        .as("Quote must fit a real evidence chunk: %s", item.path("id").asText())
+                assertThat(chunks.get(quote.path("documentId").asString()))
+                        .as("Quote must fit a real evidence chunk: %s", item.path("id").asString())
                         .anyMatch(
                                 chunk ->
-                                        chunk.heading().equals(quote.path("heading").asText())
+                                        chunk.heading().equals(quote.path("heading").asString())
                                                 && chunk.content()
-                                                        .contains(quote.path("quote").asText()));
+                                                        .contains(quote.path("quote").asString()));
             }
         }
     }

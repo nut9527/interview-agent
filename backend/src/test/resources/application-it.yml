@@ -84,7 +84,22 @@ interview:
 learning:
   worker-enabled: false
 
-# 测试上下文不能占用开发环境的全局许可或清理游标。
 app:
+  rocketmq:
+    endpoints: ${ROCKETMQ_ENDPOINTS:127.0.0.1:8081}
+    resource-prefix: ${ROCKETMQ_RESOURCE_PREFIX:zhizhida-it}
+    receive-wait-ms: ${ROCKETMQ_RECEIVE_WAIT_MS:200}
+    access-key: ${ROCKETMQ_ACCESS_KEY:}
+    secret-key: ${ROCKETMQ_SECRET_KEY:}
+    tls: ${ROCKETMQ_TLS_ENABLED:false}
   redis:
+    # 将测试使用的并发许可和清理游标与开发环境隔离。
     namespace: zhizhida:it
+    cache:
+      host: ${REDIS_CACHE_HOST:127.0.0.1}
+      port: ${REDIS_CACHE_PORT:6380}
+      password: ${REDIS_CACHE_PASSWORD:}
+    rate-limit:
+      host: ${REDIS_RATE_HOST:${REDIS_HOST:127.0.0.1}}
+      port: ${REDIS_RATE_PORT:${REDIS_PORT:6379}}
+      password: ${REDIS_RATE_PASSWORD:${REDIS_PASSWORD:}}

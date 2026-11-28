@@ -50,26 +50,48 @@ public class KnowledgeImportExecutor {
     private final boolean enabled;
     private final ConcurrentMap<String, Work> running = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Claim> active = new ConcurrentHashMap<>();
-    private final ThreadPoolExecutor workers = new ThreadPoolExecutor(2, 2, 0, TimeUnit.SECONDS,
+    private final ThreadPoolExecutor workers = new ThreadPoolExecutor(
+            2,
+            2,
+            0,
+            TimeUnit.SECONDS,
             new ArrayBlockingQueue<>(4),
-            Thread.ofPlatform().daemon(true).name("knowledge-import-", 0).inheritInheritableThreadLocals(false)
+            Thread.ofPlatform()
+                    .daemon(true)
+                    .name("knowledge-import-", 0)
+                    .inheritInheritableThreadLocals(false)
                     .factory());
     private final ScheduledExecutorService leaseTimer = Executors.newSingleThreadScheduledExecutor(
-            Thread.ofPlatform().daemon(true).name("import-lease").inheritInheritableThreadLocals(false).factory());
+            Thread.ofPlatform()
+                    .daemon(true)
+                    .name("import-lease")
+                    .inheritInheritableThreadLocals(false)
+                    .factory());
 
     private record Work(Claim claim, Path directory, FutureTask<Void> future) {
     }
 
-    public KnowledgeImportExecutor(KnowledgeImportRepository repository, KnowledgeDocumentImporter importer,
-            ObjectMapper json, MeterRegistry metrics, Environment env) {
+    public KnowledgeImportExecutor(
+            KnowledgeImportRepository repository,
+            KnowledgeDocumentImporter importer,
+            ObjectMapper json,
+            MeterRegistry metrics,
+            Environment env) {
         this.repository = repository;
         this.importer = importer;
         this.json = json;
         this.metrics = metrics;
-        shared = "rabbitmq".equalsIgnoreCase(env.getProperty("knowledge.dispatch.mode"));
+        shared = "rocketmq".equalsIgnoreCase(env.getProperty("knowledge.dispatch.mode"));
         enabled = env.getProperty("knowledge.import.worker-enabled", Boolean.class, true);
-        root = Path.of(shared ? env.getProperty("knowledge.import.shared-directory", "tmp/knowledge-shared")
-                : env.getProperty("knowledge.import.directory", "tmp/knowledge-import-jobs")).toAbsolutePath()
+        root = Path.of(
+                shared
+                        ? env.getProperty(
+                                "knowledge.import.shared-directory",
+                                "tmp/knowledge-shared")
+                        : env.getProperty(
+                                "knowledge.import.directory",
+                                "tmp/knowledge-import-jobs"))
+                .toAbsolutePath()
                 .normalize();
         timeout = env.getProperty("knowledge.import.timeout-seconds", Long.class, 180L);
     }
@@ -91,7 +113,8 @@ public class KnowledgeImportExecutor {
         KnowledgeDocumentImporter.validate(file);
         if (!shared) {
             if (repository.outstanding(owner) >= 3)
-                throw new BusinessException(HttpStatus.TOO_MANY_REQUESTS, "最多保留 3 个待完成导入，请先核对或取消已有任务。");
+                throw new BusinessException(
+                        HttpStatus.TOO_MANY_REQUESTS, "最多保留 3 个待完成导入，请先核对或取消已有任务。");
             if (running.size() >= 6)
                 throw new BusinessException(HttpStatus.TOO_MANY_REQUESTS, "解析队列已满，请稍后重试。");
         }
@@ -103,6 +126,7 @@ public class KnowledgeImportExecutor {
             directory = Files.createDirectory(root.resolve(shared ? id : "job-" + id));
             Path source = directory.resolve("source.upload");
             if (shared) {
+                // 原子重命名完成后才登记任务，确保其他 Worker 领取时能读取完整文件。
                 Path pending = directory.resolve("upload.part");
                 file.transferTo(pending);
                 try (var channel = FileChannel.open(pending, StandardOpenOption.WRITE)) {
@@ -113,7 +137,9 @@ public class KnowledgeImportExecutor {
             } else {
                 file.transferTo(source);
                 repository.insert(owner, id, name, Instant.now().plusSeconds(1800));
-                scheduleLocal(repository.localClaim(id, owner, name, Instant.now().plusSeconds(timeout)), directory);
+                scheduleLocal(
+                        repository.localClaim(id, owner, name, Instant.now().plusSeconds(timeout)),
+                        directory);
             }
             return id;
         } catch (IOException ex) {
@@ -128,10 +154,11 @@ public class KnowledgeImportExecutor {
     }
 
     private void scheduleLocal(Claim claim, Path directory) {
-        var task = new FutureTask<Void>(() -> {
-            execute(claim);
-            return null;
-        }) {
+        var task = new FutureTask<Void>(
+                () -> {
+                    execute(claim);
+                    return null;
+                }) {
             @Override
             public void run() {
                 try {
@@ -162,7 +189,8 @@ public class KnowledgeImportExecutor {
         var sample = io.micrometer.core.instrument.Timer.start(metrics);
         long[] checked = { 0 };
         Runnable checkpoint = () -> {
-            if (Thread.currentThread().isInterrupted() || !Instant.now().isBefore(claim.deadline())
+            if (Thread.currentThread().isInterrupted()
+                    || !Instant.now().isBefore(claim.deadline())
                     || (shared && !active.containsKey(claim.token())))
                 throw new CancellationException();
             if (!shared && System.nanoTime() - checked[0] > 500_000_000L) {
@@ -179,8 +207,13 @@ public class KnowledgeImportExecutor {
         try {
             if (!shared && !repository.start(claim.id()))
                 return;
-            var draft = shared ? importer.parseQueued(source(claim), claim.name(), progress, checkpoint)
-                    : importer.parse(root.resolve("job-" + claim.id()).resolve("source.upload"), claim.name(), progress,
+            var draft = shared
+                    ? importer.parseQueued(
+                            source(claim), claim.name(), progress, checkpoint)
+                    : importer.parse(
+                            root.resolve("job-" + claim.id()).resolve("source.upload"),
+                            claim.name(),
+                            progress,
                             checkpoint);
             checkpoint.run();
             repository.ready(claim, json.writeValueAsString(draft));
@@ -208,8 +241,11 @@ public class KnowledgeImportExecutor {
         if (!c.fileRef().equals(c.id() + "/source.upload"))
             throw new IOException("Invalid file reference");
         Path path = root.resolve(c.fileRef()).normalize();
-        if (!path.startsWith(root) || Files.isSymbolicLink(path.getParent()) || Files.isSymbolicLink(path)
-                || !path.toRealPath().startsWith(root.toRealPath()) || !Files.isRegularFile(path))
+        if (!path.startsWith(root)
+                || Files.isSymbolicLink(path.getParent())
+                || Files.isSymbolicLink(path)
+                || !path.toRealPath().startsWith(root.toRealPath())
+                || !Files.isRegularFile(path))
             throw new IOException("Invalid source");
         return path;
     }
@@ -249,7 +285,8 @@ public class KnowledgeImportExecutor {
             for (var work : running.values()) {
                 var claim = work.claim();
                 if (!Instant.now().isBefore(claim.deadline()) || !repository.renew(claim.id())) {
-                    repository.stop(claim.owner(), claim.id(), "FAILED", "解析超过 3 分钟或账号已删除，请拆分文件后重试。");
+                    repository.stop(
+                            claim.owner(), claim.id(), "FAILED", "解析超过 3 分钟或账号已删除，请拆分文件后重试。");
                     cancel(claim.id());
                 }
             }
@@ -264,11 +301,14 @@ public class KnowledgeImportExecutor {
         if (!Files.isDirectory(root))
             return;
         try (var paths = Files.list(root)) {
-            for (var path : paths.filter(p -> p.getFileName().toString().matches("job-[0-9a-f-]{36}")).toList()) {
+            for (var path : paths.filter(p -> p.getFileName().toString().matches("job-[0-9a-f-]{36}"))
+                    .toList()) {
                 String id = path.getFileName().toString().substring(4);
                 // 宽限期覆盖创建文件到登记数据库之间的短暂窗口。
                 if (!running.containsKey(id)
-                        && Files.getLastModifiedTime(path).toInstant().isBefore(Instant.now().minusSeconds(30))
+                        && Files.getLastModifiedTime(path)
+                                .toInstant()
+                                .isBefore(Instant.now().minusSeconds(30))
                         && !repository.processing(id))
                     clean(path);
             }
@@ -277,7 +317,8 @@ public class KnowledgeImportExecutor {
 
     private void clean(Path directory) {
         // 清理仅接受导入根目录的直接子目录，并拒绝符号链接。
-        if (directory == null || !directory.toAbsolutePath().normalize().getParent().equals(root)
+        if (directory == null
+                || !directory.toAbsolutePath().normalize().getParent().equals(root)
                 || Files.isSymbolicLink(directory))
             return;
         try {
@@ -305,11 +346,17 @@ public class KnowledgeImportExecutor {
             if (!Files.isDirectory(root))
                 return;
             try (var paths = Files.list(root)) {
-                for (var directory : paths.filter(p -> p.getFileName().toString()
-                        .matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")).toList()) {
+                for (var directory : paths.filter(
+                        p -> p.getFileName()
+                                .toString()
+                                .matches(
+                                        "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"))
+                        .toList()) {
                     // 宽限期覆盖慢上传尚未登记数据库的窗口，避免清理仍在受理的文件。
-                    if (Files.isSymbolicLink(directory) || !Files.isDirectory(directory)
-                            || !Files.getLastModifiedTime(directory).toInstant()
+                    if (Files.isSymbolicLink(directory)
+                            || !Files.isDirectory(directory)
+                            || !Files.getLastModifiedTime(directory)
+                                    .toInstant()
                                     .isBefore(Instant.now().minusSeconds(1800))
                             || repository.retainsFile(directory.getFileName().toString()))
                         continue;

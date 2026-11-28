@@ -4,9 +4,9 @@
 
 ## 原始记录
 
-- 原始测量使用真实 MySQL、Redis、RabbitMQ，本地单进程，模型为 mock；文件位置与内容指纹见[审计结果](cache-benchmark-audit.json)。
+- 原始测量使用真实 MySQL、Redis，本地单进程，模型为 mock；文件位置与内容指纹见[审计结果](cache-benchmark-audit.json)。
 - [本次审计](cache-benchmark-audit.json)：重新计算 100 个原始耗时的统计量，核对原始文件 SHA-256、计数约束及比率。**本次没有重新运行中间件压测。**
-- 原始文件从项目内已有源码归档原字节恢复；与归档清单及 `backend/target/middleware-benchmark.json` 的 SHA-256 均为 `667b7df9a9cf998d1174787dbaeb7ce7256687943713689e70228442b84b3836`。归档包属于已有本地文件，不是本次生成的证据。
+- [缓存样本](cache-baseline.json)保留原始冷热计时、命中计数及原始记录 SHA-256。
 
 | 指标 | 冷缓存 | 热缓存 | 证据性质 |
 | --- | ---: | ---: | --- |
@@ -46,4 +46,4 @@ node --test scripts/audit-cache-benchmark.test.mjs
 node scripts/verify-middleware-live.mjs --offline --benchmark
 ```
 
-前提是本机已有 `redis:7.4.2`、`rabbitmq:4.1.0-management` 镜像、Docker、MySQL 工具和 Maven。脚本使用临时 MySQL 与独立中间件容器，回环随机端口，不读业务 `.env`、不调用付费模型；新结果写入 `backend/target/middleware-benchmark.json`。重跑会创建 Docker 资源，须在允许启动本地中间件的环境中执行。本次仅恢复并审计历史记录，没有启动此流程。按独立运行编号保留新样本，勿覆盖旧记录；现有源码与归档存在差异，不能将历史测量冒充当前版本重测结果。
+前提是本机已有 `redis:7.4.2`、`apache/rocketmq:5.3.2` 镜像、Docker、MySQL 工具和 Maven。脚本使用临时 MySQL 与独立中间件容器，回环随机端口，不读业务 `.env`、不调用付费模型；新结果写入 `backend/target/middleware-benchmark.json`。重跑会创建 Docker 资源，须在允许启动本地中间件的环境中执行。本次仅恢复并审计历史记录，没有启动此流程。按独立运行编号保留新样本，勿覆盖旧记录；现有源码与归档存在差异，不能将历史测量冒充当前版本重测结果。

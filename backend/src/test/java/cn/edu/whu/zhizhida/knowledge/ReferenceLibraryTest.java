@@ -21,14 +21,14 @@ class ReferenceLibraryTest {
                         .readTree(
                                 new ClassPathResource("reference-library/catalog.json")
                                         .getInputStream());
-        assertThat(library.list()).hasSize(27);
+        assertThat(library.list()).hasSize(25);
         for (var item : manifest) {
-            var preview = library.preview(item.path("id").asText());
+            var preview = library.preview(item.path("id").asString());
             String original =
-                    new ClassPathResource("reference-library/" + item.path("resource").asText())
+                    new ClassPathResource("reference-library/" + item.path("resource").asString())
                             .getContentAsString(StandardCharsets.UTF_8);
             assertThat(preview.content()).isEqualTo(original);
-            assertThat(preview.sourceName()).isEqualTo(item.path("sourceName").asText());
+            assertThat(preview.sourceName()).isEqualTo(item.path("sourceName").asString());
             assertThat(preview.content()).isNotBlank();
         }
         assertThat(new JsonMapper().writeValueAsString(library.list()))

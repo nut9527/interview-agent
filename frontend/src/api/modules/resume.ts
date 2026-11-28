@@ -1,17 +1,13 @@
 import type { PageResult, ResumeVersionSummary } from '@/types/api.d';
-import type {
-  ResumeProfile,
-  ResumeProfileRequest,
-  ResumeCompareRequest,
-  ResumeComparison,
-} from '@/types/api.d';
-import { get, post, put, del } from '@/api/request';
+import type { ResumeProfile, ResumeProfileRequest, ResumeCompareRequest, ResumeComparison } from '@/types/api.d';
+import { get, post, put, del } from '../request.ts';
 import type { Schemas } from '@/types/generated/openapi';
 
 export type ResumeImportResult = Schemas['cn.edu.whu.zhizhida.resume.api.ResumeImportResult'];
 export type ResumeImportReview = Pick<ResumeImportResult, 'warnings' | 'recognitionMode'>;
 
-export const resumeImportNotice = '启用 AI 识别时，系统会将提取的简历正文（含其中的联系方式）发送给已配置的模型服务。离线模式使用本地规则识别。';
+export const resumeImportNotice =
+  '启用 AI 识别时，系统会将提取的简历正文（含其中的联系方式）发送给已配置的模型服务。离线模式使用本地规则识别。';
 
 /** 由后端按当前身份校验简历归属；请求失败以异常交给调用方处理。 */
 export const resumeService = {
@@ -52,7 +48,6 @@ export const resumeService = {
   restoreVersion: (resumeId: number, versionId: number, revision?: number): Promise<ResumeProfile> => {
     return post<ResumeProfile>(`/api/resumes/${resumeId}/versions/${versionId}/restore`, { revision });
   },
-
 
   /** 对比已保存内容或历史快照；不包含编辑器尚未保存的本地输入。 */
   compareVersions: (req: ResumeCompareRequest): Promise<ResumeComparison> => {

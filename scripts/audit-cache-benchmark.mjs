@@ -1,4 +1,4 @@
-// Recompute historical cache measurements. No database, Redis, .env or model access.
+// 从归档的冷、热缓存样本重算耗时分布和命中率。
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -6,8 +6,8 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = new URL('../', import.meta.url);
-const evidencePath = 'docs/evidence/middleware-batch1-baseline.json';
-const originalSha256 = '667b7df9a9cf998d1174787dbaeb7ce7256687943713689e70228442b84b3836';
+const evidencePath = 'docs/evidence/cache-baseline.json';
+const originalSha256 = '97eac84ea658e3bcc5d13a356de73ef573fa177917c616f9ef48a4478f63ff39';
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const close = (actual, expected, label) => {
   assert.ok(Number.isFinite(actual) && Math.abs(actual - expected) <= 1e-9, `${label}: expected ${expected}, got ${actual}`);
@@ -34,7 +34,7 @@ export function auditCacheMeasurements(report) {
     for (const key of ['hits', 'bodySourceReads']) {
       assert.ok(Number.isInteger(group[key]) && group[key] >= 0 && group[key] <= recorded.count, `${name}.${key}`);
     }
-    // These are saved MeterRegistry deltas, not per-request DB traces.
+    // 命中次数和正文回源次数取自这组串行请求前后的 MeterRegistry 计数差。
     assert.equal(group.hits + group.bodySourceReads, recorded.count, `${name}: serial hit/source accounting`);
     close(group.hitRatio, group.hits / recorded.count, `${name}.hitRatio`);
     assert.equal(group.hits, name === 'coldCache' ? 0 : 50, `${name}: historical hit count`);
@@ -47,7 +47,7 @@ export function auditCacheMeasurements(report) {
 
 export async function auditHistoricalCacheEvidence() {
   const bytes = await readFile(new URL(evidencePath, root));
-  assert.equal(sha256(bytes), originalSha256, 'Historical evidence bytes differ from archived manifest');
+  assert.equal(sha256(bytes), originalSha256, 'Historical cache sample checksum mismatch');
   const report = JSON.parse(bytes);
   const groups = auditCacheMeasurements(report);
   const sourceSnapshots = [];
@@ -63,7 +63,7 @@ export async function auditHistoricalCacheEvidence() {
   return {
     schemaVersion: 1, audit: 'PASSED', reranBenchmark: false,
     evidence: { path: evidencePath, sha256: originalSha256,
-      provenance: 'Byte-for-byte historical archive copy; hash also matched backend/target/middleware-benchmark.json during restoration.' },
+      provenance: 'Cache fields extracted from the historical benchmark. The sample file records the original artifact checksum.' },
     originalBenchmark: {
       archivedSha256: '163f95161d685d3b72eb0d002ea4c0213223c4ce6551358b70dd3d3c259ce05e',
       currentLocation: 'backend/src/test/java/cn/edu/whu/zhizhida/middleware/SplitRuntimeIT.java#Benchmark',

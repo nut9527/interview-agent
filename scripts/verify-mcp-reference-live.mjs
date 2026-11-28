@@ -4,7 +4,7 @@ import { once } from 'node:events';
 import { referenceServer } from '../services/mcp-reference/server.mjs';
 import { liveStack } from './live-stack.mjs';
 
-// The production Java MCP client and Node catalog, a Mock model, and a disposable MySQL database.
+// Java MCP 客户端通过 HTTP 查询 Node 资料服务，使用 Mock 模型和临时 MySQL 完成验收。
 const server = referenceServer().listen(0, '127.0.0.1');
 await once(server, 'listening');
 let stack;
@@ -28,14 +28,14 @@ try {
   const references = await get(path + '/references');
   assert.equal(references.status, 200);
   const { data } = await references.json();
-  assert.equal(data[0].url, 'https://www.rabbitmq.com/docs/confirms');
+  assert.equal(data[0].url, 'https://rocketmq.apache.org/docs/featureBehavior/10consumerretrypolicy/');
   assert.ok(data[0].summary.length > 0);
   assert.equal((await get(stack.origin + '/api/questions/unknown/references')).status, 404);
 
   await new Promise(done => server.close(done));
   assert.equal((await get(path + '/references')).status, 503);
   assert.equal((await get(path)).status, 200);
-  console.log('[MCP] Mock 题库经真实 MCP 找到 RabbitMQ 文档；登录、缺失题目及资料服务中断的边界检查通过。');
+  console.log('[MCP] Mock 题库经真实 MCP 找到 RocketMQ 文档；登录、缺失题目及资料服务中断的边界检查通过。');
 } finally {
   if (server.listening) await new Promise(done => server.close(done));
   if (stack) await stack.cleanup();

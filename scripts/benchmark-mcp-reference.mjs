@@ -12,7 +12,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const workload = [
   ['redis-expire', 'Redis', 'EXPIRE 设置 TTL 后覆盖键值会怎样', 'https://redis.io/docs/latest/commands/expire/'],
   ['redis-eviction', 'Redis', 'maxmemory 配合 eviction LRU 和 LFU', 'https://redis.io/docs/latest/develop/reference/eviction/'],
-  ['rabbit-confirms', 'RabbitMQ', 'publisher confirm 与消费确认和重投', 'https://www.rabbitmq.com/docs/confirms'],
+  ['mq-consumption', 'RocketMQ', 'RocketMQ 消费确认和重投', 'https://rocketmq.apache.org/docs/featureBehavior/10consumerretrypolicy/'],
   ['mysql-isolation', 'MySQL', 'InnoDB 事务隔离和快照读', 'https://dev.mysql.com/doc/refman/8.4/en/innodb-transaction-isolation-levels.html'],
   ['mysql-explain', 'MySQL', '慢查询 EXPLAIN 执行计划', 'https://dev.mysql.com/doc/refman/8.4/en/explain.html'],
   ['java-map', 'Java', 'HashMap 可变键 equals hashCode 契约', 'https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html'],
@@ -32,7 +32,7 @@ const workload = [
   ['mysql-index', 'MySQL', '覆盖索引和二级索引如何避免回表', 'https://javaguide.cn/database/mysql/mysql-index.html'],
   ['mysql-plan-fields', 'MySQL', 'possible_keys key_len 与 Using filesort 表示什么', 'https://javaguide.cn/database/mysql/mysql-query-execution-plan.html'],
   ['spring-transaction', 'Spring', '@Transactional 自调用和 rollbackFor', 'https://javaguide.cn/system-design/framework/spring/spring-transaction.html'],
-  ['rabbit-dlx', 'RabbitMQ', 'RabbitMQ 死信交换机 DLX 与 routing key', 'https://javaguide.cn/high-performance/message-queue/rabbitmq-questions.html'],
+  ['mq-delay', 'RocketMQ', '延迟消息的交付时间和 DELAY 主题', 'https://rocketmq.apache.org/docs/featureBehavior/02delaymessage/'],
   ['idempotency', '可靠性', '幂等去重表和业务唯一键怎样保证重复请求安全', 'https://javaguide.cn/high-availability/idempotency.html'],
   ['mysql-mvcc', 'MySQL', 'Read View 如何沿版本链判断事务可见性', 'https://xiaolincoding.com/mysql/transaction/mvcc.html'],
   ['mysql-logs', 'MySQL', 'undo log redo log 和 binlog 的职责', 'https://xiaolincoding.com/mysql/log/how_update.html'],

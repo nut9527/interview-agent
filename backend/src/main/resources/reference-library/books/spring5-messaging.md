@@ -5,7 +5,6 @@
 第8章 发送异步消息
    本章内容:
    异步化的消息
-   使用JMS、RabbitMQ和Kafka发送消息
    从代理拉取消息
    监听消息
 
@@ -26,13 +25,6 @@
 
 息是一个应用程序向另一个应用程序间接发送消息的一种方式,这种间接性能够
 为进行通信的应用带来更松散的耦合和更大的可伸缩性。
-    在本章中,我们将会使用异步消息从Taco Cloud Web站点发送订单信息到
-一个单独的应用中,这个应用是Taco Cloud的厨房,在这里会烹制taco。我们将
-会考虑Spring提供的3种异步消息方案:Java消息服务(Java Message
-Service,JMS)、RabbitMQ和高级消息队列协议(Advanced Message
-Queueing Protocol)、Apache Kafka。除了基础的发送和接收消息之外,我们
-还会看一下Spring对消息驱动POJO的支持,它是一种与EJB的消息驱动
-Bean(Message-Driven Bean,MDB)类似的消息接收方式。
 
 ## PDF第313页
 

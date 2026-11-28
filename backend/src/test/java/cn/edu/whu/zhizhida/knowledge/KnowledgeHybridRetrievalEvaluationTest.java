@@ -48,10 +48,10 @@ class KnowledgeHybridRetrievalEvaluationTest {
         var corpus = new ArrayList<Hit>();
         var vectors = model == null ? null : localVectors(model);
         for (var document : fixture.path("documents")) {
-            String id = document.path("id").asText();
-            String title = document.path("title").asText();
-            String content = document.path("content").asText();
-            String sourceName = document.path("file").asText("fixture.md");
+            String id = document.path("id").asString();
+            String title = document.path("title").asString();
+            String content = document.path("content").asString();
+            String sourceName = document.path("file").asString("fixture.md");
             String hash =
                     HexFormat.of()
                             .formatHex(
@@ -80,7 +80,7 @@ class KnowledgeHybridRetrievalEvaluationTest {
                                 fixture.path("cases").valueStream(),
                                 fixture.path("comparisonCases").valueStream())
                         .toList();
-        assertThat(cases.stream().map(item -> item.path("kind").asText()))
+        assertThat(cases.stream().map(item -> item.path("kind").asString()))
                 .contains("direct", "synonym", "paraphrase", "insufficient");
         var metrics = new SimpleMeterRegistry();
         var reports = new java.util.LinkedHashMap<String, Object>();
@@ -92,13 +92,13 @@ class KnowledgeHybridRetrievalEvaluationTest {
                             "resource",
                             resource,
                             "sha256",
-                            fixture.path("fixtureSha256").asText(),
+                            fixture.path("fixtureSha256").asString(),
                             "documents",
                             fixture.path("documents").size(),
                             "cases",
                             cases.size(),
                             "annotationStatus",
-                            fixture.path("manifest").path("annotationStatus").asText()));
+                            fixture.path("manifest").path("annotationStatus").asString()));
         try {
             reports.put(
                     "lexical", report("lexical", collect(snapshots, corpus, cases, null), json));
@@ -165,9 +165,9 @@ class KnowledgeHybridRetrievalEvaluationTest {
             var selected = snapshots.stream().filter(s -> scope.contains(s.id())).toList();
             var candidates = corpus.stream().filter(h -> scope.contains(h.documentId())).toList();
             assertThat(candidates.stream().map(KnowledgeRetrievalEvaluationTest::source).toList())
-                    .as("Fixture evidence for %s", item.path("id").asText())
+                    .as("Fixture evidence for %s", item.path("id").asString())
                     .containsAll(expected);
-            String query = item.path("question").asText();
+            String query = item.path("question").asString();
             if (results.isEmpty()) search(selected, candidates, query, hybrid); // 首个请求预热，不计入耗时。
             long start = System.nanoTime();
             var hits = search(selected, candidates, query, hybrid);
@@ -180,12 +180,12 @@ class KnowledgeHybridRetrievalEvaluationTest {
                                             && KnowledgeText.isEvidence(h.chunk()));
             results.add(
                     new Result(
-                            item.path("id").asText(),
-                            item.path("kind").asText(),
+                            item.path("id").asString(),
+                            item.path("kind").asString(),
                             expected,
                             hits.stream().map(KnowledgeRetrievalEvaluationTest::source).toList(),
                             micros,
-                            item.path("split").asText("unspecified")));
+                            item.path("split").asString("unspecified")));
         }
         return results;
     }

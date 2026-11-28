@@ -2,10 +2,11 @@ package cn.edu.whu.zhizhida.interview;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import cn.edu.whu.zhizhida.evaluation.EvaluationEngine;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import cn.edu.whu.zhizhida.evaluation.EvaluationEngine;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -19,7 +20,8 @@ final class CloseoutRecordedFixtures {
     }
 
     static List<JsonNode> wire() throws Exception {
-        return lines(".wire.jsonl", "b3ae0d47ae5cd499008c7fbba6565c5915292b5b938c7f63923d262b757faf8d");
+        return lines(
+                ".wire.jsonl", "b3ae0d47ae5cd499008c7fbba6565c5915292b5b938c7f63923d262b757faf8d");
     }
 
     private static List<JsonNode> lines(String suffix, String sha256) throws Exception {
@@ -29,8 +31,12 @@ final class CloseoutRecordedFixtures {
     }
 
     static JsonNode prompt(JsonNode request) {
-        return JSON.readTree(request.path("messages").get(1).path("content").asText()
-                .split("\n本场证据目录：", 2)[0]);
+        return JSON.readTree(
+                request.path("messages")
+                        .get(1)
+                        .path("content")
+                        .asString()
+                        .split("\n本场证据目录：", 2)[0]);
     }
 
     static List<JsonNode> exchange(int sample) throws Exception {

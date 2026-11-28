@@ -11,7 +11,7 @@ test('finds local reading materials by their technical concepts', () => {
     ['Cache Aside 缓存一致性', 'https://javaguide.cn/database/redis/3-commonly-used-cache-read-and-write-strategies.html'],
     ['Future.get 超时和 cancel(true)', 'https://javaguide.cn/java/concurrent/java-thread-pool-best-practices.html'],
     ['Spring @Transactional 自调用', 'https://javaguide.cn/system-design/framework/spring/spring-transaction.html'],
-    ['RabbitMQ 死信交换机 DLX', 'https://javaguide.cn/high-performance/message-queue/rabbitmq-questions.html'],
+    ['延迟消息的交付时间', 'https://rocketmq.apache.org/docs/featureBehavior/02delaymessage/'],
     ['幂等去重表应该何时回滚', 'https://javaguide.cn/high-availability/idempotency.html'],
     ['覆盖索引如何避免回表', 'https://javaguide.cn/database/mysql/mysql-index.html'],
     ['Read View 如何沿版本链查找', 'https://xiaolincoding.com/mysql/transaction/mvcc.html'],

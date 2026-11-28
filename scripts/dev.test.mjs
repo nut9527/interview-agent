@@ -10,15 +10,16 @@ const options = parseArgs([]);
 test('local launcher starts the selected infrastructure and honors offline pulls', () => {
   const base = ['up', '-d', '--pull'];
   const wait = ['--wait', '--wait-timeout', '120'];
-  const services = ['mysql', 'redis', 'redis-cache', 'rabbitmq'];
+  const services = ['mysql', 'redis', 'redis-cache', 'mqproxy'];
   assert.deepEqual(infrastructureUpArgs(options), [...base, 'missing', ...wait, ...services]);
   assert.deepEqual(infrastructureUpArgs(parseArgs(['--offline'])), [...base, 'never', ...wait, ...services]);
 });
 
 test('managed services are wired to the backend in Mock mode too', () => {
   const { childEnv, mcpPort } = makeSettings({ MCP_PORT: '19091' }, parseArgs(['--mock-ai']));
-  assert.equal(childEnv.RUN_DISPATCH_MODE, 'rabbitmq');
-  assert.equal(childEnv.KNOWLEDGE_DISPATCH_MODE, 'rabbitmq');
+  assert.equal(childEnv.ROCKETMQ_ENDPOINTS, '127.0.0.1:8081');
+  assert.equal(childEnv.RUN_DISPATCH_MODE, 'rocketmq');
+  assert.equal(childEnv.KNOWLEDGE_DISPATCH_MODE, 'rocketmq');
   assert.equal(childEnv.QUESTION_CACHE_ENABLED, 'true');
   assert.equal(childEnv.REDIS_RATE_LIMIT_ENABLED, 'true');
   assert.equal(childEnv.AGENT_MCP_REFERENCE_ENABLED, 'true');
@@ -31,7 +32,7 @@ test('managed services are wired to the backend in Mock mode too', () => {
   assert.equal(external.childEnv.REDIS_RATE_LIMIT_ENABLED, 'false');
   assert.throws(() => makeSettings({ MCP_PORT: '8080' }, options), /MCP_PORT/);
   assert.throws(() => makeSettings({ MCP_PORT: '6380' }, options), /MCP_PORT/);
-  assert.throws(() => makeSettings({ RABBITMQ_PORT: '18091' }, options), /MCP_PORT/);
+  assert.throws(() => makeSettings({ ROCKETMQ_PROXY_PORT: '18091' }, options), /MCP_PORT/);
 });
 
 test('CLI rejects misspelled options and conflicting commands', () => {

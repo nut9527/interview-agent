@@ -81,7 +81,7 @@ public class InterviewRunWorker {
             PracticeMemoryAccess memory,
             QuestionCatalog questions,
             @Value("${app.run-dispatch.mode:database}") String dispatchMode) {
-        if (!Set.of("database", "rabbitmq").contains(dispatchMode))
+        if (!Set.of("database", "rocketmq").contains(dispatchMode))
             throw new IllegalArgumentException("Unsupported run dispatch mode");
         this.store = store;
         this.executors = executors;
@@ -166,7 +166,7 @@ public class InterviewRunWorker {
 
     @Scheduled(scheduler = "runScheduler", fixedDelayString = "${interview.runs.expire-ms:2000}")
     public void expireWaiting() {
-        // RabbitMQ 模式由恢复器同时回收到期任务，避免两个定时器查询同一批行。
+        // RocketMQ 模式由恢复器同时回收到期任务，避免两个定时器查询同一批行。
         if (enabled && "database".equals(dispatchMode))
             store.expireWaiting();
     }

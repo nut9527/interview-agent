@@ -14,7 +14,6 @@
     "jg-mysql-index": "7cb4102cb7c9c12bf22f700c3940a011c85a5fecfb202915851bf02c1319a41d",
     "jg-mysql-explain": "40fa88382897384f21ca818e5ef0394d60cc059c951658f6095bda806530f77a",
     "jg-spring-transaction": "09a9f15902104fcfa3a5a568a84b3cc73fc686adbe6051c3aa054b871a58e873",
-    "jg-rabbitmq": "9cd7c36c31446a6c1b4b84f7ff2cbcd2eb18d00cce0bb9eb914f0af8880a26b8",
     "jg-idempotency": "9ea060ae4d79ed801256f21bf916ddb0a5b409dacffc9ad5bdee11074c19f379",
     "xl-mysql-transactions": "00faff48c73527e0f19ee4c781e9393ae39efa3f11257c7c461477501a16d114",
     "xl-mysql-logs": "b93dfda2625880b3a32b49336bb3cc03c46f5c13c1423b04caf616423fa94957",
@@ -25,8 +24,7 @@
     "xl-system-process": "8dfc676855dbd3ba3c67155b2202a0ed4ab4a4d7a94bba727889dac0c0adc0d5",
     "xl-system-ipc": "78f0d5c67f5e39face3e62f41317ac5362f7f5f34be7303089203773ea07ed96",
     "book-spring5-jdbc": "f3e7203b306d18a7c7177fcbb2deaaf1f6d100a62c02b0eb65c241e75c456fbf",
-    "book-spring5-messaging": "d548ea5a02eda35b4aabb465b8a234bbdc0fe42146beaa5be202c2cb40c16dfb",
-    "book-spring5-rabbitmq": "5e6194d757fe72c5dc64f78fdc1b668ed500155f99e02cda60050fab44ecd18a",
+    "book-spring5-messaging": "4be6c1658fbf14ca006fc434448343101321ba21689ed53538a068b77ecc5a9a",
     "book-spring5-actuator": "35ca9b184656b5cc6c67ed4734629b831034992598603fb517335ce0f6b0fc57"
   },
   "cases": [
@@ -44,11 +42,6 @@
       "id": "JG-53",
       "answerable": false,
       "reason": "资料未提供职智达线上订单表在指定日期的实际行数。"
-    },
-    {
-      "id": "JG-54",
-      "answerable": false,
-      "reason": "资料未提供职智达 RabbitMQ 集群过去一天的故障记录。"
     },
     {
       "id": "JG-55",
@@ -89,11 +82,6 @@
       "id": "BOOK-04",
       "answerable": false,
       "reason": "题目限定这批《Spring实战》第5版书摘，书摘未给出连接池最大连接数；JavaGuide 每实例 20 个连接的假设示例与此无关。"
-    },
-    {
-      "id": "BOOK-12",
-      "answerable": false,
-      "reason": "资料未提供 Taco Cloud 生产环境 RabbitMQ 集群的实际节点数。"
     }
   ]
 }

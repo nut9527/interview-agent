@@ -208,15 +208,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -227,15 +225,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -246,15 +242,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -265,34 +259,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
-      ]
-    },
-    {
-      "id": "JG-14",
-      "split": "validation",
-      "oldScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq",
-        "jg-idempotency"
-      ],
-      "newScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -303,7 +276,6 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
@@ -520,15 +492,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -693,15 +663,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -712,34 +680,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
-      ]
-    },
-    {
-      "id": "JG-35",
-      "split": "validation",
-      "oldScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq",
-        "jg-idempotency"
-      ],
-      "newScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -750,15 +697,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -806,25 +751,6 @@
       ]
     },
     {
-      "id": "JG-39",
-      "split": "validation",
-      "oldScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq",
-        "jg-idempotency"
-      ],
-      "newScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
-      ]
-    },
-    {
       "id": "JG-40",
       "split": "validation",
       "oldScope": [
@@ -832,7 +758,6 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
@@ -961,15 +886,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -980,34 +903,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
-      ]
-    },
-    {
-      "id": "JG-48",
-      "split": "validation",
-      "oldScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq",
-        "jg-idempotency"
-      ],
-      "newScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-rabbitmq",
-        "jg-idempotency"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -1018,7 +920,6 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
@@ -1037,7 +938,6 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
@@ -1100,34 +1000,13 @@
         "jg-mysql-index",
         "jg-mysql-explain",
         "jg-spring-transaction",
-        "jg-rabbitmq",
         "jg-idempotency"
       ],
       "newScope": [
         "jg-mysql-isolation",
         "jg-mysql-index",
         "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
-      ]
-    },
-    {
-      "id": "JG-54",
-      "split": "validation",
-      "oldScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq",
-        "jg-idempotency"
-      ],
-      "newScope": [
-        "jg-mysql-isolation",
-        "jg-mysql-index",
-        "jg-mysql-explain",
-        "jg-spring-transaction",
-        "jg-rabbitmq"
+        "jg-spring-transaction"
       ]
     },
     {
@@ -1156,7 +1035,7 @@
   "sourceFiles": {
     "backend/src/test/resources/rag-corpus/javaguide/cases.json": {
       "beforeSha256": "f0cac97d63945d14e8f41226065b10965d3e6cfe40b727184cf58123605bb185",
-      "afterSha256": "fc2cf152685bd81e8700126dafe9018a1de4077a32e9ad03f58fc95e85287905"
+      "afterSha256": "250c675ec96aaacd5f98498f8c7794e32e5350d682251a9dd12e1a79c619adb2"
     },
     "backend/src/test/resources/rag-corpus/xiaolin/cases.json": {
       "beforeSha256": "2feea205db113feda0d31bf16753c22965c21c6bf3d8bc3f266f6317818993d9",
@@ -1164,7 +1043,7 @@
     },
     "backend/src/test/resources/rag-corpus/books/cases.json": {
       "beforeSha256": "833db22f784e16c34690a55344599247582b461ae4d412b53a6ac0a630430a45",
-      "afterSha256": "833db22f784e16c34690a55344599247582b461ae4d412b53a6ac0a630430a45"
+      "afterSha256": "5c149e3d04d97872c2506802c359cba568dc9026eaad910dc357b49782b5b13c"
     }
   }
 }

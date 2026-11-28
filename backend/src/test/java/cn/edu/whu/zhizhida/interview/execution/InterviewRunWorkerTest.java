@@ -13,11 +13,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.LoggerFactory;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-
 import cn.edu.whu.zhizhida.common.MemoryRevokedException;
 import cn.edu.whu.zhizhida.common.SourceRevokedException;
 import cn.edu.whu.zhizhida.common.UpstreamServiceException;
@@ -31,13 +36,6 @@ import cn.edu.whu.zhizhida.interview.api.InterviewSession;
 import cn.edu.whu.zhizhida.interview.api.InterviewState;
 import cn.edu.whu.zhizhida.interview.api.QuestionCatalog;
 import cn.edu.whu.zhizhida.learning.api.PracticeMemoryAccess;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.slf4j.LoggerFactory;
-
 import tools.jackson.databind.json.JsonMapper;
 
 class InterviewRunWorkerTest {
@@ -47,27 +45,25 @@ class InterviewRunWorkerTest {
     private final InterviewEvidenceTools evidence = mock(InterviewEvidenceTools.class);
     private final InterviewSourceGuard sourceGuard = mock(InterviewSourceGuard.class);
     private final PracticeMemoryAccess memory = mock(PracticeMemoryAccess.class);
-    private final cn.edu.whu.zhizhida.common.execution.RunExecutorRegistry executors =
-            mock(cn.edu.whu.zhizhida.common.execution.RunExecutorRegistry.class);
-    private final InterviewRunWorker worker =
-            new InterviewRunWorker(
-                    store,
-                    mock(InterviewSessionRepository.class),
-                    machine,
-                    model,
-                    evidence,
-                    new JsonMapper(),
-                    executors,
-                    false,
-                    new RunExecutionSlots(4),
-                    new cn.edu.whu.zhizhida.observability.AgentTelemetry(
-                            io.micrometer.tracing.Tracer.NOOP),
-                    sourceGuard,
-                    memory,
-                    mock(QuestionCatalog.class),
-                    "database");
-    private final InterviewRunStore.Claim claim =
-            new InterviewRunStore.Claim("run-id", 42, "subject-id", 3);
+    private final cn.edu.whu.zhizhida.common.execution.RunExecutorRegistry executors = mock(
+            cn.edu.whu.zhizhida.common.execution.RunExecutorRegistry.class);
+    private final InterviewRunWorker worker = new InterviewRunWorker(
+            store,
+            mock(InterviewSessionRepository.class),
+            machine,
+            model,
+            evidence,
+            new JsonMapper(),
+            executors,
+            false,
+            new RunExecutionSlots(4),
+            new cn.edu.whu.zhizhida.observability.AgentTelemetry(
+                    io.micrometer.tracing.Tracer.NOOP),
+            sourceGuard,
+            memory,
+            mock(QuestionCatalog.class),
+            "database");
+    private final InterviewRunStore.Claim claim = new InterviewRunStore.Claim("run-id", 42, "subject-id", 3);
     private final Logger logger = (Logger) LoggerFactory.getLogger(InterviewRunWorker.class);
     private final Level previousLevel = logger.getLevel();
     private final ListAppender<ILoggingEvent> logs = new ListAppender<>();
@@ -88,13 +84,12 @@ class InterviewRunWorkerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(
-            strings = {
-                "MODEL_HTTP_503",
-                "RUN_FENCED",
-                "TOOL_ARGUMENTS",
-                "Bearer secret\nresume text"
-            })
+    @ValueSource(strings = {
+            "MODEL_HTTP_503",
+            "RUN_FENCED",
+            "TOOL_ARGUMENTS",
+            "Bearer secret\nresume text"
+    })
     void ordinaryExceptionWordingCannotForgeProtocolCodes(String message) {
         assertThat(InterviewRunWorker.failureCode(new IllegalStateException(message)))
                 .isEqualTo("RUN_EXECUTION_FAILED");
@@ -105,22 +100,22 @@ class InterviewRunWorkerTest {
     @Test
     void typedCodesAndRevocationsRemainStableRegardlessOfCauseWording() {
         assertThat(
-                        InterviewRunWorker.failureCode(
-                                new RunFailureException(
-                                        "RUN_BUDGET",
-                                        new RuntimeException("changed internal explanation"))))
+                InterviewRunWorker.failureCode(
+                        new RunFailureException(
+                                "RUN_BUDGET",
+                                new RuntimeException("changed internal explanation"))))
                 .isEqualTo("RUN_BUDGET");
         assertThat(InterviewRunWorker.failureCode(new MemoryRevokedException()))
                 .isEqualTo("RUN_MEMORY_REVOKED");
         assertThat(InterviewRunWorker.failureCode(new SourceRevokedException()))
                 .isEqualTo("RUN_SOURCE_REVOKED");
         assertThat(
-                        InterviewRunWorker.modelFailureCode(
-                                UpstreamServiceException.coded("MODEL_HTTP_503")))
+                InterviewRunWorker.modelFailureCode(
+                        UpstreamServiceException.coded("MODEL_HTTP_503")))
                 .isEqualTo("MODEL_HTTP_503");
         assertThat(
-                        InterviewRunWorker.modelFailureCode(
-                                new UpstreamServiceException("MODEL_HTTP_503")))
+                InterviewRunWorker.modelFailureCode(
+                        new UpstreamServiceException("MODEL_HTTP_503")))
                 .isEqualTo("MODEL_UNAVAILABLE");
         assertThat(InterviewRunWorker.modelFailureCode(new RunFailureException("RUN_FENCED")))
                 .isEqualTo("MODEL_UNAVAILABLE");
@@ -128,9 +123,8 @@ class InterviewRunWorkerTest {
 
     @Test
     void failedDispatchRecordsSafeCoordinatesWithoutMessageCauseOrSuppressedContent() {
-        var failure =
-                new IllegalStateException(
-                        "secret-answer", new RuntimeException("Bearer secret-token"));
+        var failure = new IllegalStateException(
+                "secret-answer", new RuntimeException("Bearer secret-token"));
         failure.addSuppressed(new RuntimeException("secret-resume"));
         failDispatch(failure);
 
@@ -182,7 +176,7 @@ class InterviewRunWorkerTest {
     void onlyRolledBackLockFailuresRetryTheSameCandidate() {
         var candidate = mock(cn.edu.whu.zhizhida.interview.api.InterviewSession.class);
         org.mockito.Mockito.doThrow(
-                        new org.springframework.dao.CannotAcquireLockException("private SQL"))
+                new org.springframework.dao.CannotAcquireLockException("private SQL"))
                 .doNothing()
                 .when(store)
                 .commit(claim, candidate, true);
@@ -202,11 +196,10 @@ class InterviewRunWorkerTest {
         doThrow(lock).when(store).commit(claim, candidate, true);
         assertThatThrownBy(() -> worker.commit(claim, candidate, true)).isSameAs(lock);
         verify(store, org.mockito.Mockito.times(3)).commit(claim, candidate, true);
-        for (var failure :
-                java.util.List.of(
-                        new RunFailureException("RUN_FENCED"),
-                        new org.springframework.dao.DataAccessResourceFailureException(
-                                "unknown commit"))) {
+        for (var failure : java.util.List.of(
+                new RunFailureException("RUN_FENCED"),
+                new org.springframework.dao.DataAccessResourceFailureException(
+                        "unknown commit"))) {
             org.mockito.Mockito.clearInvocations(store);
             doThrow(failure).when(store).commit(claim, candidate, true);
             assertThatThrownBy(() -> worker.commit(claim, candidate, true)).isSameAs(failure);
@@ -306,15 +299,14 @@ class InterviewRunWorkerTest {
     }
 
     private InterviewSession queuedOpening() {
-        var session =
-                new InterviewSession(
-                        "subject-id",
-                        "后端开发",
-                        null,
-                        "",
-                        InterviewState.CREATED,
-                        0,
-                        java.util.List.of());
+        var session = new InterviewSession(
+                "subject-id",
+                "后端开发",
+                null,
+                "",
+                InterviewState.CREATED,
+                0,
+                java.util.List.of());
         var json = new JsonMapper();
         var input = json.createObjectNode().set("session", json.valueToTree(session));
         var row = mock(InterviewRunStore.Row.class);
@@ -359,33 +351,33 @@ class InterviewRunWorkerTest {
         var executor = mock(RunExecutor.class);
         when(executors.require("GOAL")).thenReturn(executor);
         org.mockito.Mockito.doAnswer(
-                        inv -> {
-                            if (Thread.currentThread().isVirtual()) virtual.incrementAndGet();
-                            entered.countDown();
-                            if (!release.await(5, java.util.concurrent.TimeUnit.SECONDS))
-                                throw new IllegalStateException("timeout");
-                            return null;
-                        })
+                inv -> {
+                    if (Thread.currentThread().isVirtual())
+                        virtual.incrementAndGet();
+                    entered.countDown();
+                    if (!release.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                        throw new IllegalStateException("timeout");
+                    return null;
+                })
                 .when(executor)
                 .execute(any(), anyString(), anyString(), anyString());
         when(store.candidates()).thenReturn(rows);
-        var scanning =
-                new InterviewRunWorker(
-                        store,
-                        mock(InterviewSessionRepository.class),
-                        mock(InterviewStateMachine.class),
-                        mock(InterviewRunModel.class),
-                        mock(InterviewEvidenceTools.class),
-                        new JsonMapper(),
-                        executors,
-                        true,
-                        slots,
-                        new cn.edu.whu.zhizhida.observability.AgentTelemetry(
-                                io.micrometer.tracing.Tracer.NOOP),
-                        mock(InterviewSourceGuard.class),
-                        mock(PracticeMemoryAccess.class),
-                        mock(QuestionCatalog.class),
-                        "database");
+        var scanning = new InterviewRunWorker(
+                store,
+                mock(InterviewSessionRepository.class),
+                mock(InterviewStateMachine.class),
+                mock(InterviewRunModel.class),
+                mock(InterviewEvidenceTools.class),
+                new JsonMapper(),
+                executors,
+                true,
+                slots,
+                new cn.edu.whu.zhizhida.observability.AgentTelemetry(
+                        io.micrometer.tracing.Tracer.NOOP),
+                mock(InterviewSourceGuard.class),
+                mock(PracticeMemoryAccess.class),
+                mock(QuestionCatalog.class),
+                "database");
         try {
             scanning.scan();
             assertThat(entered.await(5, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
@@ -461,8 +453,8 @@ class InterviewRunWorkerTest {
     }
 
     @Test
-    void rabbitDeliveryLeavesScanningAndExpiryToRecovery() {
-        var scanning = enabledWorker("rabbitmq");
+    void rocketDeliveryLeavesScanningAndExpiryToRecovery() {
+        var scanning = enabledWorker("rocketmq");
         try {
             scanning.scan();
             scanning.expireWaiting();

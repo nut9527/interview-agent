@@ -1,6 +1,6 @@
 # 本地参考资料 RAG 测试集
 
-来源：`D:\学习\实习` 中的 JavaGuide、小林 coding 图解和技术书籍。共 27 份原文、约 24.5 万字符、103 道题（开发 51、验证 52）。原有 `knowledge-retrieval.json` 保持独立。
+来源：`D:\学习\实习` 中的 JavaGuide、小林 coding 图解和技术书籍。共 25 份原文、约 22.9 万字符、91 道题（开发 51、验证 40）。原有 `knowledge-retrieval.json` 保持独立。
 
 ## 资料性质与来源
 
@@ -10,9 +10,9 @@ JavaGuide 文件原样复制；PDF 按章节提取文字，统一 Unicode 排版
 
 | 目录 | 内容 | 问题标注 |
 | --- | --- | --- |
-| [javaguide](../../../main/resources/reference-library/javaguide/) | 15 篇 Java 后端、RAG、Agent、MCP 原文 | [55 题](javaguide/cases.json) |
+| [javaguide](../../../main/resources/reference-library/javaguide/) | 14 篇 Java 后端、RAG、Agent、MCP 原文 | [50 题](javaguide/cases.json) |
 | [xiaolin](../../../main/resources/reference-library/xiaolin/) | 8 份图解 MySQL、Redis、网络、系统章节 | [32 题](xiaolin/cases.json) |
-| [books](../../../main/resources/reference-library/books/) | 4 份《Spring 实战》第 5 版章节 | [16 题](books/cases.json) |
+| [books](../../../main/resources/reference-library/books/) | 3 份《Spring 实战》第 5 版章节 | [9 题](books/cases.json) |
 
 其余四本经典书籍因扫描页或 OCR 错字较多，本批未选。
 
@@ -24,7 +24,7 @@ JavaGuide 文件原样复制；PDF 按章节提取文字，统一 Unicode 排版
 
 问题和答案文件不入知识库。development 用于调试，validation 用于验证；同一 PDF 的章节在同一分区。
 
-每题 `scope` 最多选择 5 份资料，与生产向量接口一致。原先 55 道超限题已保留全部证据来源，优先补入同主题干扰资料，再按原顺序补满；变更前后范围见 [scope-adjustments.json](scope-adjustments.json)。问题、答案、引文与原文未改。旧范围的词项分数不能直接作为修正后混合检索的对照。
+每题 `scope` 最多选择 5 份资料，与生产向量接口一致。原先 55 道超限题已保留全部证据来源，优先补入同主题干扰资料，再按原顺序补满；变更前后范围见 [scope-adjustments.json](scope-adjustments.json)。旧范围的词项分数不能直接作为修正后混合检索的对照。
 
 ## 校验与检索评测
 
@@ -59,11 +59,11 @@ mvn -o -B -ntp "-Dtest=KnowledgeHybridRetrievalEvaluationTest" "-Dknowledge.eval
 
 三轮性能对照在项目根目录运行 `node scripts/evaluate-reference-retrieval.mjs`。脚本使用独立构建目录与本机 BGE，输出带运行编号的 `docs/evidence/reference-retrieval-bge-<runId>.json`，保留每题范围、三轮延迟、分区质量指标以及语料和配置指纹。
 
-Top-30 与全库诊断运行 `node scripts/evaluate-reference-retrieval.mjs --diagnostics`。同一批 103 题分别检索原范围和全部 27 份资料，输出两路 Top-30、RRF Top-30、最终 Top-6、章节与引文排名及分块正文。全库只用于内存实验，应用接口仍最多选择 5 份资料；结果见 [诊断报告](../../../../../docs/evidence/retrieval-candidate-diagnostics.md)。
+Top-30 与全库诊断运行 `node scripts/evaluate-reference-retrieval.mjs --diagnostics`。同一批 91 题分别检索原范围和全部 25 份资料，输出两路 Top-30、RRF Top-30、最终 Top-6、章节与引文排名及分块正文。全库只用于内存实验，应用接口仍最多选择 5 份资料；结果见 [诊断报告](../../../../../docs/evidence/retrieval-candidate-diagnostics.md)。
 
 新旧分块对照运行 `node scripts/evaluate-reference-retrieval.mjs --chunking`，比较原范围、全库下的词项与混合检索，每题预热后计时 3 次。[baseline/KnowledgeText.java](baseline/KnowledgeText.java) 冻结调整前的生产分块代码，脚本核对其指纹后在隔离目录分别编译新旧版本；语料和问题保持不变。结果见 [分块对照](../../../../../docs/evidence/chunking-comparison.md)。
 
-[full-library-answerability.json](full-library-answerability.json) 记录 13 道资料不足题的全库复核理由和 27 份正文指纹，原有问题及证据标注保持不变。
+[full-library-answerability.json](full-library-answerability.json) 记录 11 道资料不足题的全库复核理由和 25 份正文指纹，原有问题及证据标注保持不变。
 
 固定候选的 cross-encoder 对照使用 `scripts/evaluate-reference-reranker.py`，原文相邻块审计使用 `node scripts/audit-reference-recall-gaps.mjs`。模型准备、依赖版本、对照路线和复跑步骤见 [重排实验](../../../../../docs/evidence/reranker-experiment.md)。
 

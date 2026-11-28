@@ -44,12 +44,16 @@ function VersionHistoryDrawer({
   onRestored,
   onConflict,
 }: VersionHistoryDrawerProps) {
-  const { versions, versionTotal, fetchVersions, restoreVersion, compareResult, compareVersions } =
-    useResumeStore();
+  const { versions, versionTotal, fetchVersions, restoreVersion, compareResult, compareVersions } = useResumeStore();
 
   const mounted = useRef(false);
   const restoreLock = useRef(false);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -57,7 +61,9 @@ function VersionHistoryDrawer({
   const [selectedVersions, setSelectedVersions] = useState<ResumeVersionSummary[]>([]);
   const [comparing, setComparing] = useState(false);
 
-  useEffect(() => { setPage(1); }, [resumeId]);
+  useEffect(() => {
+    setPage(1);
+  }, [resumeId]);
 
   useEffect(() => {
     if (open && resumeId) {
@@ -82,9 +88,7 @@ function VersionHistoryDrawer({
   // 按版本号排列左右两侧，避免新旧方向随勾选顺序变化。
   useEffect(() => {
     if (selectedVersions.length === 2 && viewMode === 'compare') {
-      const [v1, v2] = [...selectedVersions].sort(
-        (a, b) => a.versionNumber - b.versionNumber,
-      );
+      const [v1, v2] = [...selectedVersions].sort((a, b) => a.versionNumber - b.versionNumber);
       setComparing(true);
       compareVersions({
         left: { resumeId, versionId: v1.id },
@@ -159,9 +163,7 @@ function VersionHistoryDrawer({
   };
 
   // 当前保存内容使用虚拟版本项，没有可用于恢复的历史版本 id。
-  const isCurrentVersion = (v: ResumeVersionSummary): boolean =>
-    v.changeType === 'CURRENT' || v.id === null;
-
+  const isCurrentVersion = (v: ResumeVersionSummary): boolean => v.changeType === 'CURRENT' || v.id === null;
 
   const renderCompareList = () => {
     const hint = getSelectionHint();
@@ -289,7 +291,6 @@ function VersionHistoryDrawer({
     );
   };
 
-
   const renderContent = () => {
     if (viewMode === 'compare' && compareResult) {
       return <VersionCompareView comparison={compareResult} onBack={handleBackToTimeline} />;
@@ -305,34 +306,27 @@ function VersionHistoryDrawer({
           </div>
         )}
 
-        {viewMode === 'compare'
-          ? renderCompareList()
-          : versions.length === 0 && !loading
-            ? (
-              <div
-                style={{
-                  textAlign: 'center',
-                  padding: '40px 0',
-                  color: '#999',
-                  fontSize: 14,
-                }}
-              >
-                暂无版本历史
-              </div>
-            )
-            : (
-              <Timeline style={{ paddingTop: 8 }}>
-                {versions.map(renderTimelineItem)}
-              </Timeline>
-            )}
+        {viewMode === 'compare' ? (
+          renderCompareList()
+        ) : versions.length === 0 && !loading ? (
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '40px 0',
+              color: '#999',
+              fontSize: 14,
+            }}
+          >
+            暂无版本历史
+          </div>
+        ) : (
+          <Timeline style={{ paddingTop: 8 }}>{versions.map(renderTimelineItem)}</Timeline>
+        )}
       </Spin>
     );
   };
 
-  const drawerTitle =
-    viewMode === 'compare' && compareResult
-      ? `版本对比 - ${resumeName}`
-      : `版本历史 - ${resumeName}`;
+  const drawerTitle = viewMode === 'compare' && compareResult ? `版本对比 - ${resumeName}` : `版本历史 - ${resumeName}`;
 
   const drawerWidth = viewMode === 'compare' && compareResult ? 960 : 420;
 
@@ -340,12 +334,14 @@ function VersionHistoryDrawer({
     <Drawer
       title={drawerTitle}
       open={open}
-      onClose={() => { if (!restoreLock.current) onClose(); }}
+      onClose={() => {
+        if (!restoreLock.current) onClose();
+      }}
       closable={!restoring}
       maskClosable={!restoring}
       keyboard={!restoring}
       width={drawerWidth}
-      destroyOnClose
+      destroyOnHidden
     >
       {renderContent()}
       <Pagination current={page} pageSize={20} total={versionTotal} showSizeChanger={false} onChange={setPage} />

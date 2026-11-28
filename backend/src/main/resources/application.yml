@@ -36,8 +36,6 @@ management:
   health:
     redis:
       enabled: ${REDIS_HEALTH_ENABLED:false}
-    rabbit:
-      enabled: ${RABBITMQ_HEALTH_ENABLED:false}
   api-token: ${METRICS_TOKEN:}
   endpoints:
     web:
@@ -71,23 +69,6 @@ spring:
       timeout: 300ms
       repositories:
         enabled: false
-  rabbitmq:
-    host: ${RABBITMQ_HOST:127.0.0.1}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:zhizhida}
-    password: ${RABBITMQ_PASSWORD:zhizhida-local}
-    virtual-host: ${RABBITMQ_VHOST:/zhizhida-lab}
-    connection-timeout: 2s
-    publisher-confirm-type: correlated
-    publisher-returns: true
-    template:
-      mandatory: true
-    listener:
-      simple:
-        acknowledge-mode: manual
-        prefetch: 1
-        concurrency: 2
-        max-concurrency: 2
   application:
     name: zhizhida-backend
 
@@ -254,6 +235,14 @@ app:
   run-dispatch:
     mode: ${RUN_DISPATCH_MODE:database}
     concurrency: ${RUN_DISPATCH_CONCURRENCY:2}
+  rocketmq:
+    endpoints: ${ROCKETMQ_ENDPOINTS:127.0.0.1:8081}
+    # 同一部署的 API、Worker 和资源初始化程序共用此前缀，确保 Topic 和消费组名称一致。
+    resource-prefix: ${ROCKETMQ_RESOURCE_PREFIX:zhizhida}
+    receive-wait-ms: ${ROCKETMQ_RECEIVE_WAIT_MS:200}
+    access-key: ${ROCKETMQ_ACCESS_KEY:}
+    secret-key: ${ROCKETMQ_SECRET_KEY:}
+    tls: ${ROCKETMQ_TLS_ENABLED:false}
   outbox:
     publisher:
       enabled: ${RUN_OUTBOX_PUBLISHER_ENABLED:true}
@@ -266,7 +255,6 @@ app:
 knowledge:
   dispatch:
     mode: ${KNOWLEDGE_DISPATCH_MODE:local}
-    namespace: ${KNOWLEDGE_DISPATCH_NAMESPACE:zhizhida.knowledge}
   import:
     shared-directory: ${KNOWLEDGE_IMPORT_SHARED_DIRECTORY:${user.dir}/tmp/knowledge-shared}
     concurrency: ${KNOWLEDGE_IMPORT_CONCURRENCY:2}

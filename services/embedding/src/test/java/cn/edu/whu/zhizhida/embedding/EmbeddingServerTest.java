@@ -43,7 +43,7 @@ class EmbeddingServerTest {
                 assertEquals(400, post(service, body).statusCode());
             assertEquals(413, post(service, "x".repeat(128 * 1024 + 1)).statusCode());
             var health = http.send(HttpRequest.newBuilder(uri(service, "/health")).GET().build(), HttpResponse.BodyHandlers.ofString());
-            assertEquals(EmbeddingServer.SERVICE, json.readTree(health.body()).path("service").asText());
+            assertEquals(EmbeddingServer.SERVICE, json.readTree(health.body()).path("service").asString());
             var browser = http.send(HttpRequest.newBuilder(uri(service, "/health")).header("Origin", "https://example.com").GET().build(), HttpResponse.BodyHandlers.ofString());
             assertEquals(403, browser.statusCode());
         }

@@ -59,20 +59,11 @@ function PasswordModal({ open, onClose, onChanged }: PasswordModalProps) {
       confirmLoading={submitting}
       onOk={handleSubmit}
       onCancel={onClose}
-      destroyOnClose
+      destroyOnHidden
     >
-      <Alert
-        type="info"
-        showIcon
-        message="修改成功后，所有已登录设备都会退出。"
-        style={{ marginBottom: 20 }}
-      />
+      <Alert type="info" showIcon message="修改成功后，所有已登录设备都会退出。" style={{ marginBottom: 20 }} />
       <Form form={form} layout="vertical" requiredMark={false}>
-        <Form.Item
-          name="currentPassword"
-          label="当前密码"
-          rules={[{ required: true, message: '请输入当前密码' }]}
-        >
+        <Form.Item name="currentPassword" label="当前密码" rules={[{ required: true, message: '请输入当前密码' }]}>
           <Input.Password prefix={<LockOutlined />} autoComplete="current-password" />
         </Form.Item>
         <Form.Item
@@ -88,12 +79,7 @@ function PasswordModal({ open, onClose, onChanged }: PasswordModalProps) {
         </Form.Item>
         {newPassword && (
           <div style={{ margin: '-8px 0 16px' }}>
-            <Progress
-              percent={strength}
-              showInfo={false}
-              size="small"
-              strokeColor="var(--amber)"
-            />
+            <Progress percent={strength} showInfo={false} size="small" strokeColor="var(--amber)" />
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               建议使用 12 位以上，并混合字母、数字和符号
             </Typography.Text>

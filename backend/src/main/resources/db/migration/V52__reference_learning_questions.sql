@@ -115,31 +115,11 @@ INSERT INTO question_bank (id,title,question,topic,competency_id,difficulty,tags
  '书中的 /threaddump 返回应用所有线程的报告；/metrics 返回所有指标分类的列表；/metrics/{name} 返回指定指标的多维度值集。需要查看线程状态与执行情况时关注线程报告，需要查看指标名称和具体指标值时使用对应的 metrics 端点。',
  JSON_ARRAY('认为 metrics 列表就是所有线程的调用栈','混淆指标分类列表与某个指标的具体值'),JSON_ARRAY('哪个端点列出指标分类？','哪个端点提供应用线程报告？'),
  'EXTERNAL_REFERENCE','《Spring 实战》第 5 版，16.1 Actuator 概览，PDF 第 620 页','https://www.manning.com/books/spring-in-action-fifth-edition'),
-('qb-ref-reliability-001','死信交换机与死信队列','RabbitMQ 中，死信交换机和死信队列是什么关系？哪些情况会使消息成为死信？','RELIABILITY','reliability','BEGINNER',
- JSON_ARRAY('RabbitMQ','DLX','死信队列'),JSON_ARRAY('死信重新发送到死信交换机','队列绑定死信交换机接收消息','拒绝且不重入队、过期或队列超长可产生死信'),
- '消息成为死信后，可以被重新发送到配置的死信交换机 DLX，再路由到与它绑定的队列，该队列就是死信队列。原文列出的原因包括消息被拒绝且不重新入队、消息过期，以及队列达到长度限制。DLX 仍然是交换机，不能与承载消息的队列混同。',
- JSON_ARRAY('把死信交换机当成一种队列','认为所有拒绝消息都会成为死信而忽略重新入队选项'),JSON_ARRAY('死信最终在哪种组件中等待消费？','拒绝消息时哪个选项决定是否重新入队？'),
- 'EXTERNAL_REFERENCE','JavaGuide《RabbitMQ 常见面试题》：什么是死信队列？如何导致的？','https://javaguide.cn/high-performance/message-queue/rabbitmq-questions.html'),
-('qb-ref-reliability-002','Publisher Confirm 与消息路由','RabbitMQ 的 Publisher Confirm 收到 basic.ack，能否单独证明消息成功路由到目标队列？','RELIABILITY','reliability','STANDARD',
- JSON_ARRAY('RabbitMQ','Publisher Confirm','消息路由'),JSON_ARRAY('发布确认关注 broker 的接收处理','确认不等于目标队列成功路由','不可路由消息需关注 return 或备用交换机'),
- '不能。Publisher Confirm 的确认与消息是否成功路由到目标队列是不同环节；不可路由的消息也可能获得发布确认。需要结合 mandatory 对应的 return 处理，或配置备用交换机来处理不可路由消息，不能只凭 basic.ack 判断目标队列已收到。',
- JSON_ARRAY('把发布确认当成消费者处理成功','把 basic.ack 当成必然路由到目标队列的证明'),JSON_ARRAY('mandatory 对不可路由消息有什么作用？','发布确认与消费确认分别面向哪一段链路？'),
- 'EXTERNAL_REFERENCE','JavaGuide《RabbitMQ 常见面试题》：如何保证消息的可靠性？','https://javaguide.cn/high-performance/message-queue/rabbitmq-questions.html'),
 ('qb-ref-reliability-003','去重记录与业务操作的事务边界','用数据库去重表实现幂等时，为什么去重记录写入和业务操作应该处于同一事务？','RELIABILITY','reliability','ADVANCED',
  JSON_ARRAY('幂等','去重表','数据库事务'),JSON_ARRAY('唯一约束拦截重复请求','去重写入和业务操作共同提交','业务失败时去重记录一起回滚'),
  '去重表通过请求标识及唯一约束识别重复操作。去重记录与业务操作应在同一事务中提交，使“已记录”对应“业务已完成”。业务失败时二者一起回滚，后续请求仍可重试；如果只提交去重记录，失败的业务可能被错误判断为已经处理。',
  JSON_ARRAY('先独立提交去重记录再执行业务','把去重表插入成功等同于业务已经成功'),JSON_ARRAY('业务回滚时去重记录应发生什么？','去重表依靠什么约束处理重复插入？'),
- 'EXTERNAL_REFERENCE','JavaGuide《接口幂等性》：去重表','https://javaguide.cn/high-availability/idempotency.html'),
-('qb-ref-reliability-004','AMQP 消息怎样到达队列','《Spring 实战》第 5 版中，AMQP 消息如何通过 Exchange、binding 和 routing key 到达队列？','RELIABILITY','reliability','BEGINNER',
- JSON_ARRAY('RabbitMQ','AMQP','消息路由'),JSON_ARRAY('消息发送至 Exchange','路由由交换机类型、绑定和路由键决定','消费者从队列消费消息'),
- 'AMQP 消息先发送到指定的 Exchange，Exchange 根据自身类型、与队列之间的 binding，以及消息的 routing key，将消息路由到一个或多个队列。消费者从队列消费消息。发送目标与消费队列因此通过交换机路由关系连接。',
- JSON_ARRAY('认为消费者直接从 Exchange 取出消息','认为 routing key 单独决定所有交换机的路由行为'),JSON_ARRAY('决定路由结果的三个因素是什么？','消息最终在哪个组件中被消费？'),
- 'EXTERNAL_REFERENCE','《Spring 实战》第 5 版，8.2 使用 RabbitMQ 和 AMQP，PDF 第 331–332 页','https://www.manning.com/books/spring-in-action-fifth-edition'),
-('qb-ref-reliability-005','Direct、Topic 与 Fanout 路由规则','《Spring 实战》第 5 版如何区分 Direct、Topic 与 Fanout Exchange 的路由规则？','RELIABILITY','reliability','BEGINNER',
- JSON_ARRAY('RabbitMQ','Exchange','Fanout'),JSON_ARRAY('Direct 按键精确匹配','Topic 支持绑定键通配匹配','Fanout 路由到全部绑定队列'),
- 'Direct 将消息路由到 binding key 与 routing key 相同的队列。Topic 根据 routing key 与允许通配符的 binding key 进行匹配，可路由到多个队列。Fanout 不依赖两种键的内容，将消息发送到所有绑定队列。',
- JSON_ARRAY('认为 Fanout 仍需路由键精确匹配','认为 Topic 与 Direct 都只支持精确匹配'),JSON_ARRAY('哪种类型适合向所有绑定队列广播？','哪种类型支持绑定键通配匹配？'),
- 'EXTERNAL_REFERENCE','《Spring 实战》第 5 版，8.2 使用 RabbitMQ 和 AMQP，PDF 第 331 页','https://www.manning.com/books/spring-in-action-fifth-edition');
+ 'EXTERNAL_REFERENCE','JavaGuide《接口幂等性》：去重表','https://javaguide.cn/high-availability/idempotency.html');
 
 INSERT INTO question_bank_versions (question_id,version,content_json,change_note)
 SELECT id,version,JSON_OBJECT(

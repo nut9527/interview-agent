@@ -39,7 +39,7 @@
       "plannerV4": false,
       "history": false,
       "redis": false,
-      "rabbitmq": false,
+      "rocketmq": false,
       "vector": false,
       "mcp": false
     },

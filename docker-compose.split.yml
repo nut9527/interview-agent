@@ -1,4 +1,4 @@
-# Combine after docker-compose.yml; the older middleware override also remains compatible.
+# 分进程部署时，将本文件放在基础 Compose 配置及可选的中间件配置之后。
 services:
   backend:
     environment:
@@ -13,6 +13,7 @@ services:
     extends:
       file: docker-compose.yml
       service: backend
+    # 清除继承的固定容器名和宿主机端口，以便启动多个 Worker 副本。
     container_name: !reset null
     ports: !reset []
     volumes:
@@ -24,8 +25,8 @@ services:
         condition: service_healthy
       redis-cache:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      mqinit:
+        condition: service_completed_successfully
       embedding:
         condition: service_healthy
       pgvector:
@@ -34,12 +35,12 @@ services:
       SPRING_PROFILES_ACTIVE: worker
       QUESTION_CACHE_ENABLED: "true"
       REDIS_RATE_LIMIT_ENABLED: "false"
-      RUN_DISPATCH_MODE: rabbitmq
+      RUN_DISPATCH_MODE: rocketmq
       RUN_OUTBOX_PUBLISHER_ENABLED: "false"
       RUN_RECOVERY_ENABLED: "true"
       INTERVIEW_RUNS_WORKER_ENABLED: "true"
       AGENT_VECTOR_WORKER_ENABLED: "true"
-      KNOWLEDGE_DISPATCH_MODE: rabbitmq
+      KNOWLEDGE_DISPATCH_MODE: rocketmq
       KNOWLEDGE_IMPORT_SHARED_DIRECTORY: /app/data/knowledge-imports
       KNOWLEDGE_IMPORT_WORKER_ENABLED: "true"
       KNOWLEDGE_DISPATCH_PUBLISHER_ENABLED: "false"
